@@ -1213,6 +1213,17 @@ button {
     z-index: 20;
 }
 
+.promotion-selector-fit-top {
+    top: 6px;
+    transform: none;
+}
+
+.promotion-selector-fit-bottom {
+    bottom: 6px;
+    top: auto;
+    transform: none;
+}
+
 .promotion-selector-left {
     left: auto;
     right: calc(100% + 8px);

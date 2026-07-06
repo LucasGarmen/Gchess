@@ -4451,6 +4451,30 @@ document.addEventListener('gchess:before-language-change', function () {
     saveComputerGameState();
 });
 
+function fitPromotionSelectorInsideBoard(selector) {
+    selector.classList.remove('promotion-selector-fit-top', 'promotion-selector-fit-bottom');
+
+    const boardRect = board.getBoundingClientRect();
+    const boardInset = 6;
+    let selectorRect = selector.getBoundingClientRect();
+
+    if (selectorRect.right > boardRect.right - boardInset) {
+        selector.classList.add('promotion-selector-left');
+        selectorRect = selector.getBoundingClientRect();
+    } else if (selectorRect.left < boardRect.left + boardInset) {
+        selector.classList.remove('promotion-selector-left');
+        selectorRect = selector.getBoundingClientRect();
+    }
+
+    if (selectorRect.top < boardRect.top + boardInset) {
+        selector.classList.add('promotion-selector-fit-top');
+        return;
+    }
+
+    if (selectorRect.bottom > boardRect.bottom - boardInset) {
+        selector.classList.add('promotion-selector-fit-bottom');
+    }
+}
 
 function updatePgnBox() {
     const moves = Array.from(moveList.children)
@@ -4509,6 +4533,7 @@ function choosePromotionPiece(square, color) {
         });
 
         square.appendChild(selector);
+        fitPromotionSelectorInsideBoard(selector);
     });
 }
 
