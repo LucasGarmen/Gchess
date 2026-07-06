@@ -61,6 +61,8 @@
                     <button id="analysis-prev" class="icon-button analysis-nav-button" type="button" title="{% tr "previous" %}" aria-label="{% tr "previous" %}" hidden>&lt;</button>
                     <button id="analysis-next" class="icon-button analysis-nav-button" type="button" title="{% tr "next" %}" aria-label="{% tr "next" %}" hidden>&gt;</button>
                     <p id="game-status" class="game-status" hidden></p>
+                    <button id="prev-move" class="icon-button" type="button" title="{% tr "previous" %}" aria-label="{% tr "previous" %}">&lt;</button>
+                    <button id="next-move" class="icon-button" type="button" title="{% tr "next" %}" aria-label="{% tr "next" %}">&gt;</button>
                     <button id="toggle-analysis-mode" class="analysis-mode-button" type="button">{% tr "analysis_mode" %}</button>
                     <button id="flip-board" class="icon-button" type="button" title="{% tr "flip_board" %}" aria-label="{% tr "flip_board" %}">↻</button>
                 </div>
@@ -127,8 +129,6 @@
 
             <p id="turn-indicator">{% tr "turn_white" %}</p>
             <div class="history-controls">
-                <button id="prev-move">{% tr "previous" %}</button>
-                <button id="next-move">{% tr "next" %}</button>
                 <button id="last-move">{% tr "last_position" %}</button>
             </div>
 
