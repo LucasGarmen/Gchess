@@ -10,7 +10,8 @@ from django.test import Client, SimpleTestCase, TestCase
 from django.urls import reverse
 
 from .models import ChessGame, DailyVisit, GameInvitation, Move
-from .views import build_automatic_move_context, build_pgn_from_saved_game, evaluate_board_outcome, generate_comment, read_analyzer_game, read_internal_coordinate_game
+from .puzzles import PRACTICE_PUZZLES
+from .views import build_automatic_move_context, build_pgn_from_saved_game, evaluate_board_outcome, generate_comment, practice_move_from_notation, practice_move_satisfies_goal, read_analyzer_game, read_internal_coordinate_game
 
 
 class AnalyzerPgnParsingTests(SimpleTestCase):
@@ -93,6 +94,152 @@ class DrawOutcomeTests(SimpleTestCase):
             board.push(chess.Move.from_uci(move))
 
         self.assertEqual(evaluate_board_outcome(board)["reason"], "threefold_repetition")
+
+
+class PracticePuzzleTests(TestCase):
+    def test_puzzle_bank_has_required_counts_and_valid_objectives(self):
+        counts = {"easy": 0, "medium": 0, "hard": 0}
+
+        for puzzle in PRACTICE_PUZZLES:
+            counts[puzzle["level"]] += 1
+            board = chess.Board(puzzle["fen"])
+            attacker = board.turn
+
+            self.assertTrue(board.is_valid(), puzzle["id"])
+            self.assertEqual("white" if board.turn == chess.WHITE else "black", puzzle["turn"])
+            self.assertIsInstance(puzzle["solutions"], list)
+            self.assertGreaterEqual(len(puzzle["solutions"]), 1, puzzle["id"])
+
+            immediate_mates = []
+            for move in board.legal_moves:
+                next_board = board.copy()
+                next_board.push(move)
+                if next_board.is_checkmate():
+                    immediate_mates.append(move.uci())
+
+            if puzzle["mate_in"] > 1:
+                self.assertEqual(immediate_mates, [], puzzle["id"])
+
+            objective_moves = []
+            for move in board.legal_moves:
+                next_board = board.copy()
+                next_board.push(move)
+                if practice_move_satisfies_goal(next_board, attacker, puzzle["mate_in"] - 1):
+                    objective_moves.append(move.uci())
+
+            self.assertGreaterEqual(len(objective_moves), 1, puzzle["id"])
+
+            for line in puzzle["solutions"]:
+                line_board = chess.Board(puzzle["fen"])
+
+                for notation in line:
+                    move = practice_move_from_notation(line_board, notation)
+                    self.assertIn(move, line_board.legal_moves, puzzle["id"])
+                    line_board.push(move)
+
+                self.assertTrue(line_board.is_checkmate(), puzzle["id"])
+
+        self.assertEqual(counts["easy"], 4)
+        self.assertEqual(counts["medium"], 3)
+        self.assertEqual(counts["hard"], 3)
+
+    def test_practice_page_uses_dedicated_script_without_game_board_js(self):
+        response = self.client.get(reverse("practice"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'id="practice-board"')
+        self.assertContains(response, 'id="practice-puzzles-data"')
+        self.assertContains(response, 'data-practice-level="easy"')
+        self.assertContains(response, 'games/practice.js')
+        self.assertContains(response, 'PRACTICE_LEGAL_MOVES_URL')
+        self.assertNotContains(response, 'games/board.js')
+
+    def test_practice_legal_moves_returns_targets_for_selected_piece(self):
+        response = self.client.post(
+            reverse("practice_legal_moves"),
+            data=json.dumps({
+                "puzzle_id": "easy-double-queen",
+                "played_line": [],
+                "from": "g2",
+            }),
+            content_type="application/json",
+        )
+
+        data = response.json()
+        targets = {move["to"] for move in data["moves"]}
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("d2", targets)
+        self.assertIn("f1", targets)
+
+    def test_mate_in_one_accepts_any_mating_move(self):
+        response = self.client.post(
+            reverse("practice_move"),
+            data=json.dumps({
+                "puzzle_id": "easy-double-queen",
+                "played_line": [],
+                "move": "g2f1",
+            }),
+            content_type="application/json",
+        )
+
+        data = response.json()
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(data["correct"])
+        self.assertTrue(data["solved"])
+        self.assertEqual(data["played_line"], ["g2f1"])
+        self.assertTrue(data["checkmate"])
+
+    def test_correct_practice_move_advances_and_autoplays_reply(self):
+        first_response = self.client.post(
+            reverse("practice_move"),
+            data=json.dumps({
+                "puzzle_id": "medium-corner-queen",
+                "played_line": [],
+                "move": "h4g3",
+            }),
+            content_type="application/json",
+        )
+
+        first_data = first_response.json()
+        self.assertEqual(first_response.status_code, 200)
+        self.assertTrue(first_data["correct"])
+        self.assertFalse(first_data["solved"])
+        self.assertEqual(first_data["played_line"], ["h4g3", "g1h1"])
+        self.assertEqual(first_data["auto_moves"][0]["uci"], "g1h1")
+
+        final_response = self.client.post(
+            reverse("practice_move"),
+            data=json.dumps({
+                "puzzle_id": "medium-corner-queen",
+                "played_line": first_data["played_line"],
+                "move": "f4f1",
+            }),
+            content_type="application/json",
+        )
+
+        final_data = final_response.json()
+        self.assertEqual(final_response.status_code, 200)
+        self.assertTrue(final_data["correct"])
+        self.assertTrue(final_data["solved"])
+        self.assertTrue(final_data["checkmate"])
+
+    def test_wrong_practice_move_does_not_advance(self):
+        response = self.client.post(
+            reverse("practice_move"),
+            data=json.dumps({
+                "puzzle_id": "medium-corner-queen",
+                "played_line": [],
+                "move": "f4a4",
+            }),
+            content_type="application/json",
+        )
+
+        data = response.json()
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(data["correct"])
+        self.assertEqual(data["played_line"], [])
+        self.assertEqual(data["fen"], "8/8/8/8/5Q1K/8/8/6k1 w - - 0 1")
 
 
 def fake_engine_analysis(cp=None, pv=None, mate=None):

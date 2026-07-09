@@ -17,7 +17,7 @@ import random
 import re
 import shutil
 import uuid
-from functools import wraps
+from functools import lru_cache, wraps
 from io import StringIO
 from pathlib import Path
 from django.http import JsonResponse
@@ -29,6 +29,7 @@ from .engine_analysis import build_trainer_engine_context
 from .gemini_service import generate_gemini_explanation
 from .i18n import current_language, normalize_language, t
 from .models import ChessGame, GameChatMessage, GameChatRead, GameInvitation, Move, UserPresence
+from .puzzles import PRACTICE_LEVELS, get_practice_puzzle, public_practice_puzzles
 from .prompts import build_trainer_chat_prompt
 from .realtime import broadcast_move_created
 
@@ -497,6 +498,329 @@ LOW_ELO_WEAKNESS = {
 def home(request):
     touch_presence(request.user)
     return render(request, 'games/home.html')
+
+
+@ensure_csrf_cookie
+def practice(request):
+    touch_presence(request.user)
+    return render(request, 'games/practice.html', {
+        'practice_levels': PRACTICE_LEVELS,
+        'practice_puzzles': public_practice_puzzles(),
+    })
+
+
+def color_name_from_turn(turn):
+    return 'white' if turn == chess.WHITE else 'black'
+
+
+def practice_move_from_notation(board, notation):
+    notation = (notation or '').strip()
+
+    try:
+        move = chess.Move.from_uci(notation.lower())
+        if move in board.legal_moves:
+            return move
+    except ValueError:
+        pass
+
+    return board.parse_san(notation)
+
+
+def practice_solution_lines(puzzle):
+    if 'solutions' in puzzle:
+        return puzzle['solutions']
+
+    if 'solution' in puzzle:
+        return [puzzle['solution']]
+
+    return []
+
+
+def canonical_practice_solution(puzzle, line):
+    board = chess.Board(puzzle['fen'])
+    canonical_line = []
+
+    for notation in line:
+        move = practice_move_from_notation(board, notation)
+        canonical_line.append(move.uci())
+        board.push(move)
+
+    return canonical_line
+
+
+def compatible_practice_lines(puzzle, played_line):
+    compatible_lines = []
+
+    for line in practice_solution_lines(puzzle):
+        canonical_line = canonical_practice_solution(puzzle, line)
+
+        if canonical_line[:len(played_line)] == played_line:
+            compatible_lines.append(canonical_line)
+
+    return compatible_lines
+
+
+def practice_board_from_line(puzzle, played_line):
+    if not isinstance(played_line, list):
+        raise ValueError('Linha do puzzle invalida.')
+
+    max_plies = puzzle['mate_in'] * 2 - 1
+    if len(played_line) > max_plies:
+        raise ValueError('Linha do puzzle muito longa.')
+
+    board = chess.Board(puzzle['fen'])
+    attacker = board.turn
+    attacker_moves_played = 0
+    canonical_line = []
+
+    # Rebuild from the original FEN so the client cannot fake arbitrary pieces.
+    for notation in played_line:
+        if not isinstance(notation, str):
+            raise ValueError('Linha do puzzle invalida.')
+
+        moving_color = board.turn
+        move = practice_move_from_notation(board, notation)
+        canonical_line.append(move.uci())
+
+        if moving_color == attacker:
+            attacker_moves_played += 1
+
+        board.push(move)
+
+    return board, canonical_line, attacker, attacker_moves_played
+
+
+def parse_practice_attempt(board, notation):
+    try:
+        return practice_move_from_notation(board, notation)
+    except ValueError:
+        return None
+
+
+def board_after_practice_move(board, move):
+    next_board = board.copy()
+    next_board.push(move)
+    return next_board
+
+
+def has_forced_mate(board, attacker, attacker_moves_left):
+    @lru_cache(maxsize=50000)
+    def search(fen, moves_left):
+        current_board = chess.Board(fen)
+
+        if current_board.is_checkmate():
+            return True
+
+        if moves_left <= 0:
+            return False
+
+        legal_moves = list(current_board.legal_moves)
+        if not legal_moves:
+            return False
+
+        if current_board.turn == attacker:
+            return any(
+                search(board_after_practice_move(current_board, move).fen(), moves_left - 1)
+                for move in legal_moves
+            )
+
+        return all(
+            search(board_after_practice_move(current_board, move).fen(), moves_left)
+            for move in legal_moves
+        )
+
+    return search(board.fen(), attacker_moves_left)
+
+
+def practice_move_satisfies_goal(board_after_user_move, attacker, attacker_moves_left):
+    if attacker_moves_left == 0:
+        return board_after_user_move.is_checkmate()
+
+    return has_forced_mate(board_after_user_move, attacker, attacker_moves_left)
+
+
+def choose_practice_auto_reply(board, attacker, attacker_moves_left, compatible_lines, played_line):
+    next_index = len(played_line)
+
+    for line in compatible_lines:
+        if len(line) <= next_index:
+            continue
+
+        try:
+            move = practice_move_from_notation(board, line[next_index])
+        except ValueError:
+            continue
+
+        next_board = board_after_practice_move(board, move)
+        if practice_move_satisfies_goal(next_board, attacker, attacker_moves_left):
+            return move
+
+    for move in board.legal_moves:
+        next_board = board_after_practice_move(board, move)
+        if practice_move_satisfies_goal(next_board, attacker, attacker_moves_left):
+            return move
+
+    return None
+
+
+@require_POST
+@rate_limit(120, 60, 'practice-move')
+def practice_move(request):
+    language = current_language(request)
+
+    try:
+        data = parse_json_body(request)
+    except ValueError as exc:
+        return JsonResponse({'error': str(exc)}, status=400)
+
+    puzzle = get_practice_puzzle(data.get('puzzle_id'))
+    if not puzzle:
+        return JsonResponse({'error': 'Puzzle nao encontrado.'}, status=404)
+
+    try:
+        board, played_line, attacker, attacker_moves_played = practice_board_from_line(
+            puzzle,
+            data.get('played_line', []),
+        )
+        compatible_lines = compatible_practice_lines(puzzle, played_line)
+    except ValueError as exc:
+        return JsonResponse({'error': str(exc)}, status=400)
+
+    if board.is_checkmate():
+        return JsonResponse({'error': 'Puzzle ja resolvido.'}, status=400)
+
+    if board.turn != attacker:
+        return JsonResponse({'error': 'Aguardando a resposta automatica do puzzle.'}, status=400)
+
+    attempted_move = parse_practice_attempt(board, data.get('move', ''))
+    if not attempted_move:
+        return JsonResponse({
+            'correct': False,
+            'message': t(language, 'practice_wrong_objective'),
+            'fen': board.fen(),
+            'turn': color_name_from_turn(board.turn),
+            'played_line': played_line,
+            'compatible_lines': len(compatible_lines),
+        })
+
+    moving_san = board.san(attempted_move)
+    board.push(attempted_move)
+    next_played_line = [*played_line, attempted_move.uci()]
+    attacker_moves_left = puzzle['mate_in'] - attacker_moves_played - 1
+
+    if attacker_moves_left < 0 or not practice_move_satisfies_goal(board, attacker, attacker_moves_left):
+        return JsonResponse({
+            'correct': False,
+            'message': t(language, 'practice_wrong_objective'),
+            'fen': practice_board_from_line(puzzle, played_line)[0].fen(),
+            'turn': color_name_from_turn(attacker),
+            'played_line': played_line,
+            'compatible_lines': len(compatible_lines),
+        })
+
+    played_move = {
+        'uci': attempted_move.uci(),
+        'san': moving_san,
+    }
+    auto_moves = []
+    compatible_lines = compatible_practice_lines(puzzle, next_played_line)
+
+    solved = board.is_checkmate()
+
+    # If the defender has choices, pick one that keeps a valid forced mate.
+    if not solved and board.turn != attacker:
+        auto_move = choose_practice_auto_reply(
+            board,
+            attacker,
+            attacker_moves_left,
+            compatible_lines,
+            next_played_line,
+        )
+
+        if not auto_move:
+            logger.warning("Practice puzzle %s had no compatible auto reply.", puzzle['id'])
+            return JsonResponse({'error': 'Nao foi possivel continuar este puzzle.'}, status=500)
+
+        auto_moves.append({
+            'uci': auto_move.uci(),
+            'san': board.san(auto_move),
+        })
+        board.push(auto_move)
+        next_played_line.append(auto_move.uci())
+        compatible_lines = compatible_practice_lines(puzzle, next_played_line)
+
+    solved = board.is_checkmate()
+
+    return JsonResponse({
+        'correct': True,
+        'solved': solved,
+        'message': t(language, 'practice_solved') if solved else t(language, 'practice_follow_line'),
+        'fen': board.fen(),
+        'turn': color_name_from_turn(board.turn),
+        'played_line': next_played_line,
+        'compatible_lines': len(compatible_lines),
+        'played_move': played_move,
+        'auto_moves': auto_moves,
+        'checkmate': board.is_checkmate(),
+    })
+
+
+@require_POST
+@rate_limit(240, 60, 'practice-legal-moves')
+def practice_legal_moves(request):
+    try:
+        data = parse_json_body(request)
+    except ValueError as exc:
+        return JsonResponse({'error': str(exc)}, status=400)
+
+    puzzle = get_practice_puzzle(data.get('puzzle_id'))
+    if not puzzle:
+        return JsonResponse({'error': 'Puzzle nao encontrado.'}, status=404)
+
+    try:
+        board, played_line, attacker, _attacker_moves_played = practice_board_from_line(
+            puzzle,
+            data.get('played_line', []),
+        )
+    except ValueError as exc:
+        return JsonResponse({'error': str(exc)}, status=400)
+
+    from_square = data.get('from')
+    if not isinstance(from_square, str):
+        return JsonResponse({'error': 'Casa invalida.'}, status=400)
+
+    try:
+        from_square_index = chess.parse_square(from_square)
+    except ValueError:
+        return JsonResponse({'error': 'Casa invalida.'}, status=400)
+
+    piece = board.piece_at(from_square_index)
+    if not piece or piece.color != attacker or board.turn != attacker:
+        return JsonResponse({
+            'moves': [],
+            'played_line': played_line,
+        })
+
+    moves = []
+    for move in board.legal_moves:
+        if move.from_square != from_square_index:
+            continue
+
+        moves.append({
+            'uci': move.uci(),
+            'to': chess.square_name(move.to_square),
+            'promotion': {
+                chess.QUEEN: 'queen',
+                chess.ROOK: 'rook',
+                chess.BISHOP: 'bishop',
+                chess.KNIGHT: 'horse',
+            }.get(move.promotion),
+        })
+
+    return JsonResponse({
+        'moves': moves,
+        'played_line': played_line,
+    })
 
 
 def games_list(request):

@@ -1,0 +1,106 @@
+{% extends 'games/base.html' %}
+{% load static %}
+{% load game_i18n %}
+
+{% block title %}
+{% tr "practice_title" %}
+{% endblock %}
+
+{% block content %}
+
+<script>
+    document.body.classList.add('practice-page-active');
+</script>
+
+<main class="practice-page">
+    <header class="practice-header">
+        <h1>{% tr "practice_title" %}</h1>
+        <p>{% tr "practice_intro" %}</p>
+    </header>
+
+    <section class="game-layout practice-game-layout">
+        <aside class="pgn-panel practice-selector-panel">
+            <h2>{% tr "practice_levels" %}</h2>
+
+            <div id="practice-levels" class="practice-levels" role="list">
+                {% for level in practice_levels %}
+                    <button
+                        class="practice-level-button"
+                        type="button"
+                        data-practice-level="{{ level.key }}"
+                    >
+                        <strong>{% tr level.label_key %}</strong>
+                        <span>{% tr level.description_key %}</span>
+                    </button>
+                {% endfor %}
+            </div>
+
+            <section class="practice-progress" aria-labelledby="practice-progress-title">
+                <h2 id="practice-progress-title">{% tr "practice_progress" %}</h2>
+                <div class="practice-progress-grid">
+                    <div>
+                        <strong id="practice-solved-count">0</strong>
+                        <span>{% tr "practice_solved_count" %}</span>
+                    </div>
+                    <div>
+                        <strong id="practice-error-count">0</strong>
+                        <span>{% tr "practice_error_count" %}</span>
+                    </div>
+                    <div>
+                        <strong id="practice-accuracy">0%</strong>
+                        <span>{% tr "practice_accuracy" %}</span>
+                    </div>
+                </div>
+            </section>
+        </aside>
+
+        <section class="board-area practice-board-area">
+            <div class="board-wrapper">
+                <div class="rank-labels" id="practice-rank-labels">
+                    <span>8</span><span>7</span><span>6</span><span>5</span>
+                    <span>4</span><span>3</span><span>2</span><span>1</span>
+                </div>
+
+                <div>
+                    <div id="practice-board" class="board practice-board"></div>
+
+                    <div class="file-labels" id="practice-file-labels">
+                        <span>a</span><span>b</span><span>c</span><span>d</span>
+                        <span>e</span><span>f</span><span>g</span><span>h</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <aside class="pgn-panel practice-info-panel">
+            <h2 id="practice-puzzle-title">{% tr "practice_choose_level" %}</h2>
+            <p id="practice-puzzle-meta" class="practice-meta"></p>
+
+            <div id="practice-result" class="coach-comment practice-result" hidden></div>
+            <div id="practice-hint" class="coach-comment practice-hint" hidden></div>
+
+            <div class="game-actions practice-actions">
+                <button id="practice-next-puzzle" type="button">{% tr "practice_next_puzzle" %}</button>
+                <button id="practice-restart" type="button">{% tr "practice_restart" %}</button>
+                <button id="practice-show-hint" type="button">{% tr "practice_show_hint" %}</button>
+            </div>
+
+            <section class="practice-line-panel" aria-labelledby="practice-line-title">
+                <h2 id="practice-line-title">{% tr "practice_line" %}</h2>
+                <ol id="practice-line" class="practice-line"></ol>
+            </section>
+        </aside>
+    </section>
+</main>
+
+{{ practice_levels|json_script:"practice-levels-data" }}
+{{ practice_puzzles|json_script:"practice-puzzles-data" }}
+
+<script>
+    window.PRACTICE_MOVE_URL = "{% url 'practice_move' %}";
+    window.PRACTICE_LEGAL_MOVES_URL = "{% url 'practice_legal_moves' %}";
+    window.PRACTICE_PIECES_BASE_URL = "{% static 'games/pieces/' %}";
+</script>
+<script src="{% static 'games/practice.js' %}?v=2"></script>
+
+{% endblock %}
