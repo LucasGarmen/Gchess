@@ -41,6 +41,7 @@
     let currentPuzzle = null;
     let currentFen = '';
     let currentPosition = { pieces: {}, turn: 'white' };
+    let currentLegalMovesByFrom = {};
     let selectedSquare = null;
     let possibleMoves = [];
     let possibleMovesLoaded = false;
@@ -174,6 +175,7 @@
         currentPuzzle = puzzle;
         currentFen = puzzle.fen;
         currentPosition = parseFen(currentFen);
+        currentLegalMovesByFrom = normalizeLegalMovesByFrom(puzzle.legal_moves);
         selectedSquare = null;
         possibleMoves = [];
         possibleMovesLoaded = false;
@@ -354,6 +356,21 @@
         return image;
     }
 
+    function normalizeLegalMovesByFrom(movesByFrom) {
+        if (!movesByFrom || typeof movesByFrom !== 'object' || Array.isArray(movesByFrom)) {
+            return {};
+        }
+
+        return Object.entries(movesByFrom).reduce((normalized, [from, moves]) => {
+            normalized[from] = Array.isArray(moves) ? moves : [];
+            return normalized;
+        }, {});
+    }
+
+    function updateLegalMovesByFrom(movesByFrom) {
+        currentLegalMovesByFrom = normalizeLegalMovesByFrom(movesByFrom);
+    }
+
     function canSelectSquare(coord) {
         if (!currentPuzzle || solved || pendingMove) {
             return false;
@@ -367,53 +384,25 @@
         return possibleMoves.some(move => move.to === coord);
     }
 
+    function legalMovesForSquare(coord) {
+        return currentLegalMovesByFrom[coord] || [];
+    }
+
     function clearSelection() {
         selectedSquare = null;
         possibleMoves = [];
         possibleMovesLoaded = false;
     }
 
-    async function selectSquare(coord) {
+    function selectSquare(coord) {
         if (!canSelectSquare(coord)) {
             return;
         }
 
         selectedSquare = coord;
-        possibleMoves = [];
-        possibleMovesLoaded = false;
+        possibleMoves = legalMovesForSquare(coord);
+        possibleMovesLoaded = true;
         renderBoard();
-
-        try {
-            const response = await fetch(window.PRACTICE_LEGAL_MOVES_URL, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': getCSRFToken(),
-                },
-                body: JSON.stringify({
-                    puzzle_id: currentPuzzle.id,
-                    played_line: playedLine,
-                    from: coord,
-                }),
-            });
-            const data = await response.json().catch(() => ({}));
-
-            if (!response.ok || data.error || selectedSquare !== coord) {
-                possibleMoves = [];
-                possibleMovesLoaded = true;
-                renderBoard();
-                return;
-            }
-
-            possibleMoves = Array.isArray(data.moves) ? data.moves : [];
-            possibleMovesLoaded = true;
-            renderBoard();
-        } catch (error) {
-            console.warn('No se pudieron cargar los movimientos legales:', error);
-            possibleMoves = [];
-            possibleMovesLoaded = true;
-            renderBoard();
-        }
     }
 
     function handleSquareClick(coord) {
@@ -635,6 +624,7 @@
             clearSelection();
             currentFen = data.fen || currentFen;
             playedLine = Array.isArray(data.played_line) ? data.played_line : playedLine;
+            updateLegalMovesByFrom(data.legal_moves);
 
             if (!data.correct) {
                 rememberError();

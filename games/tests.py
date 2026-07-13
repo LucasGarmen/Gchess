@@ -149,6 +149,7 @@ class PracticePuzzleTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'id="practice-board"')
         self.assertContains(response, 'id="practice-puzzles-data"')
+        self.assertContains(response, '"legal_moves"')
         self.assertContains(response, 'data-practice-level="easy"')
         self.assertContains(response, 'games/practice.js')
         self.assertContains(response, 'PRACTICE_LEGAL_MOVES_URL')
@@ -207,6 +208,8 @@ class PracticePuzzleTests(TestCase):
         self.assertFalse(first_data["solved"])
         self.assertEqual(first_data["played_line"], ["h4g3", "g1h1"])
         self.assertEqual(first_data["auto_moves"][0]["uci"], "g1h1")
+        self.assertIn("f4", first_data["legal_moves"])
+        self.assertIn("f1", {move["to"] for move in first_data["legal_moves"]["f4"]})
 
         final_response = self.client.post(
             reverse("practice_move"),
@@ -223,6 +226,24 @@ class PracticePuzzleTests(TestCase):
         self.assertTrue(final_data["correct"])
         self.assertTrue(final_data["solved"])
         self.assertTrue(final_data["checkmate"])
+        self.assertEqual(final_data["legal_moves"], {})
+
+    def test_known_practice_solution_uses_fast_path(self):
+        with patch("games.views.practice_move_satisfies_goal", side_effect=AssertionError("slow path used")):
+            response = self.client.post(
+                reverse("practice_move"),
+                data=json.dumps({
+                    "puzzle_id": "medium-corner-queen",
+                    "played_line": [],
+                    "move": "h4g3",
+                }),
+                content_type="application/json",
+            )
+
+        data = response.json()
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(data["correct"])
+        self.assertEqual(data["played_line"], ["h4g3", "g1h1"])
 
     def test_wrong_practice_move_does_not_advance(self):
         response = self.client.post(
@@ -240,6 +261,7 @@ class PracticePuzzleTests(TestCase):
         self.assertFalse(data["correct"])
         self.assertEqual(data["played_line"], [])
         self.assertEqual(data["fen"], "8/8/8/8/5Q1K/8/8/6k1 w - - 0 1")
+        self.assertIn("f4", data["legal_moves"])
 
 
 def fake_engine_analysis(cp=None, pv=None, mate=None):

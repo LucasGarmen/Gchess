@@ -505,7 +505,7 @@ def practice(request):
     touch_presence(request.user)
     return render(request, 'games/practice.html', {
         'practice_levels': PRACTICE_LEVELS,
-        'practice_puzzles': public_practice_puzzles(),
+        'practice_puzzles': practice_puzzles_for_client(),
     })
 
 
@@ -603,33 +603,82 @@ def board_after_practice_move(board, move):
     return next_board
 
 
-def has_forced_mate(board, attacker, attacker_moves_left):
-    @lru_cache(maxsize=50000)
-    def search(fen, moves_left):
-        current_board = chess.Board(fen)
+def serialize_practice_move(move):
+    return {
+        'uci': move.uci(),
+        'to': chess.square_name(move.to_square),
+        'promotion': {
+            chess.QUEEN: 'queen',
+            chess.ROOK: 'rook',
+            chess.BISHOP: 'bishop',
+            chess.KNIGHT: 'horse',
+        }.get(move.promotion),
+    }
 
-        if current_board.is_checkmate():
-            return True
 
-        if moves_left <= 0:
-            return False
+def practice_legal_moves_by_from(board, attacker):
+    if board.turn != attacker:
+        return {}
 
-        legal_moves = list(current_board.legal_moves)
-        if not legal_moves:
-            return False
+    moves_by_from = {}
 
-        if current_board.turn == attacker:
-            return any(
-                search(board_after_practice_move(current_board, move).fen(), moves_left - 1)
-                for move in legal_moves
+    for move in board.legal_moves:
+        piece = board.piece_at(move.from_square)
+        if not piece or piece.color != attacker:
+            continue
+
+        from_square = chess.square_name(move.from_square)
+        moves_by_from.setdefault(from_square, []).append(serialize_practice_move(move))
+
+    return moves_by_from
+
+
+def practice_puzzles_for_client():
+    puzzles = public_practice_puzzles()
+
+    for puzzle in puzzles:
+        board = chess.Board(puzzle['fen'])
+        puzzle['legal_moves'] = practice_legal_moves_by_from(board, board.turn)
+
+    return puzzles
+
+
+@lru_cache(maxsize=200000)
+def has_forced_mate_from_fen(fen, attacker, attacker_moves_left):
+    current_board = chess.Board(fen)
+
+    if current_board.is_checkmate():
+        return True
+
+    if attacker_moves_left <= 0:
+        return False
+
+    legal_moves = list(current_board.legal_moves)
+    if not legal_moves:
+        return False
+
+    if current_board.turn == attacker:
+        return any(
+            has_forced_mate_from_fen(
+                board_after_practice_move(current_board, move).fen(),
+                attacker,
+                attacker_moves_left - 1,
             )
-
-        return all(
-            search(board_after_practice_move(current_board, move).fen(), moves_left)
             for move in legal_moves
         )
 
-    return search(board.fen(), attacker_moves_left)
+    return all(
+        has_forced_mate_from_fen(
+            board_after_practice_move(current_board, move).fen(),
+            attacker,
+            attacker_moves_left,
+        )
+        for move in legal_moves
+    )
+
+
+def has_forced_mate(board, attacker, attacker_moves_left):
+    return has_forced_mate_from_fen(board.fen(), attacker, attacker_moves_left)
 
 
 def practice_move_satisfies_goal(board_after_user_move, attacker, attacker_moves_left):
@@ -651,9 +700,7 @@ def choose_practice_auto_reply(board, attacker, attacker_moves_left, compatible_
         except ValueError:
             continue
 
-        next_board = board_after_practice_move(board, move)
-        if practice_move_satisfies_goal(next_board, attacker, attacker_moves_left):
-            return move
+        return move
 
     for move in board.legal_moves:
         next_board = board_after_practice_move(board, move)
@@ -701,21 +748,31 @@ def practice_move(request):
             'turn': color_name_from_turn(board.turn),
             'played_line': played_line,
             'compatible_lines': len(compatible_lines),
+            'legal_moves': practice_legal_moves_by_from(board, attacker),
         })
 
     moving_san = board.san(attempted_move)
+    known_solution_move = any(
+        len(line) > len(played_line) and line[len(played_line)] == attempted_move.uci()
+        for line in compatible_lines
+    )
     board.push(attempted_move)
     next_played_line = [*played_line, attempted_move.uci()]
     attacker_moves_left = puzzle['mate_in'] - attacker_moves_played - 1
 
-    if attacker_moves_left < 0 or not practice_move_satisfies_goal(board, attacker, attacker_moves_left):
+    if attacker_moves_left < 0 or (
+        not known_solution_move and
+        not practice_move_satisfies_goal(board, attacker, attacker_moves_left)
+    ):
+        previous_board = practice_board_from_line(puzzle, played_line)[0]
         return JsonResponse({
             'correct': False,
             'message': t(language, 'practice_wrong_objective'),
-            'fen': practice_board_from_line(puzzle, played_line)[0].fen(),
+            'fen': previous_board.fen(),
             'turn': color_name_from_turn(attacker),
             'played_line': played_line,
             'compatible_lines': len(compatible_lines),
+            'legal_moves': practice_legal_moves_by_from(previous_board, attacker),
         })
 
     played_move = {
@@ -762,6 +819,7 @@ def practice_move(request):
         'played_move': played_move,
         'auto_moves': auto_moves,
         'checkmate': board.is_checkmate(),
+        'legal_moves': practice_legal_moves_by_from(board, attacker),
     })
 
 
@@ -806,16 +864,7 @@ def practice_legal_moves(request):
         if move.from_square != from_square_index:
             continue
 
-        moves.append({
-            'uci': move.uci(),
-            'to': chess.square_name(move.to_square),
-            'promotion': {
-                chess.QUEEN: 'queen',
-                chess.ROOK: 'rook',
-                chess.BISHOP: 'bishop',
-                chess.KNIGHT: 'horse',
-            }.get(move.promotion),
-        })
+        moves.append(serialize_practice_move(move))
 
     return JsonResponse({
         'moves': moves,
