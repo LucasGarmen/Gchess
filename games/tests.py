@@ -11,7 +11,7 @@ from django.core.cache import cache
 from django.test import Client, SimpleTestCase, TestCase
 from django.urls import reverse
 
-from accounts.models import UserPuzzleStats
+from accounts.models import Achievement, UserAchievement, UserPuzzleStats, unlock_achievements_for_stats
 from .models import ChessGame, DailyVisit, GameInvitation, Move
 from .puzzles import PRACTICE_PUZZLES
 from .views import build_automatic_move_context, build_pgn_from_saved_game, evaluate_board_outcome, generate_comment, practice_move_from_notation, practice_move_satisfies_goal, practice_xp_for_mate_in, read_analyzer_game, read_internal_coordinate_game
@@ -363,6 +363,10 @@ class PracticePuzzleTests(TestCase):
         self.assertEqual(stats.xp_del_nivel_actual, 5)
         self.assertEqual(response.json()["xp_progress"]["xp_ganado"], 5)
         self.assertEqual(response.json()["xp_progress"]["xp_restante"], 95)
+        self.assertTrue(UserAchievement.objects.filter(
+            user=user,
+            achievement__key="first_puzzle",
+        ).exists())
 
     def test_authenticated_wrong_practice_move_updates_errors_and_streak(self):
         user = User.objects.create_user(username="stats-error-user", password="pass")
@@ -430,6 +434,65 @@ class PracticePuzzleTests(TestCase):
         self.assertContains(response, 'class="xp-progress-panel profile-xp-panel"')
         self.assertContains(response, "0%")
         self.assertTrue(UserPuzzleStats.objects.filter(user=user).exists())
+
+    def test_profile_achievements_page_shows_locked_and_unlocked_cards(self):
+        user = User.objects.create_user(username="achievements-page-user", password="pass")
+        stats = UserPuzzleStats.objects.create(user=user, puzzles_correctos=1)
+        unlock_achievements_for_stats(stats)
+        session = self.client.session
+        session["language"] = "es"
+        session.save()
+        self.client.force_login(user)
+
+        response = self.client.get(reverse("profile_achievements"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'class="achievements-grid"')
+        self.assertContains(response, 'href="/profile/achievements/"')
+        self.assertContains(response, "Primer puzzle")
+        self.assertContains(response, "10 puzzles")
+        self.assertContains(response, "achievement-card-unlocked")
+        self.assertContains(response, "achievement-card-locked")
+        self.assertContains(response, "Obtenido")
+
+    def test_achievement_thresholds_unlock_from_stats(self):
+        user = User.objects.create_user(username="achievement-threshold-user", password="pass")
+        stats = UserPuzzleStats.objects.create(
+            user=user,
+            puzzles_correctos=10,
+            mejor_racha=10,
+            xp_total=1000,
+            nivel=10,
+        )
+
+        unlock_achievements_for_stats(stats)
+        unlocked_keys = set(UserAchievement.objects.filter(user=user).values_list("achievement__key", flat=True))
+
+        self.assertIn("first_puzzle", unlocked_keys)
+        self.assertIn("puzzles_10", unlocked_keys)
+        self.assertIn("streak_10", unlocked_keys)
+        self.assertIn("xp_1000", unlocked_keys)
+        self.assertIn("level_10", unlocked_keys)
+        self.assertNotIn("puzzles_50", unlocked_keys)
+
+    def test_default_achievement_catalog_exists(self):
+        expected_keys = {
+            "first_puzzle",
+            "puzzles_10",
+            "puzzles_50",
+            "puzzles_100",
+            "puzzles_500",
+            "puzzles_1000",
+            "streak_10",
+            "streak_25",
+            "streak_50",
+            "xp_1000",
+            "level_10",
+            "level_25",
+            "level_50",
+        }
+
+        self.assertTrue(expected_keys.issubset(set(Achievement.objects.values_list("key", flat=True))))
 
     def test_puzzle_xp_levels_up_every_100_xp(self):
         user = User.objects.create_user(username="level-up-user", password="pass")

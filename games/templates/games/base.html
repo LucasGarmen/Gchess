@@ -12,7 +12,7 @@
     <link rel="icon" href="{% static 'images/favicon.png' %}" type="image/png">
     <link rel="shortcut icon" href="{% static 'images/favicon.png' %}" type="image/png">
     <link rel="apple-touch-icon" href="{% static 'images/favicon.png' %}">
-    <link rel="stylesheet" href="{% static 'games/style.css' %}?v=51">
+    <link rel="stylesheet" href="{% static 'games/style.css' %}?v=52">
 </head>
 
 <body>
@@ -49,6 +49,8 @@
     {% if user.is_authenticated %}
         <span>{% tr "nav_hello" %}, {{ user.username }}{% if user.player_profile %} · {% tr "nav_elo" %} {{ user.player_profile.elo }}{% endif %}</span>
 
+        <a href="{% url 'profile_stats' %}">{% tr "nav_stats" %}</a>
+        <a href="{% url 'profile_achievements' %}">{% tr "nav_achievements" %}</a>
         <a href="{% url 'password_change' %}">{% tr "nav_change_password" %}</a>
 
         <div class="notification-area">

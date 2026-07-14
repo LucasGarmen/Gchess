@@ -1,0 +1,51 @@
+{% extends 'games/base.html' %}
+{% load game_i18n %}
+
+{% block title %}
+{% tr "achievements_title" %}
+{% endblock %}
+
+{% block content %}
+
+<main class="stats-page achievements-page">
+    <header class="stats-header">
+        <span class="stats-eyebrow">GChess</span>
+        <h1>{% tr "achievements_title" %}</h1>
+        <p>{% tr "achievements_intro" %}</p>
+    </header>
+
+    <section class="achievements-grid">
+        {% for card in achievement_cards %}
+            <article class="achievement-card {% if card.unlocked %}achievement-card-unlocked{% else %}achievement-card-locked{% endif %}">
+                <div class="achievement-card-header">
+                    <span class="achievement-badge">
+                        {% if card.unlocked %}
+                            {% tr "achievement_unlocked" %}
+                        {% else %}
+                            {% tr "achievement_locked" %}
+                        {% endif %}
+                    </span>
+                    <strong>{{ card.achievement.name }}</strong>
+                </div>
+
+                <p>{{ card.achievement.description }}</p>
+
+                <div class="achievement-progress-track" aria-hidden="true">
+                    <span style="width: {{ card.progress_percent }}%;"></span>
+                </div>
+
+                <div class="achievement-card-footer">
+                    <span>{{ card.current_value }}/{{ card.achievement.threshold }}</span>
+
+                    {% if card.unlocked %}
+                        <span>{% tr "achievement_obtained" %}: {{ card.unlocked.unlocked_at|date:"d/m/Y H:i" }}</span>
+                    {% else %}
+                        <span>{% tr "achievement_pending" %}</span>
+                    {% endif %}
+                </div>
+            </article>
+        {% endfor %}
+    </section>
+</main>
+
+{% endblock %}

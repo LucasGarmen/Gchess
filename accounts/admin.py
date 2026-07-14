@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import PlayerProfile, UserPuzzleStats
+from .models import Achievement, PlayerProfile, UserAchievement, UserPuzzleStats
 
 
 @admin.register(PlayerProfile)
@@ -42,3 +42,18 @@ class UserPuzzleStatsAdmin(admin.ModelAdmin):
         'updated_at',
     )
     search_fields = ('user__username', 'ultimo_puzzle_resuelto')
+
+
+@admin.register(Achievement)
+class AchievementAdmin(admin.ModelAdmin):
+    list_display = ('name', 'metric', 'threshold', 'sort_order')
+    list_filter = ('metric',)
+    search_fields = ('key', 'name', 'description')
+    ordering = ('sort_order', 'id')
+
+
+@admin.register(UserAchievement)
+class UserAchievementAdmin(admin.ModelAdmin):
+    list_display = ('user', 'achievement', 'unlocked_at')
+    list_filter = ('achievement', 'unlocked_at')
+    search_fields = ('user__username', 'achievement__name')

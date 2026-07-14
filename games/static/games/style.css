@@ -2774,6 +2774,100 @@ select:focus {
     grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
 }
 
+.achievements-grid {
+    display: grid;
+    gap: 14px;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+}
+
+.achievement-card {
+    background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.045), transparent 70%),
+        var(--surface);
+    border: 1px solid var(--border-soft);
+    border-radius: 8px;
+    box-shadow: var(--shadow-tight);
+    display: grid;
+    gap: 12px;
+    min-height: 196px;
+    padding: 16px;
+}
+
+.achievement-card-locked {
+    background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.025), transparent 70%),
+        #202020;
+    border-color: rgba(255, 255, 255, 0.12);
+    filter: grayscale(1);
+    opacity: 0.62;
+}
+
+.achievement-card-header {
+    display: grid;
+    gap: 8px;
+}
+
+.achievement-card-header strong {
+    color: var(--text-main);
+    font-size: 21px;
+    line-height: 1.15;
+}
+
+.achievement-badge {
+    align-self: start;
+    background: rgba(127, 163, 91, 0.2);
+    border: 1px solid rgba(127, 163, 91, 0.35);
+    border-radius: 999px;
+    color: #dff0c6;
+    font-size: 12px;
+    font-weight: 800;
+    justify-self: start;
+    letter-spacing: 0;
+    padding: 5px 9px;
+    text-transform: uppercase;
+}
+
+.achievement-card-locked .achievement-badge {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.16);
+    color: var(--text-muted);
+}
+
+.achievement-card p {
+    margin: 0;
+}
+
+.achievement-progress-track {
+    align-self: end;
+    background: rgba(20, 19, 16, 0.86);
+    border: 1px solid rgba(240, 217, 181, 0.14);
+    border-radius: 999px;
+    height: 9px;
+    overflow: hidden;
+}
+
+.achievement-progress-track span {
+    background: linear-gradient(90deg, var(--green), var(--accent-strong));
+    border-radius: inherit;
+    display: block;
+    height: 100%;
+}
+
+.achievement-card-locked .achievement-progress-track span {
+    background: rgba(255, 255, 255, 0.28);
+}
+
+.achievement-card-footer {
+    align-items: center;
+    color: var(--text-muted);
+    display: flex;
+    flex-wrap: wrap;
+    font-size: 13px;
+    font-weight: 700;
+    gap: 8px;
+    justify-content: space-between;
+}
+
 .stat-card {
     background:
         linear-gradient(180deg, rgba(255, 255, 255, 0.045), transparent 70%),
@@ -2881,6 +2975,7 @@ select:focus {
 
 @media (max-width: 720px) {
     .stats-grid,
+    .achievements-grid,
     .stats-detail-list {
         grid-template-columns: 1fr;
     }

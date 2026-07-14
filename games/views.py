@@ -24,7 +24,14 @@ from django.http import JsonResponse
 from django.urls import reverse
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.views.decorators.http import require_POST, require_http_methods
-from accounts.models import PlayerProfile, UserPuzzleStats
+from accounts.models import (
+    Achievement,
+    PlayerProfile,
+    UserAchievement,
+    UserPuzzleStats,
+    achievement_metric_value,
+    unlock_achievements_for_stats,
+)
 from .engine_analysis import build_trainer_engine_context
 from .gemini_service import generate_gemini_explanation
 from .i18n import current_language, normalize_language, t
@@ -1050,6 +1057,37 @@ def profile_stats(request):
         'stat_cards': stat_cards,
         'xp_progress': build_xp_progress_context(stats),
         'total_time': format_duration_short(stats.tiempo_total),
+    })
+
+
+@login_required
+def profile_achievements(request):
+    touch_presence(request.user)
+    stats, _created = UserPuzzleStats.objects.get_or_create(user=request.user)
+    unlock_achievements_for_stats(stats)
+
+    unlocked_by_achievement_id = {
+        user_achievement.achievement_id: user_achievement
+        for user_achievement in UserAchievement.objects
+        .filter(user=request.user)
+        .select_related('achievement')
+    }
+    achievement_cards = []
+
+    for achievement in Achievement.objects.all():
+        unlocked = unlocked_by_achievement_id.get(achievement.id)
+        current_value = achievement_metric_value(stats, achievement)
+        progress_percent = min(100, int((current_value / achievement.threshold) * 100)) if achievement.threshold else 0
+
+        achievement_cards.append({
+            'achievement': achievement,
+            'unlocked': unlocked,
+            'current_value': min(current_value, achievement.threshold),
+            'progress_percent': progress_percent,
+        })
+
+    return render(request, 'games/profile_achievements.html', {
+        'achievement_cards': achievement_cards,
     })
 
 
