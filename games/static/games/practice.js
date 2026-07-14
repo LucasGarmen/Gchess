@@ -43,6 +43,9 @@
         levelsByKey[puzzle.level].push(puzzle);
         return levelsByKey;
     }, {});
+    Object.values(puzzlesByLevel).forEach(levelPuzzles => {
+        levelPuzzles.sort((first, second) => puzzlePieceCount(second) - puzzlePieceCount(first));
+    });
 
     let currentLevel = levels.length > 0 ? levels[0].key : 'easy';
     let currentPuzzleIndex = 0;
@@ -147,6 +150,10 @@
 
     function puzzlesForLevel(level) {
         return puzzlesByLevel[level] || [];
+    }
+
+    function puzzlePieceCount(puzzle) {
+        return Object.keys(parseFen(puzzle.fen || '').pieces).length;
     }
 
     function levelInfo(levelKey) {
