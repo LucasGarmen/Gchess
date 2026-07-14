@@ -35,6 +35,14 @@
 
     const levels = parseJsonScript('practice-levels-data', []);
     const puzzles = parseJsonScript('practice-puzzles-data', []);
+    const puzzlesByLevel = puzzles.reduce((levelsByKey, puzzle) => {
+        if (!levelsByKey[puzzle.level]) {
+            levelsByKey[puzzle.level] = [];
+        }
+
+        levelsByKey[puzzle.level].push(puzzle);
+        return levelsByKey;
+    }, {});
 
     let currentLevel = levels.length > 0 ? levels[0].key : 'easy';
     let currentPuzzleIndex = 0;
@@ -53,6 +61,8 @@
     let progress = loadProgress();
     let dragState = null;
     let suppressNextClick = false;
+    let boardSquares = new Map();
+    let renderedOrientation = null;
 
     function parseJsonScript(id, fallbackValue) {
         const element = document.getElementById(id);
@@ -63,7 +73,7 @@
         try {
             return JSON.parse(element.textContent);
         } catch (error) {
-            console.warn('No se pudo leer JSON de practica:', error);
+            console.warn('No se pudo leer JSON de práctica:', error);
             return fallbackValue;
         }
     }
@@ -107,7 +117,7 @@
         try {
             localStorage.setItem(progressKey, JSON.stringify(progress));
         } catch (error) {
-            console.warn('No se pudo guardar el progreso de practica:', error);
+            console.warn('No se pudo guardar el progreso de práctica:', error);
         }
     }
 
@@ -136,7 +146,7 @@
     }
 
     function puzzlesForLevel(level) {
-        return puzzles.filter(puzzle => puzzle.level === level);
+        return puzzlesByLevel[level] || [];
     }
 
     function levelInfo(levelKey) {
@@ -185,7 +195,7 @@
         orientation = puzzle.turn || currentPosition.turn;
         lineMoves = [];
 
-        titleElement.innerText = puzzle.title || uiText('practice_title', 'Practica');
+        titleElement.innerText = puzzle.title || uiText('practice_title', 'Práctica');
         metaElement.innerText = `${levelLabel(puzzle.level)} - ${levelDescription(puzzle.level)} - ${turnLabel(puzzle.turn)}`;
         hideHint();
         showResult(uiText('practice_make_move', 'Encuentra la mejor jugada.'), 'neutral');
@@ -299,21 +309,48 @@
 
     function renderBoard() {
         currentPosition = parseFen(currentFen);
-        boardElement.replaceChildren();
         updateBoardLabels();
+
+        if (renderedOrientation !== orientation || boardSquares.size === 0) {
+            buildBoardSquares();
+        }
+
+        updateBoardSquares();
+    }
+
+    function buildBoardSquares() {
+        boardElement.replaceChildren();
+        boardSquares = new Map();
+        renderedOrientation = orientation;
 
         squareSequence().forEach(coord => {
             const square = document.createElement('div');
+
+            square.dataset.coord = coord;
+            square.draggable = false;
+            square.addEventListener('click', function () {
+                handleSquareClick(coord);
+            });
+            square.addEventListener('pointerdown', function (event) {
+                handlePointerDown(event, coord);
+            });
+
+            boardSquares.set(coord, square);
+            boardElement.appendChild(square);
+        });
+    }
+
+    function updateBoardSquares() {
+        boardSquares.forEach((square, coord) => {
             const fileIndex = files.indexOf(coord[0]);
             const rank = Number(coord[1]);
             const piece = currentPosition.pieces[coord];
             const isLight = (fileIndex + rank) % 2 === 0;
+            const pieceKey = piece ? `${piece.type}_${piece.color}` : '';
 
             square.className = `square ${isLight ? 'square-light' : 'square-dark'}`;
-            square.dataset.coord = coord;
             square.dataset.color = piece ? piece.color : '';
             square.dataset.type = piece ? piece.type : '';
-            square.draggable = false;
 
             if (coord === selectedSquare) {
                 square.classList.add('selected');
@@ -323,18 +360,15 @@
                 square.classList.add('possible-move');
             }
 
-            if (piece) {
-                square.appendChild(createPieceElement(piece));
+            if (square.dataset.pieceKey !== pieceKey) {
+                square.replaceChildren();
+
+                if (piece) {
+                    square.appendChild(createPieceElement(piece));
+                }
+
+                square.dataset.pieceKey = pieceKey;
             }
-
-            square.addEventListener('click', function () {
-                handleSquareClick(coord);
-            });
-            square.addEventListener('pointerdown', function (event) {
-                handlePointerDown(event, coord);
-            });
-
-            boardElement.appendChild(square);
         });
     }
 
@@ -479,10 +513,9 @@
             }, 180);
             dragState.dragging = true;
             selectedSquare = dragState.from;
-            possibleMoves = [];
-            possibleMovesLoaded = false;
+            possibleMoves = legalMovesForSquare(dragState.from);
+            possibleMovesLoaded = true;
             renderBoard();
-            selectSquare(dragState.from);
             createDragGhost(dragState);
         }
 
@@ -617,7 +650,7 @@
 
             if (!response.ok || data.error) {
                 clearSelection();
-                showResult(data.error || uiText('trainer_error', 'No se pudo revisar la jugada.'), 'wrong');
+                showResult(data.error || uiText('practice_review_error', 'No se pudo revisar la jugada.'), 'wrong');
                 return;
             }
 
@@ -630,7 +663,6 @@
                 rememberError();
                 showResult(data.message || uiText('practice_wrong_objective', 'Esa jugada no resuelve el puzzle'), 'wrong');
                 setPracticeStatus(data.message || uiText('practice_wrong_objective', 'Esa jugada no resuelve el puzzle'));
-                renderBoard();
                 return;
             }
 
@@ -640,18 +672,17 @@
             });
 
             solved = Boolean(data.solved);
-            showResult(data.message || uiText('practice_follow_line', 'Correcto, segui la linea'), solved ? 'solved' : 'correct');
-            setPracticeStatus(data.message || uiText('practice_follow_line', 'Correcto, segui la linea'));
+            showResult(data.message || uiText('practice_follow_line', '¡Correcto, sigue la línea!'), solved ? 'solved' : 'correct');
+            setPracticeStatus(data.message || uiText('practice_follow_line', '¡Correcto, sigue la línea!'));
 
             if (solved) {
                 rememberSolvedPuzzle(currentPuzzle.id);
             }
 
-            renderBoard();
             renderMoveLine();
         } catch (error) {
-            console.error('Erro ao validar puzzle:', error);
-            showResult(uiText('trainer_error', 'No se pudo revisar la jugada.'), 'wrong');
+            console.error('No se pudo validar el puzzle:', error);
+            showResult(uiText('practice_review_error', 'No se pudo revisar la jugada.'), 'wrong');
         } finally {
             pendingMove = false;
             renderBoard();
@@ -672,7 +703,7 @@
         }
 
         hintElement.hidden = false;
-        hintElement.innerText = currentPuzzle.hint || uiText('practice_no_hint', 'Mira primero los jaques disponibles.');
+        hintElement.innerText = currentPuzzle.hint || uiText('practice_no_hint', 'Busca primero jaques y casillas de escape.');
     }
 
     function hideHint() {

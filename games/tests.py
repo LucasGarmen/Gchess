@@ -120,12 +120,15 @@ class PracticePuzzleTests(TestCase):
             if puzzle["mate_in"] > 1:
                 self.assertEqual(immediate_mates, [], puzzle["id"])
 
-            objective_moves = []
-            for move in board.legal_moves:
-                next_board = board.copy()
-                next_board.push(move)
-                if practice_move_satisfies_goal(next_board, attacker, puzzle["mate_in"] - 1):
-                    objective_moves.append(move.uci())
+            if puzzle.get("solution_only"):
+                objective_moves = {line[0] for line in puzzle["solutions"]}
+            else:
+                objective_moves = []
+                for move in board.legal_moves:
+                    next_board = board.copy()
+                    next_board.push(move)
+                    if practice_move_satisfies_goal(next_board, attacker, puzzle["mate_in"] - 1):
+                        objective_moves.append(move.uci())
 
             self.assertGreaterEqual(len(objective_moves), 1, puzzle["id"])
 
@@ -139,9 +142,9 @@ class PracticePuzzleTests(TestCase):
 
                 self.assertTrue(line_board.is_checkmate(), puzzle["id"])
 
-        self.assertEqual(counts["easy"], 4)
-        self.assertEqual(counts["medium"], 3)
-        self.assertEqual(counts["hard"], 3)
+        self.assertEqual(counts["easy"], 8)
+        self.assertEqual(counts["medium"], 6)
+        self.assertEqual(counts["hard"], 7)
 
     def test_practice_page_uses_dedicated_script_without_game_board_js(self):
         response = self.client.get(reverse("practice"))
@@ -244,6 +247,41 @@ class PracticePuzzleTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTrue(data["correct"])
         self.assertEqual(data["played_line"], ["h4g3", "g1h1"])
+
+    def test_practice_errors_use_current_language(self):
+        session = self.client.session
+        session["language"] = "es"
+        session.save()
+
+        response = self.client.post(
+            reverse("practice_move"),
+            data=json.dumps({
+                "puzzle_id": "missing-puzzle",
+                "played_line": [],
+                "move": "e2e4",
+            }),
+            content_type="application/json",
+        )
+
+        self.assertEqual(response.status_code, 404)
+        self.assertEqual(response.json()["error"], "Puzzle no encontrado.")
+
+    def test_solution_only_practice_move_rejects_wrong_move_without_search(self):
+        with patch("games.views.practice_move_satisfies_goal", side_effect=AssertionError("slow path used")):
+            response = self.client.post(
+                reverse("practice_move"),
+                data=json.dumps({
+                    "puzzle_id": "hard-smothered-classic",
+                    "played_line": [],
+                    "move": "d5d7",
+                }),
+                content_type="application/json",
+            )
+
+        data = response.json()
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(data["correct"])
+        self.assertEqual(data["played_line"], [])
 
     def test_wrong_practice_move_does_not_advance(self):
         response = self.client.post(
