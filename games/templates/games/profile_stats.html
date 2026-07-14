@@ -14,6 +14,22 @@
         <p>{% tr "stats_intro" %}</p>
     </header>
 
+    <section class="xp-progress-panel profile-xp-panel" aria-label="{% tr "xp_progress" %}">
+        <div class="xp-progress-header">
+            <span>{% tr "xp_level" %} <strong>{{ xp_progress.nivel }}</strong></span>
+            <span><strong>{{ xp_progress.xp_restante }}</strong> {% tr "xp_remaining" %}</span>
+        </div>
+
+        <div class="xp-progress-track" aria-hidden="true">
+            <span style="width: {{ xp_progress.porcentaje_xp_nivel }}%;"></span>
+        </div>
+
+        <div class="xp-progress-meta">
+            <span><strong>{{ xp_progress.xp_del_nivel_actual }}</strong>/100 XP</span>
+            <span><strong>{{ xp_progress.xp_total }}</strong> {% tr "xp_total" %}</span>
+        </div>
+    </section>
+
     <section class="stats-grid">
         {% for card in stat_cards %}
             <article class="stat-card stat-card-{{ card.tone }}">

@@ -14,7 +14,7 @@ from django.urls import reverse
 from accounts.models import UserPuzzleStats
 from .models import ChessGame, DailyVisit, GameInvitation, Move
 from .puzzles import PRACTICE_PUZZLES
-from .views import build_automatic_move_context, build_pgn_from_saved_game, evaluate_board_outcome, generate_comment, practice_move_from_notation, practice_move_satisfies_goal, read_analyzer_game, read_internal_coordinate_game
+from .views import build_automatic_move_context, build_pgn_from_saved_game, evaluate_board_outcome, generate_comment, practice_move_from_notation, practice_move_satisfies_goal, practice_xp_for_mate_in, read_analyzer_game, read_internal_coordinate_game
 
 
 class AnalyzerPgnParsingTests(SimpleTestCase):
@@ -160,6 +160,31 @@ class PracticePuzzleTests(TestCase):
         self.assertContains(response, 'games/practice.js')
         self.assertContains(response, 'PRACTICE_LEGAL_MOVES_URL')
         self.assertNotContains(response, 'games/board.js')
+
+    def test_authenticated_practice_page_shows_xp_bar(self):
+        user = User.objects.create_user(username="practice-xp-user", password="pass")
+        UserPuzzleStats.objects.create(
+            user=user,
+            xp_total=135,
+            nivel=2,
+            xp_del_nivel_actual=35,
+        )
+        self.client.force_login(user)
+
+        response = self.client.get(reverse("practice"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'id="practice-xp-panel"')
+        self.assertContains(response, 'id="practice-xp-level">2</strong>')
+        self.assertContains(response, 'id="practice-xp-current">35</strong>')
+
+    def test_practice_xp_rules_follow_mate_depth(self):
+        self.assertEqual(practice_xp_for_mate_in(1), 5)
+        self.assertEqual(practice_xp_for_mate_in(2), 15)
+        self.assertEqual(practice_xp_for_mate_in(3), 20)
+        self.assertEqual(practice_xp_for_mate_in(4), 35)
+        self.assertEqual(practice_xp_for_mate_in(5), 50)
+        self.assertEqual(practice_xp_for_mate_in(8), 50)
 
     def test_practice_legal_moves_returns_targets_for_selected_piece(self):
         response = self.client.post(
@@ -333,6 +358,11 @@ class PracticePuzzleTests(TestCase):
         self.assertEqual(stats.mejor_racha, 1)
         self.assertEqual(stats.ultimo_puzzle_resuelto, "easy-double-queen")
         self.assertIsNotNone(stats.fecha_ultimo_entrenamiento)
+        self.assertEqual(stats.xp_total, 5)
+        self.assertEqual(stats.nivel, 1)
+        self.assertEqual(stats.xp_del_nivel_actual, 5)
+        self.assertEqual(response.json()["xp_progress"]["xp_ganado"], 5)
+        self.assertEqual(response.json()["xp_progress"]["xp_restante"], 95)
 
     def test_authenticated_wrong_practice_move_updates_errors_and_streak(self):
         user = User.objects.create_user(username="stats-error-user", password="pass")
@@ -370,6 +400,9 @@ class PracticePuzzleTests(TestCase):
         self.assertEqual(stats.tiempo_promedio, timedelta(milliseconds=7500))
         self.assertEqual(stats.racha_actual, 0)
         self.assertEqual(stats.mejor_racha, 1)
+        self.assertEqual(stats.xp_total, 5)
+        self.assertEqual(stats.nivel, 1)
+        self.assertEqual(stats.xp_del_nivel_actual, 5)
 
     def test_anonymous_practice_solution_does_not_create_puzzle_stats(self):
         response = self.client.post(
@@ -394,8 +427,26 @@ class PracticePuzzleTests(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'class="stats-grid"')
+        self.assertContains(response, 'class="xp-progress-panel profile-xp-panel"')
         self.assertContains(response, "0%")
         self.assertTrue(UserPuzzleStats.objects.filter(user=user).exists())
+
+    def test_puzzle_xp_levels_up_every_100_xp(self):
+        user = User.objects.create_user(username="level-up-user", password="pass")
+        stats = UserPuzzleStats.objects.create(
+            user=user,
+            xp_total=95,
+            nivel=1,
+            xp_del_nivel_actual=95,
+        )
+
+        stats.registrar_puzzle("easy-double-queen", correcto=True, tiempo=timedelta(seconds=3), xp_ganado=5)
+        stats.refresh_from_db()
+
+        self.assertEqual(stats.xp_total, 100)
+        self.assertEqual(stats.nivel, 2)
+        self.assertEqual(stats.xp_del_nivel_actual, 0)
+        self.assertEqual(stats.xp_restante, 100)
 
 
 def fake_engine_analysis(cp=None, pv=None, mate=None):

@@ -42,6 +42,12 @@
     const flipButton = document.getElementById('practice-flip-board');
     const rankLabels = document.getElementById('practice-rank-labels');
     const fileLabels = document.getElementById('practice-file-labels');
+    const xpLevelElement = document.getElementById('practice-xp-level');
+    const xpRemainingElement = document.getElementById('practice-xp-remaining');
+    const xpFillElement = document.getElementById('practice-xp-fill');
+    const xpCurrentElement = document.getElementById('practice-xp-current');
+    const xpTotalElement = document.getElementById('practice-xp-total');
+    const xpGainedElement = document.getElementById('practice-xp-gained');
 
     if (!boardElement) {
         return;
@@ -235,6 +241,29 @@
 
     function restartPuzzleTimer() {
         puzzleStartedAt = Date.now();
+    }
+
+    function updateXpProgress(xpProgress) {
+        if (!xpProgress || !xpLevelElement) {
+            return;
+        }
+
+        xpLevelElement.innerText = String(xpProgress.nivel);
+        xpRemainingElement.innerText = String(xpProgress.xp_restante);
+        xpCurrentElement.innerText = String(xpProgress.xp_del_nivel_actual);
+        xpTotalElement.innerText = String(xpProgress.xp_total);
+
+        if (xpFillElement) {
+            xpFillElement.style.width = `${Math.max(0, Math.min(100, xpProgress.porcentaje_xp_nivel))}%`;
+        }
+
+        if (xpGainedElement && Number(xpProgress.xp_ganado) > 0) {
+            xpGainedElement.hidden = false;
+            xpGainedElement.innerText = `+${xpProgress.xp_ganado} XP`;
+            window.setTimeout(function () {
+                xpGainedElement.hidden = true;
+            }, 2600);
+        }
     }
 
     function nextPuzzle() {
@@ -837,6 +866,7 @@
 
             if (solved) {
                 rememberSolvedPuzzle(currentPuzzle.id);
+                updateXpProgress(data.xp_progress);
             }
 
             renderMoveLine();

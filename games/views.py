@@ -504,9 +504,16 @@ def home(request):
 @ensure_csrf_cookie
 def practice(request):
     touch_presence(request.user)
+    practice_xp = None
+
+    if request.user.is_authenticated:
+        stats, _created = UserPuzzleStats.objects.get_or_create(user=request.user)
+        practice_xp = build_xp_progress_context(stats)
+
     return render(request, 'games/practice.html', {
         'practice_levels': PRACTICE_LEVELS,
         'practice_puzzles': practice_puzzles_for_client(),
+        'practice_xp': practice_xp,
     })
 
 
@@ -541,9 +548,40 @@ def practice_elapsed_delta(data):
     return timezone.timedelta(milliseconds=elapsed_ms)
 
 
-def record_practice_stats(request, data, puzzle_id, correcto):
+def practice_xp_for_mate_in(mate_in):
+    try:
+        mate_in = int(mate_in)
+    except (TypeError, ValueError):
+        mate_in = 1
+
+    if mate_in <= 1:
+        return 5
+    if mate_in == 2:
+        return 15
+    if mate_in == 3:
+        return 20
+    if mate_in == 4:
+        return 35
+
+    return 50
+
+
+def build_xp_progress_context(stats, xp_ganado=0):
+    return {
+        'xp_total': stats.xp_total,
+        'nivel': stats.nivel,
+        'xp_del_nivel_actual': stats.xp_del_nivel_actual,
+        'xp_restante': stats.xp_restante,
+        'porcentaje_xp_nivel': stats.porcentaje_xp_nivel,
+        'xp_ganado': xp_ganado,
+    }
+
+
+def record_practice_stats(request, data, puzzle_id, correcto, mate_in=None):
     if not request.user.is_authenticated:
-        return
+        return None
+
+    xp_ganado = practice_xp_for_mate_in(mate_in) if correcto else 0
 
     with transaction.atomic():
         stats, _created = UserPuzzleStats.objects.select_for_update().get_or_create(user=request.user)
@@ -551,7 +589,9 @@ def record_practice_stats(request, data, puzzle_id, correcto):
             puzzle_id=puzzle_id,
             correcto=correcto,
             tiempo=practice_elapsed_delta(data),
+            xp_ganado=xp_ganado,
         )
+        return build_xp_progress_context(stats, xp_ganado=xp_ganado)
 
 
 def practice_move_from_notation(board, notation):
@@ -869,9 +909,16 @@ def practice_move(request):
         compatible_lines = compatible_practice_lines(puzzle, next_played_line)
 
     solved = board.is_checkmate()
+    xp_progress = None
 
     if solved:
-        record_practice_stats(request, data, puzzle['id'], correcto=True)
+        xp_progress = record_practice_stats(
+            request,
+            data,
+            puzzle['id'],
+            correcto=True,
+            mate_in=puzzle.get('mate_in'),
+        )
 
     return JsonResponse({
         'correct': True,
@@ -885,6 +932,7 @@ def practice_move(request):
         'auto_moves': auto_moves,
         'checkmate': board.is_checkmate(),
         'legal_moves': practice_legal_moves_by_from(board, attacker),
+        'xp_progress': xp_progress,
     })
 
 
@@ -1000,6 +1048,7 @@ def profile_stats(request):
     return render(request, 'games/profile_stats.html', {
         'stats': stats,
         'stat_cards': stat_cards,
+        'xp_progress': build_xp_progress_context(stats),
         'total_time': format_duration_short(stats.tiempo_total),
     })
 

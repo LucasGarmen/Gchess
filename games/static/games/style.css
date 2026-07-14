@@ -2703,6 +2703,61 @@ select:focus {
     margin: 0;
 }
 
+.xp-progress-panel {
+    background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.045), transparent 70%),
+        var(--surface);
+    border: 1px solid var(--border-soft);
+    border-radius: 8px;
+    box-shadow: var(--shadow-tight);
+    display: grid;
+    gap: 10px;
+    padding: 14px 16px;
+}
+
+.xp-progress-header,
+.xp-progress-meta {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: space-between;
+}
+
+.xp-progress-header span,
+.xp-progress-meta span {
+    color: var(--text-muted);
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: 0;
+    text-transform: uppercase;
+}
+
+.xp-progress-header strong,
+.xp-progress-meta strong {
+    color: var(--accent-strong);
+}
+
+.xp-progress-track {
+    background: rgba(20, 19, 16, 0.86);
+    border: 1px solid rgba(240, 217, 181, 0.14);
+    border-radius: 999px;
+    height: 12px;
+    overflow: hidden;
+}
+
+.xp-progress-track span {
+    background: linear-gradient(90deg, var(--green), var(--accent-strong));
+    border-radius: inherit;
+    display: block;
+    height: 100%;
+    transition: width 0.32s ease;
+}
+
+.xp-gained {
+    color: #dff0c6 !important;
+}
+
 .stats-eyebrow {
     color: var(--accent);
     display: inline-block;
@@ -3510,6 +3565,7 @@ select:focus {
 .practice-page {
     margin: 0 auto;
     max-width: 1400px;
+    position: relative;
 }
 
 .practice-header {
@@ -3521,6 +3577,11 @@ select:focus {
 .practice-header p,
 .practice-meta {
     color: var(--text-muted);
+}
+
+.practice-xp-panel {
+    margin: 0 auto 18px;
+    max-width: 720px;
 }
 
 .practice-game-layout {
@@ -3671,8 +3732,24 @@ select:focus {
         overflow: hidden;
     }
 
+    body.practice-page-active .practice-xp-panel {
+        left: 50%;
+        margin: 0;
+        max-width: none;
+        padding: 10px 14px;
+        position: absolute;
+        top: 8px;
+        transform: translateX(-50%);
+        width: min(620px, calc(100vw - 32px));
+        z-index: 20;
+    }
+
+    body.practice-page-active .practice-xp-panel .xp-progress-track {
+        height: 10px;
+    }
+
     body.practice-page-active .practice-game-layout {
-        --square-size: clamp(48px, min(calc((100svh - 132px) / 8), calc((100vw - 888px) / 8)), 82px);
+        --square-size: clamp(48px, min(calc((100svh - 178px) / 8), calc((100vw - 888px) / 8)), 82px);
         --board-panel-height: calc((var(--square-size) * 8) + 40px);
 
         align-items: center;
@@ -3684,7 +3761,7 @@ select:focus {
         margin: 0;
         max-width: none;
         overflow: hidden;
-        padding: 12px 0;
+        padding: 58px 0 12px;
     }
 
     body.practice-page-active .practice-board-area {

@@ -19,6 +19,9 @@ class UserPuzzleStatsAdmin(admin.ModelAdmin):
         'porcentaje_de_aciertos',
         'racha_actual',
         'mejor_racha',
+        'xp_total',
+        'nivel',
+        'xp_del_nivel_actual',
         'fecha_ultimo_entrenamiento',
     )
     readonly_fields = (
@@ -32,6 +35,9 @@ class UserPuzzleStatsAdmin(admin.ModelAdmin):
         'racha_actual',
         'ultimo_puzzle_resuelto',
         'fecha_ultimo_entrenamiento',
+        'xp_total',
+        'nivel',
+        'xp_del_nivel_actual',
         'created_at',
         'updated_at',
     )

@@ -18,6 +18,25 @@
         <p>{% tr "practice_intro" %}</p>
     </header>
 
+    {% if practice_xp %}
+        <section id="practice-xp-panel" class="xp-progress-panel practice-xp-panel" aria-label="{% tr "xp_progress" %}">
+            <div class="xp-progress-header">
+                <span>{% tr "xp_level" %} <strong id="practice-xp-level">{{ practice_xp.nivel }}</strong></span>
+                <span><strong id="practice-xp-remaining">{{ practice_xp.xp_restante }}</strong> {% tr "xp_remaining" %}</span>
+            </div>
+
+            <div class="xp-progress-track" aria-hidden="true">
+                <span id="practice-xp-fill" style="width: {{ practice_xp.porcentaje_xp_nivel }}%;"></span>
+            </div>
+
+            <div class="xp-progress-meta">
+                <span><strong id="practice-xp-current">{{ practice_xp.xp_del_nivel_actual }}</strong>/100 XP</span>
+                <span><strong id="practice-xp-total">{{ practice_xp.xp_total }}</strong> {% tr "xp_total" %}</span>
+                <span id="practice-xp-gained" class="xp-gained" hidden></span>
+            </div>
+        </section>
+    {% endif %}
+
     <section class="game-layout practice-game-layout">
         <aside class="pgn-panel practice-selector-panel">
             <h2>{% tr "practice_levels" %}</h2>
@@ -101,6 +120,6 @@
     window.PRACTICE_LEGAL_MOVES_URL = "{% url 'practice_legal_moves' %}";
     window.PRACTICE_PIECES_BASE_URL = "{% static 'games/pieces/' %}";
 </script>
-<script src="{% static 'games/practice.js' %}?v=8"></script>
+<script src="{% static 'games/practice.js' %}?v=9"></script>
 
 {% endblock %}
