@@ -35,7 +35,7 @@ from accounts.models import (
 from .engine_analysis import build_trainer_engine_context
 from .gemini_service import generate_gemini_explanation
 from .i18n import current_language, normalize_language, t
-from .models import ChessGame, GameChatMessage, GameChatRead, GameInvitation, Move, UserPresence
+from .models import ChessGame, DailyPuzzle, DailyPuzzleAttempt, GameChatMessage, GameChatRead, GameInvitation, Move, UserPresence
 from .puzzles import PRACTICE_LEVELS, get_practice_puzzle, public_practice_puzzles
 from .prompts import build_trainer_chat_prompt
 from .realtime import broadcast_move_created
@@ -742,6 +742,65 @@ def practice_puzzles_for_client():
     return puzzles
 
 
+def daily_puzzle_for_date(date):
+    puzzle_ids = [puzzle['id'] for puzzle in public_practice_puzzles()]
+    selected_puzzle_id = puzzle_ids[date.toordinal() % len(puzzle_ids)]
+
+    daily_puzzle, _created = DailyPuzzle.objects.get_or_create(
+        date=date,
+        defaults={'puzzle_id': selected_puzzle_id},
+    )
+
+    if not get_practice_puzzle(daily_puzzle.puzzle_id):
+        daily_puzzle.puzzle_id = selected_puzzle_id
+        daily_puzzle.save(update_fields=['puzzle_id'])
+
+    return daily_puzzle
+
+
+def daily_elapsed_delta(data):
+    return practice_elapsed_delta(data)
+
+
+def daily_attempt_elapsed_ms(attempt):
+    if attempt.resultado != 'in_progress':
+        return int(attempt.tiempo.total_seconds() * 1000)
+
+    return max(0, int((timezone.now() - attempt.started_at).total_seconds() * 1000))
+
+
+def daily_puzzle_state(daily_puzzle, attempt=None):
+    puzzle = get_practice_puzzle(daily_puzzle.puzzle_id)
+    played_line = attempt.played_line if attempt else []
+    board, played_line, attacker, _attacker_moves_played = practice_board_from_line(puzzle, played_line)
+    data = public_practice_puzzles()
+    puzzle_data = next(item for item in data if item['id'] == puzzle['id'])
+    puzzle_data['fen'] = board.fen()
+    puzzle_data['played_line'] = played_line
+    puzzle_data['legal_moves'] = practice_legal_moves_by_from(board, attacker)
+    return puzzle_data
+
+
+def serialize_daily_attempt(attempt):
+    if not attempt:
+        return None
+
+    return {
+        'resultado': attempt.resultado,
+        'tiempo': format_duration_short(attempt.tiempo),
+        'elapsed_ms': daily_attempt_elapsed_ms(attempt),
+        'completed': attempt.resultado in ('correct', 'incorrect'),
+    }
+
+
+def finalize_daily_attempt(attempt, resultado, elapsed_delta, played_line):
+    attempt.resultado = resultado
+    attempt.tiempo = elapsed_delta
+    attempt.played_line = played_line
+    attempt.completed_at = timezone.now()
+    attempt.save(update_fields=['resultado', 'tiempo', 'played_line', 'completed_at'])
+
+
 @lru_cache(maxsize=200000)
 def has_forced_mate_from_fen(fen, attacker, attacker_moves_left):
     current_board = chess.Board(fen)
@@ -1006,6 +1065,201 @@ def format_duration_short(duration):
         return f'{minutes}m {seconds:02d}s'
 
     return f'{seconds}s'
+
+
+@ensure_csrf_cookie
+@login_required
+def daily_puzzle(request):
+    touch_presence(request.user)
+    today = timezone.localdate()
+    daily = daily_puzzle_for_date(today)
+    attempt = DailyPuzzleAttempt.objects.filter(date=today, user=request.user).first()
+    active_attempt = attempt if attempt and attempt.resultado == 'in_progress' else None
+
+    return render(request, 'games/daily.html', {
+        'daily_date': today,
+        'daily_puzzle': daily_puzzle_state(daily, active_attempt),
+        'daily_attempt': serialize_daily_attempt(attempt),
+        'daily_status': attempt.resultado if attempt else 'not_started',
+    })
+
+
+@require_POST
+@login_required
+def daily_start(request):
+    today = timezone.localdate()
+    daily = daily_puzzle_for_date(today)
+    attempt, _created = DailyPuzzleAttempt.objects.get_or_create(
+        date=today,
+        user=request.user,
+        defaults={'daily_puzzle': daily},
+    )
+
+    if attempt.daily_puzzle_id != daily.id:
+        attempt.daily_puzzle = daily
+        attempt.save(update_fields=['daily_puzzle'])
+
+    active_attempt = attempt if attempt.resultado == 'in_progress' else None
+
+    return JsonResponse({
+        'status': attempt.resultado,
+        'puzzle': daily_puzzle_state(daily, active_attempt),
+        'attempt': serialize_daily_attempt(attempt),
+    })
+
+
+@require_POST
+@login_required
+@rate_limit(120, 60, 'daily-move')
+def daily_move(request):
+    language = current_language(request)
+
+    try:
+        data = parse_json_body(request)
+    except ValueError as exc:
+        return practice_error_response(language, str(exc), status=400)
+
+    today = timezone.localdate()
+    daily = daily_puzzle_for_date(today)
+
+    with transaction.atomic():
+        attempt, _created = DailyPuzzleAttempt.objects.select_for_update().get_or_create(
+            date=today,
+            user=request.user,
+            defaults={'daily_puzzle': daily},
+        )
+
+        if attempt.daily_puzzle_id != daily.id:
+            attempt.daily_puzzle = daily
+            attempt.save(update_fields=['daily_puzzle'])
+
+        if attempt.resultado != 'in_progress':
+            return JsonResponse({
+                'completed': True,
+                'result': attempt.resultado,
+                'time': format_duration_short(attempt.tiempo),
+                'message': t(language, 'daily_already_completed'),
+            }, status=409)
+
+        puzzle = get_practice_puzzle(attempt.daily_puzzle.puzzle_id)
+
+        try:
+            board, played_line, attacker, attacker_moves_played = practice_board_from_line(
+                puzzle,
+                attempt.played_line,
+            )
+            compatible_lines = compatible_practice_lines(puzzle, played_line)
+        except ValueError as exc:
+            return practice_error_response(language, str(exc), status=400)
+
+        elapsed_delta = daily_elapsed_delta(data)
+
+        attempted_move = parse_practice_attempt(board, data.get('move', ''))
+        if not attempted_move:
+            finalize_daily_attempt(attempt, 'incorrect', elapsed_delta, played_line)
+            return JsonResponse({
+                'correct': False,
+                'completed': True,
+                'result': 'incorrect',
+                'message': t(language, 'daily_incorrect'),
+                'time': format_duration_short(attempt.tiempo),
+                'fen': board.fen(),
+                'played_line': played_line,
+            })
+
+        moving_san = board.san(attempted_move)
+        known_solution_move = any(
+            len(line) > len(played_line) and line[len(played_line)] == attempted_move.uci()
+            for line in compatible_lines
+        )
+        board.push(attempted_move)
+        next_played_line = [*played_line, attempted_move.uci()]
+        attacker_moves_left = puzzle['mate_in'] - attacker_moves_played - 1
+        invalid_attempt = attacker_moves_left < 0
+
+        if not invalid_attempt and not known_solution_move:
+            invalid_attempt = (
+                not puzzle.get('accept_alternatives', False) or
+                not practice_move_satisfies_goal(board, attacker, attacker_moves_left)
+            )
+
+        if invalid_attempt:
+            previous_board = practice_board_from_line(puzzle, played_line)[0]
+            finalize_daily_attempt(attempt, 'incorrect', elapsed_delta, played_line)
+            return JsonResponse({
+                'correct': False,
+                'completed': True,
+                'result': 'incorrect',
+                'message': t(language, 'daily_incorrect'),
+                'time': format_duration_short(attempt.tiempo),
+                'fen': previous_board.fen(),
+                'played_line': played_line,
+            })
+
+        played_move = {
+            'uci': attempted_move.uci(),
+            'san': moving_san,
+        }
+        auto_moves = []
+        compatible_lines = compatible_practice_lines(puzzle, next_played_line)
+        solved = board.is_checkmate()
+
+        if not solved and board.turn != attacker:
+            auto_move = choose_practice_auto_reply(
+                board,
+                attacker,
+                attacker_moves_left,
+                compatible_lines,
+                next_played_line,
+                not puzzle.get('accept_alternatives', False),
+            )
+
+            if not auto_move:
+                logger.warning("Daily puzzle %s had no compatible auto reply.", puzzle['id'])
+                return practice_error_response(language, 'practice_cannot_continue', status=500)
+
+            auto_moves.append({
+                'uci': auto_move.uci(),
+                'san': board.san(auto_move),
+            })
+            board.push(auto_move)
+            next_played_line.append(auto_move.uci())
+            compatible_lines = compatible_practice_lines(puzzle, next_played_line)
+
+        solved = board.is_checkmate()
+
+        if solved:
+            finalize_daily_attempt(attempt, 'correct', elapsed_delta, next_played_line)
+            return JsonResponse({
+                'correct': True,
+                'completed': True,
+                'result': 'correct',
+                'message': t(language, 'daily_correct'),
+                'time': format_duration_short(attempt.tiempo),
+                'fen': board.fen(),
+                'played_line': next_played_line,
+                'played_move': played_move,
+                'auto_moves': auto_moves,
+                'legal_moves': {},
+            })
+
+        attempt.played_line = next_played_line
+        attempt.tiempo = elapsed_delta
+        attempt.save(update_fields=['played_line', 'tiempo'])
+
+        return JsonResponse({
+            'correct': True,
+            'completed': False,
+            'result': 'in_progress',
+            'message': t(language, 'daily_continue'),
+            'time': format_duration_short(attempt.tiempo),
+            'fen': board.fen(),
+            'played_line': next_played_line,
+            'played_move': played_move,
+            'auto_moves': auto_moves,
+            'compatible_lines': len(compatible_lines),
+            'legal_moves': practice_legal_moves_by_from(board, attacker),
+        })
 
 
 @login_required

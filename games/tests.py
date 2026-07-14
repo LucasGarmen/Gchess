@@ -10,9 +10,10 @@ from django.contrib.auth.models import User
 from django.core.cache import cache
 from django.test import Client, SimpleTestCase, TestCase
 from django.urls import reverse
+from django.utils import timezone
 
 from accounts.models import Achievement, UserAchievement, UserPuzzleStats, unlock_achievements_for_stats
-from .models import ChessGame, DailyVisit, GameInvitation, Move
+from .models import ChessGame, DailyPuzzle, DailyPuzzleAttempt, DailyVisit, GameInvitation, Move
 from .puzzles import PRACTICE_PUZZLES
 from .views import build_automatic_move_context, build_pgn_from_saved_game, evaluate_board_outcome, generate_comment, practice_move_from_notation, practice_move_satisfies_goal, practice_xp_for_mate_in, read_analyzer_game, read_internal_coordinate_game
 
@@ -185,6 +186,89 @@ class PracticePuzzleTests(TestCase):
         self.assertEqual(practice_xp_for_mate_in(4), 35)
         self.assertEqual(practice_xp_for_mate_in(5), 50)
         self.assertEqual(practice_xp_for_mate_in(8), 50)
+
+    def test_daily_page_shows_today_puzzle_and_start_button(self):
+        user = User.objects.create_user(username="daily-page-user", password="pass")
+        today = timezone.localdate()
+        DailyPuzzle.objects.create(date=today, puzzle_id="easy-double-queen")
+        self.client.force_login(user)
+
+        response = self.client.get(reverse("daily_puzzle"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'href="/daily/"')
+        self.assertContains(response, 'id="daily-start"')
+        self.assertContains(response, "Dos mates de dama")
+        self.assertContains(response, "daily_puzzle.js")
+
+    def test_daily_start_creates_single_in_progress_attempt(self):
+        user = User.objects.create_user(username="daily-start-user", password="pass")
+        today = timezone.localdate()
+        DailyPuzzle.objects.create(date=today, puzzle_id="easy-double-queen")
+        self.client.force_login(user)
+
+        first_response = self.client.post(reverse("daily_start"))
+        second_response = self.client.post(reverse("daily_start"))
+
+        self.assertEqual(first_response.status_code, 200)
+        self.assertEqual(second_response.status_code, 200)
+        self.assertEqual(DailyPuzzleAttempt.objects.filter(user=user, date=today).count(), 1)
+        self.assertEqual(first_response.json()["status"], "in_progress")
+
+    def test_daily_correct_attempt_saves_result_time_and_blocks_retry(self):
+        user = User.objects.create_user(username="daily-correct-user", password="pass")
+        today = timezone.localdate()
+        DailyPuzzle.objects.create(date=today, puzzle_id="easy-double-queen")
+        self.client.force_login(user)
+        self.client.post(reverse("daily_start"))
+
+        response = self.client.post(
+            reverse("daily_move"),
+            data=json.dumps({
+                "move": "g2f1",
+                "elapsed_ms": 7000,
+            }),
+            content_type="application/json",
+        )
+        retry_response = self.client.post(
+            reverse("daily_move"),
+            data=json.dumps({
+                "move": "g2d2",
+                "elapsed_ms": 9000,
+            }),
+            content_type="application/json",
+        )
+
+        attempt = DailyPuzzleAttempt.objects.get(user=user, date=today)
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response.json()["completed"])
+        self.assertEqual(response.json()["result"], "correct")
+        self.assertEqual(attempt.resultado, "correct")
+        self.assertEqual(attempt.tiempo, timedelta(seconds=7))
+        self.assertEqual(retry_response.status_code, 409)
+
+    def test_daily_wrong_attempt_saves_incorrect_result(self):
+        user = User.objects.create_user(username="daily-wrong-user", password="pass")
+        today = timezone.localdate()
+        DailyPuzzle.objects.create(date=today, puzzle_id="easy-double-queen")
+        self.client.force_login(user)
+        self.client.post(reverse("daily_start"))
+
+        response = self.client.post(
+            reverse("daily_move"),
+            data=json.dumps({
+                "move": "e2e4",
+                "elapsed_ms": 4000,
+            }),
+            content_type="application/json",
+        )
+
+        attempt = DailyPuzzleAttempt.objects.get(user=user, date=today)
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response.json()["completed"])
+        self.assertEqual(response.json()["result"], "incorrect")
+        self.assertEqual(attempt.resultado, "incorrect")
+        self.assertEqual(attempt.tiempo, timedelta(seconds=4))
 
     def test_practice_legal_moves_returns_targets_for_selected_piece(self):
         response = self.client.post(

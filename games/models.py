@@ -1,4 +1,5 @@
 import uuid
+from datetime import timedelta
 
 from django.db import models
 from django.contrib.auth.models import User
@@ -88,6 +89,46 @@ class DailyVisit(models.Model):
 
     def __str__(self):
         return f"{self.date}: {self.visits} visitas"
+
+
+class DailyPuzzle(models.Model):
+    date = models.DateField(unique=True)
+    puzzle_id = models.CharField(max_length=120)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-date']
+        verbose_name = 'puzzle diario'
+        verbose_name_plural = 'puzzles diarios'
+
+    def __str__(self):
+        return f"{self.date}: {self.puzzle_id}"
+
+
+class DailyPuzzleAttempt(models.Model):
+    RESULT_CHOICES = [
+        ('in_progress', 'En progreso'),
+        ('correct', 'Correcto'),
+        ('incorrect', 'Incorrecto'),
+    ]
+
+    daily_puzzle = models.ForeignKey(DailyPuzzle, on_delete=models.CASCADE, related_name='attempts')
+    date = models.DateField()
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='daily_puzzle_attempts')
+    resultado = models.CharField(max_length=20, choices=RESULT_CHOICES, default='in_progress')
+    tiempo = models.DurationField(default=timedelta)
+    played_line = models.JSONField(default=list, blank=True)
+    started_at = models.DateTimeField(auto_now_add=True)
+    completed_at = models.DateTimeField(blank=True, null=True)
+
+    class Meta:
+        ordering = ['-date', '-started_at']
+        unique_together = [('date', 'user')]
+        verbose_name = 'intento de puzzle diario'
+        verbose_name_plural = 'intentos de puzzle diario'
+
+    def __str__(self):
+        return f"{self.user.username} - {self.date} - {self.resultado}"
 
 
 class GameInvitation(models.Model):

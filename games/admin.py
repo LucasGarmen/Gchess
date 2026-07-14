@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.db.models import Sum
 
-from .models import ChessGame, DailyVisit
+from .models import ChessGame, DailyPuzzle, DailyPuzzleAttempt, DailyVisit
 
 
 @admin.register(ChessGame)
@@ -30,3 +30,20 @@ class DailyVisitAdmin(admin.ModelAdmin):
     @admin.display(description='visitas totales')
     def total_visits(self, obj):
         return DailyVisit.objects.aggregate(total=Sum('visits'))['total'] or 0
+
+
+@admin.register(DailyPuzzle)
+class DailyPuzzleAdmin(admin.ModelAdmin):
+    list_display = ('date', 'puzzle_id', 'created_at')
+    date_hierarchy = 'date'
+    search_fields = ('puzzle_id',)
+    ordering = ('-date',)
+
+
+@admin.register(DailyPuzzleAttempt)
+class DailyPuzzleAttemptAdmin(admin.ModelAdmin):
+    list_display = ('user', 'date', 'resultado', 'tiempo', 'daily_puzzle', 'completed_at')
+    list_filter = ('resultado', 'date')
+    date_hierarchy = 'date'
+    search_fields = ('user__username', 'daily_puzzle__puzzle_id')
+    ordering = ('-date', '-started_at')

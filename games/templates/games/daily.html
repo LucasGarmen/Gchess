@@ -1,0 +1,108 @@
+{% extends 'games/base.html' %}
+{% load static %}
+{% load game_i18n %}
+
+{% block title %}
+{% tr "daily_title" %}
+{% endblock %}
+
+{% block content %}
+
+<main class="daily-page">
+    <header class="stats-header daily-header">
+        <span class="stats-eyebrow">GChess</span>
+        <h1>{% tr "daily_title" %}</h1>
+        <p>{% tr "daily_intro" %}</p>
+    </header>
+
+    <section class="daily-layout">
+        <aside class="pgn-panel daily-panel">
+            <div>
+                <span class="daily-date">{{ daily_date|date:"d/m/Y" }}</span>
+                <h2>{{ daily_puzzle.title }}</h2>
+                <p>{{ daily_puzzle.hint }}</p>
+            </div>
+
+            <div class="daily-stats-row">
+                <div>
+                    <strong id="daily-timer">0s</strong>
+                    <span>{% tr "daily_time" %}</span>
+                </div>
+                <div>
+                    <strong id="daily-result-label">
+                        {% if daily_attempt.completed %}
+                            {% if daily_attempt.resultado == "correct" %}
+                                {% tr "daily_correct" %}
+                            {% else %}
+                                {% tr "daily_incorrect" %}
+                            {% endif %}
+                        {% else %}
+                            -
+                        {% endif %}
+                    </strong>
+                    <span>{% tr "daily_result" %}</span>
+                </div>
+            </div>
+
+            <div id="daily-result" class="coach-comment daily-result" {% if not daily_attempt.completed %}hidden{% endif %}>
+                {% if daily_attempt.completed %}
+                    {% if daily_attempt.resultado == "correct" %}
+                        {% tr "daily_correct" %}
+                    {% else %}
+                        {% tr "daily_incorrect" %}
+                    {% endif %}
+                    {{ daily_attempt.tiempo }}. {% tr "daily_back_tomorrow" %}
+                {% endif %}
+            </div>
+
+            <button
+                id="daily-start"
+                type="button"
+                {% if daily_status != "not_started" %}hidden{% endif %}
+            >
+                {% tr "daily_start" %}
+            </button>
+
+            <p id="daily-status" class="daily-status">
+                {% if daily_attempt.completed %}
+                    {% tr "daily_back_tomorrow" %}
+                {% elif daily_status == "in_progress" %}
+                    {% tr "daily_in_progress" %}
+                {% else %}
+                    {% tr "daily_waiting" %}
+                {% endif %}
+            </p>
+        </aside>
+
+        <section id="daily-board-area" class="board-area daily-board-area" {% if daily_status != "in_progress" %}hidden{% endif %}>
+            <div class="board-wrapper">
+                <div class="rank-labels" id="daily-rank-labels">
+                    <span>8</span><span>7</span><span>6</span><span>5</span>
+                    <span>4</span><span>3</span><span>2</span><span>1</span>
+                </div>
+
+                <div>
+                    <div id="daily-board" class="board daily-board"></div>
+
+                    <div class="file-labels" id="daily-file-labels">
+                        <span>a</span><span>b</span><span>c</span><span>d</span>
+                        <span>e</span><span>f</span><span>g</span><span>h</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </section>
+</main>
+
+{{ daily_puzzle|json_script:"daily-puzzle-data" }}
+{{ daily_attempt|json_script:"daily-attempt-data" }}
+{{ daily_status|json_script:"daily-status-data" }}
+
+<script>
+    window.DAILY_START_URL = "{% url 'daily_start' %}";
+    window.DAILY_MOVE_URL = "{% url 'daily_move' %}";
+    window.DAILY_PIECES_BASE_URL = "{% static 'games/pieces/' %}";
+</script>
+<script src="{% static 'games/daily_puzzle.js' %}?v=1"></script>
+
+{% endblock %}

@@ -2868,6 +2868,86 @@ select:focus {
     justify-content: space-between;
 }
 
+.daily-page {
+    display: grid;
+    gap: 22px;
+    margin: 0 auto;
+    max-width: 1180px;
+}
+
+.daily-header {
+    margin: 0;
+}
+
+.daily-layout {
+    align-items: start;
+    display: grid;
+    gap: 22px;
+    grid-template-columns: minmax(260px, 360px) max-content;
+}
+
+.daily-panel {
+    display: grid;
+    gap: 16px;
+    max-width: none;
+    padding: 20px;
+}
+
+.daily-panel h2 {
+    margin: 6px 0 8px;
+}
+
+.daily-panel p {
+    margin: 0;
+}
+
+.daily-date {
+    color: var(--accent);
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: 0;
+    text-transform: uppercase;
+}
+
+.daily-stats-row {
+    display: grid;
+    gap: 10px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.daily-stats-row div {
+    background: rgba(20, 19, 16, 0.72);
+    border: 1px solid rgba(240, 217, 181, 0.13);
+    border-radius: 8px;
+    display: grid;
+    gap: 3px;
+    padding: 12px;
+}
+
+.daily-stats-row strong {
+    color: var(--accent-strong);
+    font-size: 24px;
+    line-height: 1.05;
+}
+
+.daily-stats-row span,
+.daily-status {
+    color: var(--text-muted);
+    font-size: 13px;
+}
+
+.daily-result {
+    color: var(--accent);
+}
+
+.daily-board .square {
+    cursor: pointer;
+}
+
+.daily-board-area[hidden] {
+    display: none;
+}
+
 .stat-card {
     background:
         linear-gradient(180deg, rgba(255, 255, 255, 0.045), transparent 70%),
@@ -2976,6 +3056,7 @@ select:focus {
 @media (max-width: 720px) {
     .stats-grid,
     .achievements-grid,
+    .daily-layout,
     .stats-detail-list {
         grid-template-columns: 1fr;
     }
