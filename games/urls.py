@@ -9,6 +9,7 @@ urlpatterns = [
     path('practice/', views.practice, name='practice'),
     path('practice/move/', views.practice_move, name='practice_move'),
     path('practice/legal-moves/', views.practice_legal_moves, name='practice_legal_moves'),
+    path('profile/stats/', views.profile_stats, name='profile_stats'),
     path('games/', games_list, name='games_list'),
     path('games/new/', game_create, name='game_create'),
     path('invitations/<int:invitation_id>/waiting/', views.game_invitation_wait, name='game_invitation_wait'),

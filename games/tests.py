@@ -1,5 +1,7 @@
 import json
 import os
+from datetime import timedelta
+from decimal import Decimal
 from unittest.mock import patch
 
 import chess
@@ -9,6 +11,7 @@ from django.core.cache import cache
 from django.test import Client, SimpleTestCase, TestCase
 from django.urls import reverse
 
+from accounts.models import UserPuzzleStats
 from .models import ChessGame, DailyVisit, GameInvitation, Move
 from .puzzles import PRACTICE_PUZZLES
 from .views import build_automatic_move_context, build_pgn_from_saved_game, evaluate_board_outcome, generate_comment, practice_move_from_notation, practice_move_satisfies_goal, read_analyzer_game, read_internal_coordinate_game
@@ -301,6 +304,98 @@ class PracticePuzzleTests(TestCase):
         self.assertEqual(data["played_line"], [])
         self.assertEqual(data["fen"], "8/8/8/8/5Q1K/8/8/6k1 w - - 0 1")
         self.assertIn("f4", data["legal_moves"])
+
+    def test_authenticated_practice_solution_updates_puzzle_stats(self):
+        user = User.objects.create_user(username="stats-user", password="pass")
+        self.client.force_login(user)
+
+        response = self.client.post(
+            reverse("practice_move"),
+            data=json.dumps({
+                "puzzle_id": "easy-double-queen",
+                "played_line": [],
+                "move": "g2f1",
+                "elapsed_ms": 12500,
+            }),
+            content_type="application/json",
+        )
+
+        stats = UserPuzzleStats.objects.get(user=user)
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response.json()["solved"])
+        self.assertEqual(stats.puzzles_resueltos, 1)
+        self.assertEqual(stats.puzzles_correctos, 1)
+        self.assertEqual(stats.puzzles_incorrectos, 0)
+        self.assertEqual(stats.porcentaje_de_aciertos, Decimal("100.00"))
+        self.assertEqual(stats.tiempo_total, timedelta(milliseconds=12500))
+        self.assertEqual(stats.tiempo_promedio, timedelta(milliseconds=12500))
+        self.assertEqual(stats.racha_actual, 1)
+        self.assertEqual(stats.mejor_racha, 1)
+        self.assertEqual(stats.ultimo_puzzle_resuelto, "easy-double-queen")
+        self.assertIsNotNone(stats.fecha_ultimo_entrenamiento)
+
+    def test_authenticated_wrong_practice_move_updates_errors_and_streak(self):
+        user = User.objects.create_user(username="stats-error-user", password="pass")
+        self.client.force_login(user)
+
+        self.client.post(
+            reverse("practice_move"),
+            data=json.dumps({
+                "puzzle_id": "easy-double-queen",
+                "played_line": [],
+                "move": "g2f1",
+                "elapsed_ms": 10000,
+            }),
+            content_type="application/json",
+        )
+        response = self.client.post(
+            reverse("practice_move"),
+            data=json.dumps({
+                "puzzle_id": "medium-corner-queen",
+                "played_line": [],
+                "move": "f4a4",
+                "elapsed_ms": 5000,
+            }),
+            content_type="application/json",
+        )
+
+        stats = UserPuzzleStats.objects.get(user=user)
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(response.json()["correct"])
+        self.assertEqual(stats.puzzles_resueltos, 2)
+        self.assertEqual(stats.puzzles_correctos, 1)
+        self.assertEqual(stats.puzzles_incorrectos, 1)
+        self.assertEqual(stats.porcentaje_de_aciertos, Decimal("50.00"))
+        self.assertEqual(stats.tiempo_total, timedelta(seconds=15))
+        self.assertEqual(stats.tiempo_promedio, timedelta(milliseconds=7500))
+        self.assertEqual(stats.racha_actual, 0)
+        self.assertEqual(stats.mejor_racha, 1)
+
+    def test_anonymous_practice_solution_does_not_create_puzzle_stats(self):
+        response = self.client.post(
+            reverse("practice_move"),
+            data=json.dumps({
+                "puzzle_id": "easy-double-queen",
+                "played_line": [],
+                "move": "g2f1",
+                "elapsed_ms": 8000,
+            }),
+            content_type="application/json",
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(UserPuzzleStats.objects.exists())
+
+    def test_profile_stats_page_is_available_for_authenticated_users(self):
+        user = User.objects.create_user(username="stats-page-user", password="pass")
+        self.client.force_login(user)
+
+        response = self.client.get(reverse("profile_stats"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'class="stats-grid"')
+        self.assertContains(response, "0%")
+        self.assertTrue(UserPuzzleStats.objects.filter(user=user).exists())
 
 
 def fake_engine_analysis(cp=None, pv=None, mate=None):

@@ -24,7 +24,7 @@ from django.http import JsonResponse
 from django.urls import reverse
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.views.decorators.http import require_POST, require_http_methods
-from accounts.models import PlayerProfile
+from accounts.models import PlayerProfile, UserPuzzleStats
 from .engine_analysis import build_trainer_engine_context
 from .gemini_service import generate_gemini_explanation
 from .i18n import current_language, normalize_language, t
@@ -46,6 +46,7 @@ ELO_K_FACTOR = 32
 CLOCK_FIELDS = ['white_time_seconds', 'black_time_seconds', 'active_clock_color', 'clock_started_at', 'status', 'result']
 PRESENCE_TOUCH_CACHE = {}
 MAX_JSON_BODY_BYTES = 24 * 1024
+MAX_PRACTICE_ELAPSED_SECONDS = 6 * 60 * 60
 MAX_ENGINE_MOVES = 300
 MAX_PGN_BYTES = 80 * 1024
 MAX_TRAINER_QUESTION_CHARS = 500
@@ -530,6 +531,29 @@ def practice_error_response(language, error_key, status=400):
     return JsonResponse({'error': practice_error_message(language, error_key)}, status=status)
 
 
+def practice_elapsed_delta(data):
+    try:
+        elapsed_ms = int(data.get('elapsed_ms') or 0)
+    except (TypeError, ValueError):
+        elapsed_ms = 0
+
+    elapsed_ms = min(max(elapsed_ms, 0), MAX_PRACTICE_ELAPSED_SECONDS * 1000)
+    return timezone.timedelta(milliseconds=elapsed_ms)
+
+
+def record_practice_stats(request, data, puzzle_id, correcto):
+    if not request.user.is_authenticated:
+        return
+
+    with transaction.atomic():
+        stats, _created = UserPuzzleStats.objects.select_for_update().get_or_create(user=request.user)
+        stats.registrar_puzzle(
+            puzzle_id=puzzle_id,
+            correcto=correcto,
+            tiempo=practice_elapsed_delta(data),
+        )
+
+
 def practice_move_from_notation(board, notation):
     notation = (notation or '').strip()
 
@@ -772,6 +796,7 @@ def practice_move(request):
 
     attempted_move = parse_practice_attempt(board, data.get('move', ''))
     if not attempted_move:
+        record_practice_stats(request, data, puzzle['id'], correcto=False)
         return JsonResponse({
             'correct': False,
             'message': t(language, 'practice_wrong_objective'),
@@ -800,6 +825,7 @@ def practice_move(request):
 
     if invalid_attempt:
         previous_board = practice_board_from_line(puzzle, played_line)[0]
+        record_practice_stats(request, data, puzzle['id'], correcto=False)
         return JsonResponse({
             'correct': False,
             'message': t(language, 'practice_wrong_objective'),
@@ -843,6 +869,9 @@ def practice_move(request):
         compatible_lines = compatible_practice_lines(puzzle, next_played_line)
 
     solved = board.is_checkmate()
+
+    if solved:
+        record_practice_stats(request, data, puzzle['id'], correcto=True)
 
     return JsonResponse({
         'correct': True,
@@ -907,6 +936,71 @@ def practice_legal_moves(request):
     return JsonResponse({
         'moves': moves,
         'played_line': played_line,
+    })
+
+
+def format_duration_short(duration):
+    total_seconds = max(0, int(duration.total_seconds()))
+    minutes, seconds = divmod(total_seconds, 60)
+    hours, minutes = divmod(minutes, 60)
+
+    if hours:
+        return f'{hours}h {minutes:02d}m'
+
+    if minutes:
+        return f'{minutes}m {seconds:02d}s'
+
+    return f'{seconds}s'
+
+
+@login_required
+def profile_stats(request):
+    touch_presence(request.user)
+    stats, _created = UserPuzzleStats.objects.get_or_create(user=request.user)
+    language = current_language(request)
+
+    stat_cards = [
+        {
+            'label': t(language, 'stats_puzzles_solved'),
+            'value': stats.puzzles_resueltos,
+            'tone': 'total',
+        },
+        {
+            'label': t(language, 'stats_correct'),
+            'value': stats.puzzles_correctos,
+            'tone': 'correct',
+        },
+        {
+            'label': t(language, 'stats_errors'),
+            'value': stats.puzzles_incorrectos,
+            'tone': 'error',
+        },
+        {
+            'label': t(language, 'stats_accuracy'),
+            'value': f'{stats.porcentaje_de_aciertos:.0f}%',
+            'tone': 'accuracy',
+        },
+        {
+            'label': t(language, 'stats_average_time'),
+            'value': format_duration_short(stats.tiempo_promedio),
+            'tone': 'time',
+        },
+        {
+            'label': t(language, 'stats_current_streak'),
+            'value': stats.racha_actual,
+            'tone': 'current-streak',
+        },
+        {
+            'label': t(language, 'stats_best_streak'),
+            'value': stats.mejor_racha,
+            'tone': 'best-streak',
+        },
+    ]
+
+    return render(request, 'games/profile_stats.html', {
+        'stats': stats,
+        'stat_cards': stat_cards,
+        'total_time': format_duration_short(stats.tiempo_total),
     })
 
 

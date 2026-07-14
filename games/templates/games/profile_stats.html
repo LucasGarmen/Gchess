@@ -1,0 +1,50 @@
+{% extends 'games/base.html' %}
+{% load game_i18n %}
+
+{% block title %}
+{% tr "stats_title" %}
+{% endblock %}
+
+{% block content %}
+
+<main class="stats-page">
+    <header class="stats-header">
+        <span class="stats-eyebrow">GChess</span>
+        <h1>{% tr "stats_title" %}</h1>
+        <p>{% tr "stats_intro" %}</p>
+    </header>
+
+    <section class="stats-grid">
+        {% for card in stat_cards %}
+            <article class="stat-card stat-card-{{ card.tone }}">
+                <span>{{ card.label }}</span>
+                <strong>{{ card.value }}</strong>
+            </article>
+        {% endfor %}
+    </section>
+
+    <section class="pgn-panel stats-detail-panel">
+        <h2>{% tr "stats_training_summary" %}</h2>
+
+        {% if stats.fecha_ultimo_entrenamiento %}
+            <dl class="stats-detail-list">
+                <div>
+                    <dt>{% tr "stats_total_time" %}</dt>
+                    <dd>{{ total_time }}</dd>
+                </div>
+                <div>
+                    <dt>{% tr "stats_last_puzzle" %}</dt>
+                    <dd>{{ stats.ultimo_puzzle_resuelto|default:"-" }}</dd>
+                </div>
+                <div>
+                    <dt>{% tr "stats_last_training" %}</dt>
+                    <dd>{{ stats.fecha_ultimo_entrenamiento|date:"d/m/Y H:i" }}</dd>
+                </div>
+            </dl>
+        {% else %}
+            <p class="stats-empty">{% tr "stats_no_training" %}</p>
+        {% endif %}
+    </section>
+</main>
+
+{% endblock %}

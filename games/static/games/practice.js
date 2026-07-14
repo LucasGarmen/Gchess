@@ -76,6 +76,7 @@
     let orientation = 'white';
     let lineMoves = [];
     let progress = loadProgress();
+    let puzzleStartedAt = Date.now();
     let dragState = null;
     let suppressNextClick = false;
     let boardSquares = new Map();
@@ -215,6 +216,7 @@
         pendingMove = false;
         orientation = puzzle.turn || currentPosition.turn;
         lineMoves = [];
+        puzzleStartedAt = Date.now();
 
         titleElement.innerText = puzzle.title || uiText('practice_title', 'Práctica');
         metaElement.innerText = `${levelLabel(puzzle.level)} - ${levelDescription(puzzle.level)} - ${turnLabel(puzzle.turn)}`;
@@ -225,6 +227,14 @@
         renderBoard();
         renderMoveLine();
         updateButtons();
+    }
+
+    function elapsedPuzzleMilliseconds() {
+        return Math.max(0, Date.now() - puzzleStartedAt);
+    }
+
+    function restartPuzzleTimer() {
+        puzzleStartedAt = Date.now();
     }
 
     function nextPuzzle() {
@@ -792,6 +802,7 @@
                     puzzle_id: currentPuzzle.id,
                     played_line: playedLine,
                     move: attemptedMove,
+                    elapsed_ms: elapsedPuzzleMilliseconds(),
                 }),
             });
             const data = await response.json().catch(() => ({}));
@@ -809,6 +820,7 @@
             if (!data.correct) {
                 currentFen = data.fen || previousFen;
                 rememberError();
+                restartPuzzleTimer();
                 showResult(data.message || uiText('practice_wrong_objective', 'Esa jugada no resuelve el puzzle'), 'wrong');
                 setPracticeStatus(data.message || uiText('practice_wrong_objective', 'Esa jugada no resuelve el puzzle'));
                 return;
