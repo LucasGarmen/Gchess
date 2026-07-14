@@ -284,15 +284,16 @@ class PracticePuzzleTests(TestCase):
         self.assertEqual(data["played_line"], [])
 
     def test_wrong_practice_move_does_not_advance(self):
-        response = self.client.post(
-            reverse("practice_move"),
-            data=json.dumps({
-                "puzzle_id": "medium-corner-queen",
-                "played_line": [],
-                "move": "f4a4",
-            }),
-            content_type="application/json",
-        )
+        with patch("games.views.practice_move_satisfies_goal", side_effect=AssertionError("slow path used")):
+            response = self.client.post(
+                reverse("practice_move"),
+                data=json.dumps({
+                    "puzzle_id": "medium-corner-queen",
+                    "played_line": [],
+                    "move": "f4a4",
+                }),
+                content_type="application/json",
+            )
 
         data = response.json()
         self.assertEqual(response.status_code, 200)

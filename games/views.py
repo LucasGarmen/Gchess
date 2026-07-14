@@ -794,7 +794,7 @@ def practice_move(request):
 
     if not invalid_attempt and not known_solution_move:
         invalid_attempt = (
-            puzzle.get('solution_only', False) or
+            not puzzle.get('accept_alternatives', False) or
             not practice_move_satisfies_goal(board, attacker, attacker_moves_left)
         )
 
@@ -827,7 +827,7 @@ def practice_move(request):
             attacker_moves_left,
             compatible_lines,
             next_played_line,
-            puzzle.get('solution_only', False),
+            not puzzle.get('accept_alternatives', False),
         )
 
         if not auto_move:

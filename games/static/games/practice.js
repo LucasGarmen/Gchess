@@ -8,6 +8,20 @@
         q: 'queen',
         k: 'king',
     };
+    const fenSymbolsByPieceType = {
+        pawn: 'p',
+        horse: 'n',
+        bishop: 'b',
+        rook: 'r',
+        queen: 'q',
+        king: 'k',
+    };
+    const pieceTypeByPromotion = {
+        q: 'queen',
+        r: 'rook',
+        b: 'bishop',
+        n: 'horse',
+    };
     const progressKey = 'gchess-practice-progress-v1';
     const practiceDragPieceScale = 1.7;
 
@@ -473,6 +487,7 @@
         }
 
         if (possibleMovesLoaded && !isPossibleTarget(coord)) {
+            rejectIllegalMove();
             return;
         }
 
@@ -553,6 +568,11 @@
             return;
         }
 
+        if (!isLegalMoveTarget(from, targetSquare)) {
+            rejectIllegalMove();
+            return;
+        }
+
         submitMove(from, targetSquare);
     }
 
@@ -630,15 +650,136 @@
         return `${from}${to}${promotion}`;
     }
 
+    function isLegalMoveTarget(from, to) {
+        return legalMovesForSquare(from).some(move => move.to === to);
+    }
+
+    function rejectIllegalMove() {
+        clearSelection();
+        showResult(uiText('practice_wrong_objective', 'Esa jugada no resuelve el puzzle.'), 'wrong');
+        setPracticeStatus(uiText('practice_wrong_objective', 'Esa jugada no resuelve el puzzle.'));
+        renderBoard();
+    }
+
+    function applyOptimisticMoveToFen(fen, uciMove) {
+        const fenParts = fen.split(' ');
+        const position = parseFen(fen);
+        const pieces = { ...position.pieces };
+        const from = uciMove.slice(0, 2);
+        const to = uciMove.slice(2, 4);
+        const promotion = uciMove[4];
+        const movingPiece = pieces[from];
+
+        if (!movingPiece) {
+            return fen;
+        }
+
+        const targetPiece = pieces[to];
+        const movedPiece = { ...movingPiece };
+
+        delete pieces[from];
+
+        if (
+            movingPiece.type === 'pawn' &&
+            from[0] !== to[0] &&
+            !targetPiece &&
+            to === (fenParts[3] || '-')
+        ) {
+            delete pieces[`${to[0]}${from[1]}`];
+        }
+
+        if (promotion && pieceTypeByPromotion[promotion]) {
+            movedPiece.type = pieceTypeByPromotion[promotion];
+        }
+
+        pieces[to] = movedPiece;
+        moveCastlingRookIfNeeded(pieces, movingPiece, from, to);
+
+        const nextTurn = position.turn === 'white' ? 'b' : 'w';
+        const fullMoveNumber = String(
+            Math.max(1, Number(fenParts[5] || '1') + (position.turn === 'black' ? 1 : 0))
+        );
+
+        return `${placementFromPieces(pieces)} ${nextTurn} - - 0 ${fullMoveNumber}`;
+    }
+
+    function moveCastlingRookIfNeeded(pieces, movingPiece, from, to) {
+        if (
+            movingPiece.type !== 'king' ||
+            Math.abs(files.indexOf(to[0]) - files.indexOf(from[0])) !== 2
+        ) {
+            return;
+        }
+
+        const rank = from[1];
+        const kingside = to[0] === 'g';
+        const rookFrom = `${kingside ? 'h' : 'a'}${rank}`;
+        const rookTo = `${kingside ? 'f' : 'd'}${rank}`;
+
+        if (pieces[rookFrom]) {
+            pieces[rookTo] = pieces[rookFrom];
+            delete pieces[rookFrom];
+        }
+    }
+
+    function placementFromPieces(pieces) {
+        const ranks = [];
+
+        for (let rank = 8; rank >= 1; rank -= 1) {
+            let emptySquares = 0;
+            let row = '';
+
+            files.forEach(file => {
+                const piece = pieces[`${file}${rank}`];
+
+                if (!piece) {
+                    emptySquares += 1;
+                    return;
+                }
+
+                if (emptySquares > 0) {
+                    row += String(emptySquares);
+                    emptySquares = 0;
+                }
+
+                row += pieceToFenSymbol(piece);
+            });
+
+            if (emptySquares > 0) {
+                row += String(emptySquares);
+            }
+
+            ranks.push(row);
+        }
+
+        return ranks.join('/');
+    }
+
+    function pieceToFenSymbol(piece) {
+        const symbol = fenSymbolsByPieceType[piece.type] || '';
+        return piece.color === 'white' ? symbol.toUpperCase() : symbol;
+    }
+
     async function submitMove(from, to) {
         if (!currentPuzzle || pendingMove) {
             return;
         }
 
+        if (!isLegalMoveTarget(from, to)) {
+            rejectIllegalMove();
+            return;
+        }
+
+        const attemptedMove = buildUciMove(from, to);
+        const previousFen = currentFen;
+
         pendingMove = true;
         possibleMoves = [];
         possibleMovesLoaded = false;
+        clearSelection();
+        currentFen = applyOptimisticMoveToFen(currentFen, attemptedMove);
         setPracticeStatus(uiText('thinking', 'Pensando...'));
+        renderBoard();
 
         try {
             const response = await fetch(window.PRACTICE_MOVE_URL, {
@@ -650,23 +791,23 @@
                 body: JSON.stringify({
                     puzzle_id: currentPuzzle.id,
                     played_line: playedLine,
-                    move: buildUciMove(from, to),
+                    move: attemptedMove,
                 }),
             });
             const data = await response.json().catch(() => ({}));
 
             if (!response.ok || data.error) {
-                clearSelection();
+                currentFen = data.fen || previousFen;
                 showResult(data.error || uiText('practice_review_error', 'No se pudo revisar la jugada.'), 'wrong');
                 return;
             }
 
-            clearSelection();
             currentFen = data.fen || currentFen;
             playedLine = Array.isArray(data.played_line) ? data.played_line : playedLine;
             updateLegalMovesByFrom(data.legal_moves);
 
             if (!data.correct) {
+                currentFen = data.fen || previousFen;
                 rememberError();
                 showResult(data.message || uiText('practice_wrong_objective', 'Esa jugada no resuelve el puzzle'), 'wrong');
                 setPracticeStatus(data.message || uiText('practice_wrong_objective', 'Esa jugada no resuelve el puzzle'));
@@ -688,6 +829,7 @@
 
             renderMoveLine();
         } catch (error) {
+            currentFen = previousFen;
             console.error('No se pudo validar el puzzle:', error);
             showResult(uiText('practice_review_error', 'No se pudo revisar la jugada.'), 'wrong');
         } finally {
