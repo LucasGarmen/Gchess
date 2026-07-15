@@ -12,7 +12,13 @@ from django.test import Client, SimpleTestCase, TestCase
 from django.urls import reverse
 from django.utils import timezone
 
-from accounts.models import Achievement, UserAchievement, UserPuzzleStats, unlock_achievements_for_stats
+from accounts.models import (
+    Achievement,
+    UserAchievement,
+    UserPuzzleStats,
+    puzzle_rating_delta_for_mate_in,
+    unlock_achievements_for_stats,
+)
 from .models import ChessGame, DailyPuzzle, DailyPuzzleAttempt, DailyVisit, GameInvitation, Move
 from .puzzles import PRACTICE_PUZZLES
 from .views import build_automatic_move_context, build_pgn_from_saved_game, evaluate_board_outcome, generate_comment, practice_move_from_notation, practice_move_satisfies_goal, practice_xp_for_mate_in, read_analyzer_game, read_internal_coordinate_game
@@ -187,6 +193,14 @@ class PracticePuzzleTests(TestCase):
         self.assertEqual(practice_xp_for_mate_in(5), 50)
         self.assertEqual(practice_xp_for_mate_in(8), 50)
 
+    def test_practice_rating_rules_follow_mate_depth(self):
+        self.assertEqual(puzzle_rating_delta_for_mate_in(1), 8)
+        self.assertEqual(puzzle_rating_delta_for_mate_in(2), 12)
+        self.assertEqual(puzzle_rating_delta_for_mate_in(3), 16)
+        self.assertEqual(puzzle_rating_delta_for_mate_in(4), 24)
+        self.assertEqual(puzzle_rating_delta_for_mate_in(5), 32)
+        self.assertEqual(puzzle_rating_delta_for_mate_in(8), 32)
+
     def test_daily_page_shows_today_puzzle_and_start_button(self):
         user = User.objects.create_user(username="daily-page-user", password="pass")
         today = timezone.localdate()
@@ -240,11 +254,15 @@ class PracticePuzzleTests(TestCase):
         )
 
         attempt = DailyPuzzleAttempt.objects.get(user=user, date=today)
+        stats = UserPuzzleStats.objects.get(user=user)
         self.assertEqual(response.status_code, 200)
         self.assertTrue(response.json()["completed"])
         self.assertEqual(response.json()["result"], "correct")
         self.assertEqual(attempt.resultado, "correct")
         self.assertEqual(attempt.tiempo, timedelta(seconds=7))
+        self.assertEqual(stats.puzzle_rating, 808)
+        self.assertEqual(stats.ultimo_cambio_rating, 8)
+        self.assertEqual(stats.mejor_rating, 808)
         self.assertEqual(retry_response.status_code, 409)
 
     def test_daily_wrong_attempt_saves_incorrect_result(self):
@@ -264,11 +282,15 @@ class PracticePuzzleTests(TestCase):
         )
 
         attempt = DailyPuzzleAttempt.objects.get(user=user, date=today)
+        stats = UserPuzzleStats.objects.get(user=user)
         self.assertEqual(response.status_code, 200)
         self.assertTrue(response.json()["completed"])
         self.assertEqual(response.json()["result"], "incorrect")
         self.assertEqual(attempt.resultado, "incorrect")
         self.assertEqual(attempt.tiempo, timedelta(seconds=4))
+        self.assertEqual(stats.puzzle_rating, 792)
+        self.assertEqual(stats.ultimo_cambio_rating, -8)
+        self.assertEqual(stats.mejor_rating, 800)
 
     def test_practice_legal_moves_returns_targets_for_selected_piece(self):
         response = self.client.post(
@@ -445,6 +467,9 @@ class PracticePuzzleTests(TestCase):
         self.assertEqual(stats.xp_total, 5)
         self.assertEqual(stats.nivel, 1)
         self.assertEqual(stats.xp_del_nivel_actual, 5)
+        self.assertEqual(stats.puzzle_rating, 808)
+        self.assertEqual(stats.ultimo_cambio_rating, 8)
+        self.assertEqual(stats.mejor_rating, 808)
         self.assertEqual(response.json()["xp_progress"]["xp_ganado"], 5)
         self.assertEqual(response.json()["xp_progress"]["xp_restante"], 95)
         self.assertTrue(UserAchievement.objects.filter(
@@ -491,6 +516,9 @@ class PracticePuzzleTests(TestCase):
         self.assertEqual(stats.xp_total, 5)
         self.assertEqual(stats.nivel, 1)
         self.assertEqual(stats.xp_del_nivel_actual, 5)
+        self.assertEqual(stats.puzzle_rating, 796)
+        self.assertEqual(stats.ultimo_cambio_rating, -12)
+        self.assertEqual(stats.mejor_rating, 808)
 
     def test_anonymous_practice_solution_does_not_create_puzzle_stats(self):
         response = self.client.post(
@@ -509,6 +537,13 @@ class PracticePuzzleTests(TestCase):
 
     def test_profile_stats_page_is_available_for_authenticated_users(self):
         user = User.objects.create_user(username="stats-page-user", password="pass")
+        UserPuzzleStats.objects.create(
+            user=user,
+            puzzle_rating=845,
+            ultimo_cambio_rating=12,
+            mejor_rating=860,
+            fecha_ultimo_entrenamiento=timezone.now(),
+        )
         self.client.force_login(user)
 
         response = self.client.get(reverse("profile_stats"))
@@ -516,8 +551,38 @@ class PracticePuzzleTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'class="stats-grid"')
         self.assertContains(response, 'class="xp-progress-panel profile-xp-panel"')
+        self.assertContains(response, 'stat-card-rating')
+        self.assertContains(response, 'stat-card-best-rating')
+        self.assertContains(response, 'class="stats-detail-subvalue">+12</span>')
+        self.assertContains(response, "845")
         self.assertContains(response, "0%")
         self.assertTrue(UserPuzzleStats.objects.filter(user=user).exists())
+
+    def test_leaderboard_orders_users_by_puzzle_rating(self):
+        top_user = User.objects.create_user(username="leader-top", password="pass")
+        second_user = User.objects.create_user(username="leader-second", password="pass")
+        UserPuzzleStats.objects.create(
+            user=second_user,
+            puzzle_rating=845,
+            mejor_rating=850,
+            puzzles_resueltos=12,
+        )
+        UserPuzzleStats.objects.create(
+            user=top_user,
+            puzzle_rating=910,
+            mejor_rating=910,
+            puzzles_resueltos=20,
+        )
+
+        response = self.client.get(reverse("leaderboard"))
+        content = response.content.decode()
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'class="leaderboard-table"')
+        self.assertContains(response, 'href="/leaderboard/"')
+        self.assertLess(content.index("leader-top"), content.index("leader-second"))
+        self.assertContains(response, "910")
+        self.assertContains(response, "20")
 
     def test_profile_achievements_page_shows_locked_and_unlocked_cards(self):
         user = User.objects.create_user(username="achievements-page-user", password="pass")

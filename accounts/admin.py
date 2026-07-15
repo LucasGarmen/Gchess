@@ -22,6 +22,9 @@ class UserPuzzleStatsAdmin(admin.ModelAdmin):
         'xp_total',
         'nivel',
         'xp_del_nivel_actual',
+        'puzzle_rating',
+        'ultimo_cambio_rating',
+        'mejor_rating',
         'fecha_ultimo_entrenamiento',
     )
     readonly_fields = (
@@ -38,6 +41,9 @@ class UserPuzzleStatsAdmin(admin.ModelAdmin):
         'xp_total',
         'nivel',
         'xp_del_nivel_actual',
+        'puzzle_rating',
+        'ultimo_cambio_rating',
+        'mejor_rating',
         'created_at',
         'updated_at',
     )

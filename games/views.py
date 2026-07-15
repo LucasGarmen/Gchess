@@ -584,21 +584,32 @@ def build_xp_progress_context(stats, xp_ganado=0):
     }
 
 
-def record_practice_stats(request, data, puzzle_id, correcto, mate_in=None):
-    if not request.user.is_authenticated:
+def record_puzzle_progress(user, puzzle_id, correcto, tiempo=None, mate_in=None):
+    if not user.is_authenticated:
         return None
 
     xp_ganado = practice_xp_for_mate_in(mate_in) if correcto else 0
 
     with transaction.atomic():
-        stats, _created = UserPuzzleStats.objects.select_for_update().get_or_create(user=request.user)
+        stats, _created = UserPuzzleStats.objects.select_for_update().get_or_create(user=user)
         stats.registrar_puzzle(
             puzzle_id=puzzle_id,
             correcto=correcto,
-            tiempo=practice_elapsed_delta(data),
+            tiempo=tiempo,
             xp_ganado=xp_ganado,
+            mate_in=mate_in,
         )
         return build_xp_progress_context(stats, xp_ganado=xp_ganado)
+
+
+def record_practice_stats(request, data, puzzle_id, correcto, mate_in=None):
+    return record_puzzle_progress(
+        user=request.user,
+        puzzle_id=puzzle_id,
+        correcto=correcto,
+        tiempo=practice_elapsed_delta(data),
+        mate_in=mate_in,
+    )
 
 
 def practice_move_from_notation(board, notation):
@@ -801,6 +812,16 @@ def finalize_daily_attempt(attempt, resultado, elapsed_delta, played_line):
     attempt.save(update_fields=['resultado', 'tiempo', 'played_line', 'completed_at'])
 
 
+def record_completed_daily_puzzle(user, puzzle, attempt, correcto):
+    return record_puzzle_progress(
+        user=user,
+        puzzle_id=puzzle['id'],
+        correcto=correcto,
+        tiempo=attempt.tiempo,
+        mate_in=puzzle.get('mate_in'),
+    )
+
+
 @lru_cache(maxsize=200000)
 def has_forced_mate_from_fen(fen, attacker, attacker_moves_left):
     current_board = chess.Board(fen)
@@ -902,7 +923,7 @@ def practice_move(request):
 
     attempted_move = parse_practice_attempt(board, data.get('move', ''))
     if not attempted_move:
-        record_practice_stats(request, data, puzzle['id'], correcto=False)
+        record_practice_stats(request, data, puzzle['id'], correcto=False, mate_in=puzzle.get('mate_in'))
         return JsonResponse({
             'correct': False,
             'message': t(language, 'practice_wrong_objective'),
@@ -931,7 +952,7 @@ def practice_move(request):
 
     if invalid_attempt:
         previous_board = practice_board_from_line(puzzle, played_line)[0]
-        record_practice_stats(request, data, puzzle['id'], correcto=False)
+        record_practice_stats(request, data, puzzle['id'], correcto=False, mate_in=puzzle.get('mate_in'))
         return JsonResponse({
             'correct': False,
             'message': t(language, 'practice_wrong_objective'),
@@ -1157,6 +1178,7 @@ def daily_move(request):
         attempted_move = parse_practice_attempt(board, data.get('move', ''))
         if not attempted_move:
             finalize_daily_attempt(attempt, 'incorrect', elapsed_delta, played_line)
+            record_completed_daily_puzzle(request.user, puzzle, attempt, correcto=False)
             return JsonResponse({
                 'correct': False,
                 'completed': True,
@@ -1186,6 +1208,7 @@ def daily_move(request):
         if invalid_attempt:
             previous_board = practice_board_from_line(puzzle, played_line)[0]
             finalize_daily_attempt(attempt, 'incorrect', elapsed_delta, played_line)
+            record_completed_daily_puzzle(request.user, puzzle, attempt, correcto=False)
             return JsonResponse({
                 'correct': False,
                 'completed': True,
@@ -1230,6 +1253,7 @@ def daily_move(request):
 
         if solved:
             finalize_daily_attempt(attempt, 'correct', elapsed_delta, next_played_line)
+            record_completed_daily_puzzle(request.user, puzzle, attempt, correcto=True)
             return JsonResponse({
                 'correct': True,
                 'completed': True,
@@ -1267,8 +1291,28 @@ def profile_stats(request):
     touch_presence(request.user)
     stats, _created = UserPuzzleStats.objects.get_or_create(user=request.user)
     language = current_language(request)
+    rating_change_value = (
+        f'+{stats.ultimo_cambio_rating}'
+        if stats.ultimo_cambio_rating > 0
+        else str(stats.ultimo_cambio_rating)
+    )
 
     stat_cards = [
+        {
+            'label': t(language, 'stats_puzzle_rating'),
+            'value': stats.puzzle_rating,
+            'tone': 'rating',
+        },
+        {
+            'label': t(language, 'stats_rating_change'),
+            'value': rating_change_value,
+            'tone': 'rating-change',
+        },
+        {
+            'label': t(language, 'stats_best_rating'),
+            'value': stats.mejor_rating,
+            'tone': 'best-rating',
+        },
         {
             'label': t(language, 'stats_puzzles_solved'),
             'value': stats.puzzles_resueltos,
@@ -1310,6 +1354,7 @@ def profile_stats(request):
         'stats': stats,
         'stat_cards': stat_cards,
         'xp_progress': build_xp_progress_context(stats),
+        'rating_change_value': rating_change_value,
         'total_time': format_duration_short(stats.tiempo_total),
     })
 
@@ -1342,6 +1387,30 @@ def profile_achievements(request):
 
     return render(request, 'games/profile_achievements.html', {
         'achievement_cards': achievement_cards,
+    })
+
+
+def leaderboard(request):
+    touch_presence(request.user)
+    language = current_language(request)
+    stats_rows = (
+        UserPuzzleStats.objects
+        .select_related('user')
+        .order_by('-puzzle_rating', '-mejor_rating', '-puzzles_correctos', 'user__username')[:100]
+    )
+    leaderboard_rows = [
+        {
+            'position': position,
+            'username': stats.user.username,
+            'rating': stats.puzzle_rating,
+            'puzzles_resueltos': stats.puzzles_resueltos,
+        }
+        for position, stats in enumerate(stats_rows, start=1)
+    ]
+
+    return render(request, 'games/leaderboard.html', {
+        'leaderboard_rows': leaderboard_rows,
+        'leaderboard_title': t(language, 'leaderboard_title'),
     })
 
 

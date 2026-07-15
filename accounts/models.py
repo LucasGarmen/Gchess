@@ -6,6 +6,15 @@ from django.db import models
 from django.utils import timezone
 
 XP_PER_LEVEL = 100
+PUZZLE_RATING_START = 800
+PUZZLE_RATING_FLOOR = 100
+# Los mates mas profundos mueven mas rating porque demandan mas calculo.
+PUZZLE_RATING_DELTAS_BY_MATE_IN = {
+    1: 8,
+    2: 12,
+    3: 16,
+    4: 24,
+}
 
 ACHIEVEMENT_DEFINITIONS = (
     ('first_puzzle', 'puzzles_correctos', 1, 'Primer puzzle', 'Resuelve tu primer puzzle.', 10),
@@ -54,6 +63,9 @@ class UserPuzzleStats(models.Model):
     xp_total = models.PositiveIntegerField(default=0)
     nivel = models.PositiveIntegerField(default=1)
     xp_del_nivel_actual = models.PositiveIntegerField(default=0)
+    puzzle_rating = models.PositiveIntegerField(default=PUZZLE_RATING_START)
+    ultimo_cambio_rating = models.IntegerField(default=0)
+    mejor_rating = models.PositiveIntegerField(default=PUZZLE_RATING_START)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -73,7 +85,17 @@ class UserPuzzleStats(models.Model):
     def porcentaje_xp_nivel(self):
         return min(100, int((self.xp_del_nivel_actual / XP_PER_LEVEL) * 100))
 
-    def registrar_puzzle(self, puzzle_id, correcto, tiempo=None, xp_ganado=0):
+    def aplicar_rating_puzzle(self, correcto, mate_in=None):
+        rating_delta = puzzle_rating_delta_for_mate_in(mate_in)
+
+        if not correcto:
+            rating_delta = -rating_delta
+
+        self.ultimo_cambio_rating = rating_delta
+        self.puzzle_rating = max(PUZZLE_RATING_FLOOR, self.puzzle_rating + rating_delta)
+        self.mejor_rating = max(self.mejor_rating, self.puzzle_rating)
+
+    def registrar_puzzle(self, puzzle_id, correcto, tiempo=None, xp_ganado=0, mate_in=None):
         # Centraliza los calculos para que la vista solo indique el resultado del puzzle.
         tiempo = tiempo or timedelta()
         if tiempo < timedelta():
@@ -84,6 +106,7 @@ class UserPuzzleStats(models.Model):
         self.ultimo_puzzle_resuelto = str(puzzle_id or '')
         self.fecha_ultimo_entrenamiento = timezone.now()
         self.tiempo_total += tiempo
+        self.aplicar_rating_puzzle(correcto, mate_in)
 
         if correcto:
             self.puzzles_correctos += 1
@@ -115,6 +138,9 @@ class UserPuzzleStats(models.Model):
             'xp_total',
             'nivel',
             'xp_del_nivel_actual',
+            'puzzle_rating',
+            'ultimo_cambio_rating',
+            'mejor_rating',
             'updated_at',
         ])
         unlock_achievements_for_stats(self)
@@ -168,6 +194,18 @@ def ensure_default_achievements():
 
 def achievement_metric_value(stats, achievement):
     return int(getattr(stats, achievement.metric, 0) or 0)
+
+
+def puzzle_rating_delta_for_mate_in(mate_in):
+    try:
+        mate_in = int(mate_in)
+    except (TypeError, ValueError):
+        mate_in = 1
+
+    if mate_in <= 1:
+        return PUZZLE_RATING_DELTAS_BY_MATE_IN[1]
+
+    return PUZZLE_RATING_DELTAS_BY_MATE_IN.get(mate_in, 32)
 
 
 def unlock_achievements_for_stats(stats):

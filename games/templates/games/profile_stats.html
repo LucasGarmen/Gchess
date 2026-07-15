@@ -49,8 +49,11 @@
                     <dd>{{ total_time }}</dd>
                 </div>
                 <div>
-                    <dt>{% tr "stats_last_puzzle" %}</dt>
-                    <dd>{{ stats.ultimo_puzzle_resuelto|default:"-" }}</dd>
+                    <dt>{% tr "stats_puzzle_rating" %}</dt>
+                    <dd>
+                        {{ stats.puzzle_rating }}
+                        <span class="stats-detail-subvalue">{{ rating_change_value }}</span>
+                    </dd>
                 </div>
                 <div>
                     <dt>{% tr "stats_last_training" %}</dt>

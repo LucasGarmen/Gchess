@@ -1,0 +1,47 @@
+{% extends 'games/base.html' %}
+{% load game_i18n %}
+
+{% block title %}
+{% tr "leaderboard_title" %}
+{% endblock %}
+
+{% block content %}
+
+<main class="leaderboard-page">
+    <header class="stats-header">
+        <span class="stats-eyebrow">GChess</span>
+        <h1>{% tr "leaderboard_title" %}</h1>
+        <p>{% tr "leaderboard_intro" %}</p>
+    </header>
+
+    <section class="pgn-panel leaderboard-panel">
+        {% if leaderboard_rows %}
+            <div class="leaderboard-table-wrap">
+                <table class="leaderboard-table">
+                    <thead>
+                        <tr>
+                            <th scope="col">{% tr "leaderboard_position" %}</th>
+                            <th scope="col">{% tr "leaderboard_user" %}</th>
+                            <th scope="col">{% tr "leaderboard_rating" %}</th>
+                            <th scope="col">{% tr "leaderboard_solved" %}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in leaderboard_rows %}
+                            <tr>
+                                <td><span class="leaderboard-rank">{{ row.position }}</span></td>
+                                <td><strong>{{ row.username }}</strong></td>
+                                <td>{{ row.rating }}</td>
+                                <td>{{ row.puzzles_resueltos }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <p class="stats-empty">{% tr "leaderboard_empty" %}</p>
+        {% endif %}
+    </section>
+</main>
+
+{% endblock %}

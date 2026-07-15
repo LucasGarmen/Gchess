@@ -14,6 +14,7 @@ urlpatterns = [
     path('daily/move/', views.daily_move, name='daily_move'),
     path('profile/stats/', views.profile_stats, name='profile_stats'),
     path('profile/achievements/', views.profile_achievements, name='profile_achievements'),
+    path('leaderboard/', views.leaderboard, name='leaderboard'),
     path('games/', games_list, name='games_list'),
     path('games/new/', game_create, name='game_create'),
     path('invitations/<int:invitation_id>/waiting/', views.game_invitation_wait, name='game_invitation_wait'),
