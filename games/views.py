@@ -36,7 +36,7 @@ from .engine_analysis import build_trainer_engine_context
 from .gemini_service import generate_gemini_explanation
 from .i18n import current_language, normalize_language, t
 from .models import ChessGame, DailyPuzzle, DailyPuzzleAttempt, GameChatMessage, GameChatRead, GameInvitation, Move, UserPresence
-from .puzzles import PRACTICE_LEVELS, get_practice_puzzle, public_practice_puzzles
+from .puzzles import PRACTICE_CATEGORIES, PRACTICE_LEVELS, get_practice_puzzle, public_practice_puzzles
 from .prompts import build_trainer_chat_prompt
 from .realtime import broadcast_move_created
 
@@ -518,6 +518,7 @@ def practice(request):
         practice_xp = build_xp_progress_context(stats)
 
     return render(request, 'games/practice.html', {
+        'practice_categories': PRACTICE_CATEGORIES,
         'practice_levels': PRACTICE_LEVELS,
         'practice_puzzles': practice_puzzles_for_client(),
         'practice_xp': practice_xp,

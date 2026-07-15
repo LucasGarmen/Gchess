@@ -3858,11 +3858,13 @@ select:focus {
     overflow: auto;
 }
 
+.practice-categories,
 .practice-levels {
     display: grid;
     gap: 10px;
 }
 
+.practice-category-button,
 .practice-level-button {
     background: #332f26;
     border: 1px solid rgba(240, 217, 181, 0.2);
@@ -3872,19 +3874,26 @@ select:focus {
     text-align: left;
 }
 
+.practice-category-button span,
 .practice-level-button span {
     color: var(--text-muted);
     font-size: 13px;
     font-weight: 600;
 }
 
+.practice-category-button.active,
 .practice-level-button.active {
     background: linear-gradient(180deg, var(--accent-strong), var(--accent));
     color: #17130f;
 }
 
+.practice-category-button.active span,
 .practice-level-button.active span {
     color: #2c2419;
+}
+
+.practice-category-button.is-empty {
+    opacity: 0.64;
 }
 
 .practice-progress {
@@ -4011,13 +4020,13 @@ select:focus {
     }
 
     body.practice-page-active .practice-game-layout {
-        --square-size: clamp(48px, min(calc((100svh - 178px) / 8), calc((100vw - 888px) / 8)), 82px);
+        --square-size: clamp(48px, min(calc((100svh - 178px) / 8), calc((100vw - 932px) / 8)), 82px);
         --board-panel-height: calc((var(--square-size) * 8) + 40px);
 
         align-items: center;
         box-sizing: border-box;
         gap: 18px;
-        grid-template-columns: 166px max-content minmax(270px, 320px);
+        grid-template-columns: 210px max-content minmax(270px, 320px);
         height: 100svh;
         justify-content: center;
         margin: 0;
@@ -4050,8 +4059,8 @@ select:focus {
 
     body.practice-page-active .practice-selector-panel {
         gap: 8px;
-        overflow: visible;
-        width: 166px;
+        overflow: auto;
+        width: 210px;
     }
 
     body.practice-page-active .practice-info-panel {
@@ -4064,15 +4073,19 @@ select:focus {
         margin: 0 0 6px;
     }
 
+    body.practice-page-active .practice-categories,
     body.practice-page-active .practice-levels {
         gap: 8px;
     }
 
+    body.practice-page-active .practice-category-button,
     body.practice-page-active .practice-level-button {
         min-height: 0;
         padding: 7px 8px;
     }
 
+    body.practice-page-active .practice-category-button strong,
+    body.practice-page-active .practice-category-button span,
     body.practice-page-active .practice-level-button strong,
     body.practice-page-active .practice-level-button span {
         font-size: 12px;

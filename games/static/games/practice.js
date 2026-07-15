@@ -26,7 +26,7 @@
     const practiceDragPieceScale = 1.7;
 
     const boardElement = document.getElementById('practice-board');
-    const levelButtons = Array.from(document.querySelectorAll('[data-practice-level]'));
+    const categoryButtons = Array.from(document.querySelectorAll('[data-practice-category]'));
     const titleElement = document.getElementById('practice-puzzle-title');
     const metaElement = document.getElementById('practice-puzzle-meta');
     const statusElement = document.getElementById('practice-status');
@@ -53,21 +53,37 @@
         return;
     }
 
+    const categories = parseJsonScript('practice-categories-data', []);
     const levels = parseJsonScript('practice-levels-data', []);
     const puzzles = parseJsonScript('practice-puzzles-data', []);
-    const puzzlesByLevel = puzzles.reduce((levelsByKey, puzzle) => {
-        if (!levelsByKey[puzzle.level]) {
-            levelsByKey[puzzle.level] = [];
-        }
+    const puzzlesByCategory = puzzles.reduce((categoriesByKey, puzzle) => {
+        const puzzleCategories = Array.isArray(puzzle.categories) ? puzzle.categories : [];
 
-        levelsByKey[puzzle.level].push(puzzle);
-        return levelsByKey;
+        puzzleCategories.forEach(categoryKey => {
+            if (!categoriesByKey[categoryKey]) {
+                categoriesByKey[categoryKey] = [];
+            }
+
+            categoriesByKey[categoryKey].push(puzzle);
+        });
+
+        return categoriesByKey;
     }, {});
-    Object.values(puzzlesByLevel).forEach(levelPuzzles => {
-        levelPuzzles.sort((first, second) => puzzlePieceCount(second) - puzzlePieceCount(first));
+    Object.values(puzzlesByCategory).forEach(categoryPuzzles => {
+        categoryPuzzles.sort((first, second) => puzzlePieceCount(second) - puzzlePieceCount(first));
     });
 
-    let currentLevel = levels.length > 0 ? levels[0].key : 'easy';
+    function firstCategoryWithPuzzles() {
+        const category = categories.find(item => puzzlesForCategory(item.key).length > 0);
+
+        if (category) {
+            return category.key;
+        }
+
+        return categories.length > 0 ? categories[0].key : '';
+    }
+
+    let currentCategory = firstCategoryWithPuzzles();
     let currentPuzzleIndex = 0;
     let currentPuzzle = null;
     let currentFen = '';
@@ -169,8 +185,8 @@
         updateProgressPanel();
     }
 
-    function puzzlesForLevel(level) {
-        return puzzlesByLevel[level] || [];
+    function puzzlesForCategory(categoryKey) {
+        return puzzlesByCategory[categoryKey] || [];
     }
 
     function puzzlePieceCount(puzzle) {
@@ -191,22 +207,60 @@
         return uiText(level.description_key, `Mate en ${level.mate_in || '?'}`);
     }
 
-    function selectLevel(levelKey) {
-        const levelPuzzles = puzzlesForLevel(levelKey);
+    function categoryInfo(categoryKey) {
+        return categories.find(category => category.key === categoryKey) || {};
+    }
 
-        if (levelPuzzles.length === 0) {
+    function categoryLabel(categoryKey) {
+        const category = categoryInfo(categoryKey);
+        return uiText(category.label_key, categoryKey);
+    }
+
+    function categoryDescription(categoryKey) {
+        const category = categoryInfo(categoryKey);
+        return uiText(category.description_key, '');
+    }
+
+    function selectCategory(categoryKey) {
+        const categoryPuzzles = puzzlesForCategory(categoryKey);
+
+        currentCategory = categoryKey;
+        currentPuzzleIndex = firstUnsolvedIndex(categoryPuzzles);
+        renderCategoryButtons();
+
+        if (categoryPuzzles.length === 0) {
+            clearPuzzleSelection(categoryKey);
             return;
         }
 
-        currentLevel = levelKey;
-        currentPuzzleIndex = firstUnsolvedIndex(levelPuzzles);
-        renderLevelButtons();
-        loadPuzzle(levelPuzzles[currentPuzzleIndex]);
+        loadPuzzle(categoryPuzzles[currentPuzzleIndex]);
     }
 
-    function firstUnsolvedIndex(levelPuzzles) {
-        const index = levelPuzzles.findIndex(puzzle => !progress.solvedIds.includes(puzzle.id));
+    function firstUnsolvedIndex(categoryPuzzles) {
+        const index = categoryPuzzles.findIndex(puzzle => !progress.solvedIds.includes(puzzle.id));
         return index >= 0 ? index : 0;
+    }
+
+    function clearPuzzleSelection(categoryKey) {
+        currentPuzzle = null;
+        currentFen = '';
+        currentPosition = { pieces: {}, turn: 'white' };
+        currentLegalMovesByFrom = {};
+        selectedSquare = null;
+        possibleMoves = [];
+        possibleMovesLoaded = false;
+        playedLine = [];
+        solved = false;
+        pendingMove = false;
+        lineMoves = [];
+        titleElement.innerText = categoryLabel(categoryKey) || uiText('practice_choose_category', 'Elige una categoria');
+        metaElement.innerText = categoryDescription(categoryKey);
+        hideHint();
+        showResult(uiText('practice_no_category_puzzles', 'No hay puzzles en esta categoria todavia.'), 'neutral');
+        setPracticeStatus(uiText('practice_no_category_puzzles', 'No hay puzzles en esta categoria todavia.'));
+        renderBoard();
+        renderMoveLine();
+        updateButtons();
     }
 
     function loadPuzzle(puzzle) {
@@ -225,7 +279,7 @@
         puzzleStartedAt = Date.now();
 
         titleElement.innerText = puzzle.title || uiText('practice_title', 'Práctica');
-        metaElement.innerText = `${levelLabel(puzzle.level)} - ${levelDescription(puzzle.level)} - ${turnLabel(puzzle.turn)}`;
+        metaElement.innerText = `${categoryLabel(currentCategory)} - ${levelLabel(puzzle.level)} - ${levelDescription(puzzle.level)} - ${turnLabel(puzzle.turn)}`;
         hideHint();
         showResult(uiText('practice_make_move', 'Encuentra la mejor jugada.'), 'neutral');
         setPracticeStatus(uiText('practice_make_move', 'Encuentra la mejor jugada.'));
@@ -267,13 +321,13 @@
     }
 
     function nextPuzzle() {
-        const levelPuzzles = puzzlesForLevel(currentLevel);
-        if (levelPuzzles.length === 0) {
+        const categoryPuzzles = puzzlesForCategory(currentCategory);
+        if (categoryPuzzles.length === 0) {
             return;
         }
 
-        currentPuzzleIndex = (currentPuzzleIndex + 1) % levelPuzzles.length;
-        loadPuzzle(levelPuzzles[currentPuzzleIndex]);
+        currentPuzzleIndex = (currentPuzzleIndex + 1) % categoryPuzzles.length;
+        loadPuzzle(categoryPuzzles[currentPuzzleIndex]);
     }
 
     function restartPuzzle() {
@@ -282,11 +336,13 @@
         }
     }
 
-    function renderLevelButtons() {
-        levelButtons.forEach(button => {
-            const active = button.dataset.practiceLevel === currentLevel;
+    function renderCategoryButtons() {
+        categoryButtons.forEach(button => {
+            const categoryKey = button.dataset.practiceCategory;
+            const active = categoryKey === currentCategory;
             button.classList.toggle('active', active);
             button.setAttribute('aria-pressed', active ? 'true' : 'false');
+            button.classList.toggle('is-empty', puzzlesForCategory(categoryKey).length === 0);
         });
     }
 
@@ -928,9 +984,9 @@
         }
     }
 
-    levelButtons.forEach(button => {
+    categoryButtons.forEach(button => {
         button.addEventListener('click', function () {
-            selectLevel(button.dataset.practiceLevel);
+            selectCategory(button.dataset.practiceCategory);
         });
     });
 
@@ -947,8 +1003,8 @@
     updateProgressPanel();
     updateButtons();
 
-    if (puzzles.length > 0) {
-        selectLevel(currentLevel);
+    if (puzzles.length > 0 && currentCategory) {
+        selectCategory(currentCategory);
     } else {
         showResult(uiText('practice_no_puzzles', 'No hay puzzles disponibles.'), 'neutral');
     }

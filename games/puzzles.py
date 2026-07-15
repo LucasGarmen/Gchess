@@ -19,6 +19,59 @@ PRACTICE_LEVELS = [
     },
 ]
 
+PRACTICE_CATEGORIES = [
+    {
+        "key": "mate_1",
+        "label_key": "practice_mate_in_1",
+        "description_key": "practice_category_mate_1_description",
+    },
+    {
+        "key": "mate_2",
+        "label_key": "practice_mate_in_2",
+        "description_key": "practice_category_mate_2_description",
+    },
+    {
+        "key": "mate_3",
+        "label_key": "practice_mate_in_3",
+        "description_key": "practice_category_mate_3_description",
+    },
+    {
+        "key": "mate_4",
+        "label_key": "practice_mate_in_4",
+        "description_key": "practice_category_mate_4_description",
+    },
+    {
+        "key": "mate_5_plus",
+        "label_key": "practice_mate_in_5_plus",
+        "description_key": "practice_category_mate_5_plus_description",
+    },
+    {
+        "key": "pins",
+        "label_key": "practice_category_pins",
+        "description_key": "practice_category_pins_description",
+    },
+    {
+        "key": "forks",
+        "label_key": "practice_category_forks",
+        "description_key": "practice_category_forks_description",
+    },
+    {
+        "key": "discovered",
+        "label_key": "practice_category_discovered",
+        "description_key": "practice_category_discovered_description",
+    },
+    {
+        "key": "endgames",
+        "label_key": "practice_category_endgames",
+        "description_key": "practice_category_endgames_description",
+    },
+    {
+        "key": "sacrifices",
+        "label_key": "practice_category_sacrifices",
+        "description_key": "practice_category_sacrifices_description",
+    },
+]
+
 
 # Each solution is one sample full line in UCI notation.
 # Even indexes (0, 2, 4) are student moves; odd indexes are rival replies.
@@ -284,6 +337,49 @@ PRACTICE_PUZZLES = [
     },
 ]
 
+PRACTICE_THEME_CATEGORIES = {
+    "easy-rook-e8": ["endgames"],
+    "easy-queen-h7": ["endgames"],
+    "easy-double-queen": ["endgames"],
+    "easy-black-queen-h2": ["endgames"],
+    "easy-scholars-f7": ["forks"],
+    "easy-back-rank-rook": ["pins"],
+    "easy-knight-smother": ["forks"],
+    "medium-queen-net": ["endgames"],
+    "medium-corner-queen": ["endgames"],
+    "medium-king-net": ["endgames"],
+    "medium-legal-trap": ["discovered", "sacrifices"],
+    "medium-queen-deflection": ["pins", "sacrifices"],
+    "medium-black-deflection": ["pins", "sacrifices"],
+    "hard-central-queen": ["endgames"],
+    "hard-edge-queen": ["endgames"],
+    "hard-diagonal-queen": ["endgames"],
+    "hard-edge-rich": ["endgames"],
+    "hard-black-edge-rich": ["endgames"],
+    "hard-smothered-classic": ["forks", "sacrifices"],
+    "hard-black-smothered": ["forks", "sacrifices"],
+}
+
+
+def mate_category_key(mate_in):
+    if mate_in <= 1:
+        return "mate_1"
+    if mate_in == 2:
+        return "mate_2"
+    if mate_in == 3:
+        return "mate_3"
+    if mate_in == 4:
+        return "mate_4"
+
+    return "mate_5_plus"
+
+
+def practice_categories_for_puzzle(puzzle):
+    # Every puzzle belongs to its mate-depth bucket plus any tactical motif tags.
+    categories = [mate_category_key(puzzle["mate_in"])]
+    categories.extend(PRACTICE_THEME_CATEGORIES.get(puzzle["id"], []))
+    return categories
+
 
 def public_puzzle_data(puzzle):
     return {
@@ -291,6 +387,7 @@ def public_puzzle_data(puzzle):
         "title": puzzle.get("title", ""),
         "level": puzzle["level"],
         "mate_in": puzzle["mate_in"],
+        "categories": practice_categories_for_puzzle(puzzle),
         "fen": puzzle["fen"],
         "turn": puzzle["turn"],
         "hint": puzzle.get("hint", ""),

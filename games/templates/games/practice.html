@@ -39,17 +39,17 @@
 
     <section class="game-layout practice-game-layout">
         <aside class="pgn-panel practice-selector-panel">
-            <h2>{% tr "practice_levels" %}</h2>
+            <h2>{% tr "practice_categories" %}</h2>
 
-            <div id="practice-levels" class="practice-levels" role="list">
-                {% for level in practice_levels %}
+            <div id="practice-categories" class="practice-categories" role="list">
+                {% for category in practice_categories %}
                     <button
-                        class="practice-level-button"
+                        class="practice-category-button"
                         type="button"
-                        data-practice-level="{{ level.key }}"
+                        data-practice-category="{{ category.key }}"
                     >
-                        <strong>{% tr level.label_key %}</strong>
-                        <span>{% tr level.description_key %}</span>
+                        <strong>{% tr category.label_key %}</strong>
+                        <span>{% tr category.description_key %}</span>
                     </button>
                 {% endfor %}
             </div>
@@ -112,6 +112,7 @@
     </section>
 </main>
 
+{{ practice_categories|json_script:"practice-categories-data" }}
 {{ practice_levels|json_script:"practice-levels-data" }}
 {{ practice_puzzles|json_script:"practice-puzzles-data" }}
 
@@ -120,6 +121,6 @@
     window.PRACTICE_LEGAL_MOVES_URL = "{% url 'practice_legal_moves' %}";
     window.PRACTICE_PIECES_BASE_URL = "{% static 'games/pieces/' %}";
 </script>
-<script src="{% static 'games/practice.js' %}?v=9"></script>
+<script src="{% static 'games/practice.js' %}?v=10"></script>
 
 {% endblock %}

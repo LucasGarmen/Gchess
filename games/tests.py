@@ -20,7 +20,7 @@ from accounts.models import (
     unlock_achievements_for_stats,
 )
 from .models import ChessGame, DailyPuzzle, DailyPuzzleAttempt, DailyVisit, GameInvitation, Move
-from .puzzles import PRACTICE_PUZZLES
+from .puzzles import PRACTICE_CATEGORIES, PRACTICE_PUZZLES, public_practice_puzzles
 from .views import build_automatic_move_context, build_pgn_from_saved_game, evaluate_board_outcome, generate_comment, practice_move_from_notation, practice_move_satisfies_goal, practice_xp_for_mate_in, read_analyzer_game, read_internal_coordinate_game
 
 
@@ -156,14 +156,36 @@ class PracticePuzzleTests(TestCase):
         self.assertEqual(counts["medium"], 6)
         self.assertEqual(counts["hard"], 7)
 
+    def test_practice_puzzles_expose_training_categories(self):
+        category_keys = {category["key"] for category in PRACTICE_CATEGORIES}
+        public_puzzles = public_practice_puzzles()
+
+        self.assertIn("mate_1", category_keys)
+        self.assertIn("mate_2", category_keys)
+        self.assertIn("mate_3", category_keys)
+        self.assertIn("mate_4", category_keys)
+        self.assertIn("mate_5_plus", category_keys)
+        self.assertIn("pins", category_keys)
+        self.assertIn("forks", category_keys)
+        self.assertIn("discovered", category_keys)
+        self.assertIn("endgames", category_keys)
+        self.assertIn("sacrifices", category_keys)
+
+        for puzzle in public_puzzles:
+            self.assertIn(f"mate_{puzzle['mate_in']}", puzzle["categories"])
+            self.assertTrue(set(puzzle["categories"]).issubset(category_keys))
+
     def test_practice_page_uses_dedicated_script_without_game_board_js(self):
         response = self.client.get(reverse("practice"))
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'id="practice-board"')
+        self.assertContains(response, 'id="practice-categories"')
+        self.assertContains(response, 'id="practice-categories-data"')
         self.assertContains(response, 'id="practice-puzzles-data"')
         self.assertContains(response, '"legal_moves"')
-        self.assertContains(response, 'data-practice-level="easy"')
+        self.assertContains(response, 'data-practice-category="mate_1"')
+        self.assertContains(response, 'data-practice-category="sacrifices"')
         self.assertContains(response, 'games/practice.js')
         self.assertContains(response, 'PRACTICE_LEGAL_MOVES_URL')
         self.assertNotContains(response, 'games/board.js')
