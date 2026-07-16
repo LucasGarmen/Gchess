@@ -24,8 +24,12 @@
     };
     const progressKey = 'gchess-practice-progress-v1';
     const practiceDragPieceScale = 1.7;
+    const explanationReplayHighlightMs = 220;
+    const explanationReplayStepMs = 160;
 
     const boardElement = document.getElementById('practice-board');
+    const boardFrameElement = document.getElementById('practice-board-frame');
+    const boardArrowsElement = document.getElementById('practice-board-arrows');
     const categoryButtons = Array.from(document.querySelectorAll('[data-practice-category]'));
     const titleElement = document.getElementById('practice-puzzle-title');
     const metaElement = document.getElementById('practice-puzzle-meta');
@@ -39,6 +43,12 @@
     const nextButton = document.getElementById('practice-next-puzzle');
     const restartButton = document.getElementById('practice-restart');
     const hintButton = document.getElementById('practice-show-hint');
+    const reviewButton = document.getElementById('practice-review-line');
+    const explanationElement = document.getElementById('practice-explanation');
+    const explanationCommentElement = document.getElementById('practice-explanation-comment');
+    const bestMoveElement = document.getElementById('practice-best-move');
+    const correctLineElement = document.getElementById('practice-correct-line');
+    const allMovesElement = document.getElementById('practice-all-moves');
     const flipButton = document.getElementById('practice-flip-board');
     const rankLabels = document.getElementById('practice-rank-labels');
     const fileLabels = document.getElementById('practice-file-labels');
@@ -103,6 +113,10 @@
     let suppressNextClick = false;
     let boardSquares = new Map();
     let renderedOrientation = null;
+    let solutionExplanation = null;
+    let activeArrow = null;
+    let highlightedSquares = {};
+    let replayTimeoutId = null;
 
     function parseJsonScript(id, fallbackValue) {
         const element = document.getElementById(id);
@@ -159,6 +173,46 @@
         } catch (error) {
             console.warn('No se pudo guardar el progreso de práctica:', error);
         }
+    }
+
+    function clearReplayTimer() {
+        if (replayTimeoutId) {
+            window.clearTimeout(replayTimeoutId);
+            replayTimeoutId = null;
+        }
+    }
+
+    function clearPracticeExplanation() {
+        clearReplayTimer();
+        solutionExplanation = null;
+        activeArrow = null;
+        highlightedSquares = {};
+
+        if (explanationElement) {
+            explanationElement.hidden = true;
+        }
+
+        if (reviewButton) {
+            reviewButton.hidden = true;
+        }
+
+        if (explanationCommentElement) {
+            explanationCommentElement.innerText = '';
+        }
+
+        if (bestMoveElement) {
+            bestMoveElement.innerText = '';
+        }
+
+        if (correctLineElement) {
+            correctLineElement.replaceChildren();
+        }
+
+        if (allMovesElement) {
+            allMovesElement.replaceChildren();
+        }
+
+        clearBoardArrows();
     }
 
     function updateProgressPanel() {
@@ -242,6 +296,7 @@
     }
 
     function clearPuzzleSelection(categoryKey) {
+        clearPracticeExplanation();
         currentPuzzle = null;
         currentFen = '';
         currentPosition = { pieces: {}, turn: 'white' };
@@ -264,6 +319,7 @@
     }
 
     function loadPuzzle(puzzle) {
+        clearPracticeExplanation();
         currentPuzzle = puzzle;
         currentFen = puzzle.fen;
         currentPosition = parseFen(currentFen);
@@ -432,6 +488,7 @@
         }
 
         updateBoardSquares();
+        renderBoardAnnotations();
     }
 
     function buildBoardSquares() {
@@ -476,6 +533,10 @@
                 square.classList.add('possible-move');
             }
 
+            if (highlightedSquares[coord]) {
+                square.classList.add(`practice-highlight-${highlightedSquares[coord]}`);
+            }
+
             if (square.dataset.pieceKey !== pieceKey) {
                 square.replaceChildren();
 
@@ -486,6 +547,74 @@
                 square.dataset.pieceKey = pieceKey;
             }
         });
+    }
+
+    function clearBoardArrows() {
+        if (boardArrowsElement) {
+            boardArrowsElement.replaceChildren();
+        }
+    }
+
+    function renderBoardAnnotations() {
+        clearBoardArrows();
+
+        if (!activeArrow || !boardArrowsElement || !boardFrameElement) {
+            return;
+        }
+
+        const fromPoint = squareCenter(activeArrow.from);
+        const toPoint = squareCenter(activeArrow.to);
+
+        if (!fromPoint || !toPoint) {
+            return;
+        }
+
+        const frameRect = boardFrameElement.getBoundingClientRect();
+        boardArrowsElement.setAttribute('viewBox', `0 0 ${frameRect.width} ${frameRect.height}`);
+        boardArrowsElement.setAttribute('width', String(frameRect.width));
+        boardArrowsElement.setAttribute('height', String(frameRect.height));
+
+        const namespace = 'http://www.w3.org/2000/svg';
+        const defs = document.createElementNS(namespace, 'defs');
+        const marker = document.createElementNS(namespace, 'marker');
+        const markerId = 'practice-arrow-head';
+        marker.setAttribute('id', markerId);
+        marker.setAttribute('markerWidth', '10');
+        marker.setAttribute('markerHeight', '10');
+        marker.setAttribute('refX', '8');
+        marker.setAttribute('refY', '3');
+        marker.setAttribute('orient', 'auto');
+        marker.setAttribute('markerUnits', 'strokeWidth');
+
+        const path = document.createElementNS(namespace, 'path');
+        path.setAttribute('d', 'M0,0 L0,6 L9,3 z');
+        marker.appendChild(path);
+        defs.appendChild(marker);
+        boardArrowsElement.appendChild(defs);
+
+        const line = document.createElementNS(namespace, 'line');
+        line.setAttribute('x1', String(fromPoint.x));
+        line.setAttribute('y1', String(fromPoint.y));
+        line.setAttribute('x2', String(toPoint.x));
+        line.setAttribute('y2', String(toPoint.y));
+        line.setAttribute('marker-end', `url(#${markerId})`);
+        boardArrowsElement.appendChild(line);
+    }
+
+    function squareCenter(coord) {
+        const square = boardSquares.get(coord);
+
+        if (!square || !boardFrameElement) {
+            return null;
+        }
+
+        const squareRect = square.getBoundingClientRect();
+        const frameRect = boardFrameElement.getBoundingClientRect();
+
+        return {
+            x: squareRect.left - frameRect.left + squareRect.width / 2,
+            y: squareRect.top - frameRect.top + squareRect.height / 2,
+        };
     }
 
     function createPieceElement(piece) {
@@ -923,6 +1052,7 @@
             if (solved) {
                 rememberSolvedPuzzle(currentPuzzle.id);
                 updateXpProgress(data.xp_progress);
+                showPracticeExplanation(data.explanation);
             }
 
             renderMoveLine();
@@ -974,11 +1104,144 @@
         });
     }
 
+    function showPracticeExplanation(explanation) {
+        if (!explanation || !explanationElement) {
+            return;
+        }
+
+        solutionExplanation = explanation;
+        explanationElement.hidden = false;
+
+        if (explanationCommentElement) {
+            explanationCommentElement.innerText = explanation.comment || '';
+        }
+
+        if (bestMoveElement) {
+            bestMoveElement.innerText = moveLabel(explanation.best_move);
+        }
+
+        renderExplanationMoveList(correctLineElement, explanation.correct_line, true);
+        renderExplanationMoveList(allMovesElement, explanation.all_moves, false);
+
+        if (reviewButton) {
+            reviewButton.hidden = false;
+            reviewButton.disabled = false;
+        }
+
+        applyBestMoveAnnotation(explanation.best_move);
+    }
+
+    function renderExplanationMoveList(listElement, moves, markBestMove) {
+        if (!listElement) {
+            return;
+        }
+
+        listElement.replaceChildren();
+
+        (moves || []).forEach((move, index) => {
+            const item = document.createElement('li');
+            item.innerText = moveLabel(move);
+            item.classList.toggle('practice-line-auto', !move.is_attacker_move);
+            item.classList.toggle('practice-line-best', markBestMove && index === 0);
+            listElement.appendChild(item);
+        });
+    }
+
+    function moveLabel(move) {
+        if (!move) {
+            return '';
+        }
+
+        return move.label || move.san || move.uci || '';
+    }
+
+    function applyBestMoveAnnotation(move) {
+        if (!move || !move.from || !move.to) {
+            activeArrow = null;
+            highlightedSquares = {};
+            renderBoard();
+            return;
+        }
+
+        activeArrow = { from: move.from, to: move.to };
+        highlightedSquares = {
+            [move.from]: 'best-from',
+            [move.to]: 'best-to',
+        };
+        renderBoard();
+    }
+
+    function replayCorrectLine() {
+        if (!solutionExplanation || !currentPuzzle) {
+            return;
+        }
+
+        const moves = Array.isArray(solutionExplanation.correct_line)
+            ? solutionExplanation.correct_line
+            : [];
+
+        if (moves.length === 0) {
+            return;
+        }
+
+        clearReplayTimer();
+        solved = true;
+        pendingMove = true;
+        currentFen = currentPuzzle.fen;
+        currentLegalMovesByFrom = {};
+        lineMoves = [];
+        activeArrow = null;
+        highlightedSquares = {};
+        clearSelection();
+        renderMoveLine();
+        renderBoard();
+        updateButtons();
+
+        let moveIndex = 0;
+
+        function replayNextMove() {
+            if (moveIndex >= moves.length) {
+                pendingMove = false;
+                solved = true;
+                currentFen = solutionExplanation.final_fen || currentFen;
+                applyBestMoveAnnotation(solutionExplanation.best_move);
+                updateButtons();
+                return;
+            }
+
+            const move = moves[moveIndex];
+            activeArrow = { from: move.from, to: move.to };
+            highlightedSquares = {
+                [move.from]: 'replay-from',
+                [move.to]: 'replay-to',
+            };
+            renderBoard();
+
+            replayTimeoutId = window.setTimeout(function () {
+                currentFen = applyOptimisticMoveToFen(currentFen, move.uci);
+                lineMoves.push({
+                    uci: move.uci,
+                    san: move.san,
+                    auto: !move.is_attacker_move,
+                });
+                moveIndex += 1;
+                renderMoveLine();
+                renderBoard();
+                replayTimeoutId = window.setTimeout(replayNextMove, explanationReplayStepMs);
+            }, explanationReplayHighlightMs);
+        }
+
+        replayNextMove();
+    }
+
     function updateButtons() {
         const disabled = !currentPuzzle;
         nextButton.disabled = disabled;
         restartButton.disabled = disabled;
         hintButton.disabled = disabled;
+        if (reviewButton) {
+            reviewButton.disabled = disabled || !solutionExplanation || pendingMove;
+        }
         if (flipButton) {
             flipButton.disabled = disabled;
         }
@@ -993,6 +1256,9 @@
     nextButton.addEventListener('click', nextPuzzle);
     restartButton.addEventListener('click', restartPuzzle);
     hintButton.addEventListener('click', showHint);
+    if (reviewButton) {
+        reviewButton.addEventListener('click', replayCorrectLine);
+    }
     if (flipButton) {
         flipButton.addEventListener('click', function () {
             orientation = orientation === 'white' ? 'black' : 'white';

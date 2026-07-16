@@ -172,7 +172,12 @@ class PracticePuzzleTests(TestCase):
         self.assertIn("sacrifices", category_keys)
 
         for puzzle in public_puzzles:
-            self.assertIn(f"mate_{puzzle['mate_in']}", puzzle["categories"])
+            expected_mate_category = (
+                "mate_5_plus"
+                if puzzle["mate_in"] >= 5
+                else f"mate_{puzzle['mate_in']}"
+            )
+            self.assertIn(expected_mate_category, puzzle["categories"])
             self.assertTrue(set(puzzle["categories"]).issubset(category_keys))
 
     def test_practice_page_uses_dedicated_script_without_game_board_js(self):
@@ -181,6 +186,8 @@ class PracticePuzzleTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'id="practice-board"')
         self.assertContains(response, 'id="practice-categories"')
+        self.assertContains(response, 'id="practice-explanation"')
+        self.assertContains(response, 'id="practice-review-line"')
         self.assertContains(response, 'id="practice-categories-data"')
         self.assertContains(response, 'id="practice-puzzles-data"')
         self.assertContains(response, '"legal_moves"')
@@ -349,6 +356,29 @@ class PracticePuzzleTests(TestCase):
         self.assertTrue(data["solved"])
         self.assertEqual(data["played_line"], ["g2f1"])
         self.assertTrue(data["checkmate"])
+
+    def test_solved_practice_response_includes_explanation(self):
+        response = self.client.post(
+            reverse("practice_move"),
+            data=json.dumps({
+                "puzzle_id": "easy-rook-e8",
+                "played_line": [],
+                "move": "e1e8",
+            }),
+            content_type="application/json",
+        )
+
+        data = response.json()
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(data["solved"])
+        self.assertIn("Excelente.", data["explanation"]["comment"])
+        self.assertIn("Re8#", data["explanation"]["comment"])
+        self.assertIn("Linha correta", data["explanation"]["comment"])
+        self.assertEqual(data["explanation"]["best_move"]["uci"], "e1e8")
+        self.assertEqual(data["explanation"]["correct_line"][0]["san"], "Re8#")
+        self.assertEqual(data["explanation"]["all_moves"][0]["uci"], "e1e8")
+        self.assertEqual(data["explanation"]["final_fen"], data["fen"])
 
     def test_correct_practice_move_advances_and_autoplays_reply(self):
         first_response = self.client.post(

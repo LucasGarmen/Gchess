@@ -3932,6 +3932,41 @@ select:focus {
     cursor: pointer;
 }
 
+.practice-board-frame {
+    position: relative;
+    width: fit-content;
+}
+
+.practice-board-arrows {
+    inset: 0;
+    overflow: visible;
+    pointer-events: none;
+    position: absolute;
+    z-index: 8;
+}
+
+.practice-board-arrows line {
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.46));
+    stroke: #f4c95d;
+    stroke-linecap: round;
+    stroke-width: clamp(5px, calc(var(--square-size) * 0.08), 9px);
+}
+
+.practice-board-arrows marker path {
+    fill: #f4c95d;
+}
+
+.practice-highlight-best-from,
+.practice-highlight-replay-from {
+    outline: 3px solid rgba(244, 201, 93, 0.9);
+    outline-offset: -3px;
+}
+
+.practice-highlight-best-to,
+.practice-highlight-replay-to {
+    box-shadow: inset 0 0 0 6px rgba(244, 201, 93, 0.72);
+}
+
 .practice-board .square[data-color="white"],
 .practice-board .square[data-color="black"] {
     cursor: grab;
@@ -3961,6 +3996,76 @@ select:focus {
 .practice-actions {
     display: grid;
     grid-template-columns: 1fr;
+}
+
+.practice-explanation-panel {
+    border-top: 1px solid rgba(240, 217, 181, 0.14);
+    display: grid;
+    gap: 10px;
+    padding-top: 12px;
+}
+
+.practice-explanation-panel[hidden] {
+    display: none;
+}
+
+.practice-explanation-panel h2,
+.practice-explanation-panel h3 {
+    margin: 0;
+}
+
+.practice-explanation-panel h2 {
+    font-size: 17px;
+}
+
+.practice-explanation-panel h3 {
+    color: var(--text-muted);
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 0;
+    text-transform: uppercase;
+}
+
+.practice-explanation-comment {
+    background: rgba(127, 163, 91, 0.16);
+    border: 1px solid rgba(127, 163, 91, 0.34);
+    border-radius: 8px;
+    color: #dff0c6;
+    font-weight: 800;
+    margin: 0;
+    padding: 9px 10px;
+}
+
+.practice-best-move {
+    align-items: center;
+    background: rgba(20, 19, 16, 0.72);
+    border: 1px solid rgba(240, 217, 181, 0.13);
+    border-radius: 8px;
+    display: flex;
+    gap: 8px;
+    justify-content: space-between;
+    padding: 10px;
+}
+
+.practice-best-move span {
+    color: var(--text-muted);
+    font-size: 12px;
+    font-weight: 800;
+    text-transform: uppercase;
+}
+
+.practice-best-move strong,
+.practice-line-best {
+    color: var(--accent-strong);
+}
+
+.practice-explanation-lines {
+    display: grid;
+    gap: 10px;
+}
+
+.practice-explanation-line {
+    min-height: 0;
 }
 
 .practice-line-panel {

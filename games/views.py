@@ -671,6 +671,81 @@ def compatible_practice_lines(puzzle, played_line):
     return compatible_lines
 
 
+def serialize_practice_explanation_line(puzzle, line):
+    board = chess.Board(puzzle['fen'])
+    attacker = board.turn
+    serialized_moves = []
+
+    for notation in line:
+        move = practice_move_from_notation(board, notation)
+        move_number = board.fullmove_number
+        prefix = f'{move_number}.' if board.turn == chess.WHITE else f'{move_number}...'
+        san = board.san(move)
+
+        serialized_moves.append({
+            'uci': move.uci(),
+            'san': san,
+            'label': f'{prefix} {san}',
+            'from': chess.square_name(move.from_square),
+            'to': chess.square_name(move.to_square),
+            'is_attacker_move': board.turn == attacker,
+        })
+        board.push(move)
+
+    return serialized_moves
+
+
+def build_practice_explanation_comment(language, comment_key, best_move, correct_line, mate_in):
+    base_comment = t(language, comment_key)
+
+    if not best_move:
+        return base_comment
+
+    line_text = ' '.join(move['label'] for move in correct_line)
+    detail_template = t(language, 'practice_explanation_detail')
+    detail = detail_template.format(
+        best_move=best_move['san'],
+        mate_in=mate_in,
+        line=line_text,
+    )
+
+    return f'{base_comment} {detail}'
+
+
+def build_practice_explanation(puzzle, played_line, language, final_fen):
+    solution_lines = canonical_practice_solution_lines(puzzle['id'])
+    played_tuple = tuple(played_line)
+    matching_line = next((line for line in solution_lines if played_tuple == line), None)
+    explanation_line = matching_line or (solution_lines[0] if solution_lines else played_tuple)
+
+    if matching_line and matching_line == solution_lines[0]:
+        comment_key = 'practice_comment_excellent'
+    elif matching_line:
+        comment_key = 'practice_comment_good'
+    else:
+        comment_key = 'practice_comment_better'
+
+    correct_line = serialize_practice_explanation_line(puzzle, explanation_line)
+    all_moves = serialize_practice_explanation_line(puzzle, played_line)
+    best_move = correct_line[0] if correct_line else None
+    comment = build_practice_explanation_comment(
+        language,
+        comment_key,
+        best_move,
+        correct_line,
+        puzzle.get('mate_in', 1),
+    )
+
+    return {
+        'comment': comment,
+        'comment_key': comment_key,
+        'best_move': best_move,
+        'correct_line': correct_line,
+        'all_moves': all_moves,
+        'final_fen': final_fen,
+    }
+
+
 def practice_board_from_line(puzzle, played_line):
     if not isinstance(played_line, list):
         raise ValueError('practice_invalid_line')
@@ -998,6 +1073,7 @@ def practice_move(request):
 
     solved = board.is_checkmate()
     xp_progress = None
+    explanation = None
 
     if solved:
         xp_progress = record_practice_stats(
@@ -1007,6 +1083,7 @@ def practice_move(request):
             correcto=True,
             mate_in=puzzle.get('mate_in'),
         )
+        explanation = build_practice_explanation(puzzle, next_played_line, language, board.fen())
 
     return JsonResponse({
         'correct': True,
@@ -1021,6 +1098,7 @@ def practice_move(request):
         'checkmate': board.is_checkmate(),
         'legal_moves': practice_legal_moves_by_from(board, attacker),
         'xp_progress': xp_progress,
+        'explanation': explanation,
     })
 
 

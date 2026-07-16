@@ -81,7 +81,10 @@
                 </div>
 
                 <div>
-                    <div id="practice-board" class="board practice-board"></div>
+                    <div id="practice-board-frame" class="practice-board-frame">
+                        <div id="practice-board" class="board practice-board"></div>
+                        <svg id="practice-board-arrows" class="practice-board-arrows" aria-hidden="true"></svg>
+                    </div>
 
                     <div class="file-labels" id="practice-file-labels">
                         <span>a</span><span>b</span><span>c</span><span>d</span>
@@ -92,7 +95,7 @@
         </section>
 
         <aside class="pgn-panel practice-info-panel">
-            <h2 id="practice-puzzle-title">{% tr "practice_choose_level" %}</h2>
+            <h2 id="practice-puzzle-title">{% tr "practice_choose_category" %}</h2>
             <p id="practice-puzzle-meta" class="practice-meta"></p>
 
             <div id="practice-result" class="coach-comment practice-result" hidden></div>
@@ -102,7 +105,27 @@
                 <button id="practice-next-puzzle" type="button">{% tr "practice_next_puzzle" %}</button>
                 <button id="practice-restart" type="button">{% tr "practice_restart" %}</button>
                 <button id="practice-show-hint" type="button">{% tr "practice_show_hint" %}</button>
+                <button id="practice-review-line" type="button" hidden>{% tr "practice_review_again" %}</button>
             </div>
+
+            <section id="practice-explanation" class="practice-explanation-panel" aria-labelledby="practice-explanation-title" hidden>
+                <h2 id="practice-explanation-title">{% tr "practice_explanation_title" %}</h2>
+                <p id="practice-explanation-comment" class="practice-explanation-comment"></p>
+                <div class="practice-best-move">
+                    <span>{% tr "practice_best_move" %}</span>
+                    <strong id="practice-best-move"></strong>
+                </div>
+                <div class="practice-explanation-lines">
+                    <div>
+                        <h3>{% tr "practice_correct_line" %}</h3>
+                        <ol id="practice-correct-line" class="practice-line practice-explanation-line"></ol>
+                    </div>
+                    <div>
+                        <h3>{% tr "practice_all_moves" %}</h3>
+                        <ol id="practice-all-moves" class="practice-line practice-explanation-line"></ol>
+                    </div>
+                </div>
+            </section>
 
             <section class="practice-line-panel" aria-labelledby="practice-line-title">
                 <h2 id="practice-line-title">{% tr "practice_line" %}</h2>
@@ -121,6 +144,6 @@
     window.PRACTICE_LEGAL_MOVES_URL = "{% url 'practice_legal_moves' %}";
     window.PRACTICE_PIECES_BASE_URL = "{% static 'games/pieces/' %}";
 </script>
-<script src="{% static 'games/practice.js' %}?v=10"></script>
+<script src="{% static 'games/practice.js' %}?v=11"></script>
 
 {% endblock %}
