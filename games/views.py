@@ -1,13 +1,13 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.models import User
 from django.core.cache import cache
-from django.db import transaction
-from django.db.models import Q
+from django.db import connection, transaction
+from django.db.models import Prefetch, Q
 from django.utils import timezone
-from .models import ChessGame
 from .forms import ChessGameForm
 from django.contrib.auth.decorators import login_required
 import asyncio
+import copy
 import math
 import json
 import logging
@@ -218,7 +218,8 @@ def touch_presence(user):
     else:
         PRESENCE_TOUCH_CACHE[user.id] = presence.last_seen
 
-    PlayerProfile.objects.get_or_create(user=user)
+    profile, _created = PlayerProfile.objects.get_or_create(user=user)
+    user.player_profile = profile
 
 
 def expected_elo_score(player_elo, opponent_elo):
@@ -273,12 +274,45 @@ def game_access_filter(user, guest_id=None):
     return query
 
 
-def get_game_for_user(game_id, user, guest_id=None):
+def get_game_for_user(game_id, user, guest_id=None, with_moves=False):
     return get_object_or_404(
-        ChessGame,
+        game_queryset(with_moves=with_moves),
         game_access_filter(user, guest_id),
         id=game_id,
     )
+
+
+def ordered_moves_prefetch():
+    return Prefetch(
+        'moves',
+        queryset=Move.objects.order_by('move_number', 'id'),
+        to_attr='ordered_moves',
+    )
+
+
+def game_queryset(with_moves=False):
+    queryset = ChessGame.objects.select_related('owner', 'white_user', 'black_user')
+
+    if with_moves:
+        queryset = queryset.prefetch_related(ordered_moves_prefetch())
+
+    return queryset
+
+
+def locked_game_queryset():
+    queryset = game_queryset()
+
+    if connection.features.has_select_for_update_of:
+        return queryset.select_for_update(of=('self',))
+
+    return queryset.select_for_update()
+
+
+def ordered_game_moves(game):
+    if hasattr(game, 'ordered_moves'):
+        return list(game.ordered_moves)
+
+    return list(game.moves.order_by('move_number', 'id'))
 
 
 def player_color_for_game(game, user, guest_id=None):
@@ -512,6 +546,7 @@ def home(request):
 @ensure_csrf_cookie
 def practice(request):
     touch_presence(request.user)
+    language = current_language(request)
     practice_xp = None
 
     if request.user.is_authenticated:
@@ -521,7 +556,7 @@ def practice(request):
     return render(request, 'games/practice.html', {
         'practice_categories': PRACTICE_CATEGORIES,
         'practice_levels': PRACTICE_LEVELS,
-        'practice_puzzles': practice_puzzles_for_client(),
+        'practice_puzzles': practice_puzzles_for_client(language),
         'practice_xp': practice_xp,
     })
 
@@ -547,6 +582,7 @@ def blitz_best_context(best_result):
 @ensure_csrf_cookie
 def blitz(request):
     touch_presence(request.user)
+    language = current_language(request)
     best_result = None
 
     if request.user.is_authenticated:
@@ -555,7 +591,7 @@ def blitz(request):
     return render(request, 'games/blitz.html', {
         'practice_categories': [],
         'practice_levels': PRACTICE_LEVELS,
-        'practice_puzzles': practice_puzzles_for_client(),
+        'practice_puzzles': practice_puzzles_for_client(language),
         'blitz_duration_seconds': BLITZ_DURATION_SECONDS,
         'blitz_best': blitz_best_context(best_result),
     })
@@ -643,6 +679,7 @@ def streak_best_context(best_result):
 @ensure_csrf_cookie
 def streak(request):
     touch_presence(request.user)
+    language = current_language(request)
     best_result = None
 
     if request.user.is_authenticated:
@@ -651,7 +688,7 @@ def streak(request):
     return render(request, 'games/streak.html', {
         'practice_categories': [],
         'practice_levels': PRACTICE_LEVELS,
-        'practice_puzzles': practice_puzzles_for_client(),
+        'practice_puzzles': practice_puzzles_for_client(language),
         'streak_best': streak_best_context(best_result),
     })
 
@@ -989,18 +1026,32 @@ def practice_legal_moves_by_from(board, attacker):
     return moves_by_from
 
 
-def practice_puzzles_for_client():
-    puzzles = public_practice_puzzles()
+@lru_cache(maxsize=3)
+def cached_practice_puzzles_for_client(language):
+    puzzles = public_practice_puzzles(language)
 
     for puzzle in puzzles:
         board = chess.Board(puzzle['fen'])
         puzzle['legal_moves'] = practice_legal_moves_by_from(board, board.turn)
 
-    return puzzles
+    return tuple(puzzles)
+
+
+def practice_puzzles_for_client(language='es'):
+    return copy.deepcopy(cached_practice_puzzles_for_client(normalize_language(language)))
+
+
+@lru_cache(maxsize=1)
+def practice_puzzle_ids():
+    return tuple(puzzle['id'] for puzzle in public_practice_puzzles())
+
+
+def daily_puzzle_candidates():
+    return practice_puzzle_ids()
 
 
 def daily_puzzle_for_date(date):
-    puzzle_ids = [puzzle['id'] for puzzle in public_practice_puzzles()]
+    puzzle_ids = daily_puzzle_candidates()
     selected_puzzle_id = puzzle_ids[date.toordinal() % len(puzzle_ids)]
 
     daily_puzzle, _created = DailyPuzzle.objects.get_or_create(
@@ -1026,11 +1077,11 @@ def daily_attempt_elapsed_ms(attempt):
     return max(0, int((timezone.now() - attempt.started_at).total_seconds() * 1000))
 
 
-def daily_puzzle_state(daily_puzzle, attempt=None):
+def daily_puzzle_state(daily_puzzle, attempt=None, language='es'):
     puzzle = get_practice_puzzle(daily_puzzle.puzzle_id)
     played_line = attempt.played_line if attempt else []
     board, played_line, attacker, _attacker_moves_played = practice_board_from_line(puzzle, played_line)
-    data = public_practice_puzzles()
+    data = practice_puzzles_for_client(language)
     puzzle_data = next(item for item in data if item['id'] == puzzle['id'])
     puzzle_data['fen'] = board.fen()
     puzzle_data['played_line'] = played_line
@@ -1351,6 +1402,7 @@ def format_duration_short(duration):
 @login_required
 def daily_puzzle(request):
     touch_presence(request.user)
+    language = current_language(request)
     today = timezone.localdate()
     daily = daily_puzzle_for_date(today)
     attempt = DailyPuzzleAttempt.objects.filter(date=today, user=request.user).first()
@@ -1358,7 +1410,7 @@ def daily_puzzle(request):
 
     return render(request, 'games/daily.html', {
         'daily_date': today,
-        'daily_puzzle': daily_puzzle_state(daily, active_attempt),
+        'daily_puzzle': daily_puzzle_state(daily, active_attempt, language),
         'daily_attempt': serialize_daily_attempt(attempt),
         'daily_status': attempt.resultado if attempt else 'not_started',
     })
@@ -1367,6 +1419,7 @@ def daily_puzzle(request):
 @require_POST
 @login_required
 def daily_start(request):
+    language = current_language(request)
     today = timezone.localdate()
     daily = daily_puzzle_for_date(today)
     attempt, _created = DailyPuzzleAttempt.objects.get_or_create(
@@ -1383,7 +1436,7 @@ def daily_start(request):
 
     return JsonResponse({
         'status': attempt.resultado,
-        'puzzle': daily_puzzle_state(daily, active_attempt),
+        'puzzle': daily_puzzle_state(daily, active_attempt, language),
         'attempt': serialize_daily_attempt(attempt),
     })
 
@@ -1680,7 +1733,9 @@ def games_list(request):
 
     games = ChessGame.objects.filter(
         game_access_filter(request.user, request.session.get('guest_id'))
-    ).prefetch_related('moves').order_by('-created_at')
+    ).select_related('owner', 'white_user', 'black_user').prefetch_related(
+        ordered_moves_prefetch()
+    ).order_by('-created_at')
 
     game_cards = []
 
@@ -1724,7 +1779,7 @@ def build_game_list_status(game, user, finished_info, language='pt'):
             'class': 'game-card-status-finished',
         }
 
-    moves_count = game.moves.count()
+    moves_count = len(ordered_game_moves(game))
     next_turn = t(language, 'white').lower() if moves_count % 2 == 0 else t(language, 'black').lower()
 
     return {
@@ -1773,10 +1828,10 @@ def piece_type_name(piece):
     }[piece.piece_type]
 
 
-def board_from_game_moves(game):
+def board_from_game_moves(game, move_objects=None):
     board = chess.Board()
 
-    for move in game.moves.all().order_by('move_number', 'id'):
+    for move in (move_objects if move_objects is not None else ordered_game_moves(game)):
         try:
             chess_move = build_chess_move(move)
         except ValueError:
@@ -1790,7 +1845,7 @@ def board_from_game_moves(game):
     return board, None
 
 
-def serialize_moves(game):
+def serialize_moves(game, move_objects=None):
     return [
         {
             'id': move.id,
@@ -1801,15 +1856,16 @@ def serialize_moves(game):
             'piece_color': move.piece_color,
             'promotion': move.promotion,
         }
-        for move in game.moves.all().order_by('move_number', 'id')
+        for move in (move_objects if move_objects is not None else ordered_game_moves(game))
     ]
 
 
-def serialize_game_state(game, user, guest_id=None):
-    board, board_error = board_from_game_moves(game)
-    moves = serialize_moves(game)
+def serialize_game_state(game, user, guest_id=None, move_objects=None):
+    move_objects = ordered_game_moves(game) if move_objects is None else list(move_objects)
+    board, board_error = board_from_game_moves(game, move_objects)
+    moves = serialize_moves(game, move_objects)
     last_move = moves[-1] if moves else None
-    last_saved_move = game.moves.order_by('-move_number', '-id').first()
+    last_saved_move = move_objects[-1] if move_objects else None
     state_changed_at = last_saved_move.created_at if last_saved_move else game.created_at
 
     return {
@@ -1896,10 +1952,11 @@ def get_user_color_for_game(game, user):
 def game_detail(request, game_id):
     touch_presence(request.user)
     guest_id = request.session.get('guest_id')
-    game = get_game_for_user(game_id, request.user, guest_id)
+    game = get_game_for_user(game_id, request.user, guest_id, with_moves=True)
     apply_clock_elapsed(game)
     player_color = player_color_for_game(game, request.user, guest_id)
-    moves = serialize_moves(game)
+    move_objects = ordered_game_moves(game)
+    moves = serialize_moves(game, move_objects)
 
     return render(request, 'games/game_detail.html', {
         'game': game,
@@ -2002,11 +2059,12 @@ def save_move(request, game_id):
 @transaction.atomic
 def save_move_for_user(game_id, user, data, guest_id=None):
     game = get_object_or_404(
-        ChessGame.objects.select_for_update(),
+        locked_game_queryset(),
         game_access_filter(user, guest_id),
         id=game_id,
     )
     timeout_winner = apply_clock_elapsed(game)
+    move_objects = ordered_game_moves(game)
 
     if timeout_winner:
         logger.info("Move rejected for game %s by user %s: clock expired.", game.id, user.id)
@@ -2018,7 +2076,7 @@ def save_move_for_user(game_id, user, data, guest_id=None):
         }, status=409)
 
     player_color = player_color_for_game(game, user, guest_id)
-    expected_color = 'white' if game.moves.count() % 2 == 0 else 'black'
+    expected_color = 'white' if len(move_objects) % 2 == 0 else 'black'
 
     if game.status == 'finished':
         logger.info("Move rejected for game %s by user %s: game is finished.", game.id, user.id)
@@ -2032,7 +2090,7 @@ def save_move_for_user(game_id, user, data, guest_id=None):
         logger.info("Move rejected for game %s by user %s: expected %s, got %s.", game.id, user.id, expected_color, player_color)
         raise GameActionError('Nao e sua vez.', status=403)
 
-    board, board_error = board_from_game_moves(game)
+    board, board_error = board_from_game_moves(game, move_objects)
 
     if board_error:
         logger.warning("Move rejected for game %s by user %s: saved board is invalid (%s).", game.id, user.id, board_error)
@@ -2070,13 +2128,14 @@ def save_move_for_user(game_id, user, data, guest_id=None):
 
     move = Move.objects.create(
         game=game,
-        move_number=game.moves.count() + 1,
+        move_number=len(move_objects) + 1,
         from_square=chess.square_name(chess_move.from_square),
         to_square=chess.square_name(chess_move.to_square),
         piece_type=piece_type_name(moving_piece),
         piece_color=server_piece_color,
         promotion=data.get('promotion') if data.get('promotion') in PROMOTION_PIECES else None,
     )
+    move_objects.append(move)
 
     board.push(chess_move)
     outcome = evaluate_board_outcome(board)
@@ -2123,7 +2182,7 @@ def save_move_for_user(game_id, user, data, guest_id=None):
         'result': game.result if game.result in ('white', 'black', 'draw') else None,
         'draw_reason': outcome.get('reason'),
         'draw_offer': serialize_draw_offer(game, user, guest_id),
-        'state': serialize_game_state(game, user, guest_id),
+        'state': serialize_game_state(game, user, guest_id, move_objects=move_objects),
     }
 
 
@@ -2528,11 +2587,12 @@ def reject_invitation(request, invitation_id):
 def game_moves(request, game_id):
     touch_presence(request.user)
     guest_id = request.session.get('guest_id')
-    game = get_game_for_user(game_id, request.user, guest_id)
+    game = get_game_for_user(game_id, request.user, guest_id, with_moves=True)
     finish_clock_if_expired(game)
+    move_objects = ordered_game_moves(game)
 
     return JsonResponse({
-        'moves': serialize_moves(game),
+        'moves': serialize_moves(game, move_objects),
         'clock': serialize_clock(game),
         'game_finished': game.status == 'finished',
         'winner': game.result if game.result in ('white', 'black') else None,
@@ -2545,11 +2605,11 @@ def game_moves(request, game_id):
 def game_state(request, game_id):
     touch_presence(request.user)
     guest_id = request.session.get('guest_id')
-    game = get_game_for_user(game_id, request.user, guest_id)
+    game = get_game_for_user(game_id, request.user, guest_id, with_moves=True)
     finish_clock_if_expired(game)
     state = serialize_game_state(game, request.user, guest_id)
 
-    logger.info(
+    logger.debug(
         "[polling] game_state game_id=%s user_id=%s move_count=%s last_move_id=%s turn=%s fen=%s",
         state['game_id'],
         request.user.id,

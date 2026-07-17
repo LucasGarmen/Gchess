@@ -1,3 +1,5 @@
+from functools import lru_cache
+
 PRACTICE_LEVELS = [
     {
         "key": "easy",
@@ -337,6 +339,181 @@ PRACTICE_PUZZLES = [
     },
 ]
 
+PRACTICE_PUZZLE_TEXTS = {
+    "pt": {
+        "easy-rook-e8": {
+            "title": "Torre na oitava",
+            "hint": "A torre pode cortar toda a oitava fileira.",
+        },
+        "easy-queen-h7": {
+            "title": "Dama protegida",
+            "hint": "O rei branco protege a casa-chave ao lado do rei rival.",
+        },
+        "easy-double-queen": {
+            "title": "Dois mates de dama",
+            "hint": "A dama tem duas casas de mate perto do rei negro.",
+        },
+        "easy-black-queen-h2": {
+            "title": "Negras dão mate",
+            "hint": "A dama negra pode capturar ao lado do rei branco.",
+        },
+        "easy-scholars-f7": {
+            "title": "Mate escolar",
+            "hint": "A dama entra em f7 com apoio do bispo.",
+        },
+        "easy-fools-mate": {
+            "title": "Mate do louco",
+            "hint": "A diagonal da dama negra chega direto ao rei.",
+        },
+        "easy-back-rank-rook": {
+            "title": "Oitava fileira fechada",
+            "hint": "A torre aproveita que os peões não deixam o rei escapar.",
+        },
+        "easy-knight-smother": {
+            "title": "Cavalo sufocante",
+            "hint": "O cavalo salta para uma casa onde o rei não pode capturá-lo.",
+        },
+        "medium-queen-net": {
+            "title": "Rede de dama",
+            "hint": "Use o rei para tirar as casas de fuga do rei negro.",
+        },
+        "medium-corner-queen": {
+            "title": "Dama contra canto",
+            "hint": "O rei branco deve se aproximar sem deixar o rei negro escapar.",
+        },
+        "medium-king-net": {
+            "title": "Rei dominante",
+            "hint": "O rei branco pode fechar primeiro, e a dama finaliza.",
+        },
+        "medium-legal-trap": {
+            "title": "Armadilha de Legal",
+            "hint": "O sacrifício em f7 atrai o rei para a rede dos cavalos.",
+        },
+        "medium-queen-deflection": {
+            "title": "Desvio do defensor",
+            "hint": "Entregue a dama para tirar o rei da defesa.",
+        },
+        "medium-black-deflection": {
+            "title": "Desvio para as negras",
+            "hint": "A dama obriga o rei a entrar na coluna da torre.",
+        },
+        "hard-central-queen": {
+            "title": "Dama central",
+            "hint": "A dama e o rei devem fechar a borda antes do mate.",
+        },
+        "hard-edge-queen": {
+            "title": "Rede no canto",
+            "hint": "Aproxime o rei para que a dama cubra a última fuga.",
+        },
+        "hard-diagonal-queen": {
+            "title": "Dama diagonal",
+            "hint": "Coordene rei e dama para levar o rei negro ao canto.",
+        },
+        "hard-edge-rich": {
+            "title": "Rei na borda",
+            "hint": "Aproxime o rei antes do golpe final com a dama.",
+        },
+        "hard-black-edge-rich": {
+            "title": "Rei branco na borda",
+            "hint": "O rei negro ganha espaço e a dama finaliza na primeira fileira.",
+        },
+        "hard-smothered-classic": {
+            "title": "Mate sufocado clássico",
+            "hint": "O cavalo inicia o bloqueio e volta para dar mate.",
+        },
+        "hard-black-smothered": {
+            "title": "Mate sufocado para as negras",
+            "hint": "O cavalo obriga o rei a ficar sem ar no canto.",
+        },
+    },
+    "en": {
+        "easy-rook-e8": {
+            "title": "Rook on the eighth",
+            "hint": "The rook can cut off the entire eighth rank.",
+        },
+        "easy-queen-h7": {
+            "title": "Protected queen",
+            "hint": "The white king protects the key square next to the enemy king.",
+        },
+        "easy-double-queen": {
+            "title": "Two queen mates",
+            "hint": "The queen has two mating squares near the black king.",
+        },
+        "easy-black-queen-h2": {
+            "title": "Black to mate",
+            "hint": "The black queen can capture next to the white king.",
+        },
+        "easy-scholars-f7": {
+            "title": "Scholar's mate",
+            "hint": "The queen lands on f7 with bishop support.",
+        },
+        "easy-fools-mate": {
+            "title": "Fool's mate",
+            "hint": "The black queen's diagonal goes straight to the king.",
+        },
+        "easy-back-rank-rook": {
+            "title": "Closed back rank",
+            "hint": "The rook uses the pawns that block the king's escape.",
+        },
+        "easy-knight-smother": {
+            "title": "Smothering knight",
+            "hint": "The knight jumps to a square where the king cannot capture it.",
+        },
+        "medium-queen-net": {
+            "title": "Queen net",
+            "hint": "Use the king to take escape squares from the black king.",
+        },
+        "medium-corner-queen": {
+            "title": "Queen against the corner",
+            "hint": "The white king must step closer without letting the black king escape.",
+        },
+        "medium-king-net": {
+            "title": "Dominant king",
+            "hint": "The white king can close the net first, then the queen finishes.",
+        },
+        "medium-legal-trap": {
+            "title": "Legal trap",
+            "hint": "The sacrifice on f7 pulls the king into the knights' net.",
+        },
+        "medium-queen-deflection": {
+            "title": "Defender deflection",
+            "hint": "Give up the queen to pull the king away from its defense.",
+        },
+        "medium-black-deflection": {
+            "title": "Deflection for Black",
+            "hint": "The queen forces the king onto the rook's file.",
+        },
+        "hard-central-queen": {
+            "title": "Central queen",
+            "hint": "The queen and king must close the edge before mate.",
+        },
+        "hard-edge-queen": {
+            "title": "Net in the corner",
+            "hint": "Bring the king closer so the queen can cover the last escape.",
+        },
+        "hard-diagonal-queen": {
+            "title": "Diagonal queen",
+            "hint": "Coordinate king and queen to drive the black king into the corner.",
+        },
+        "hard-edge-rich": {
+            "title": "King on the edge",
+            "hint": "Bring the king closer before the final queen blow.",
+        },
+        "hard-black-edge-rich": {
+            "title": "White king on the edge",
+            "hint": "The black king gains space and the queen mates on the first rank.",
+        },
+        "hard-smothered-classic": {
+            "title": "Classic smothered mate",
+            "hint": "The knight starts the trap and returns to deliver mate.",
+        },
+        "hard-black-smothered": {
+            "title": "Smothered mate for Black",
+            "hint": "The knight forces the king into an airless corner.",
+        },
+    },
+}
+
 PRACTICE_THEME_CATEGORIES = {
     "easy-rook-e8": ["endgames"],
     "easy-queen-h7": ["endgames"],
@@ -381,26 +558,47 @@ def practice_categories_for_puzzle(puzzle):
     return categories
 
 
-def public_puzzle_data(puzzle):
+def puzzle_text_for_language(puzzle, language):
+    translations = PRACTICE_PUZZLE_TEXTS.get(language, {}).get(puzzle["id"], {})
+
+    return {
+        "title": translations.get("title", puzzle.get("title", "")),
+        "hint": translations.get("hint", puzzle.get("hint", "")),
+    }
+
+
+def public_puzzle_data(puzzle, language="es"):
+    text = puzzle_text_for_language(puzzle, language)
+
     return {
         "id": puzzle["id"],
-        "title": puzzle.get("title", ""),
+        "title": text["title"],
         "level": puzzle["level"],
         "mate_in": puzzle["mate_in"],
         "categories": practice_categories_for_puzzle(puzzle),
         "fen": puzzle["fen"],
         "turn": puzzle["turn"],
-        "hint": puzzle.get("hint", ""),
+        "hint": text["hint"],
     }
 
 
-def public_practice_puzzles():
-    return [public_puzzle_data(puzzle) for puzzle in PRACTICE_PUZZLES]
+PRACTICE_PUZZLES_BY_ID = {puzzle["id"]: puzzle for puzzle in PRACTICE_PUZZLES}
+
+
+@lru_cache(maxsize=3)
+def cached_public_practice_puzzles(language="es"):
+    return tuple(public_puzzle_data(puzzle, language) for puzzle in PRACTICE_PUZZLES)
+
+
+def public_practice_puzzles(language="es"):
+    return [
+        {
+            **puzzle,
+            "categories": list(puzzle["categories"]),
+        }
+        for puzzle in cached_public_practice_puzzles(language)
+    ]
 
 
 def get_practice_puzzle(puzzle_id):
-    for puzzle in PRACTICE_PUZZLES:
-        if puzzle["id"] == puzzle_id:
-            return puzzle
-
-    return None
+    return PRACTICE_PUZZLES_BY_ID.get(puzzle_id)

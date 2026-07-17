@@ -53,6 +53,16 @@ class ChessGame(models.Model):
         created = self.created_at.strftime('%Y-%m-%d %H:%M') if self.created_at else 'Sin fecha'
 
         return f"Blancas: {white} vs Negras: {black} - Creada: {created}"
+
+    class Meta:
+        indexes = [
+            models.Index(fields=['owner', '-created_at'], name='game_owner_created_idx'),
+            models.Index(fields=['white_user', '-created_at'], name='game_white_user_idx'),
+            models.Index(fields=['black_user', '-created_at'], name='game_black_user_idx'),
+            models.Index(fields=['white_guest_id', '-created_at'], name='game_white_guest_idx'),
+            models.Index(fields=['black_guest_id', '-created_at'], name='game_black_guest_idx'),
+            models.Index(fields=['status', '-created_at'], name='game_status_created_idx'),
+        ]
     
 class Move(models.Model):
     game = models.ForeignKey(ChessGame, on_delete=models.CASCADE, related_name='moves')
@@ -66,6 +76,11 @@ class Move(models.Model):
 
     def __str__(self):
         return f"{self.move_number}. {self.from_square} -> {self.to_square}"
+
+    class Meta:
+        indexes = [
+            models.Index(fields=['game', 'move_number', 'id'], name='move_game_order_idx'),
+        ]
 
 
 class UserPresence(models.Model):
@@ -202,6 +217,14 @@ class GameInvitation(models.Model):
         creator = self.creator.username if self.creator_id else (self.creator_guest_name or 'Invitado')
         return f"Convite de {creator}"
 
+    class Meta:
+        indexes = [
+            models.Index(fields=['status', 'opponent', 'created_at'], name='invite_status_opp_idx'),
+            models.Index(fields=['status', 'opponent_mode', 'created_at'], name='invite_status_mode_idx'),
+            models.Index(fields=['creator', 'status'], name='invite_creator_status_idx'),
+            models.Index(fields=['token', 'opponent_mode'], name='invite_token_mode_idx'),
+        ]
+
 
 class GameChatMessage(models.Model):
     game = models.ForeignKey(ChessGame, on_delete=models.CASCADE, related_name='chat_messages')
@@ -213,6 +236,11 @@ class GameChatMessage(models.Model):
 
     class Meta:
         ordering = ['created_at', 'id']
+        indexes = [
+            models.Index(fields=['game', 'created_at', 'id'], name='chat_game_order_idx'),
+            models.Index(fields=['game', 'sender', 'id'], name='chat_game_sender_idx'),
+            models.Index(fields=['game', 'sender_guest_id', 'id'], name='chat_game_guest_idx'),
+        ]
 
     def __str__(self):
         sender = self.sender.username if self.sender_id else (self.sender_guest_name or 'Invitado')

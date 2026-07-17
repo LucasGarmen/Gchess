@@ -12,7 +12,7 @@
     <link rel="icon" href="{% static 'images/favicon.png' %}" type="image/png">
     <link rel="shortcut icon" href="{% static 'images/favicon.png' %}" type="image/png">
     <link rel="apple-touch-icon" href="{% static 'images/favicon.png' %}">
-    <link rel="stylesheet" href="{% static 'games/style.css' %}?v=58">
+    <link rel="stylesheet" href="{% static 'games/style.min.css' %}?v=1">
 </head>
 
 <body>
@@ -22,9 +22,9 @@
         <span class="mobile-nav-label">{% tr "menu" %}</span>
     </button>
 
-    <nav id="site-nav">
+    <nav id="site-nav" class="site-nav">
     <span class="nav-brand" aria-label="GChess">
-        <img src="{% static 'games/gchess-logo.png' %}" alt="GChess">
+        <img src="{% static 'games/gchess-logo.png' %}" alt="GChess" width="150" height="150" decoding="async">
     </span>
     <a href="{% url 'home' %}">{% tr "nav_home" %}</a>
     <a href="{% url 'games_list' %}">{% tr "nav_games" %}</a>
@@ -262,13 +262,13 @@
 
                 if (shouldStopNotificationPolling(response)) {
                     // Stop polling after login redirects so logged-out tabs do not spam Django.
-                    stopNotificationPolling('Polling de notificaciones detenido: la sesiÃ³n parece haber expirado.');
+                    stopNotificationPolling(UI_TEXTS.notification_polling_stopped);
                     return;
                 }
 
                 if (!response.ok) {
                     if (!notificationNetworkWarningShown) {
-                        console.warn('No se pudieron actualizar las notificaciones:', response.status, response.statusText);
+                        console.warn(UI_TEXTS.notification_update_failed, response.status, response.statusText);
                         notificationNetworkWarningShown = true;
                     }
                     return;
@@ -279,7 +279,7 @@
                 renderGameNotifications(data.invitations || []);
             } catch (error) {
                 if (!notificationNetworkWarningShown) {
-                    console.warn('No se pudieron actualizar las notificaciones:', error);
+                    console.warn(UI_TEXTS.notification_update_failed, error);
                     notificationNetworkWarningShown = true;
                 }
             }

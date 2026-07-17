@@ -87,19 +87,19 @@
 
             if (data.status === 'rejected') {
                 invitationPollingStopped = true;
-                waitStatus.innerText = 'Convite recusado.';
+                waitStatus.innerText = UI_TEXTS.invitation_rejected;
                 cancelInvitationButton.disabled = true;
                 return;
             }
 
             if (data.status === 'cancelled') {
                 invitationPollingStopped = true;
-                waitStatus.innerText = 'Solicitação cancelada.';
+                waitStatus.innerText = UI_TEXTS.invitation_cancelled;
                 cancelInvitationButton.disabled = true;
                 return;
             }
         } catch (error) {
-            waitStatus.innerText = 'Aguardando oponente...';
+            waitStatus.innerText = UI_TEXTS.invitation_waiting;
         }
 
         setTimeout(checkInvitationStatus, 1500);
@@ -124,7 +124,7 @@
 
         invitationPollingStopped = false;
         setTimeout(checkInvitationStatus, 1500);
-        waitStatus.innerText = data.error || 'Não foi possível cancelar.';
+        waitStatus.innerText = data.error || UI_TEXTS.invitation_cancel_error;
     });
 
     if (copyInvitationLinkButton && invitationLinkInput) {

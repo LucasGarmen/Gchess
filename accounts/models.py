@@ -179,6 +179,10 @@ class UserAchievement(models.Model):
 
 
 def ensure_default_achievements():
+    expected_keys = [achievement[0] for achievement in ACHIEVEMENT_DEFINITIONS]
+    if Achievement.objects.filter(key__in=expected_keys).count() == len(expected_keys):
+        return
+
     for key, metric, threshold, name, description, sort_order in ACHIEVEMENT_DEFINITIONS:
         Achievement.objects.update_or_create(
             key=key,

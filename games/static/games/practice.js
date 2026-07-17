@@ -174,6 +174,7 @@
         current: 0,
         solved: 0,
     };
+    const preloadedPieceUrls = new Set();
 
     function parseJsonScript(id, fallbackValue) {
         const element = document.getElementById(id);
@@ -750,6 +751,7 @@
 
         renderBoard();
         renderMoveLine();
+        preloadNextPuzzle();
         updateButtons();
     }
 
@@ -1037,9 +1039,10 @@
         const image = document.createElement('img');
         const pieceKey = `${piece.type}_${piece.color}`;
 
-        image.src = `${window.PRACTICE_PIECES_BASE_URL || '/static/games/pieces/'}${pieceKey}.png`;
+        image.src = pieceImageUrl(piece);
         image.alt = pieceKey;
         image.className = 'piece';
+        image.decoding = 'async';
         image.draggable = false;
         image.addEventListener('error', function () {
             const fallback = document.createElement('span');
@@ -1049,6 +1052,40 @@
         });
 
         return image;
+    }
+
+    function pieceImageUrl(piece) {
+        return `${window.PRACTICE_PIECES_BASE_URL || '/static/games/pieces/'}${piece.type}_${piece.color}.png`;
+    }
+
+    function preloadPieceImage(piece) {
+        const url = pieceImageUrl(piece);
+        if (preloadedPieceUrls.has(url)) {
+            return;
+        }
+
+        preloadedPieceUrls.add(url);
+        const image = new Image();
+        image.decoding = 'async';
+        image.src = url;
+    }
+
+    function preloadPuzzlePieces(puzzle) {
+        if (!puzzle || !puzzle.fen) {
+            return;
+        }
+
+        Object.values(parseFen(puzzle.fen).pieces).forEach(preloadPieceImage);
+    }
+
+    function preloadNextPuzzle() {
+        const categoryPuzzles = puzzlesForCategory(currentCategory);
+        if (categoryPuzzles.length < 2) {
+            return;
+        }
+
+        const nextIndex = (currentPuzzleIndex + 1) % categoryPuzzles.length;
+        preloadPuzzlePieces(categoryPuzzles[nextIndex]);
     }
 
     function normalizeLegalMovesByFrom(movesByFrom) {

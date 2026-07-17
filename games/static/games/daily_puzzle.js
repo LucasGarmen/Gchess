@@ -242,6 +242,7 @@
         image.src = `${window.DAILY_PIECES_BASE_URL || '/static/games/pieces/'}${pieceKey}.png`;
         image.alt = pieceKey;
         image.className = 'piece';
+        image.decoding = 'async';
         image.draggable = false;
         return image;
     }

@@ -182,6 +182,16 @@ function uiText(key, fallback) {
     return fallback;
 }
 
+function formatUiText(key, fallback, values) {
+    let text = uiText(key, fallback);
+
+    Object.entries(values).forEach(([name, value]) => {
+        text = text.replace(`{${name}}`, value);
+    });
+
+    return text;
+}
+
 //Variável usada para verificar se ainda o enroque é possivel
 let castlingRights = {
     white: {
@@ -488,12 +498,12 @@ function updateTurnIndicator() {
     }
 
     if (gameOver && isViewingLatestPosition()) {
-        turnIndicator.innerText = 'Partida finalizada';
+        turnIndicator.innerText = uiText('game_finished', 'Game finished');
         return;
     }
 
     if (botRequestLocked()) {
-        turnIndicator.innerText = 'Computador pensando...';
+        turnIndicator.innerText = uiText('computer_thinking', 'Computer thinking...');
         return;
     }
 
@@ -502,7 +512,10 @@ function updateTurnIndicator() {
             ? uiText('turn_white', 'Vez das brancas')
             : uiText('turn_black', 'Vez das pretas');
     } else {
-        turnIndicator.innerText = `Vendo jogada ${historyIndex} de ${SAVED_MOVES.length}`;
+        turnIndicator.innerText = formatUiText('viewing_move', 'Viewing move {current} of {total}', {
+            current: historyIndex,
+            total: SAVED_MOVES.length,
+        });
     }
 }
 
@@ -1442,6 +1455,7 @@ function createPieceElement(position) {
 
     pieceImage.src = `/static/games/pieces/${fileName}`;
     pieceImage.alt = pieceKey;
+    pieceImage.decoding = 'async';
     pieceImage.draggable = false;
     pieceImage.classList.add('piece');
 
@@ -1879,7 +1893,7 @@ async function postGameAction(url, payload = {}) {
     const data = await response.json();
 
     if (!response.ok) {
-        throw new Error(data.error || 'A ação não pôde ser concluída.');
+        throw new Error(data.error || uiText('action_failed', 'The action could not be completed.'));
     }
 
     applyClockState(data.clock);
@@ -2588,7 +2602,7 @@ function checkGameEnd() {
     if (isCheckmate(currentTurn)) {
         gameOver = true;
         clearSelection();
-        showGameStatus('xeque-mate!');
+        showGameStatus(uiText('checkmate', 'Checkmate!'));
         updateTurnIndicator();
         return {
             result: getEnemyColor(currentTurn),
@@ -2599,7 +2613,7 @@ function checkGameEnd() {
     if (isStalemate(currentTurn)) {
         gameOver = true;
         clearSelection();
-        showGameStatus('Partida empatada por ahogado');
+        showGameStatus(uiText('draw_stalemate', 'Game drawn by stalemate'));
         updateTurnIndicator();
         return {
             result: 'draw',
@@ -2610,7 +2624,7 @@ function checkGameEnd() {
     if (hasInsufficientMaterial()) {
         gameOver = true;
         clearSelection();
-        showGameStatus('Partida empatada por material insuficiente');
+        showGameStatus(uiText('draw_insufficient_material', 'Game drawn by insufficient material'));
         updateTurnIndicator();
         return {
             result: 'draw',
@@ -2630,13 +2644,13 @@ function refreshGameStatus() {
     gameOver = isViewingLatestPosition() && (isCheckmate(currentTurn) || isStalemate(currentTurn) || hasInsufficientMaterial());
 
     if (gameOver && isCheckmate(currentTurn)) {
-        showGameStatus('xeque-mate!');
+        showGameStatus(uiText('checkmate', 'Checkmate!'));
         syncFinishedGame(getEnemyColor(currentTurn));
     } else if (gameOver && isStalemate(currentTurn)) {
-        showGameStatus('Partida empatada por ahogado');
+        showGameStatus(uiText('draw_stalemate', 'Game drawn by stalemate'));
         syncFinishedGame(null, { result: 'draw' });
     } else if (gameOver && hasInsufficientMaterial()) {
-        showGameStatus('Partida empatada por material insuficiente');
+        showGameStatus(uiText('draw_insufficient_material', 'Game drawn by insufficient material'));
         syncFinishedGame(null, { result: 'draw' });
     } else {
         hideGameStatus();
@@ -2908,7 +2922,7 @@ function saveMoveToDatabase(moveData, gameState = {}) {
     .then(response => {
         if (!response.ok) {
             syncMovesFromServer();
-            throw new Error('Movimento recusado pelo servidor.');
+            throw new Error(uiText('computer_move_rejected', 'Move rejected by the server.'));
         }
 
         return response.json();
@@ -3743,7 +3757,7 @@ function undoComputerMove() {
         return;
     }
 
-    if (!confirm('Tem certeza de que deseja voltar sua última jogada?')) {
+    if (!confirm(uiText('undo_last_move_confirm', 'Are you sure you want to undo your last move?'))) {
         return;
     }
 
@@ -3769,7 +3783,7 @@ function resetComputerGame() {
         return;
     }
 
-    if (!confirm('Tem certeza de que deseja reiniciar a partida?')) {
+    if (!confirm(uiText('reset_game_confirm', 'Are you sure you want to restart the game?'))) {
         return;
     }
 

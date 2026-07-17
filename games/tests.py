@@ -193,9 +193,9 @@ class PracticePuzzleTests(TestCase):
         self.assertContains(response, '"legal_moves"')
         self.assertContains(response, 'data-practice-category="mate_1"')
         self.assertContains(response, 'data-practice-category="sacrifices"')
-        self.assertContains(response, 'games/practice.js')
+        self.assertContains(response, 'games/practice.min.js')
         self.assertContains(response, 'PRACTICE_LEGAL_MOVES_URL')
-        self.assertNotContains(response, 'games/board.js')
+        self.assertNotContains(response, 'games/board.min.js')
 
     def test_blitz_page_reuses_practice_board_with_scoreboard(self):
         response = self.client.get(reverse("blitz"))
@@ -211,7 +211,7 @@ class PracticePuzzleTests(TestCase):
         self.assertContains(response, 'id="practice-puzzles-data"')
         self.assertContains(response, 'window.PRACTICE_BLITZ = true')
         self.assertContains(response, 'window.BLITZ_SAVE_URL')
-        self.assertContains(response, 'games/practice.js')
+        self.assertContains(response, 'games/practice.min.js')
 
     def test_authenticated_blitz_save_keeps_best_result(self):
         user = User.objects.create_user(username="blitz-user", password="pass")
@@ -292,7 +292,7 @@ class PracticePuzzleTests(TestCase):
         self.assertContains(response, 'id="practice-board"')
         self.assertContains(response, 'window.PRACTICE_STREAK = true')
         self.assertContains(response, 'window.STREAK_SAVE_URL')
-        self.assertContains(response, 'games/practice.js')
+        self.assertContains(response, 'games/practice.min.js')
 
     def test_authenticated_streak_save_keeps_best_result(self):
         user = User.objects.create_user(username="streak-user", password="pass")
@@ -415,8 +415,19 @@ class PracticePuzzleTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'href="/daily/"')
         self.assertContains(response, 'id="daily-start"')
-        self.assertContains(response, "Dos mates de dama")
-        self.assertContains(response, "daily_puzzle.js")
+        self.assertContains(response, "Dois mates de dama")
+        self.assertContains(response, "daily_puzzle.min.js")
+
+    def test_practice_puzzles_follow_selected_language(self):
+        session = self.client.session
+        session["language"] = "en"
+        session.save()
+
+        response = self.client.get(reverse("practice"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Rook on the eighth")
+        self.assertNotContains(response, "Torre en la octava")
 
     def test_daily_start_creates_single_in_progress_attempt(self):
         user = User.objects.create_user(username="daily-start-user", password="pass")
@@ -1079,10 +1090,10 @@ class GameAccessTests(TestCase):
 
         self.assertContains(response, 'id="game-detail-react-root"')
         self.assertContains(response, 'id="react-game-context-data"')
-        self.assertContains(response, 'games/react/game_detail_app.js')
+        self.assertContains(response, 'games/react/game_detail_app.min.js')
         self.assertContains(response, 'react-dom')
         self.assertContains(response, 'id="board"')
-        self.assertContains(response, 'games/board.js')
+        self.assertContains(response, 'games/board.min.js')
 
     def test_board_supports_right_click_square_marker(self):
         source = open("games/static/games/board.js", encoding="utf-8").read()
@@ -1132,7 +1143,7 @@ class GameAccessTests(TestCase):
         self.assertContains(response, 'id="cancel-analysis-loading"')
         self.assertContains(response, 'Isso pode levar alguns segundos enquanto revisamos o PGN.')
         self.assertNotContains(response, 'Stockfish revisa')
-        self.assertContains(response, 'games/analysis_loading.js')
+        self.assertContains(response, 'games/analysis_loading.min.js')
         self.assertContains(response, "GChessAnalysisLoading.bindLink('analyze-game-button', { navigate: true })")
 
     def test_analysis_loading_overlay_uses_selected_language(self):
@@ -1455,7 +1466,7 @@ class GameAccessTests(TestCase):
         self.assertContains(response, 'id="pgn-analysis-form"')
         self.assertContains(response, 'id="analysis-loading-overlay"')
         self.assertContains(response, 'id="cancel-analysis-loading"')
-        self.assertContains(response, 'games/analysis_loading.js')
+        self.assertContains(response, 'games/analysis_loading.min.js')
         self.assertContains(response, "GChessAnalysisLoading.bindForm('pgn-analysis-form')")
 
     def test_home_analyze_button_uses_full_navigation_loading_overlay(self):
@@ -1463,7 +1474,7 @@ class GameAccessTests(TestCase):
 
         self.assertContains(response, 'id="analysis-loading-overlay"')
         self.assertContains(response, 'id="cancel-analysis-loading"')
-        self.assertContains(response, 'games/analysis_loading.js')
+        self.assertContains(response, 'games/analysis_loading.min.js')
         self.assertContains(response, "GChessAnalysisLoading.bindForm('analyze-game-form', { navigate: true })")
 
     def test_mobile_home_includes_bot_menu_without_removing_desktop_board(self):
@@ -1476,7 +1487,7 @@ class GameAccessTests(TestCase):
         self.assertContains(response, 'id="mobile-start-bot-game"')
         self.assertContains(response, 'id="home-computer-game"')
         self.assertContains(response, 'class="game-layout computer-game-layout home-computer-layout"')
-        self.assertContains(response, 'games/board.js')
+        self.assertContains(response, 'games/board.min.js')
 
     def test_online_game_uses_mobile_nav_toggle(self):
         white, _black, game = self.create_multiplayer_game()
@@ -1499,7 +1510,7 @@ class GameAccessTests(TestCase):
         self.assertIn('id="analysis-comment"', template)
         self.assertIn('id="leave-analysis-modal"', template)
         self.assertIn('{% tr "first_position" %}', template)
-        self.assertIn('games/analyzer_chat.js', template)
+        self.assertIn('games/analyzer_chat.min.js', template)
         self.assertIn("let PLAYER_COLOR = 'white';", template)
 
     def test_board_notifies_analyzer_when_position_changes(self):
