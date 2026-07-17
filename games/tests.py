@@ -19,7 +19,7 @@ from accounts.models import (
     puzzle_rating_delta_for_mate_in,
     unlock_achievements_for_stats,
 )
-from .models import BlitzBestResult, ChessGame, DailyPuzzle, DailyPuzzleAttempt, DailyVisit, GameInvitation, Move
+from .models import BlitzBestResult, ChessGame, DailyPuzzle, DailyPuzzleAttempt, DailyVisit, GameInvitation, Move, StreakBestResult
 from .puzzles import PRACTICE_CATEGORIES, PRACTICE_PUZZLES, public_practice_puzzles
 from .views import build_automatic_move_context, build_pgn_from_saved_game, evaluate_board_outcome, generate_comment, practice_move_from_notation, practice_move_satisfies_goal, practice_xp_for_mate_in, read_analyzer_game, read_internal_coordinate_game
 
@@ -278,6 +278,74 @@ class PracticePuzzleTests(TestCase):
         self.assertFalse(response.json()["saved"])
         self.assertFalse(response.json()["is_best"])
         self.assertEqual(BlitzBestResult.objects.count(), 0)
+
+    def test_streak_page_reuses_practice_board_with_scoreboard(self):
+        response = self.client.get(reverse("streak"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'href="/streak/"')
+        self.assertContains(response, 'id="streak-current-count"')
+        self.assertContains(response, 'id="streak-best-count"')
+        self.assertContains(response, 'id="streak-solved-count"')
+        self.assertContains(response, 'id="streak-summary"')
+        self.assertContains(response, 'id="streak-retry"')
+        self.assertContains(response, 'id="practice-board"')
+        self.assertContains(response, 'window.PRACTICE_STREAK = true')
+        self.assertContains(response, 'window.STREAK_SAVE_URL')
+        self.assertContains(response, 'games/practice.js')
+
+    def test_authenticated_streak_save_keeps_best_result(self):
+        user = User.objects.create_user(username="streak-user", password="pass")
+        self.client.force_login(user)
+
+        first_response = self.client.post(
+            reverse("streak_save"),
+            data=json.dumps({
+                "streak": 4,
+                "solved": 4,
+            }),
+            content_type="application/json",
+        )
+        lower_response = self.client.post(
+            reverse("streak_save"),
+            data=json.dumps({
+                "streak": 2,
+                "solved": 8,
+            }),
+            content_type="application/json",
+        )
+        higher_response = self.client.post(
+            reverse("streak_save"),
+            data=json.dumps({
+                "streak": 6,
+                "solved": 6,
+            }),
+            content_type="application/json",
+        )
+
+        best_result = StreakBestResult.objects.get(user=user)
+        self.assertEqual(first_response.status_code, 200)
+        self.assertTrue(first_response.json()["saved"])
+        self.assertTrue(first_response.json()["is_best"])
+        self.assertFalse(lower_response.json()["is_best"])
+        self.assertTrue(higher_response.json()["is_best"])
+        self.assertEqual(best_result.mejor_racha, 6)
+        self.assertEqual(best_result.puzzles_resueltos, 6)
+
+    def test_anonymous_streak_save_does_not_create_best_result(self):
+        response = self.client.post(
+            reverse("streak_save"),
+            data=json.dumps({
+                "streak": 5,
+                "solved": 5,
+            }),
+            content_type="application/json",
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(response.json()["saved"])
+        self.assertFalse(response.json()["is_best"])
+        self.assertEqual(StreakBestResult.objects.count(), 0)
 
     def test_fast_practice_move_skips_explanation_for_blitz(self):
         user = User.objects.create_user(username="blitz-fast-user", password="pass")

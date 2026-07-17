@@ -3,61 +3,49 @@
 {% load game_i18n %}
 
 {% block title %}
-{% tr "blitz_title" %}
+{% tr "streak_title" %}
 {% endblock %}
 
 {% block content %}
 
 <script>
-    document.body.classList.add('practice-page-active', 'blitz-page-active');
+    document.body.classList.add('practice-page-active', 'streak-page-active');
 </script>
 
-<main class="blitz-page practice-page">
-    <header class="practice-header blitz-header">
-        <h1>{% tr "blitz_title" %}</h1>
-        <p>{% tr "blitz_intro" %}</p>
+<main class="streak-page practice-page">
+    <header class="practice-header streak-header">
+        <h1>{% tr "streak_title" %}</h1>
+        <p>{% tr "streak_intro" %}</p>
     </header>
 
-    <section class="blitz-scoreboard" aria-label="{% tr "blitz_scoreboard" %}">
-        <article class="blitz-timer-card">
-            <span>{% tr "blitz_time_remaining" %}</span>
-            <strong id="blitz-time">3:00</strong>
+    <section class="blitz-scoreboard streak-scoreboard" aria-label="{% tr "streak_scoreboard" %}">
+        <article>
+            <span>{% tr "streak_current" %}</span>
+            <strong id="streak-current-count">0</strong>
         </article>
         <article>
-            <span>{% tr "blitz_solved" %}</span>
-            <strong id="blitz-solved-count">0</strong>
+            <span>{% tr "streak_best" %}</span>
+            <strong id="streak-best-count">{{ streak_best.mejor_racha }}</strong>
         </article>
         <article>
-            <span>{% tr "blitz_correct" %}</span>
-            <strong id="blitz-correct-count">0</strong>
-        </article>
-        <article>
-            <span>{% tr "blitz_incorrect" %}</span>
-            <strong id="blitz-incorrect-count">0</strong>
-        </article>
-        <article>
-            <span>{% tr "blitz_score" %}</span>
-            <strong id="blitz-score">0</strong>
-        </article>
-        <article>
-            <span>{% tr "blitz_best" %}</span>
-            <strong id="blitz-best-score">{{ blitz_best.score }}</strong>
+            <span>{% tr "streak_solved" %}</span>
+            <strong id="streak-solved-count">0</strong>
         </article>
     </section>
 
-    <section class="game-layout practice-game-layout blitz-game-layout">
-        <aside class="pgn-panel practice-selector-panel blitz-side-panel">
-            <h2>{% tr "blitz_run" %}</h2>
-            <p>{% tr "blitz_run_help" %}</p>
+    <section class="game-layout practice-game-layout streak-game-layout">
+        <aside class="pgn-panel practice-selector-panel blitz-side-panel streak-side-panel">
+            <h2>{% tr "streak_run" %}</h2>
+            <p>{% tr "streak_run_help" %}</p>
 
-            <div class="blitz-mini-stats">
+            <div class="blitz-mini-stats streak-mini-stats">
                 <div>
-                    <span>{% tr "blitz_run_solved" %}</span>
-                    <strong id="blitz-run-solved">0</strong>
+                    <span>{% tr "streak_current" %}</span>
+                    <strong id="streak-run-current">0</strong>
                 </div>
                 <div>
-                    <span>{% tr "blitz_run_correct" %}</span>
-                    <strong id="blitz-run-correct">0</strong>
+                    <span>{% tr "streak_best_saved" %}</span>
+                    <strong id="streak-run-best">{{ streak_best.mejor_racha }}</strong>
                 </div>
             </div>
 
@@ -68,7 +56,7 @@
             </div>
         </aside>
 
-        <section class="board-area practice-board-area blitz-board-area">
+        <section class="board-area practice-board-area streak-board-area">
             <div class="board-wrapper">
                 <div class="rank-labels" id="practice-rank-labels">
                     <span>8</span><span>7</span><span>6</span><span>5</span>
@@ -89,16 +77,16 @@
             </div>
         </section>
 
-        <aside class="pgn-panel practice-info-panel blitz-info-panel">
-            <h2 id="practice-puzzle-title">{% tr "blitz_ready" %}</h2>
+        <aside class="pgn-panel practice-info-panel streak-info-panel">
+            <h2 id="practice-puzzle-title">{% tr "streak_ready" %}</h2>
             <p id="practice-puzzle-meta" class="practice-meta"></p>
 
             <div id="practice-result" class="coach-comment practice-result" hidden></div>
             <div id="practice-hint" class="coach-comment practice-hint" hidden></div>
 
-            <div class="game-actions practice-actions blitz-actions">
+            <div class="game-actions practice-actions streak-actions">
                 <button id="practice-next-puzzle" type="button" hidden>{% tr "practice_next_puzzle" %}</button>
-                <button id="practice-restart" type="button">{% tr "practice_restart" %}</button>
+                <button id="practice-restart" type="button" hidden>{% tr "practice_restart" %}</button>
                 <button id="practice-show-hint" type="button" hidden>{% tr "practice_show_hint" %}</button>
                 <button id="practice-review-line" type="button" hidden>{% tr "practice_review_again" %}</button>
             </div>
@@ -108,27 +96,20 @@
                 <ol id="practice-line" class="practice-line"></ol>
             </section>
 
-            <section id="blitz-summary" class="blitz-summary-panel" hidden>
-                <h2>{% tr "blitz_finished" %}</h2>
+            <section id="streak-summary" class="blitz-summary-panel streak-summary-panel" hidden>
+                <h2>{% tr "streak_finished" %}</h2>
                 <dl>
                     <div>
-                        <dt>{% tr "blitz_score" %}</dt>
-                        <dd id="blitz-final-score">0</dd>
+                        <dt>{% tr "streak_current" %}</dt>
+                        <dd id="streak-final-current">0</dd>
                     </div>
                     <div>
-                        <dt>{% tr "blitz_solved" %}</dt>
-                        <dd id="blitz-final-solved">0</dd>
-                    </div>
-                    <div>
-                        <dt>{% tr "blitz_correct" %}</dt>
-                        <dd id="blitz-final-correct">0</dd>
-                    </div>
-                    <div>
-                        <dt>{% tr "blitz_incorrect" %}</dt>
-                        <dd id="blitz-final-incorrect">0</dd>
+                        <dt>{% tr "streak_solved" %}</dt>
+                        <dd id="streak-final-solved">0</dd>
                     </div>
                 </dl>
-                <p id="blitz-best-message"></p>
+                <p id="streak-best-message"></p>
+                <button id="streak-retry" type="button">{% tr "streak_try_again" %}</button>
             </section>
         </aside>
     </section>
@@ -137,15 +118,14 @@
 {{ practice_categories|json_script:"practice-categories-data" }}
 {{ practice_levels|json_script:"practice-levels-data" }}
 {{ practice_puzzles|json_script:"practice-puzzles-data" }}
-{{ blitz_best|json_script:"blitz-best-data" }}
+{{ streak_best|json_script:"streak-best-data" }}
 
 <script>
-    window.PRACTICE_BLITZ = true;
+    window.PRACTICE_STREAK = true;
     window.PRACTICE_MOVE_URL = "{% url 'practice_move' %}";
     window.PRACTICE_LEGAL_MOVES_URL = "{% url 'practice_legal_moves' %}";
     window.PRACTICE_PIECES_BASE_URL = "{% static 'games/pieces/' %}";
-    window.BLITZ_SAVE_URL = "{% url 'blitz_save' %}";
-    window.BLITZ_DURATION_SECONDS = {{ blitz_duration_seconds }};
+    window.STREAK_SAVE_URL = "{% url 'streak_save' %}";
 </script>
 <script src="{% static 'games/practice.js' %}?v=13"></script>
 

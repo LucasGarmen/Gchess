@@ -12,7 +12,7 @@
     <link rel="icon" href="{% static 'images/favicon.png' %}" type="image/png">
     <link rel="shortcut icon" href="{% static 'images/favicon.png' %}" type="image/png">
     <link rel="apple-touch-icon" href="{% static 'images/favicon.png' %}">
-    <link rel="stylesheet" href="{% static 'games/style.css' %}?v=57">
+    <link rel="stylesheet" href="{% static 'games/style.css' %}?v=58">
 </head>
 
 <body>
@@ -32,6 +32,7 @@
     <a href="{% url 'game_analyzer' %}">{% tr "nav_analyze_pgn" %}</a>
     <a href="{% url 'practice' %}">{% tr "nav_practice" %}</a>
     <a href="{% url 'blitz' %}">{% tr "nav_blitz" %}</a>
+    <a href="{% url 'streak' %}">{% tr "nav_streak" %}</a>
     <a href="{% url 'daily_puzzle' %}">{% tr "nav_daily" %}</a>
     <a href="{% url 'leaderboard' %}">{% tr "nav_leaderboard" %}</a>
 

@@ -149,6 +149,21 @@ class BlitzBestResult(models.Model):
         return f"{self.user.username} - {self.score} pts"
 
 
+class StreakBestResult(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='streak_best_result')
+    mejor_racha = models.PositiveIntegerField(default=0)
+    puzzles_resueltos = models.PositiveIntegerField(default=0)
+    achieved_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-mejor_racha', '-puzzles_resueltos', 'achieved_at']
+        verbose_name = 'mejor racha streak'
+        verbose_name_plural = 'mejores rachas streak'
+
+    def __str__(self):
+        return f"{self.user.username} - {self.mejor_racha}"
+
+
 class GameInvitation(models.Model):
     OPPONENT_CHOICES = [
         ('direct', 'Oponente escolhido'),

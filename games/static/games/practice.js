@@ -27,7 +27,11 @@
     const explanationReplayHighlightMs = 220;
     const explanationReplayStepMs = 160;
     const blitzMode = Boolean(window.PRACTICE_BLITZ);
+    const streakMode = Boolean(window.PRACTICE_STREAK);
+    const challengeMode = blitzMode || streakMode;
     const blitzCategoryKey = 'blitz_all';
+    const streakCategoryKey = 'streak_all';
+    const challengeCategoryKey = blitzMode ? blitzCategoryKey : streakCategoryKey;
     const blitzCorrectBaseScore = 10;
     const blitzIncorrectPenalty = 2;
 
@@ -76,21 +80,36 @@
     const blitzBestScoreElement = document.getElementById('blitz-best-score');
     const blitzRunSolvedElement = document.getElementById('blitz-run-solved');
     const blitzRunCorrectElement = document.getElementById('blitz-run-correct');
+    const streakCurrentElement = document.getElementById('streak-current-count');
+    const streakBestElement = document.getElementById('streak-best-count');
+    const streakSolvedElement = document.getElementById('streak-solved-count');
+    const streakRunCurrentElement = document.getElementById('streak-run-current');
+    const streakRunBestElement = document.getElementById('streak-run-best');
+    const streakSummaryElement = document.getElementById('streak-summary');
+    const streakFinalCurrentElement = document.getElementById('streak-final-current');
+    const streakFinalSolvedElement = document.getElementById('streak-final-solved');
+    const streakBestMessageElement = document.getElementById('streak-best-message');
+    const streakRetryButton = document.getElementById('streak-retry');
 
     if (!boardElement) {
         return;
     }
 
     const rawCategories = parseJsonScript('practice-categories-data', []);
-    const categories = blitzMode
-        ? [{ key: blitzCategoryKey, label_key: 'blitz_title', description_key: 'blitz_intro' }]
+    const categories = challengeMode
+        ? [{
+            key: challengeCategoryKey,
+            label_key: blitzMode ? 'blitz_title' : 'streak_title',
+            description_key: blitzMode ? 'blitz_intro' : 'streak_intro',
+        }]
         : rawCategories;
     const levels = parseJsonScript('practice-levels-data', []);
     const puzzles = parseJsonScript('practice-puzzles-data', []);
     const blitzBest = parseJsonScript('blitz-best-data', {});
+    const streakBest = parseJsonScript('streak-best-data', {});
     const puzzlesByCategory = puzzles.reduce((categoriesByKey, puzzle) => {
-        const puzzleCategories = blitzMode
-            ? [blitzCategoryKey]
+        const puzzleCategories = challengeMode
+            ? [challengeCategoryKey]
             : (Array.isArray(puzzle.categories) ? puzzle.categories : []);
 
         puzzleCategories.forEach(categoryKey => {
@@ -149,6 +168,11 @@
         correct: 0,
         incorrect: 0,
         score: 0,
+    };
+    let streakFinished = false;
+    let streakStats = {
+        current: 0,
+        solved: 0,
     };
 
     function parseJsonScript(id, fallbackValue) {
@@ -477,6 +501,148 @@
         }
     }
 
+    function updateStreakPanel() {
+        if (!streakMode) {
+            return;
+        }
+
+        if (streakCurrentElement) {
+            streakCurrentElement.innerText = String(streakStats.current);
+        }
+
+        if (streakRunCurrentElement) {
+            streakRunCurrentElement.innerText = String(streakStats.current);
+        }
+
+        if (streakSolvedElement) {
+            streakSolvedElement.innerText = String(streakStats.solved);
+        }
+    }
+
+    function updateStreakBest(best) {
+        if (!best) {
+            return;
+        }
+
+        if (streakBestElement) {
+            streakBestElement.innerText = String(best.mejor_racha || 0);
+        }
+
+        if (streakRunBestElement) {
+            streakRunBestElement.innerText = String(best.mejor_racha || 0);
+        }
+    }
+
+    function setStreakBestMessage(message) {
+        if (streakBestMessageElement) {
+            streakBestMessageElement.innerText = message;
+        }
+    }
+
+    function recordStreakCorrect() {
+        streakStats.current += 1;
+        streakStats.solved += 1;
+        updateStreakPanel();
+    }
+
+    function queueNextStreakPuzzle() {
+        if (streakFinished) {
+            return;
+        }
+
+        window.setTimeout(function () {
+            if (!streakFinished) {
+                nextPuzzle();
+            }
+        }, 90);
+    }
+
+    async function finishStreakRun() {
+        if (!streakMode || streakFinished) {
+            return;
+        }
+
+        streakFinished = true;
+        pendingMove = false;
+        solved = true;
+        clearReplayTimer();
+        showStreakSummary();
+        await saveStreakBestResult();
+        updateButtons();
+        renderBoard();
+    }
+
+    function showStreakSummary() {
+        if (!streakSummaryElement) {
+            return;
+        }
+
+        streakSummaryElement.hidden = false;
+        if (streakFinalCurrentElement) {
+            streakFinalCurrentElement.innerText = String(streakStats.current);
+        }
+        if (streakFinalSolvedElement) {
+            streakFinalSolvedElement.innerText = String(streakStats.solved);
+        }
+    }
+
+    async function saveStreakBestResult() {
+        if (!window.STREAK_SAVE_URL) {
+            setStreakBestMessage(uiText('streak_login_to_save', 'Inicia sesion para guardar tu mejor racha.'));
+            return;
+        }
+
+        try {
+            const response = await fetch(window.STREAK_SAVE_URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCSRFToken(),
+                },
+                body: JSON.stringify({
+                    streak: streakStats.current,
+                    solved: streakStats.solved,
+                }),
+            });
+            const data = await response.json();
+
+            if (!data.saved) {
+                setStreakBestMessage(uiText('streak_login_to_save', 'Inicia sesion para guardar tu mejor racha.'));
+                return;
+            }
+
+            updateStreakBest(data.best);
+            setStreakBestMessage(
+                data.is_best
+                    ? uiText('streak_new_best', 'Nueva mejor racha!')
+                    : uiText('streak_saved', 'Resultado guardado.')
+            );
+        } catch (error) {
+            console.error('No se pudo guardar Streak:', error);
+            setStreakBestMessage(uiText('streak_save_error', 'No se pudo guardar la racha.'));
+        }
+    }
+
+    function resetStreakRun() {
+        if (!streakMode) {
+            return;
+        }
+
+        streakFinished = false;
+        streakStats = {
+            current: 0,
+            solved: 0,
+        };
+        if (streakSummaryElement) {
+            streakSummaryElement.hidden = true;
+        }
+        setStreakBestMessage('');
+        updateStreakPanel();
+        currentPuzzleIndex = -1;
+        nextPuzzle();
+        updateButtons();
+    }
+
     function puzzlesForCategory(categoryKey) {
         return puzzlesByCategory[categoryKey] || [];
     }
@@ -529,6 +695,10 @@
     }
 
     function firstUnsolvedIndex(categoryPuzzles) {
+        if (challengeMode) {
+            return 0;
+        }
+
         const index = categoryPuzzles.findIndex(puzzle => !progress.solvedIds.includes(puzzle.id));
         return index >= 0 ? index : 0;
     }
@@ -615,7 +785,7 @@
     }
 
     function nextPuzzle() {
-        if (blitzMode && blitzFinished) {
+        if ((blitzMode && blitzFinished) || (streakMode && streakFinished)) {
             return;
         }
 
@@ -629,7 +799,7 @@
     }
 
     function restartPuzzle() {
-        if (blitzMode && blitzFinished) {
+        if ((blitzMode && blitzFinished) || (streakMode && streakFinished)) {
             return;
         }
 
@@ -897,7 +1067,7 @@
     }
 
     function canSelectSquare(coord) {
-        if (!currentPuzzle || solved || pendingMove || (blitzMode && blitzFinished)) {
+        if (!currentPuzzle || solved || pendingMove || (blitzMode && blitzFinished) || (streakMode && streakFinished)) {
             return false;
         }
 
@@ -1132,6 +1302,10 @@
         if (blitzMode && !blitzFinished) {
             recordBlitzIncorrect();
             queueNextBlitzPuzzle();
+        } else if (streakMode && !streakFinished) {
+            showResult(uiText('streak_failed', 'Error: la racha termino.'), 'wrong');
+            setPracticeStatus(uiText('streak_failed', 'Error: la racha termino.'));
+            finishStreakRun();
         }
 
         renderBoard();
@@ -1237,7 +1411,7 @@
     }
 
     async function submitMove(from, to) {
-        if (!currentPuzzle || pendingMove || (blitzMode && blitzFinished)) {
+        if (!currentPuzzle || pendingMove || (blitzMode && blitzFinished) || (streakMode && streakFinished)) {
             return;
         }
 
@@ -1269,8 +1443,8 @@
                     played_line: playedLine,
                     move: attemptedMove,
                     elapsed_ms: elapsedPuzzleMilliseconds(),
-                    fast: blitzMode,
-                    track_progress: !blitzMode,
+                    fast: challengeMode,
+                    track_progress: !challengeMode,
                 }),
             });
             const data = await response.json().catch(() => ({}));
@@ -1296,6 +1470,13 @@
                     return;
                 }
 
+                if (streakMode) {
+                    showResult(uiText('streak_failed', 'Error: la racha termino.'), 'wrong');
+                    setPracticeStatus(uiText('streak_failed', 'Error: la racha termino.'));
+                    finishStreakRun();
+                    return;
+                }
+
                 rememberError();
                 restartPuzzleTimer();
                 return;
@@ -1315,6 +1496,13 @@
                     recordBlitzCorrect(currentPuzzle);
                     updateXpProgress(data.xp_progress);
                     queueNextBlitzPuzzle();
+                    renderMoveLine();
+                    return;
+                }
+
+                if (streakMode) {
+                    recordStreakCorrect();
+                    queueNextStreakPuzzle();
                     renderMoveLine();
                     return;
                 }
@@ -1504,7 +1692,7 @@
     }
 
     function updateButtons() {
-        const disabled = !currentPuzzle || (blitzMode && blitzFinished);
+        const disabled = !currentPuzzle || (blitzMode && blitzFinished) || (streakMode && streakFinished);
         nextButton.disabled = disabled;
         restartButton.disabled = disabled;
         hintButton.disabled = disabled;
@@ -1513,6 +1701,10 @@
         }
         if (flipButton) {
             flipButton.disabled = disabled;
+        }
+        if (streakRetryButton) {
+            streakRetryButton.hidden = !streakMode || !streakFinished;
+            streakRetryButton.disabled = !streakMode || !streakFinished;
         }
     }
 
@@ -1534,12 +1726,19 @@
             renderBoard();
         });
     }
+    if (streakRetryButton) {
+        streakRetryButton.addEventListener('click', resetStreakRun);
+    }
 
     updateProgressPanel();
     if (blitzMode) {
         updateBlitzBest(blitzBest);
         updateBlitzPanel();
         updateBlitzTimer();
+    }
+    if (streakMode) {
+        updateStreakBest(streakBest);
+        updateStreakPanel();
     }
     updateButtons();
 

@@ -3854,6 +3854,11 @@ select:focus {
     max-width: 1020px;
 }
 
+.streak-scoreboard {
+    grid-template-columns: repeat(3, minmax(130px, 1fr));
+    max-width: 760px;
+}
+
 .blitz-scoreboard article,
 .blitz-mini-stats div,
 .blitz-summary-panel dl div {
@@ -4212,7 +4217,8 @@ select:focus {
         height: 10px;
     }
 
-    body.blitz-page-active .blitz-scoreboard {
+    body.blitz-page-active .blitz-scoreboard,
+    body.streak-page-active .streak-scoreboard {
         left: 50%;
         margin: 0;
         max-width: none;
@@ -4239,7 +4245,8 @@ select:focus {
         padding: 58px 0 12px;
     }
 
-    body.blitz-page-active .practice-game-layout {
+    body.blitz-page-active .practice-game-layout,
+    body.streak-page-active .practice-game-layout {
         --square-size: clamp(48px, min(calc((100svh - 196px) / 8), calc((100vw - 932px) / 8)), 80px);
         padding-top: 82px;
     }

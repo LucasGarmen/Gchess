@@ -35,7 +35,7 @@ from accounts.models import (
 from .engine_analysis import build_trainer_engine_context
 from .gemini_service import generate_gemini_explanation
 from .i18n import current_language, normalize_language, t
-from .models import BlitzBestResult, ChessGame, DailyPuzzle, DailyPuzzleAttempt, GameChatMessage, GameChatRead, GameInvitation, Move, UserPresence
+from .models import BlitzBestResult, ChessGame, DailyPuzzle, DailyPuzzleAttempt, GameChatMessage, GameChatRead, GameInvitation, Move, StreakBestResult, UserPresence
 from .puzzles import PRACTICE_CATEGORIES, PRACTICE_LEVELS, get_practice_puzzle, public_practice_puzzles
 from .prompts import build_trainer_chat_prompt
 from .realtime import broadcast_move_created
@@ -561,7 +561,7 @@ def blitz(request):
     })
 
 
-def normalized_blitz_number(value, maximum=10000):
+def normalized_challenge_number(value, maximum=10000):
     try:
         value = int(value)
     except (TypeError, ValueError):
@@ -581,12 +581,12 @@ def blitz_save(request):
     if not request.user.is_authenticated:
         return JsonResponse({'saved': False, 'is_best': False, 'best': blitz_best_context(None)})
 
-    score = normalized_blitz_number(data.get('score'), maximum=100000)
-    correctos = normalized_blitz_number(data.get('correct'), maximum=1000)
-    incorrectos = normalized_blitz_number(data.get('incorrect'), maximum=1000)
-    resueltos = normalized_blitz_number(data.get('solved'), maximum=1000)
+    score = normalized_challenge_number(data.get('score'), maximum=100000)
+    correctos = normalized_challenge_number(data.get('correct'), maximum=1000)
+    incorrectos = normalized_challenge_number(data.get('incorrect'), maximum=1000)
+    resueltos = normalized_challenge_number(data.get('solved'), maximum=1000)
     resueltos = max(resueltos, correctos + incorrectos)
-    duration_seconds = normalized_blitz_number(data.get('duration_seconds'), maximum=BLITZ_DURATION_SECONDS)
+    duration_seconds = normalized_challenge_number(data.get('duration_seconds'), maximum=BLITZ_DURATION_SECONDS)
     duration_seconds = duration_seconds or BLITZ_DURATION_SECONDS
 
     with transaction.atomic():
@@ -623,6 +623,75 @@ def blitz_save(request):
         'saved': True,
         'is_best': is_best,
         'best': blitz_best_context(best_result),
+    })
+
+
+def streak_best_context(best_result):
+    if not best_result:
+        return {
+            'mejor_racha': 0,
+            'puzzles_resueltos': 0,
+        }
+
+    return {
+        'mejor_racha': best_result.mejor_racha,
+        'puzzles_resueltos': best_result.puzzles_resueltos,
+        'achieved_at': best_result.achieved_at.isoformat() if best_result.achieved_at else '',
+    }
+
+
+@ensure_csrf_cookie
+def streak(request):
+    touch_presence(request.user)
+    best_result = None
+
+    if request.user.is_authenticated:
+        best_result = StreakBestResult.objects.filter(user=request.user).first()
+
+    return render(request, 'games/streak.html', {
+        'practice_categories': [],
+        'practice_levels': PRACTICE_LEVELS,
+        'practice_puzzles': practice_puzzles_for_client(),
+        'streak_best': streak_best_context(best_result),
+    })
+
+
+@require_POST
+@rate_limit(20, 60, 'streak-save')
+def streak_save(request):
+    try:
+        data = parse_json_body(request)
+    except ValueError as exc:
+        return JsonResponse({'error': practice_error_message(current_language(request), str(exc))}, status=400)
+
+    if not request.user.is_authenticated:
+        return JsonResponse({'saved': False, 'is_best': False, 'best': streak_best_context(None)})
+
+    racha = normalized_challenge_number(data.get('streak'), maximum=1000)
+    resueltos = normalized_challenge_number(data.get('solved'), maximum=1000)
+    resueltos = max(resueltos, racha)
+
+    with transaction.atomic():
+        best_result, created = StreakBestResult.objects.select_for_update().get_or_create(
+            user=request.user,
+            defaults={
+                'mejor_racha': racha,
+                'puzzles_resueltos': resueltos,
+            },
+        )
+        is_best = created or racha > best_result.mejor_racha or (
+            racha == best_result.mejor_racha and resueltos > best_result.puzzles_resueltos
+        )
+
+        if is_best and not created:
+            best_result.mejor_racha = racha
+            best_result.puzzles_resueltos = resueltos
+            best_result.save(update_fields=['mejor_racha', 'puzzles_resueltos', 'achieved_at'])
+
+    return JsonResponse({
+        'saved': True,
+        'is_best': is_best,
+        'best': streak_best_context(best_result),
     })
 
 
