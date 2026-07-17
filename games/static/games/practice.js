@@ -26,6 +26,10 @@
     const practiceDragPieceScale = 1.7;
     const explanationReplayHighlightMs = 220;
     const explanationReplayStepMs = 160;
+    const blitzMode = Boolean(window.PRACTICE_BLITZ);
+    const blitzCategoryKey = 'blitz_all';
+    const blitzCorrectBaseScore = 10;
+    const blitzIncorrectPenalty = 2;
 
     const boardElement = document.getElementById('practice-board');
     const boardFrameElement = document.getElementById('practice-board-frame');
@@ -58,16 +62,36 @@
     const xpCurrentElement = document.getElementById('practice-xp-current');
     const xpTotalElement = document.getElementById('practice-xp-total');
     const xpGainedElement = document.getElementById('practice-xp-gained');
+    const blitzTimeElement = document.getElementById('blitz-time');
+    const blitzSolvedElement = document.getElementById('blitz-solved-count');
+    const blitzCorrectElement = document.getElementById('blitz-correct-count');
+    const blitzIncorrectElement = document.getElementById('blitz-incorrect-count');
+    const blitzScoreElement = document.getElementById('blitz-score');
+    const blitzSummaryElement = document.getElementById('blitz-summary');
+    const blitzFinalScoreElement = document.getElementById('blitz-final-score');
+    const blitzFinalSolvedElement = document.getElementById('blitz-final-solved');
+    const blitzFinalCorrectElement = document.getElementById('blitz-final-correct');
+    const blitzFinalIncorrectElement = document.getElementById('blitz-final-incorrect');
+    const blitzBestMessageElement = document.getElementById('blitz-best-message');
+    const blitzBestScoreElement = document.getElementById('blitz-best-score');
+    const blitzRunSolvedElement = document.getElementById('blitz-run-solved');
+    const blitzRunCorrectElement = document.getElementById('blitz-run-correct');
 
     if (!boardElement) {
         return;
     }
 
-    const categories = parseJsonScript('practice-categories-data', []);
+    const rawCategories = parseJsonScript('practice-categories-data', []);
+    const categories = blitzMode
+        ? [{ key: blitzCategoryKey, label_key: 'blitz_title', description_key: 'blitz_intro' }]
+        : rawCategories;
     const levels = parseJsonScript('practice-levels-data', []);
     const puzzles = parseJsonScript('practice-puzzles-data', []);
+    const blitzBest = parseJsonScript('blitz-best-data', {});
     const puzzlesByCategory = puzzles.reduce((categoriesByKey, puzzle) => {
-        const puzzleCategories = Array.isArray(puzzle.categories) ? puzzle.categories : [];
+        const puzzleCategories = blitzMode
+            ? [blitzCategoryKey]
+            : (Array.isArray(puzzle.categories) ? puzzle.categories : []);
 
         puzzleCategories.forEach(categoryKey => {
             if (!categoriesByKey[categoryKey]) {
@@ -117,6 +141,15 @@
     let activeArrow = null;
     let highlightedSquares = {};
     let replayTimeoutId = null;
+    let blitzTimerId = null;
+    let blitzStartedAt = null;
+    let blitzFinished = false;
+    let blitzStats = {
+        solved: 0,
+        correct: 0,
+        incorrect: 0,
+        score: 0,
+    };
 
     function parseJsonScript(id, fallbackValue) {
         const element = document.getElementById(id);
@@ -220,9 +253,17 @@
         const totalAttempts = solvedCount + progress.errors;
         const accuracy = totalAttempts > 0 ? Math.round((solvedCount / totalAttempts) * 100) : 0;
 
-        solvedCountElement.innerText = String(solvedCount);
-        errorCountElement.innerText = String(progress.errors);
-        accuracyElement.innerText = `${accuracy}%`;
+        if (solvedCountElement) {
+            solvedCountElement.innerText = String(solvedCount);
+        }
+
+        if (errorCountElement) {
+            errorCountElement.innerText = String(progress.errors);
+        }
+
+        if (accuracyElement) {
+            accuracyElement.innerText = `${accuracy}%`;
+        }
     }
 
     function rememberSolvedPuzzle(puzzleId) {
@@ -237,6 +278,203 @@
         progress.errors += 1;
         saveProgress();
         updateProgressPanel();
+    }
+
+    function blitzPuzzleScore(puzzle) {
+        const mateIn = Number(puzzle && puzzle.mate_in) || 1;
+        return blitzCorrectBaseScore + Math.max(0, mateIn - 1) * 5;
+    }
+
+    function updateBlitzPanel() {
+        if (!blitzMode) {
+            return;
+        }
+
+        if (blitzSolvedElement) {
+            blitzSolvedElement.innerText = String(blitzStats.solved);
+        }
+
+        if (blitzCorrectElement) {
+            blitzCorrectElement.innerText = String(blitzStats.correct);
+        }
+
+        if (blitzIncorrectElement) {
+            blitzIncorrectElement.innerText = String(blitzStats.incorrect);
+        }
+
+        if (blitzScoreElement) {
+            blitzScoreElement.innerText = String(blitzStats.score);
+        }
+
+        if (blitzRunSolvedElement) {
+            blitzRunSolvedElement.innerText = String(blitzStats.solved);
+        }
+
+        if (blitzRunCorrectElement) {
+            blitzRunCorrectElement.innerText = String(blitzStats.correct);
+        }
+    }
+
+    function formatBlitzTime(milliseconds) {
+        const totalSeconds = Math.max(0, Math.ceil(milliseconds / 1000));
+        const minutes = Math.floor(totalSeconds / 60);
+        const seconds = totalSeconds % 60;
+        return `${minutes}:${String(seconds).padStart(2, '0')}`;
+    }
+
+    function blitzRemainingMilliseconds() {
+        const duration = Number(window.BLITZ_DURATION_SECONDS || 180) * 1000;
+        const elapsed = blitzStartedAt ? Date.now() - blitzStartedAt : 0;
+        return Math.max(0, duration - elapsed);
+    }
+
+    function startBlitzTimer() {
+        if (!blitzMode || blitzStartedAt) {
+            return;
+        }
+
+        blitzStartedAt = Date.now();
+        updateBlitzTimer();
+        blitzTimerId = window.setInterval(updateBlitzTimer, 250);
+    }
+
+    function updateBlitzTimer() {
+        const remaining = blitzRemainingMilliseconds();
+
+        if (blitzTimeElement) {
+            blitzTimeElement.innerText = formatBlitzTime(remaining);
+        }
+
+        if (remaining <= 0) {
+            finishBlitzRun();
+        }
+    }
+
+    function recordBlitzCorrect(puzzle) {
+        blitzStats.solved += 1;
+        blitzStats.correct += 1;
+        blitzStats.score += blitzPuzzleScore(puzzle);
+        updateBlitzPanel();
+    }
+
+    function recordBlitzIncorrect() {
+        blitzStats.solved += 1;
+        blitzStats.incorrect += 1;
+        blitzStats.score = Math.max(0, blitzStats.score - blitzIncorrectPenalty);
+        updateBlitzPanel();
+    }
+
+    function queueNextBlitzPuzzle() {
+        if (blitzFinished) {
+            return;
+        }
+
+        window.setTimeout(function () {
+            if (!blitzFinished) {
+                nextPuzzle();
+            }
+        }, 90);
+    }
+
+    async function finishBlitzRun() {
+        if (!blitzMode || blitzFinished) {
+            return;
+        }
+
+        blitzFinished = true;
+        pendingMove = false;
+        solved = true;
+        clearReplayTimer();
+
+        if (blitzTimerId) {
+            window.clearInterval(blitzTimerId);
+            blitzTimerId = null;
+        }
+
+        if (blitzTimeElement) {
+            blitzTimeElement.innerText = '0:00';
+        }
+
+        showBlitzSummary();
+        await saveBlitzBestResult();
+        updateButtons();
+        renderBoard();
+    }
+
+    function showBlitzSummary() {
+        if (!blitzSummaryElement) {
+            return;
+        }
+
+        blitzSummaryElement.hidden = false;
+        if (blitzFinalScoreElement) {
+            blitzFinalScoreElement.innerText = String(blitzStats.score);
+        }
+        if (blitzFinalSolvedElement) {
+            blitzFinalSolvedElement.innerText = String(blitzStats.solved);
+        }
+        if (blitzFinalCorrectElement) {
+            blitzFinalCorrectElement.innerText = String(blitzStats.correct);
+        }
+        if (blitzFinalIncorrectElement) {
+            blitzFinalIncorrectElement.innerText = String(blitzStats.incorrect);
+        }
+    }
+
+    async function saveBlitzBestResult() {
+        if (!window.BLITZ_SAVE_URL) {
+            setBlitzBestMessage(uiText('blitz_login_to_save', 'Inicia sesion para guardar tu mejor resultado.'));
+            return;
+        }
+
+        try {
+            const response = await fetch(window.BLITZ_SAVE_URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCSRFToken(),
+                },
+                body: JSON.stringify({
+                    score: blitzStats.score,
+                    solved: blitzStats.solved,
+                    correct: blitzStats.correct,
+                    incorrect: blitzStats.incorrect,
+                    duration_seconds: Number(window.BLITZ_DURATION_SECONDS || 180),
+                }),
+            });
+            const data = await response.json();
+
+            if (!data.saved) {
+                setBlitzBestMessage(uiText('blitz_login_to_save', 'Inicia sesion para guardar tu mejor resultado.'));
+                return;
+            }
+
+            updateBlitzBest(data.best);
+            setBlitzBestMessage(
+                data.is_best
+                    ? uiText('blitz_new_best', 'Nuevo mejor resultado!')
+                    : uiText('blitz_saved', 'Resultado guardado.')
+            );
+        } catch (error) {
+            console.error('No se pudo guardar Blitz:', error);
+            setBlitzBestMessage(uiText('blitz_save_error', 'No se pudo guardar el resultado.'));
+        }
+    }
+
+    function updateBlitzBest(best) {
+        if (!best) {
+            return;
+        }
+
+        if (blitzBestScoreElement) {
+            blitzBestScoreElement.innerText = String(best.score || 0);
+        }
+    }
+
+    function setBlitzBestMessage(message) {
+        if (blitzBestMessageElement) {
+            blitzBestMessageElement.innerText = message;
+        }
     }
 
     function puzzlesForCategory(categoryKey) {
@@ -377,6 +615,10 @@
     }
 
     function nextPuzzle() {
+        if (blitzMode && blitzFinished) {
+            return;
+        }
+
         const categoryPuzzles = puzzlesForCategory(currentCategory);
         if (categoryPuzzles.length === 0) {
             return;
@@ -387,6 +629,10 @@
     }
 
     function restartPuzzle() {
+        if (blitzMode && blitzFinished) {
+            return;
+        }
+
         if (currentPuzzle) {
             loadPuzzle(currentPuzzle);
         }
@@ -651,7 +897,7 @@
     }
 
     function canSelectSquare(coord) {
-        if (!currentPuzzle || solved || pendingMove) {
+        if (!currentPuzzle || solved || pendingMove || (blitzMode && blitzFinished)) {
             return false;
         }
 
@@ -882,6 +1128,12 @@
         clearSelection();
         showResult(uiText('practice_wrong_objective', 'Esa jugada no resuelve el puzzle.'), 'wrong');
         setPracticeStatus(uiText('practice_wrong_objective', 'Esa jugada no resuelve el puzzle.'));
+
+        if (blitzMode && !blitzFinished) {
+            recordBlitzIncorrect();
+            queueNextBlitzPuzzle();
+        }
+
         renderBoard();
     }
 
@@ -985,7 +1237,7 @@
     }
 
     async function submitMove(from, to) {
-        if (!currentPuzzle || pendingMove) {
+        if (!currentPuzzle || pendingMove || (blitzMode && blitzFinished)) {
             return;
         }
 
@@ -1017,6 +1269,8 @@
                     played_line: playedLine,
                     move: attemptedMove,
                     elapsed_ms: elapsedPuzzleMilliseconds(),
+                    fast: blitzMode,
+                    track_progress: !blitzMode,
                 }),
             });
             const data = await response.json().catch(() => ({}));
@@ -1033,10 +1287,17 @@
 
             if (!data.correct) {
                 currentFen = data.fen || previousFen;
-                rememberError();
-                restartPuzzleTimer();
                 showResult(data.message || uiText('practice_wrong_objective', 'Esa jugada no resuelve el puzzle'), 'wrong');
                 setPracticeStatus(data.message || uiText('practice_wrong_objective', 'Esa jugada no resuelve el puzzle'));
+
+                if (blitzMode) {
+                    recordBlitzIncorrect();
+                    queueNextBlitzPuzzle();
+                    return;
+                }
+
+                rememberError();
+                restartPuzzleTimer();
                 return;
             }
 
@@ -1050,6 +1311,14 @@
             setPracticeStatus(data.message || uiText('practice_follow_line', '¡Correcto, sigue la línea!'));
 
             if (solved) {
+                if (blitzMode) {
+                    recordBlitzCorrect(currentPuzzle);
+                    updateXpProgress(data.xp_progress);
+                    queueNextBlitzPuzzle();
+                    renderMoveLine();
+                    return;
+                }
+
                 rememberSolvedPuzzle(currentPuzzle.id);
                 updateXpProgress(data.xp_progress);
                 showPracticeExplanation(data.explanation);
@@ -1235,7 +1504,7 @@
     }
 
     function updateButtons() {
-        const disabled = !currentPuzzle;
+        const disabled = !currentPuzzle || (blitzMode && blitzFinished);
         nextButton.disabled = disabled;
         restartButton.disabled = disabled;
         hintButton.disabled = disabled;
@@ -1267,10 +1536,16 @@
     }
 
     updateProgressPanel();
+    if (blitzMode) {
+        updateBlitzBest(blitzBest);
+        updateBlitzPanel();
+        updateBlitzTimer();
+    }
     updateButtons();
 
     if (puzzles.length > 0 && currentCategory) {
         selectCategory(currentCategory);
+        startBlitzTimer();
     } else {
         showResult(uiText('practice_no_puzzles', 'No hay puzzles disponibles.'), 'neutral');
     }

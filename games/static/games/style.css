@@ -3846,6 +3846,94 @@ select:focus {
     max-width: 720px;
 }
 
+.blitz-scoreboard {
+    display: grid;
+    gap: 10px;
+    grid-template-columns: repeat(6, minmax(110px, 1fr));
+    margin: 0 auto 18px;
+    max-width: 1020px;
+}
+
+.blitz-scoreboard article,
+.blitz-mini-stats div,
+.blitz-summary-panel dl div {
+    background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.045), transparent 70%),
+        var(--surface);
+    border: 1px solid var(--border-soft);
+    border-radius: 8px;
+    box-shadow: var(--shadow-tight);
+    display: grid;
+    gap: 4px;
+    padding: 12px;
+}
+
+.blitz-scoreboard span,
+.blitz-mini-stats span,
+.blitz-summary-panel dt {
+    color: var(--text-muted);
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 0;
+    text-transform: uppercase;
+}
+
+.blitz-scoreboard strong,
+.blitz-mini-stats strong,
+.blitz-summary-panel dd {
+    color: var(--text-main);
+    font-size: 28px;
+    font-weight: 900;
+    line-height: 1;
+    margin: 0;
+}
+
+.blitz-timer-card strong {
+    color: var(--accent-strong);
+}
+
+.blitz-side-panel p {
+    margin: 0;
+}
+
+.blitz-mini-stats {
+    display: grid;
+    gap: 10px;
+}
+
+.blitz-hidden-practice-progress {
+    display: none;
+}
+
+.blitz-summary-panel {
+    border-top: 1px solid rgba(240, 217, 181, 0.14);
+    display: grid;
+    gap: 12px;
+    padding-top: 12px;
+}
+
+.blitz-summary-panel[hidden] {
+    display: none;
+}
+
+.blitz-summary-panel h2 {
+    font-size: 20px;
+    margin: 0;
+}
+
+.blitz-summary-panel dl {
+    display: grid;
+    gap: 10px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    margin: 0;
+}
+
+.blitz-summary-panel p {
+    color: var(--accent-strong);
+    font-weight: 800;
+    margin: 0;
+}
+
 .practice-game-layout {
     grid-template-columns: minmax(220px, 280px) max-content minmax(280px, 360px);
     max-width: 1320px;
@@ -4124,6 +4212,17 @@ select:focus {
         height: 10px;
     }
 
+    body.blitz-page-active .blitz-scoreboard {
+        left: 50%;
+        margin: 0;
+        max-width: none;
+        position: absolute;
+        top: 8px;
+        transform: translateX(-50%);
+        width: min(980px, calc(100vw - 32px));
+        z-index: 20;
+    }
+
     body.practice-page-active .practice-game-layout {
         --square-size: clamp(48px, min(calc((100svh - 178px) / 8), calc((100vw - 932px) / 8)), 82px);
         --board-panel-height: calc((var(--square-size) * 8) + 40px);
@@ -4138,6 +4237,11 @@ select:focus {
         max-width: none;
         overflow: hidden;
         padding: 58px 0 12px;
+    }
+
+    body.blitz-page-active .practice-game-layout {
+        --square-size: clamp(48px, min(calc((100svh - 196px) / 8), calc((100vw - 932px) / 8)), 80px);
+        padding-top: 82px;
     }
 
     body.practice-page-active .practice-board-area {
@@ -4231,6 +4335,11 @@ select:focus {
 
     body.practice-page-active .practice-page {
         max-width: 100vw;
+        width: 100%;
+    }
+
+    .blitz-scoreboard {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
         width: 100%;
     }
 
@@ -4348,5 +4457,17 @@ select:focus {
 
     .practice-game-layout .icon-button {
         width: 32px;
+    }
+}
+
+@media (max-width: 720px) {
+    .blitz-summary-panel dl {
+        grid-template-columns: 1fr;
+    }
+
+    .blitz-scoreboard strong,
+    .blitz-mini-stats strong,
+    .blitz-summary-panel dd {
+        font-size: 24px;
     }
 }

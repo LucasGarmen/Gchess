@@ -131,6 +131,24 @@ class DailyPuzzleAttempt(models.Model):
         return f"{self.user.username} - {self.date} - {self.resultado}"
 
 
+class BlitzBestResult(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='blitz_best_result')
+    score = models.PositiveIntegerField(default=0)
+    puzzles_resueltos = models.PositiveIntegerField(default=0)
+    puzzles_correctos = models.PositiveIntegerField(default=0)
+    puzzles_incorrectos = models.PositiveIntegerField(default=0)
+    duration_seconds = models.PositiveIntegerField(default=180)
+    achieved_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-score', '-puzzles_correctos', 'achieved_at']
+        verbose_name = 'mejor resultado blitz'
+        verbose_name_plural = 'mejores resultados blitz'
+
+    def __str__(self):
+        return f"{self.user.username} - {self.score} pts"
+
+
 class GameInvitation(models.Model):
     OPPONENT_CHOICES = [
         ('direct', 'Oponente escolhido'),

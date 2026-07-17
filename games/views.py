@@ -35,7 +35,7 @@ from accounts.models import (
 from .engine_analysis import build_trainer_engine_context
 from .gemini_service import generate_gemini_explanation
 from .i18n import current_language, normalize_language, t
-from .models import ChessGame, DailyPuzzle, DailyPuzzleAttempt, GameChatMessage, GameChatRead, GameInvitation, Move, UserPresence
+from .models import BlitzBestResult, ChessGame, DailyPuzzle, DailyPuzzleAttempt, GameChatMessage, GameChatRead, GameInvitation, Move, UserPresence
 from .puzzles import PRACTICE_CATEGORIES, PRACTICE_LEVELS, get_practice_puzzle, public_practice_puzzles
 from .prompts import build_trainer_chat_prompt
 from .realtime import broadcast_move_created
@@ -59,6 +59,7 @@ MAX_PGN_BYTES = 80 * 1024
 MAX_TRAINER_QUESTION_CHARS = 500
 MAX_CHAT_MESSAGE_CHARS = 500
 RATE_LIMIT_SESSION_KEY = 'rate_limit_id'
+BLITZ_DURATION_SECONDS = 180
 logger = logging.getLogger(__name__)
 
 
@@ -525,6 +526,106 @@ def practice(request):
     })
 
 
+def blitz_best_context(best_result):
+    if not best_result:
+        return {
+            'score': 0,
+            'puzzles_resueltos': 0,
+            'puzzles_correctos': 0,
+            'puzzles_incorrectos': 0,
+        }
+
+    return {
+        'score': best_result.score,
+        'puzzles_resueltos': best_result.puzzles_resueltos,
+        'puzzles_correctos': best_result.puzzles_correctos,
+        'puzzles_incorrectos': best_result.puzzles_incorrectos,
+        'achieved_at': best_result.achieved_at.isoformat() if best_result.achieved_at else '',
+    }
+
+
+@ensure_csrf_cookie
+def blitz(request):
+    touch_presence(request.user)
+    best_result = None
+
+    if request.user.is_authenticated:
+        best_result = BlitzBestResult.objects.filter(user=request.user).first()
+
+    return render(request, 'games/blitz.html', {
+        'practice_categories': [],
+        'practice_levels': PRACTICE_LEVELS,
+        'practice_puzzles': practice_puzzles_for_client(),
+        'blitz_duration_seconds': BLITZ_DURATION_SECONDS,
+        'blitz_best': blitz_best_context(best_result),
+    })
+
+
+def normalized_blitz_number(value, maximum=10000):
+    try:
+        value = int(value)
+    except (TypeError, ValueError):
+        return 0
+
+    return min(max(value, 0), maximum)
+
+
+@require_POST
+@rate_limit(20, 60, 'blitz-save')
+def blitz_save(request):
+    try:
+        data = parse_json_body(request)
+    except ValueError as exc:
+        return JsonResponse({'error': practice_error_message(current_language(request), str(exc))}, status=400)
+
+    if not request.user.is_authenticated:
+        return JsonResponse({'saved': False, 'is_best': False, 'best': blitz_best_context(None)})
+
+    score = normalized_blitz_number(data.get('score'), maximum=100000)
+    correctos = normalized_blitz_number(data.get('correct'), maximum=1000)
+    incorrectos = normalized_blitz_number(data.get('incorrect'), maximum=1000)
+    resueltos = normalized_blitz_number(data.get('solved'), maximum=1000)
+    resueltos = max(resueltos, correctos + incorrectos)
+    duration_seconds = normalized_blitz_number(data.get('duration_seconds'), maximum=BLITZ_DURATION_SECONDS)
+    duration_seconds = duration_seconds or BLITZ_DURATION_SECONDS
+
+    with transaction.atomic():
+        best_result, created = BlitzBestResult.objects.select_for_update().get_or_create(
+            user=request.user,
+            defaults={
+                'score': score,
+                'puzzles_resueltos': resueltos,
+                'puzzles_correctos': correctos,
+                'puzzles_incorrectos': incorrectos,
+                'duration_seconds': duration_seconds,
+            },
+        )
+        is_best = created or score > best_result.score or (
+            score == best_result.score and correctos > best_result.puzzles_correctos
+        )
+
+        if is_best and not created:
+            best_result.score = score
+            best_result.puzzles_resueltos = resueltos
+            best_result.puzzles_correctos = correctos
+            best_result.puzzles_incorrectos = incorrectos
+            best_result.duration_seconds = duration_seconds
+            best_result.save(update_fields=[
+                'score',
+                'puzzles_resueltos',
+                'puzzles_correctos',
+                'puzzles_incorrectos',
+                'duration_seconds',
+                'achieved_at',
+            ])
+
+    return JsonResponse({
+        'saved': True,
+        'is_best': is_best,
+        'best': blitz_best_context(best_result),
+    })
+
+
 def color_name_from_turn(turn):
     return 'white' if turn == chess.WHITE else 'black'
 
@@ -982,6 +1083,9 @@ def practice_move(request):
     if not puzzle:
         return practice_error_response(language, 'practice_not_found', status=404)
 
+    fast_mode = bool(data.get('fast'))
+    track_progress = data.get('track_progress', True) is not False
+
     try:
         board, played_line, attacker, attacker_moves_played = practice_board_from_line(
             puzzle,
@@ -999,7 +1103,8 @@ def practice_move(request):
 
     attempted_move = parse_practice_attempt(board, data.get('move', ''))
     if not attempted_move:
-        record_practice_stats(request, data, puzzle['id'], correcto=False, mate_in=puzzle.get('mate_in'))
+        if track_progress:
+            record_practice_stats(request, data, puzzle['id'], correcto=False, mate_in=puzzle.get('mate_in'))
         return JsonResponse({
             'correct': False,
             'message': t(language, 'practice_wrong_objective'),
@@ -1007,7 +1112,7 @@ def practice_move(request):
             'turn': color_name_from_turn(board.turn),
             'played_line': played_line,
             'compatible_lines': len(compatible_lines),
-            'legal_moves': practice_legal_moves_by_from(board, attacker),
+            'legal_moves': {} if fast_mode else practice_legal_moves_by_from(board, attacker),
         })
 
     moving_san = board.san(attempted_move)
@@ -1021,14 +1126,18 @@ def practice_move(request):
     invalid_attempt = attacker_moves_left < 0
 
     if not invalid_attempt and not known_solution_move:
-        invalid_attempt = (
-            not puzzle.get('accept_alternatives', False) or
-            not practice_move_satisfies_goal(board, attacker, attacker_moves_left)
-        )
+        if fast_mode:
+            invalid_attempt = not board.is_checkmate()
+        else:
+            invalid_attempt = (
+                not puzzle.get('accept_alternatives', False) or
+                not practice_move_satisfies_goal(board, attacker, attacker_moves_left)
+            )
 
     if invalid_attempt:
         previous_board = practice_board_from_line(puzzle, played_line)[0]
-        record_practice_stats(request, data, puzzle['id'], correcto=False, mate_in=puzzle.get('mate_in'))
+        if track_progress:
+            record_practice_stats(request, data, puzzle['id'], correcto=False, mate_in=puzzle.get('mate_in'))
         return JsonResponse({
             'correct': False,
             'message': t(language, 'practice_wrong_objective'),
@@ -1036,7 +1145,7 @@ def practice_move(request):
             'turn': color_name_from_turn(attacker),
             'played_line': played_line,
             'compatible_lines': len(compatible_lines),
-            'legal_moves': practice_legal_moves_by_from(previous_board, attacker),
+            'legal_moves': {} if fast_mode else practice_legal_moves_by_from(previous_board, attacker),
         })
 
     played_move = {
@@ -1076,14 +1185,16 @@ def practice_move(request):
     explanation = None
 
     if solved:
-        xp_progress = record_practice_stats(
-            request,
-            data,
-            puzzle['id'],
-            correcto=True,
-            mate_in=puzzle.get('mate_in'),
-        )
-        explanation = build_practice_explanation(puzzle, next_played_line, language, board.fen())
+        if track_progress:
+            xp_progress = record_practice_stats(
+                request,
+                data,
+                puzzle['id'],
+                correcto=True,
+                mate_in=puzzle.get('mate_in'),
+            )
+        if not fast_mode:
+            explanation = build_practice_explanation(puzzle, next_played_line, language, board.fen())
 
     return JsonResponse({
         'correct': True,
@@ -1096,7 +1207,7 @@ def practice_move(request):
         'played_move': played_move,
         'auto_moves': auto_moves,
         'checkmate': board.is_checkmate(),
-        'legal_moves': practice_legal_moves_by_from(board, attacker),
+        'legal_moves': {} if fast_mode and solved else practice_legal_moves_by_from(board, attacker),
         'xp_progress': xp_progress,
         'explanation': explanation,
     })

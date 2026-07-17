@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.db.models import Sum
 
-from .models import ChessGame, DailyPuzzle, DailyPuzzleAttempt, DailyVisit
+from .models import BlitzBestResult, ChessGame, DailyPuzzle, DailyPuzzleAttempt, DailyVisit
 
 
 @admin.register(ChessGame)
@@ -47,3 +47,10 @@ class DailyPuzzleAttemptAdmin(admin.ModelAdmin):
     date_hierarchy = 'date'
     search_fields = ('user__username', 'daily_puzzle__puzzle_id')
     ordering = ('-date', '-started_at')
+
+
+@admin.register(BlitzBestResult)
+class BlitzBestResultAdmin(admin.ModelAdmin):
+    list_display = ('user', 'score', 'puzzles_resueltos', 'puzzles_correctos', 'puzzles_incorrectos', 'achieved_at')
+    ordering = ('-score', '-puzzles_correctos', 'achieved_at')
+    search_fields = ('user__username',)
