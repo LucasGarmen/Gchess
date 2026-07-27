@@ -787,6 +787,7 @@ class PracticePuzzleTests(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'class="stats-grid"')
+        self.assertContains(response, 'class="profile-power-panel"')
         self.assertContains(response, 'class="xp-progress-panel profile-xp-panel"')
         self.assertContains(response, 'stat-card-rating')
         self.assertContains(response, 'stat-card-best-rating')
@@ -815,6 +816,7 @@ class PracticePuzzleTests(TestCase):
         content = response.content.decode()
 
         self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'class="leaderboard-podium"')
         self.assertContains(response, 'class="leaderboard-table"')
         self.assertContains(response, 'href="/leaderboard/"')
         self.assertLess(content.index("leader-top"), content.index("leader-second"))
@@ -1488,6 +1490,31 @@ class GameAccessTests(TestCase):
         self.assertContains(response, 'id="home-computer-game"')
         self.assertContains(response, 'class="game-layout computer-game-layout home-computer-layout"')
         self.assertContains(response, 'games/board.min.js')
+
+    def test_home_includes_competitive_hub(self):
+        user = User.objects.create_user(username="hub-user", password="pass")
+        UserPuzzleStats.objects.create(
+            user=user,
+            xp_total=250,
+            nivel=3,
+            xp_del_nivel_actual=50,
+            puzzle_rating=870,
+            racha_actual=4,
+        )
+
+        self.client.force_login(user)
+        response = self.client.get(reverse("home"))
+
+        self.assertContains(response, 'class="home-hub-panel"')
+        self.assertContains(response, "870")
+        self.assertContains(response, reverse("daily_puzzle"))
+        self.assertContains(response, reverse("blitz"))
+
+    def test_practice_includes_reward_burst_container(self):
+        response = self.client.get(reverse("practice"))
+
+        self.assertContains(response, 'id="practice-reward-burst"')
+        self.assertContains(response, 'id="practice-reward-xp"')
 
     def test_online_game_uses_mobile_nav_toggle(self):
         white, _black, game = self.create_multiplayer_game()

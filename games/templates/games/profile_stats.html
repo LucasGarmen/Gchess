@@ -14,6 +14,25 @@
         <p>{% tr "stats_intro" %}</p>
     </header>
 
+    <section class="profile-power-panel" aria-label="{% tr "stats_training_summary" %}">
+        <div class="profile-power-main">
+            <span>{% tr "home_hub_level" %}</span>
+            <strong>{{ xp_progress.nivel }}</strong>
+        </div>
+        <div>
+            <span>{% tr "stats_puzzle_rating" %}</span>
+            <strong>{{ stats.puzzle_rating }}</strong>
+        </div>
+        <div>
+            <span>{% tr "stats_current_streak" %}</span>
+            <strong>{{ stats.racha_actual }}</strong>
+        </div>
+        <div>
+            <span>{% tr "stats_best_streak" %}</span>
+            <strong>{{ stats.mejor_racha }}</strong>
+        </div>
+    </section>
+
     <section class="xp-progress-panel profile-xp-panel" aria-label="{% tr "xp_progress" %}">
         <div class="xp-progress-header">
             <span>{% tr "xp_level" %} <strong>{{ xp_progress.nivel }}</strong></span>

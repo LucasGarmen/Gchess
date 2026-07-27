@@ -16,6 +16,16 @@
 
     <section class="pgn-panel leaderboard-panel">
         {% if leaderboard_rows %}
+            <div class="leaderboard-podium" aria-label="{% tr "leaderboard_podium" %}">
+                {% for row in leaderboard_rows|slice:":3" %}
+                    <article class="leaderboard-podium-card leaderboard-podium-card-{{ forloop.counter }}">
+                        <span>#{{ row.position }}</span>
+                        <strong>{{ row.username }}</strong>
+                        <em>{{ row.rating }}</em>
+                    </article>
+                {% endfor %}
+            </div>
+
             <div class="leaderboard-table-wrap">
                 <table class="leaderboard-table">
                     <thead>

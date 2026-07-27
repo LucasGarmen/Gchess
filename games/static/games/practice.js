@@ -66,6 +66,8 @@
     const xpCurrentElement = document.getElementById('practice-xp-current');
     const xpTotalElement = document.getElementById('practice-xp-total');
     const xpGainedElement = document.getElementById('practice-xp-gained');
+    const rewardBurstElement = document.getElementById('practice-reward-burst');
+    const rewardXpElement = document.getElementById('practice-reward-xp');
     const blitzTimeElement = document.getElementById('blitz-time');
     const blitzSolvedElement = document.getElementById('blitz-solved-count');
     const blitzCorrectElement = document.getElementById('blitz-correct-count');
@@ -90,6 +92,7 @@
     const streakFinalSolvedElement = document.getElementById('streak-final-solved');
     const streakBestMessageElement = document.getElementById('streak-best-message');
     const streakRetryButton = document.getElementById('streak-retry');
+    let rewardBurstTimeoutId = null;
 
     if (!boardElement) {
         return;
@@ -706,6 +709,7 @@
 
     function clearPuzzleSelection(categoryKey) {
         clearPracticeExplanation();
+        hideRewardBurst();
         currentPuzzle = null;
         currentFen = '';
         currentPosition = { pieces: {}, turn: 'white' };
@@ -729,6 +733,7 @@
 
     function loadPuzzle(puzzle) {
         clearPracticeExplanation();
+        hideRewardBurst();
         currentPuzzle = puzzle;
         currentFen = puzzle.fen;
         currentPosition = parseFen(currentFen);
@@ -763,6 +768,38 @@
         puzzleStartedAt = Date.now();
     }
 
+    function hideRewardBurst() {
+        if (!rewardBurstElement) {
+            return;
+        }
+
+        if (rewardBurstTimeoutId) {
+            window.clearTimeout(rewardBurstTimeoutId);
+            rewardBurstTimeoutId = null;
+        }
+
+        rewardBurstElement.classList.remove('is-visible');
+        rewardBurstElement.hidden = true;
+    }
+
+    function showRewardBurst(xpProgress) {
+        if (!rewardBurstElement || !rewardXpElement || Number(xpProgress.xp_ganado) <= 0) {
+            return;
+        }
+
+        rewardXpElement.innerText = `+${xpProgress.xp_ganado} XP`;
+        rewardBurstElement.hidden = false;
+        rewardBurstElement.classList.remove('is-visible');
+        void rewardBurstElement.offsetWidth;
+        rewardBurstElement.classList.add('is-visible');
+
+        if (rewardBurstTimeoutId) {
+            window.clearTimeout(rewardBurstTimeoutId);
+        }
+
+        rewardBurstTimeoutId = window.setTimeout(hideRewardBurst, 1800);
+    }
+
     function updateXpProgress(xpProgress) {
         if (!xpProgress || !xpLevelElement) {
             return;
@@ -783,6 +820,7 @@
             window.setTimeout(function () {
                 xpGainedElement.hidden = true;
             }, 2600);
+            showRewardBurst(xpProgress);
         }
     }
 

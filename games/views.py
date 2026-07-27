@@ -540,7 +540,21 @@ LOW_ELO_WEAKNESS = {
 @ensure_csrf_cookie
 def home(request):
     touch_presence(request.user)
-    return render(request, 'games/home.html')
+    home_progress = None
+
+    if request.user.is_authenticated:
+        stats = UserPuzzleStats.objects.filter(user=request.user).first() or UserPuzzleStats(user=request.user)
+        home_progress = {
+            'level': stats.nivel,
+            'rating': stats.puzzle_rating,
+            'streak': stats.racha_actual,
+            'best_streak': stats.mejor_racha,
+            'xp_percent': stats.porcentaje_xp_nivel,
+        }
+
+    return render(request, 'games/home.html', {
+        'home_progress': home_progress,
+    })
 
 
 @ensure_csrf_cookie

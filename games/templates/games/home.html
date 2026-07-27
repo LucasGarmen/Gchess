@@ -102,6 +102,47 @@
                 <option value="black">{% tr "black" %}</option>
             </select>
 
+            <section class="home-hub-panel" aria-labelledby="home-hub-title">
+                <div class="home-hub-copy">
+                    <span class="stats-eyebrow">GChess</span>
+                    <h2 id="home-hub-title">{% tr "home_hub_title" %}</h2>
+                    <p>
+                        {% if home_progress %}
+                            {% tr "home_hub_intro" %}
+                        {% else %}
+                            {% tr "home_hub_guest" %}
+                        {% endif %}
+                    </p>
+                </div>
+
+                {% if home_progress %}
+                    <div class="home-hub-stats">
+                        <div>
+                            <span>{% tr "home_hub_level" %}</span>
+                            <strong>{{ home_progress.level }}</strong>
+                        </div>
+                        <div>
+                            <span>{% tr "home_hub_rating" %}</span>
+                            <strong>{{ home_progress.rating }}</strong>
+                        </div>
+                        <div>
+                            <span>{% tr "home_hub_streak" %}</span>
+                            <strong>{{ home_progress.streak }}</strong>
+                        </div>
+                    </div>
+                    <div class="home-hub-xp" aria-hidden="true">
+                        <span style="width: {{ home_progress.xp_percent }}%;"></span>
+                    </div>
+                {% endif %}
+
+                <div class="home-hub-actions">
+                    <a href="{% url 'daily_puzzle' %}">{% tr "home_hub_daily" %}</a>
+                    <a href="{% url 'practice' %}">{% tr "home_hub_practice" %}</a>
+                    <a href="{% url 'blitz' %}">{% tr "home_hub_blitz" %}</a>
+                    <a href="{% url 'leaderboard' %}">{% tr "home_hub_leaderboard" %}</a>
+                </div>
+            </section>
+
             <div class="computer-controls">
                 <button id="toggle-coach" type="button">{% tr "enable_coach" %}</button>
                 <button id="undo-computer-move" type="button">{% tr "undo_move" %}</button>
