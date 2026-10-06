@@ -120,6 +120,7 @@ TEMPLATES = [
                 'games.training.training_navigation',
                 'games.social_texts.social_navigation',
                 'games.learning_texts.learning_navigation',
+                'games.workspace.workspace_context',
             ],
         },
     },

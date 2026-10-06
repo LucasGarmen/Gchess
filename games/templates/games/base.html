@@ -18,6 +18,8 @@
     <link rel="stylesheet" href="{% static 'games/social.css' %}?v=1">
     <link rel="stylesheet" href="{% static 'games/learning.css' %}?v=2">
     <link rel="stylesheet" href="{% static 'games/chess_visuals.css' %}?v=1">
+    <link rel="stylesheet" href="{% static 'games/workspace.css' %}?v=1">
+    <script src="{% static 'games/workspace.js' %}?v=1" defer></script>
 </head>
 
 <body>
@@ -299,5 +301,16 @@
     </script>
     {% endif %}
 
+    {{ workspace_config|json_script:"game-workspace-config" }}
+    <aside id="game-workspace" class="game-workspace" aria-label="{{ workspace_config.words.0 }}">
+        <button id="workspace-toggle" type="button" aria-expanded="false" aria-controls="workspace-panel">{{ workspace_config.words.0 }} <span id="workspace-count">0</span></button>
+        <section id="workspace-panel" hidden>
+            <header><strong>{{ workspace_config.words.0 }}</strong><button id="workspace-close" type="button" aria-label="{{ workspace_config.words.10 }}">×</button></header>
+            <div id="workspace-games"></div>
+            <div class="workspace-actions"><button id="workspace-new-bot" type="button">+ {{ workspace_config.words.1 }}</button><a href="{% url 'game_create' %}">+ {{ workspace_config.words.2 }}</a></div>
+            <p>{{ workspace_config.words.8 }}</p>
+            <a href="{% url 'games_list' %}">{{ workspace_config.words.7 }} →</a>
+        </section>
+    </aside>
 </body>
 </html>

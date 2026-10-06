@@ -71,7 +71,7 @@ const COACH_ANALYSIS_DEBOUNCE_MS = 300;
 const COACH_ANALYSIS_COOLDOWN_MS = 15000;
 const POLLING_LOG_PREFIX = '[gchess polling]';
 const SOCKET_LOG_PREFIX = '[gchess ws]';
-const COMPUTER_GAME_STATE_KEY = 'gchess-computer-game-state';
+const COMPUTER_GAME_STATE_KEY = window.GChessWorkspace ? window.GChessWorkspace.botStateKey : 'gchess-computer-game-state';
 
 function pollingLog(message, details = {}) {
     console.log(POLLING_LOG_PREFIX, message, details);
@@ -1665,6 +1665,7 @@ if (isMultiplayerMode() && SAVED_MOVES.length === 0 && typeof GAME_ID !== 'undef
         playStartSound();
     }
 }
+
 
 restoreComputerGameState();
 updateBoardOrientation();
@@ -3934,6 +3935,11 @@ function saveComputerGameState() {
             coachEnabled: coachEnabled,
             trainerMessages: trainerChatLogState(),
         }));
+        if (window.GChessWorkspace) window.GChessWorkspace.updateBot({
+            elo: eloSelect ? eloSelect.value : null,
+            finished: gameOver,
+            yourTurn: (SAVED_MOVES.length % 2 === 0 ? 'white' : 'black') === playerColor(),
+        });
     } catch (error) {
         console.warn('No se pudo guardar la partida local:', error);
     }
@@ -4726,4 +4732,13 @@ async function askComputerMove() {
             setEngineThinking(false);
         }
     }
+}
+
+
+
+window.addEventListener('pagehide', saveComputerGameState);
+
+if (isHomeComputerGame() && isMobileLayout() && new URLSearchParams(window.location.search).has('bot')) {
+    if (SAVED_MOVES.length) showMobileBotGame();
+    else showMobileBotSetup();
 }
