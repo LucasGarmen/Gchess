@@ -73,3 +73,24 @@ def useful_engine_fallback(context, question, language):
         from .views import trainer_context_fallback
         return trainer_context_fallback(context, language)
     return None
+
+
+def position_turn_answer(question, board, language):
+    """Answer a narrow turn question from board state without a provider call."""
+    text = normalize_piece_text(question)
+    turn_question = re.search(r"\b(a quien le toca|a quien toca|quien juega|whose turn|who moves|who is to move|vez de quem|de quem e a vez|quem joga agora)\b", text)
+    if not turn_question:
+        return None
+    outcome = board.outcome()
+    if outcome:
+        results = {
+            "es": "La partida terminó: " + ("tablas." if outcome.winner is None else "ganaron las blancas." if outcome.winner else "ganaron las negras."),
+            "pt": "A partida terminou: " + ("empate." if outcome.winner is None else "as brancas venceram." if outcome.winner else "as pretas venceram."),
+            "en": "The game is over: " + ("draw." if outcome.winner is None else "White won." if outcome.winner else "Black won."),
+        }
+        return results[language]
+    return {
+        "es": "En esta posición juegan las blancas." if board.turn else "En esta posición juegan las negras.",
+        "pt": "Nesta posição é a vez das brancas." if board.turn else "Nesta posição é a vez das pretas.",
+        "en": "White is to move in this position." if board.turn else "Black is to move in this position.",
+    }[language]

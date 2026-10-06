@@ -102,7 +102,7 @@ class TrainerTests(TestCase):
             response = self.client.post("/trainer-chat/", json.dumps({"question":"¿La última jugada fue buena?", "moves":["e2e4", "e7e5"], "language":"es"}), content_type="application/json")
         self.assertEqual(response.json()["status"], "invalid_response")
         self.assertIsNone(response.json()["answer"])
-        discard.assert_called_once()
+        self.assertEqual(discard.call_count, 2)
 
     def test_starting_position_supplies_pawn_origin_and_destination(self):
         engine = self.engine()

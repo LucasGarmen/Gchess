@@ -40,7 +40,7 @@ from .i18n import current_language, normalize_language, t
 from .models import BlitzBestResult, ChessGame, DailyPuzzle, DailyPuzzleAttempt, GameChatMessage, GameChatRead, GameInvitation, Move, StreakBestResult, UserPresence
 from .puzzles import PRACTICE_CATEGORIES, PRACTICE_LEVELS, get_practice_puzzle, public_practice_puzzles
 from .prompts import build_trainer_chat_prompt
-from .trainer_conversation import question_topic, is_followup, analysis_question, useful_engine_fallback
+from .trainer_conversation import question_topic, is_followup, analysis_question, useful_engine_fallback, position_turn_answer
 from .realtime import broadcast_move_created
 
 PROMOTION_PIECES = {
@@ -3579,6 +3579,12 @@ def trainer_chat(request):
             board, san_moves = board_from_move_data(decode_trainer_moves(reference_moves))
         except (KeyError, ValueError, TypeError, AttributeError):
             return JsonResponse({"error":"Invalid reference position.", "code":"invalid_request"}, status=400)
+    turn_answer = position_turn_answer(question, board, language)
+    if turn_answer:
+        trainer_logger.info("Trainer result: category=position_fact elapsed_ms=%d", round((time.monotonic()-started)*1000))
+        return JsonResponse({"answer": turn_answer, "engine_analysis": None,
+            "source": "board", "status": "ok", "retryable": False,
+            "fen": board.fen(), "topic": "chess", "position_moves": [move.uci() for move in board.move_stack]})
     engine_context = None
     engine = None
     target_question = analysis_question(question, history)
@@ -3622,6 +3628,18 @@ def trainer_chat(request):
         discard_gemini_explanation(prompt)
         answer = None
         status = "invalid_response"
+        # One correction shares the original total budget; never loosen validation.
+        if time.monotonic() < started + 25:
+            repair_prompt = prompt + "\nCORRECTION: The previous response mentioned a move absent from ENGINE_CONTEXT. Answer again using only the supplied position and verified moves. Do not reuse earlier conversation moves for a different board."
+            try:
+                repaired = generate_gemini_explanation(repair_prompt, namespace="trainer_chat", report_errors=True, deadline=started + 25)
+                if repaired and explanation_moves_are_grounded(repaired, engine_context):
+                    answer = repaired
+                    status = "ok"
+                else:
+                    discard_gemini_explanation(repair_prompt)
+            except GeminiFailure as exc:
+                status = exc.code
     if not answer and status == "ok":
         status = "empty_response"
     fallback = useful_engine_fallback(engine_context, analysis_question(question, history), language) if not answer and engine_context else None

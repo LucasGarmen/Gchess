@@ -76,7 +76,7 @@ class GeminiFailure(Exception):
         super().__init__(code)
 
 
-def generate_gemini_explanation(prompt, namespace="trainer_chat", report_errors=False):
+def generate_gemini_explanation(prompt, namespace="trainer_chat", report_errors=False, deadline=None):
     started = time.monotonic()
     def record(code, level=logging.INFO):
         logger.log(level, "Gemini result: category=%s elapsed_ms=%d model=%s", code, round((time.monotonic() - started) * 1000), gemini_model())
@@ -123,7 +123,7 @@ def generate_gemini_explanation(prompt, namespace="trainer_chat", report_errors=
     )
 
     # One retry for transient failures; both attempts share a bounded budget.
-    provider_deadline = time.monotonic() + 25
+    provider_deadline = min(time.monotonic() + 25, deadline) if deadline is not None else time.monotonic() + 25
     for attempt in range(2):
         remaining = provider_deadline - time.monotonic()
         if remaining <= 0:

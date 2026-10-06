@@ -337,6 +337,9 @@ def build_trainer_engine_context(engine, board, san_moves, question, player_colo
 
     return {
         "context_type": "trainer_chat_position",
+        "game_over": board.is_game_over(),
+        "result": board.result() if board.is_game_over() else None,
+        "termination": board.outcome().termination.name if board.outcome() else None,
         "language": language,
         "fen": board.fen(),
         "turn": color_name(board.turn),
@@ -344,6 +347,8 @@ def build_trainer_engine_context(engine, board, san_moves, question, player_colo
         "player_to_move": color_name(board.turn) == player_color,
         "move_count": len(san_moves),
         "recent_moves_san": san_moves[-16:],
+        "occupied_squares": [chess.square_name(square) for square in board.piece_map()],
+        "recent_moves_uci": [move.uci() for move in board.move_stack[-16:]],
         "opening": opening_name,
         "engine": {
             "score_cp_white": score_cp_white,
@@ -394,6 +399,10 @@ def explanation_moves_are_grounded(text, context):
     """
     allowed = set(context["legal_moves_san"])
     allowed.update(context.get("recent_moves_san", []))
+    # Coordinates describe pieces and prior moves; they are not necessarily pawn SAN.
+    allowed.update(context.get("occupied_squares", []))
+    for uci in context.get("recent_moves_uci", []):
+        allowed.update([uci, uci[:2], uci[2:4]])
     best_details = context["engine"].get("best_move_details") or {}
     allowed.update(filter(None, [best_details.get("from"), best_details.get("to")]))
     for line in context["engine"]["candidate_lines"]:

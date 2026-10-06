@@ -29,3 +29,60 @@ class CoachReliabilityTests(TestCase):
         self.assertEqual(response.status_code,500)
         self.assertTrue(response.json()['retryable'])
         self.assertNotIn('private analysis details',response.content.decode())
+
+
+    def test_turn_questions_use_selected_board_without_external_services(self):
+        for language, question, expected in (("es","¿A quién le toca jugar ahora?","negras"),("pt","De quem é a vez?","pretas"),("en","Whose turn is it?","Black")):
+            with patch("games.views.open_stockfish_engine") as engine, patch("games.views.generate_gemini_explanation") as provider:
+                response=self.client.post('/trainer-chat/',json.dumps({"question":question,"moves":["e2e4"],"language":language}),content_type='application/json')
+            self.assertEqual(response.json()["source"],"board")
+            self.assertIn(expected,response.json()["answer"])
+            engine.assert_not_called()
+            provider.assert_not_called()
+
+    def test_finished_game_has_no_turn(self):
+        response=self.client.post('/trainer-chat/',json.dumps({"question":"Whose turn is it?","moves":["f2f3","e7e5","g2g4","d8h4"],"language":"en"}),content_type='application/json')
+        self.assertIn("Black won",response.json()["answer"])
+        self.assertNotIn("to move",response.json()["answer"])
+
+
+    def test_unsupported_move_gets_one_verified_correction(self):
+        engine=test_trainer.TrainerTests.engine(self)
+        with patch('games.views.configured_stockfish_path',return_value=('stockfish','')),patch('games.views.open_stockfish_engine',return_value=engine),patch('games.views.generate_gemini_explanation',side_effect=['Play Qh8.','Develop a piece.']) as provider:
+            response=self.client.post('/trainer-chat/',json.dumps({'question':'Best move?','language':'en'}),content_type='application/json')
+        self.assertEqual(response.json()['status'],'ok')
+        self.assertEqual(provider.call_count,2)
+        self.assertIn('CORRECTION:',provider.call_args.args[0])
+        self.assertIn('deadline',provider.call_args.kwargs)
+
+    def test_mate_outcome_is_explicit_in_conversation_context(self):
+        engine=test_trainer.TrainerTests.engine(self)
+        with patch('games.views.configured_stockfish_path',return_value=('stockfish','')),patch('games.views.open_stockfish_engine',return_value=engine),patch('games.views.generate_gemini_explanation',return_value='Black won by checkmate.') as provider:
+            response=self.client.post('/trainer-chat/',json.dumps({'question':'Explain this chess position','moves':['f2f3','e7e5','g2g4','d8h4'],'language':'en'}),content_type='application/json')
+        self.assertEqual(response.json()['status'],'ok')
+        self.assertIn('"game_over":true',provider.call_args.args[0])
+        self.assertIn('"result":"0-1"',provider.call_args.args[0])
+        self.assertIn('"termination":"CHECKMATE"',provider.call_args.args[0])
+
+    def test_plain_language_piece_origins_are_verified_without_accepting_illegal_moves(self):
+        from games.engine_analysis import build_trainer_engine_context, explanation_moves_are_grounded
+        board=chess.Board()
+        board.push_uci('e2e4')
+        board.push_uci('e7e5')
+        context=build_trainer_engine_context(test_trainer.TrainerTests.engine(self),board,['e4','e5'],'best move','white','es')
+        self.assertTrue(explanation_moves_are_grounded('Podés desarrollar el caballo de b1 a c3 con Nc3.',context))
+        self.assertTrue(explanation_moves_are_grounded('Tu peón avanzó de e2 a e4.',context))
+        self.assertFalse(explanation_moves_are_grounded('Jugá Qh8.',context))
+        self.assertFalse(explanation_moves_are_grounded('Jugá e2e5.',context))
+
+
+class TrainerProviderBudgetTests(test_trainer.SimpleTestCase):
+    def test_expired_correction_budget_never_calls_provider(self):
+        from games.gemini_service import generate_gemini_explanation, GeminiFailure
+        from django.core.cache import cache
+        cache.clear()
+        with patch.dict('os.environ', {'GEMINI_ENABLED':'true','GEMINI_API_KEY':'test-only'}), patch('games.gemini_service.time.monotonic',side_effect=[0,3,3,3]), patch('games.gemini_service.request.urlopen') as provider:
+            with self.assertRaises(GeminiFailure) as failure:
+                generate_gemini_explanation('expired correction',report_errors=True,deadline=2)
+        self.assertEqual(failure.exception.code,'timeout')
+        provider.assert_not_called()
