@@ -9,32 +9,34 @@
 
     <title>{% block title %}GChess{% endblock %}</title>
 
-    <link rel="icon" href="{% static 'images/favicon.png' %}" type="image/png">
+    <link rel="icon" href="{% static 'games/gchess-emblem.svg' %}" type="image/svg+xml">
     <link rel="shortcut icon" href="{% static 'images/favicon.png' %}" type="image/png">
     <link rel="apple-touch-icon" href="{% static 'images/favicon.png' %}">
     <link rel="stylesheet" href="{% static 'games/style.min.css' %}?v=7">
+    <link rel="stylesheet" href="{% static 'games/rustic.css' %}?v=1">
 </head>
 
 <body>
 
-    <button id="mobile-nav-toggle" class="mobile-nav-toggle" type="button" aria-label="{% tr "menu" %}" aria-expanded="false">
+    <button id="mobile-nav-toggle" class="mobile-nav-toggle" type="button" aria-controls="site-nav" aria-label="{% tr "menu" %}" aria-expanded="false">
         <span class="mobile-nav-arrow" aria-hidden="true">⌄</span>
         <span class="mobile-nav-label">{% tr "menu" %}</span>
     </button>
 
     <nav id="site-nav" class="site-nav">
-    <span class="nav-brand" aria-label="GChess">
-        <img src="{% static 'games/gchess-logo.png' %}" alt="GChess" width="150" height="150" decoding="async">
-    </span>
-    <a href="{% url 'home' %}">{% tr "nav_home" %}</a>
-    <a href="{% url 'games_list' %}">{% tr "nav_games" %}</a>
-    <a href="{% url 'game_create' %}">{% tr "nav_new_game" %}</a>
-    <a href="{% url 'game_analyzer' %}">{% tr "nav_analyze_pgn" %}</a>
-    <a href="{% url 'practice' %}">{% tr "nav_practice" %}</a>
-    <a href="{% url 'blitz' %}">{% tr "nav_blitz" %}</a>
-    <a href="{% url 'streak' %}">{% tr "nav_streak" %}</a>
-    <a href="{% url 'daily_puzzle' %}">{% tr "nav_daily" %}</a>
-    <a href="{% url 'leaderboard' %}">{% tr "nav_leaderboard" %}</a>
+    <a class="nav-brand" href="{% url 'home' %}" aria-label="GChess · {% tr 'nav_home' %}">
+        <img src="{% static 'games/gchess-emblem.svg' %}" alt="" width="42" height="42" decoding="async">
+        <span class="nav-wordmark">GChess</span>
+    </a>
+    <a class="nav-link" href="{% url 'home' %}"{% if request.resolver_match.url_name == 'home' %} aria-current="page"{% endif %}>{% tr "nav_home" %}</a>
+    <a class="nav-link" href="{% url 'games_list' %}"{% if request.resolver_match.url_name == 'games_list' %} aria-current="page"{% endif %}>{% tr "nav_games" %}</a>
+    <a class="nav-link" href="{% url 'game_create' %}"{% if request.resolver_match.url_name == 'game_create' %} aria-current="page"{% endif %}>{% tr "nav_new_game" %}</a>
+    <a class="nav-link" href="{% url 'game_analyzer' %}"{% if request.resolver_match.url_name == 'game_analyzer' %} aria-current="page"{% endif %}>{% tr "nav_analyze_pgn" %}</a>
+    <a class="nav-link" href="{% url 'practice' %}"{% if request.resolver_match.url_name == 'practice' %} aria-current="page"{% endif %}>{% tr "nav_practice" %}</a>
+    <a class="nav-link" href="{% url 'blitz' %}"{% if request.resolver_match.url_name == 'blitz' %} aria-current="page"{% endif %}>{% tr "nav_blitz" %}</a>
+    <a class="nav-link" href="{% url 'streak' %}"{% if request.resolver_match.url_name == 'streak' %} aria-current="page"{% endif %}>{% tr "nav_streak" %}</a>
+    <a class="nav-link" href="{% url 'daily_puzzle' %}"{% if request.resolver_match.url_name == 'daily_puzzle' %} aria-current="page"{% endif %}>{% tr "nav_daily" %}</a>
+    <a class="nav-link" href="{% url 'leaderboard' %}"{% if request.resolver_match.url_name == 'leaderboard' %} aria-current="page"{% endif %}>{% tr "nav_leaderboard" %}</a>
 
     <form class="language-form" method="POST" action="{% url 'set_language' %}">
         {% csrf_token %}
@@ -53,9 +55,9 @@
     {% if user.is_authenticated %}
         <span>{% tr "nav_hello" %}, {{ user.username }}{% if user.player_profile %} · {% tr "nav_elo" %} {{ user.player_profile.elo }}{% endif %}</span>
 
-        <a href="{% url 'profile_stats' %}">{% tr "nav_stats" %}</a>
-        <a href="{% url 'profile_achievements' %}">{% tr "nav_achievements" %}</a>
-        <a href="{% url 'password_change' %}">{% tr "nav_change_password" %}</a>
+        <a class="nav-link" href="{% url 'profile_stats' %}"{% if request.resolver_match.url_name == 'profile_stats' %} aria-current="page"{% endif %}>{% tr "nav_stats" %}</a>
+        <a class="nav-link" href="{% url 'profile_achievements' %}"{% if request.resolver_match.url_name == 'profile_achievements' %} aria-current="page"{% endif %}>{% tr "nav_achievements" %}</a>
+        <a class="nav-link" href="{% url 'password_change' %}"{% if request.resolver_match.url_name == 'password_change' %} aria-current="page"{% endif %}>{% tr "nav_change_password" %}</a>
 
         <div class="notification-area">
             <button id="notification-toggle" type="button">{% tr "nav_invitations" %} <span id="notification-count" hidden>0</span></button>
@@ -69,8 +71,8 @@
             <button type="submit">{% tr "nav_logout" %}</button>
         </form>
     {% else %}
-        <a href="{% url 'login' %}">{% tr "nav_login" %}</a>
-        <a href="{% url 'register' %}">{% tr "nav_register" %}</a>
+        <a class="nav-link" href="{% url 'login' %}"{% if request.resolver_match.url_name == 'login' %} aria-current="page"{% endif %}>{% tr "nav_login" %}</a>
+        <a class="nav-link" href="{% url 'register' %}"{% if request.resolver_match.url_name == 'register' %} aria-current="page"{% endif %}>{% tr "nav_register" %}</a>
     {% endif %}
 
     {% block nav_mobile_extra %}

@@ -1,0 +1,158 @@
+/* Shared rustic identity. Loaded after legacy layout rules to preserve game sizing. */
+:root {
+    --accent-strong: #ecd3a3;
+    --border-soft: rgba(226, 202, 161, .17);
+    --text-muted: #cdc2af;
+    --shadow-tight: 0 8px 24px rgba(0, 0, 0, .22);
+}
+a:hover { font-weight: inherit; color: var(--accent-strong); }
+a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {
+    outline: 2px solid var(--accent-strong);
+    outline-offset: 3px;
+}
+.site-nav { background: #211f1b; gap: 6px; }
+.site-nav .nav-brand {
+    display: flex; align-items: center; justify-content: flex-start;
+    gap: 10px; width: auto; height: auto; min-height: 64px;
+    margin: 0 0 10px; padding: 8px 4px 14px; border: 0;
+    border-bottom: 1px solid var(--border-soft); border-radius: 0;
+    overflow: visible; pointer-events: auto; transform: none;
+    background: transparent;
+}
+.site-nav .nav-brand:hover { background: transparent; }
+.site-nav .nav-brand img {
+    flex: 0 0 42px; width: 42px; height: 42px; object-fit: contain;
+    transform: none; filter: none;
+}
+.nav-wordmark {
+    font-family: Georgia, 'Times New Roman', serif; font-size: 30px;
+    font-weight: 400; letter-spacing: -.8px; line-height: 1;
+    color: var(--accent-strong);
+}
+.site-nav .nav-link {
+    min-height: 38px; padding: 9px 12px; border: 1px solid transparent;
+    font-weight: 600; line-height: 1.3;
+}
+.site-nav .nav-link:hover { font-weight: 600; background: rgba(226, 202, 161, .06); }
+.site-nav .nav-link[aria-current="page"] {
+    color: #f5e7cf; background: rgba(139, 159, 103, .14);
+    border-color: rgba(139, 159, 103, .25);
+}
+.site-nav .language-form { margin-top: 10px; padding-top: 14px; border-top: 1px solid var(--border-soft); }
+.site-nav .nav-captured-material:not(:has(.captured-piece)) { display: none; }
+.card, .form-card, .computer-panel, .pgn-panel, .board-wrapper { border-radius: 10px; }
+.computer-tabs { gap: 8px; }
+.computer-tab-button { border-radius: 8px; }
+.trainer-chat h2, .home-hub-copy h2 { font-family: Georgia, 'Times New Roman', serif; font-weight: 400; }
+.home-computer-layout #computer-coach-panel .trainer-chat {
+    margin-top: 18px; padding-top: 16px;
+}
+.home-computer-layout .trainer-chat h2 { font-size: 20px; margin-bottom: 12px; }
+.home-computer-layout .trainer-suggestions { gap: 8px; margin-bottom: 12px; }
+.home-computer-layout .trainer-chat .trainer-suggestions button {
+    background: rgba(226, 202, 161, .05); color: var(--accent);
+    border: 1px solid var(--border-soft); font-size: 12px;
+    padding: 8px 10px; min-height: 36px; font-weight: 500;
+}
+.home-computer-layout .trainer-chat-message { font-size: 13px; line-height: 1.6; }
+.home-computer-layout .trainer-chat-log { padding: 12px; border-radius: 8px; }
+.home-computer-layout .trainer-chat-form { gap: 8px; margin-top: 12px; }
+.home-computer-layout .trainer-chat-form input { min-height: 40px; }
+.home-computer-layout #computer-coach-panel .home-hub-panel {
+    margin-top: 22px; padding-top: 20px; border-top: 1px solid var(--border-soft);
+}
+.home-hub-copy h2 { font-size: 22px; margin: 8px 0; }
+.home-hub-copy p { line-height: 1.6; }
+.home-hub-actions { gap: 8px; }
+.home-hub-actions a {
+    background: rgba(139, 159, 103, .08); border-color: rgba(139, 159, 103, .22);
+    color: var(--accent); min-height: 40px; font-weight: 600;
+}
+.home-hub-actions a:hover { background: rgba(139, 159, 103, .16); font-weight: 600; }
+.home-intro h1 { font-family: Georgia, 'Times New Roman', serif; font-size: 28px; font-weight: 400; }
+@media (min-width: 1101px) {
+    .site-nav { padding: 16px 12px; overflow-y: auto; scrollbar-width: thin; scrollbar-color: #78694f transparent; }
+    .site-nav .nav-brand { width: 100%; flex-shrink: 0; }
+    .home-computer-layout .computer-play-panel { gap: 10px; }
+    .home-computer-layout #computer-coach-panel { padding: 18px; }
+}
+@media (min-width: 901px) and (max-width: 1100px) {
+    .site-nav .nav-brand { border-bottom: 0; margin: 0 12px 0 0; padding: 4px; }
+    .site-nav .language-form { border: 0; margin: 0; padding: 0; }
+}
+@media (max-width: 900px) {
+    .site-nav { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; padding: 14px; }
+    .site-nav > * + * { border-top: 0; padding-top: 0; }
+    .site-nav .nav-brand { grid-column: 1 / -1; justify-content: center; width: 100%; margin: 0 0 8px; }
+    .site-nav .nav-link { text-align: center; min-height: 44px; display: flex; align-items: center; justify-content: center; }
+    .site-nav .language-form, .site-nav > span, .site-nav .mobile-nav-action { grid-column: 1 / -1; }
+    .site-nav .language-form { margin: 6px 0; padding-top: 12px; }
+    .site-nav .language-form select { flex: 1; max-width: 230px; min-height: 40px; }
+    .mobile-home-menu { margin: 20px auto; }
+    .home-intro-mobile { background: var(--surface); border: 1px solid var(--border-soft); border-radius: 10px; }
+    .home-intro.home-intro-mobile { padding: 24px; }
+    .home-intro p { font-size: 14px; }
+    .home-computer-layout #computer-coach-panel .trainer-chat { margin-top: 14px; padding-top: 14px; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .site-nav .nav-link { transition: none; }
+}
+
+.coach-settings { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.coach-settings > div { min-width: 0; }
+.home-computer-layout .coach-settings label { display: block; margin: 0 0 6px; }
+.home-computer-layout .coach-settings select { width: 100%; margin: 0; }
+.home-computer-layout .trainer-chat-log:empty { display: grid; align-content: center; }
+.trainer-chat-log:empty::before { content: attr(data-empty-hint); color: var(--text-muted); font-size: 13px; line-height: 1.6; }
+.home-hub-actions a { display: flex; flex-direction: column; align-items: flex-start; gap: 5px; padding: 12px; text-align: left; }
+.home-hub-actions a strong { font-size: 13px; font-weight: 600; }
+.home-hub-actions a span { color: var(--text-muted); font-size: 12px; font-weight: 400; line-height: 1.45; text-transform: none; }
+@media (max-width: 900px) { body.mobile-bot-playing .coach-settings { order: 4; } }
+
+/* Keep the mobile welcome visible; navigation expands only when requested. */
+@media (max-width: 900px) {
+    body > .mobile-nav-toggle {
+        display: inline-flex; position: absolute; top: 28px; right: 24px;
+        z-index: 51; margin: 0; min-height: 40px;
+    }
+    .site-nav .nav-brand { justify-content: flex-start; padding-right: 80px; }
+    body:not(.mobile-nav-open) .site-nav > :not(.nav-brand) { display: none; }
+    body:not(.mobile-nav-open) .site-nav .nav-brand { border-bottom: 0; margin: 0; padding-bottom: 8px; }
+    .nav-wordmark { font-size: 28px; }
+}
+@media (max-width: 360px) {
+    .site-nav .nav-brand { gap: 8px; }
+    .site-nav .nav-brand img { width: 34px; height: 34px; flex-basis: 34px; }
+    .nav-wordmark { font-size: 25px; }
+}
+
+.home-computer-layout .home-finished-action[hidden],
+.home-computer-layout #analyze-game-button[hidden] { display: none !important; }
+@media (max-width: 900px) {
+    body.mobile-bot-playing .home-computer-layout, .online-game-layout, .analyzer-game-layout {
+        container-type: inline-size;
+        --mobile-board-size: min(calc(100cqw - 32px), calc(100dvh - 84px), 520px);
+    }
+    .mobile-nav-toggle { flex-direction: row; white-space: nowrap; }
+    .mobile-nav-arrow { font-size: 16px; }
+}
+
+h1 { font-family: Georgia, 'Times New Roman', serif; font-weight: 400; line-height: 1.2; }
+.home-hub-actions a { text-transform: none; }
+
+/* Coordinates follow the board even when its toolbar wraps on a small phone. */
+@media (max-width: 900px) {
+    body.mobile-bot-playing .home-computer-layout .board-wrapper {
+        display: grid; grid-template-columns: 10px minmax(0, 1fr);
+        grid-template-rows: auto auto auto; min-width: 0; column-gap: 2px; row-gap: 0;
+    }
+    body.mobile-bot-playing .home-computer-layout .board-wrapper > div:not(.rank-labels) { display: contents; }
+    body.mobile-bot-playing .home-computer-layout .board-toolbar { grid-column: 2; grid-row: 1; }
+    body.mobile-bot-playing .home-computer-layout .board { grid-column: 2; grid-row: 2; }
+    body.mobile-bot-playing .home-computer-layout .rank-labels {
+        grid-column: 1; grid-row: 2; padding: 0; transform: none; margin: 3px 0 0;
+        grid-template-rows: repeat(8, minmax(0, 1fr));
+    }
+    body.mobile-bot-playing .home-computer-layout .rank-labels span { transform: none; min-height: 0; height: auto; }
+    body.mobile-bot-playing .home-computer-layout .file-labels { grid-column: 2; grid-row: 3; }
+}

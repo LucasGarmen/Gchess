@@ -90,26 +90,27 @@
         </div>
 
         <section id="computer-coach-panel" class="computer-tab-panel computer-panel" data-computer-panel="coach" role="tabpanel" aria-labelledby="computer-tab-coach">
-            <label for="computer-elo">{% tr "bot_elo" %}</label>
-
-            <select id="computer-elo">
-                <option value="500">ELO 500</option>
-                <option value="800">ELO 800</option>
-                <option value="1000">ELO 1000</option>
-                <option value="1320" selected>ELO 1320</option>
-                <option value="1600">ELO 1600</option>
-                <option value="2000">ELO 2000</option>
-                <option value="2500">ELO 2500</option>
-            </select>
-
-            <label for="player-color">{% tr "play_as" %}</label>
-
-            <select id="player-color">
-                <option value="white" selected>{% tr "white" %}</option>
-                <option value="black">{% tr "black" %}</option>
-            </select>
-
-
+            <div class="coach-settings">
+                <div>
+                    <label for="computer-elo">{% tr "bot_elo" %}</label>
+                    <select id="computer-elo">
+                        <option value="500">ELO 500</option>
+                        <option value="800">ELO 800</option>
+                        <option value="1000">ELO 1000</option>
+                        <option value="1320" selected>ELO 1320</option>
+                        <option value="1600">ELO 1600</option>
+                        <option value="2000">ELO 2000</option>
+                        <option value="2500">ELO 2500</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="player-color">{% tr "play_as" %}</label>
+                    <select id="player-color">
+                        <option value="white" selected>{% tr "white" %}</option>
+                        <option value="black">{% tr "black" %}</option>
+                    </select>
+                </div>
+            </div>
 
             <div class="computer-controls">
                 <button id="toggle-coach" type="button">{% tr "enable_coach" %}</button>
@@ -125,7 +126,7 @@
             <div class="trainer-chat">
                 <h2>{% tr "coach_chat" %}</h2>
                 {% include 'games/_trainer_suggestions.html' %}
-                <div id="trainer-chat-log" class="trainer-chat-log" role="log" aria-live="polite"></div>
+                <div id="trainer-chat-log" class="trainer-chat-log" data-empty-hint="{% tr 'trainer_empty_hint' %}" role="log" aria-live="polite"></div>
                 <form id="trainer-chat-form" class="trainer-chat-form">
                     <input
                         id="trainer-chat-input" maxlength="500" aria-label="{% tr 'ask_current_position' %}"
@@ -171,10 +172,10 @@
                 {% endif %}
 
                 <div class="home-hub-actions">
-                    <a href="{% url 'daily_puzzle' %}">{% tr "home_hub_daily" %}</a>
-                    <a href="{% url 'practice' %}">{% tr "home_hub_practice" %}</a>
-                    <a href="{% url 'blitz' %}">{% tr "home_hub_blitz" %}</a>
-                    <a href="{% url 'leaderboard' %}">{% tr "home_hub_leaderboard" %}</a>
+                    <a href="{% url 'daily_puzzle' %}"><strong>{% tr "home_hub_daily" %}</strong><span>{% tr "home_mode_daily_help" %}</span></a>
+                    <a href="{% url 'practice' %}"><strong>{% tr "home_hub_practice" %}</strong><span>{% tr "home_mode_practice_help" %}</span></a>
+                    <a href="{% url 'blitz' %}"><strong>{% tr "home_hub_blitz" %}</strong><span>{% tr "home_mode_blitz_help" %}</span></a>
+                    <a href="{% url 'leaderboard' %}"><strong>{% tr "home_hub_leaderboard" %}</strong><span>{% tr "home_mode_leaderboard_help" %}</span></a>
                 </div>
             </section>
         </section>

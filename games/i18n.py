@@ -1066,6 +1066,13 @@ def normalize_language(language):
 
 
 TRANSLATIONS['pt'].update({
+    'home_hub_daily': 'Puzzle diário',
+    'home_hub_practice': 'Prática',
+    'home_mode_daily_help': 'Um novo desafio por dia.',
+    'home_mode_practice_help': 'Resolva posições no seu ritmo.',
+    'home_mode_blitz_help': 'Resolva puzzles contra o relógio.',
+    'home_mode_leaderboard_help': 'Compare seu progresso.',
+    'trainer_empty_hint': 'Seu espaço para conversar sobre a partida. Faça uma pergunta para começar.',
     'home_learning_title': 'Jogue e entenda sua partida',
     'home_learning_intro': 'Jogue contra o computador e explore suas jogadas com seu treinador.',
     'home_play_help': 'Escolha o nível e sua cor. No tabuleiro, toque em uma peça e depois na casa de destino.',
@@ -1075,6 +1082,13 @@ TRANSLATIONS['pt'].update({
     'trainer_question_last': 'A última jogada foi boa?',
 })
 TRANSLATIONS['es'].update({
+    'home_hub_daily': 'Puzzle diario',
+    'home_hub_practice': 'Práctica',
+    'home_mode_daily_help': 'Un nuevo desafío cada día.',
+    'home_mode_practice_help': 'Resolvé posiciones a tu ritmo.',
+    'home_mode_blitz_help': 'Resolvé puzzles contra el reloj.',
+    'home_mode_leaderboard_help': 'Compará tu progreso.',
+    'trainer_empty_hint': 'Tu espacio para conversar sobre la partida. Hacé una pregunta para empezar.',
     'home_learning_title': 'Jugá y entendé tu partida',
     'home_learning_intro': 'Jugá contra la computadora y explorá tus jugadas con tu entrenador.',
     'home_play_help': 'Elegí el nivel y tu color. En el tablero, tocá una pieza y después la casilla de destino.',
@@ -1084,6 +1098,13 @@ TRANSLATIONS['es'].update({
     'trainer_question_last': '¿La última jugada fue buena?',
 })
 TRANSLATIONS['en'].update({
+    'home_hub_daily': 'Daily puzzle',
+    'home_hub_practice': 'Practice',
+    'home_mode_daily_help': 'A new challenge every day.',
+    'home_mode_practice_help': 'Solve positions at your own pace.',
+    'home_mode_blitz_help': 'Solve puzzles against the clock.',
+    'home_mode_leaderboard_help': 'Compare your progress.',
+    'trainer_empty_hint': 'Your space to talk about the game. Ask a question to get started.',
     'home_learning_title': 'Play and understand your game',
     'home_learning_intro': 'Play against the computer and explore your moves with your coach.',
     'home_play_help': 'Choose the level and your color. On the board, select a piece, then its destination square.',
