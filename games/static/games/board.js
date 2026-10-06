@@ -1456,9 +1456,9 @@ function cancelPieceDrag() {
 function createPieceElement(position) {
     const pieceKey = `${position.type}_${position.color}`;
     const pieceImage = document.createElement('img');
-    const fileName = pieceFileNames[pieceKey] || `${pieceKey}.png`;
+    const fileName = pieceFileNames[pieceKey] || `${pieceKey}.png?v=2`;
 
-    pieceImage.src = `/static/games/pieces-rustic/${fileName}`;
+    pieceImage.src = `/static/games/pieces-rustic/${fileName}?v=2`;
     pieceImage.alt = pieceKey;
     pieceImage.decoding = 'async';
     pieceImage.draggable = false;
