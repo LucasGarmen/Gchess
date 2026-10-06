@@ -8,3 +8,9 @@ staticfiles/
 media/
 
 local-engines/
+
+# Private data exports must never ship in Git or Docker images.
+backups/
+*.json.gz
+*.manifest.json
+*.dump

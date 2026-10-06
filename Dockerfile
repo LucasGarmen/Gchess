@@ -12,6 +12,8 @@ RUN apt-get update \
     && apt-get install -y --no-install-recommends stockfish \
     && if [ -x /usr/games/stockfish ]; then ln -sf /usr/games/stockfish /usr/local/bin/stockfish; elif [ -x /usr/bin/stockfish ]; then ln -sf /usr/bin/stockfish /usr/local/bin/stockfish; else echo "Stockfish binary was not installed"; exit 1; fi \
     && test -x /usr/local/bin/stockfish \
+    && mkdir -p /root/.ssh \
+    && chmod 0700 /root/.ssh \
     && rm -rf /var/lib/apt/lists/*
 
 COPY requirements.txt .

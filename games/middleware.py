@@ -10,6 +10,7 @@ class DailyVisitMiddleware:
         '/admin/',
         '/static/',
         '/favicon.ico',
+        '/healthz/',
     )
 
     def __init__(self, get_response):

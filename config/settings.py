@@ -11,10 +11,9 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
 import os
-import dj_database_url
+from .database import database_from_url
 from importlib.util import find_spec
 from pathlib import Path
-from urllib.parse import parse_qsl, urlparse
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -41,29 +40,6 @@ def env_bool(name, default=False):
 def env_list(name, default=''):
     value = os.environ.get(name, default)
     return [item.strip() for item in value.split(',') if item.strip()]
-
-
-def database_from_url(database_url):
-    parsed = urlparse(database_url)
-
-    if parsed.scheme not in ('postgres', 'postgresql'):
-        raise RuntimeError('DATABASE_URL must use postgres:// or postgresql://.')
-
-    config = {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': parsed.path.lstrip('/'),
-        'USER': parsed.username or '',
-        'PASSWORD': parsed.password or '',
-        'HOST': parsed.hostname or '',
-        'PORT': str(parsed.port or ''),
-    }
-
-    options = dict(parse_qsl(parsed.query))
-
-    if options:
-        config['OPTIONS'] = options
-
-    return config
 
 
 load_dotenv(BASE_DIR / '.env')

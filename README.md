@@ -316,3 +316,7 @@ not visual browser rendering. Prompt tests cannot prove every Gemini answer;
 move-reference validation remains syntactic, not a proof of tactical prose.
 
 Trainer reliability: Gemini uses a 15-second socket timeout by default and retries one transient timeout, connection failure, or HTTP 500/502/503/504 within a shared 25-second provider budget. Authentication, model and quota failures are not retried. The browser allows 45 seconds and shows a waiting notice after 4 seconds. Recent conversation includes up to 12 messages with their position metadata; retries preserve the original board. Explicit GEMINI_TIMEOUT_SECONDS environment settings override the default.
+
+## Persistent storage and recovery
+
+See [the migration and recovery runbook](docs/operacion-datos.md) before deploying or changing DATABASE_URL. Save the live SQLite data outside Render first. Production storage checks, /healthz/, export_data and restore_data are available; provisioning, migration and automated remote backups remain operational steps.
