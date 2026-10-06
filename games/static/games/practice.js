@@ -1095,7 +1095,7 @@
     }
 
     function pieceImageUrl(piece) {
-        return `${window.PRACTICE_PIECES_BASE_URL || '/static/games/pieces/'}${piece.type}_${piece.color}.png`;
+        return `${window.PRACTICE_PIECES_BASE_URL || '/static/games/pieces-rustic/'}${piece.type}_${piece.color}.png`;
     }
 
     function preloadPieceImage(piece) {

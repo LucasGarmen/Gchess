@@ -103,8 +103,8 @@
 <script>
     window.DAILY_START_URL = "{% url 'daily_start' %}";
     window.DAILY_MOVE_URL = "{% url 'daily_move' %}";
-    window.DAILY_PIECES_BASE_URL = "{% static 'games/pieces/' %}";
+    window.DAILY_PIECES_BASE_URL = "{% static 'games/pieces-rustic/' %}";
 </script>
-<script src="{% static 'games/daily_puzzle.min.js' %}?v=1" defer></script>
+<script src="{% static 'games/daily_puzzle.min.js' %}?pieces=rustic&v=1" defer></script>
 
 {% endblock %}

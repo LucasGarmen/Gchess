@@ -1458,7 +1458,7 @@ function createPieceElement(position) {
     const pieceImage = document.createElement('img');
     const fileName = pieceFileNames[pieceKey] || `${pieceKey}.png`;
 
-    pieceImage.src = `/static/games/pieces/${fileName}`;
+    pieceImage.src = `/static/games/pieces-rustic/${fileName}`;
     pieceImage.alt = pieceKey;
     pieceImage.decoding = 'async';
     pieceImage.draggable = false;

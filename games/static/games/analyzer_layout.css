@@ -6,7 +6,7 @@ body.mobile-analyzer-playing:not(.analysis-leave-modal-active):not(.analysis-loa
 }
 
 body.mobile-analyzer-playing .analyzer-game-layout {
-    --analyzer-board-size: min(560px, calc(100vw - 720px));
+    --analyzer-board-size: min(960px, calc(100svh - 136px), calc(100vw - 664px));
     --square-size: calc(var(--analyzer-board-size) / 8);
     display: grid;
     grid-template-columns: minmax(0, 1fr) minmax(300px, 360px);
@@ -15,7 +15,7 @@ body.mobile-analyzer-playing .analyzer-game-layout {
     height: auto;
     max-height: none;
     width: 100%;
-    max-width: 1200px;
+    max-width: none;
     margin: 24px auto;
     padding: 0;
     overflow: visible;

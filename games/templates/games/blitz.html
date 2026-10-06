@@ -147,10 +147,10 @@
     window.PRACTICE_BLITZ = true;
     window.PRACTICE_MOVE_URL = "{% url 'practice_move' %}";
     window.PRACTICE_LEGAL_MOVES_URL = "{% url 'practice_legal_moves' %}";
-    window.PRACTICE_PIECES_BASE_URL = "{% static 'games/pieces/' %}";
+    window.PRACTICE_PIECES_BASE_URL = "{% static 'games/pieces-rustic/' %}";
     window.BLITZ_SAVE_URL = "{% url 'blitz_save' %}";
     window.BLITZ_DURATION_SECONDS = {{ blitz_duration_seconds }};
 </script>
-<script src="{% static 'games/practice.min.js' %}?v=2" defer></script>
+<script src="{% static 'games/practice.min.js' %}?pieces=rustic&v=2" defer></script>
 
 {% endblock %}
