@@ -9,9 +9,9 @@
 
     <title>{% block title %}Gchess{% endblock %}</title>
 
-    <link rel="icon" href="{% static 'games/gchess-emblem.svg' %}" type="image/svg+xml">
-    <link rel="shortcut icon" href="{% static 'images/favicon.png' %}" type="image/png">
-    <link rel="apple-touch-icon" href="{% static 'images/favicon.png' %}">
+    <link rel="icon" href="{% static 'games/gchess-emblem.svg' %}?v=2" type="image/svg+xml">
+    <link rel="shortcut icon" href="{% static 'images/favicon.png' %}?v=2" type="image/png">
+    <link rel="apple-touch-icon" href="{% static 'images/apple-touch-icon.png' %}">
     <link rel="stylesheet" href="{% static 'games/style.min.css' %}?v=7">
     <link rel="stylesheet" href="{% static 'games/rustic.css' %}?v=2">
     <link rel="stylesheet" href="{% static 'games/training.css' %}?v=1">
@@ -27,7 +27,7 @@
 
     <nav id="site-nav" class="site-nav">
     <a class="nav-brand" href="{% url 'home' %}" aria-label="Gchess · {% tr 'nav_home' %}">
-        <img src="{% static 'games/gchess-emblem.svg' %}" alt="" width="42" height="42" decoding="async">
+        <img src="{% static 'games/gchess-emblem.svg' %}?v=2" alt="" width="42" height="42" decoding="async">
         <span class="nav-wordmark">Gchess</span>
     </a>
     <a class="nav-link" href="{% url 'home' %}"{% if request.resolver_match.url_name == 'home' %} aria-current="page"{% endif %}>{% tr "nav_home" %}</a>
