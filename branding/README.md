@@ -1,12 +1,12 @@
 # Gchess identity
 
-Brand spelling: **Gchess**. The G monogram has a rook crown integrated into its right-hand stroke.
+Selected identity: the user-supplied gold G with a cream knight and green chessboard detail.
+Brand name: **Gchess**. Public website: **https://gchess.app**.
 
-- Instagram/profile: gchess-instagram-1080.png (square, safe for a circular crop).
-- Transparent mark: gchess-symbol-transparent.png. Use on a dark background.
-- Horizontal logo: gchess-wordmark.png.
-- SVG originals scale without losing detail.
+- `gchess-selected-original.png`: unmodified supplied artwork.
+- `gchess-instagram-1080.png`: avatar with margins for circular crops.
+- `gchess-symbol-transparent.png`: transparent symbol.
+- `gchess-icon-512.png`: website icon.
+- `gchess-wordmark.png`: horizontal brand logo.
 
-Colors: olive #292b20; parchment #ecd3a3. Keep clear space around the mark.
-
-Public website: https://gchess.app. Website wordmark: gchess.app. Brand name: Gchess.
+The SVG files embed the selected PNG for compatibility; they are not traced vector originals. All outputs preserve the supplied artwork and transparency where appropriate.
