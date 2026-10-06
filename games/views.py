@@ -4144,8 +4144,8 @@ def pgn_result_for_game(game):
 def build_pgn_from_saved_game(game):
     board = chess.Board()
     pgn_game = chess.pgn.Game()
-    pgn_game.headers['Event'] = 'GChess'
-    pgn_game.headers['Site'] = 'GChess'
+    pgn_game.headers['Event'] = 'Gchess'
+    pgn_game.headers['Site'] = 'Gchess'
     pgn_game.headers['Date'] = timezone.localtime(game.created_at).strftime('%Y.%m.%d') if game.created_at else '????.??.??'
     pgn_game.headers['Round'] = '-'
     pgn_game.headers['White'] = game.white_player or 'White'

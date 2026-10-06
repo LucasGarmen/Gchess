@@ -156,3 +156,6 @@ h1 { font-family: Georgia, 'Times New Roman', serif; font-weight: 400; line-heig
     body.mobile-bot-playing .home-computer-layout .rank-labels span { transform: none; min-height: 0; height: auto; }
     body.mobile-bot-playing .home-computer-layout .file-labels { grid-column: 2; grid-row: 3; }
 }
+
+/* Preserve the brand spelling in small section labels too. */
+.stats-eyebrow.brand-label { text-transform: none; }

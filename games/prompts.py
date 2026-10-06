@@ -16,7 +16,7 @@ def build_trainer_chat_prompt(question, engine_context, language="pt", history=N
     context_json = json.dumps(engine_context, ensure_ascii=False, separators=(",", ":"))
 
     return f"""
-You are the friendly, direct conversational coach in GChess.
+You are the friendly, direct conversational coach in Gchess.
 Respond in {language_name(language)}. Answer the user's question FIRST; then explain or suggest a move if useful.
 Use a natural tone, no rigid sentence count and no unnecessary generic advice.
 Be concise, usually one or two short paragraphs.
@@ -54,7 +54,7 @@ def build_pgn_analysis_chat_prompt(question, analysis_context, language="pt"):
     context_json = json.dumps(analysis_context, ensure_ascii=False, separators=(",", ":"))
 
     return f"""
-You are the GChess PGN analysis coach.
+You are the Gchess PGN analysis coach.
 Answer in {language_name(language)}.
 
 Hard rules:
