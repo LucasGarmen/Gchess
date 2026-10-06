@@ -8,6 +8,7 @@ from .forms import ChessGameForm
 from django.contrib.auth.decorators import login_required
 import asyncio
 import copy
+import hashlib
 import math
 import json
 import logging
@@ -3528,7 +3529,16 @@ def trainer_chat(request):
             return JsonResponse({"error":"Invalid reference position.", "code":"invalid_request"}, status=400)
     engine_context = None
     engine = None
+    target_question = analysis_question(question, history)
+    context_key = "trainer-position:v2:" + hashlib.sha256(json.dumps({
+        "moves": [move.uci() for move in board.move_stack],
+        "question": target_question, "color": player_color, "language": language,
+        "budget": os.getenv("TRAINER_ANALYSIS_SECONDS", "0.12"),
+        "engine": os.getenv("STOCKFISH_PATH", ""),
+    }, sort_keys=True).encode()).hexdigest()
     if topic == "chess":
+        engine_context = cache.get(context_key)
+    if topic == "chess" and engine_context is None:
         stockfish_path, stockfish_error = configured_stockfish_path()
         if stockfish_error:
             trainer_logger.warning("Trainer result: category=engine_unavailable elapsed_ms=%d", round((time.monotonic()-started)*1000))
@@ -3538,6 +3548,7 @@ def trainer_chat(request):
             target_question = analysis_question(question, history)
             engine_context = build_trainer_engine_context(engine, board, san_moves, target_question, player_color, language, detect_opening(san_moves))
             engine_context = add_played_move_context(engine, board, target_question, engine_context)
+            cache.set(context_key, engine_context, 120)
         except (chess.engine.EngineError, OSError):
             trainer_logger.warning("Trainer result: category=engine_error elapsed_ms=%d", round((time.monotonic()-started)*1000))
             return JsonResponse({"error":"Chess analysis failed.", "code":"engine_unavailable", "retryable":True}, status=503)

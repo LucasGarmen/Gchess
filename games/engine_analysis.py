@@ -435,10 +435,15 @@ def add_played_move_context(engine, board, question, context):
     proposed = context.get("proposed_move") or {}
     if (not PAST.search(normalize_piece_text(question)) and proposed.get("legal") is not False) or not board.move_stack:
         return context
+    text = normalize_piece_text(question)
+    own_move = bool(re.search(r"\b(mi|mis|minha|meu|my|jugue|joguei|i played)\b", text))
+    player_color = context.get("player_color", "white")
     previous = board.copy(stack=True)
     selected = None
     for _ in range(min(16, len(previous.move_stack))):
         actual = previous.pop()
+        if own_move and color_name(previous.turn) != player_color:
+            continue
         proposed = parse_proposed_move(previous, question)
         if proposed and proposed.get("legal") and proposed["move"] == actual:
             selected = (previous.copy(stack=True), actual)

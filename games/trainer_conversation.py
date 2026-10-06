@@ -6,7 +6,7 @@ from .engine_analysis import normalize_piece_text, SAN_CANDIDATE_RE, UCI_CANDIDA
 
 CHESS_WORDS = re.compile(r"\b(ajedrez|xadrez|chess|tablero|board|posicion|posicao|position|jugada|jogada|move|partida|peon|pawn|caballo|cavalo|knight|alfil|bispo|bishop|torre|rook|reina|dama|queen|jaque|xeque|check|mate|enroque|roque|castling|apertura|abertura|opening|blancas|negras|brancas|pretas|stockfish)\b")
 FOLLOWUP = re.compile(r"^(y |e |and |pero |but |mas )?(por que|porque|why|como asi|how so|explica|explain|y ahora|and now|e agora)\b")
-PAST = re.compile(r"\b(buena|bueno|boa|bom|good|mala|ruim|bad|joguei|jugue|played|ultima|last|anterior)\b")
+PAST = re.compile(r"\b(buena|bueno|boa|bom|good|mala|ruim|bad|joguei|jugue|played|ultima|ultimo|last|anterior)\b")
 
 
 def is_current_position_request(question):
@@ -27,6 +27,8 @@ def question_topic(question, history):
     board_reference = re.search(r"\b(partida|tablero|board|posicion|posicao|position|esta|this|minha|mi)\b", text)
     if conceptual and not notation and not board_reference:
         return "general"
+    if PAST.search(text) and re.search(r"\b(mi|mis|minha|meu|my|i played|jugue|joguei)\b", text):
+        return "chess"
     if CHESS_WORDS.search(text) or notation:
         return "chess"
     if re.search(r"\b(espacio|space|estrellas|stars|nasa|universo|universe)\b", text):

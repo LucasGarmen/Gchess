@@ -88,6 +88,9 @@ class GeminiTests(SimpleTestCase):
 
 
 class TrainerTests(TestCase):
+    def setUp(self):
+        cache.clear()
+
     def test_last_move_answer_can_mention_verified_previous_move(self):
         with patch("games.views.configured_stockfish_path", return_value=("stockfish", "")), patch("games.views.open_stockfish_engine", return_value=self.engine()), patch("games.views.generate_gemini_explanation", return_value="e5 fue buena: responde a tu e4. Ahora podés desarrollar con Cf3."):
             response = self.client.post("/trainer-chat/", json.dumps({"question":"¿La última jugada fue buena?", "moves":["e2e4", "e7e5"], "language":"es"}), content_type="application/json")
@@ -161,7 +164,7 @@ class TrainerTests(TestCase):
             self.assertIn('Why e4?', prompt)
             self.assertIsNone(response.json()["answer"])
             self.assertEqual(response.json()["source"], "unavailable")
-        self.assertGreaterEqual(engine.analyse.call_count, 6)
+        self.assertEqual(engine.analyse.call_count, 1)
 
     def expected_fen(self):
         board = chess.Board()
@@ -310,3 +313,31 @@ class TrainerTests(TestCase):
             response = self.client.post("/trainer-chat/", json.dumps({"question":"Por que nacen estrellas en el espacio?", "history":[{"role":"user", "text":"e4 fue buena?"}], "language":"es"}), content_type="application/json")
         self.assertEqual(response.json()["topic"], "general")
         engine.assert_not_called()
+
+
+class TrainerMoveTrackingTests(TestCase):
+    engine = TrainerTests.engine
+    def setUp(self):
+        cache.clear()
+
+    def ask_move(self, question, color="white"):
+        return self.client.post("/trainer-chat/", json.dumps({"question":question,
+            "moves":["e2e4", "e7e5"], "language":"es", "player_color":color}),
+            content_type="application/json")
+
+    def test_my_move_after_opponent_reply(self):
+        with patch("games.views.configured_stockfish_path", return_value=("stockfish", "")), patch("games.views.open_stockfish_engine", return_value=self.engine()), patch("games.views.generate_gemini_explanation", return_value="Tu peón de e2 avanzó a e4.") as gemini:
+            response = self.ask_move("¿Mi jugada fue buena?")
+        self.assertEqual(response.json()["status"], "ok")
+        prompt = gemini.call_args.args[0]
+        context = json.loads(prompt.split("ENGINE_CONTEXT (null for a general question):\n")[1])
+        self.assertEqual(context["played_move"]["move_uci"], "e2e4")
+        self.assertEqual(context["played_move"]["moving_color"], "white")
+
+    def test_retry_reuses_analysis_but_color_has_its_own_context(self):
+        with patch("games.views.configured_stockfish_path", return_value=("stockfish", "")), patch("games.views.open_stockfish_engine", side_effect=lambda path:self.engine()) as engine, patch("games.views.generate_gemini_explanation", side_effect=GeminiFailure("timeout")):
+            self.ask_move("¿Mi jugada fue buena?")
+            self.ask_move("¿Mi jugada fue buena?")
+            self.assertEqual(engine.call_count, 1)
+            self.ask_move("¿Mi jugada fue buena?", "black")
+            self.assertEqual(engine.call_count, 2)
