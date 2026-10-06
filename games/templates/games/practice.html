@@ -18,6 +18,8 @@
         <p>{% tr "practice_intro" %}</p>
     </header>
 
+    {% include 'games/_training_guide.html' %}
+
     {% if practice_xp %}
         <section id="practice-xp-panel" class="xp-progress-panel practice-xp-panel" aria-label="{% tr "xp_progress" %}">
             <div class="xp-progress-header">
@@ -152,6 +154,6 @@
     window.PRACTICE_LEGAL_MOVES_URL = "{% url 'practice_legal_moves' %}";
     window.PRACTICE_PIECES_BASE_URL = "{% static 'games/pieces/' %}";
 </script>
-<script src="{% static 'games/practice.min.js' %}?v=1" defer></script>
+<script src="{% static 'games/practice.min.js' %}?v=2" defer></script>
 
 {% endblock %}

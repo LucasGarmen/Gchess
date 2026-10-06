@@ -14,6 +14,7 @@
     <link rel="apple-touch-icon" href="{% static 'images/favicon.png' %}">
     <link rel="stylesheet" href="{% static 'games/style.min.css' %}?v=7">
     <link rel="stylesheet" href="{% static 'games/rustic.css' %}?v=2">
+    <link rel="stylesheet" href="{% static 'games/training.css' %}?v=1">
 </head>
 
 <body>
@@ -32,10 +33,7 @@
     <a class="nav-link" href="{% url 'games_list' %}"{% if request.resolver_match.url_name == 'games_list' %} aria-current="page"{% endif %}>{% tr "nav_games" %}</a>
     <a class="nav-link" href="{% url 'game_create' %}"{% if request.resolver_match.url_name == 'game_create' %} aria-current="page"{% endif %}>{% tr "nav_new_game" %}</a>
     <a class="nav-link" href="{% url 'game_analyzer' %}"{% if request.resolver_match.url_name == 'game_analyzer' %} aria-current="page"{% endif %}>{% tr "nav_analyze_pgn" %}</a>
-    <a class="nav-link" href="{% url 'practice' %}"{% if request.resolver_match.url_name == 'practice' %} aria-current="page"{% endif %}>{% tr "nav_practice" %}</a>
-    <a class="nav-link" href="{% url 'blitz' %}"{% if request.resolver_match.url_name == 'blitz' %} aria-current="page"{% endif %}>{% tr "nav_blitz" %}</a>
-    <a class="nav-link" href="{% url 'streak' %}"{% if request.resolver_match.url_name == 'streak' %} aria-current="page"{% endif %}>{% tr "nav_streak" %}</a>
-    <a class="nav-link" href="{% url 'daily_puzzle' %}"{% if request.resolver_match.url_name == 'daily_puzzle' %} aria-current="page"{% endif %}>{% tr "nav_daily" %}</a>
+    <a class="nav-link" href="{% url 'training' %}"{% if is_training_page %} aria-current="page"{% endif %}>{% tr "nav_training" %}</a>
     <a class="nav-link" href="{% url 'leaderboard' %}"{% if request.resolver_match.url_name == 'leaderboard' %} aria-current="page"{% endif %}>{% tr "nav_leaderboard" %}</a>
 
     <form class="language-form" method="POST" action="{% url 'set_language' %}">
@@ -66,7 +64,7 @@
             </div>
         </div>
 
-        <form method="POST" action="{% url 'logout' %}" style="display: inline;">
+        <form method="POST" action="{% url 'logout' %}" class="nav-logout">
             {% csrf_token %}
             <button type="submit">{% tr "nav_logout" %}</button>
         </form>
@@ -84,6 +82,7 @@
     {{ ui_texts|json_script:"ui-texts-data" }}
     <script>
         const UI_TEXTS = JSON.parse(document.getElementById('ui-texts-data').textContent);
+        window.UI_TEXTS = UI_TEXTS;
     </script>
     <script>
         const languageSelect = document.getElementById('language-select');

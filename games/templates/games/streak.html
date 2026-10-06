@@ -18,6 +18,9 @@
         <p>{% tr "streak_intro" %}</p>
     </header>
 
+    {% include 'games/_training_guide.html' %}
+    <button id="training-challenge-start" class="training-cta" type="button" data-ready-text="{% tr 'training_challenge_ready' %}">{% tr 'training_start_challenge' %}</button>
+
     <section class="blitz-scoreboard streak-scoreboard" aria-label="{% tr "streak_scoreboard" %}">
         <article>
             <span>{% tr "streak_current" %}</span>
@@ -127,6 +130,6 @@
     window.PRACTICE_PIECES_BASE_URL = "{% static 'games/pieces/' %}";
     window.STREAK_SAVE_URL = "{% url 'streak_save' %}";
 </script>
-<script src="{% static 'games/practice.min.js' %}?v=1" defer></script>
+<script src="{% static 'games/practice.min.js' %}?v=2" defer></script>
 
 {% endblock %}

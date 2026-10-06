@@ -1,0 +1,88 @@
+.training-page { max-width: 1120px; margin: 32px auto; }
+.training-header { max-width: 760px; margin-bottom: 28px; }
+.training-header h1 { font-size: clamp(30px, 3vw, 42px); }
+.training-page p { line-height: 1.65; }
+.training-page h2 { font: 400 26px/1.3 Georgia, serif; margin: 0 0 18px; }
+.training-next, .training-guest, .training-progress, .training-metrics { border: 1px solid var(--border-soft); background: var(--surface); border-radius: 10px; padding: 24px; margin: 24px 0; }
+.training-next { display: flex; align-items: center; justify-content: space-between; gap: 24px; border-left: 3px solid var(--green); }
+.training-next h2 { font-size: 21px; margin-bottom: 8px; }
+.training-next p { margin: 0; }
+.training-cta { background: var(--accent); color: #201b15; padding: 12px 18px; border-radius: 6px; font-weight: 600; flex-shrink: 0; margin: 0; }
+.training-cta:hover { color: #201b15; font-weight: 600; background: var(--accent-strong); }
+.training-cards { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+.training-card { display: flex; flex-direction: column; min-width: 0; padding: 24px; border: 1px solid var(--border-soft); background: linear-gradient(160deg, rgba(224, 200, 153, .04), transparent), var(--surface); border-radius: 10px; }
+.training-goal { color: #aec38e; font-size: 13px; font-weight: 600; }
+.training-card h3 { font: 400 26px/1.25 Georgia, serif; color: var(--accent); margin: 12px 0 0; }
+.training-card p { margin: 12px 0; }
+.training-card-rules { border-top: 1px solid var(--border-soft); padding-top: 14px; font-size: 14px; }
+.training-card details { font-size: 14px; margin-bottom: 18px; }
+.training-card summary, .training-mode-guide summary { cursor: pointer; color: var(--accent); padding: 6px 0; }
+.training-card-link { margin: auto 0 0; min-height: 44px; display: flex; align-items: center; font-weight: 600; border-top: 1px solid var(--border-soft); padding-top: 12px; }
+.training-card-link:hover { font-weight: 600; }
+.training-account { color: var(--text-muted); font-size: 12px; margin-bottom: 12px; }
+.training-records { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; margin: 0 0 24px; }
+.training-records dt { font-size: 13px; color: var(--text-muted); }
+.training-records dd { font-size: 28px; color: var(--accent); margin: 8px 0 0; }
+.training-records small { font-size: 13px; display: block; }
+.training-next-goal { border-top: 1px solid var(--border-soft); padding-top: 16px; }
+.training-next-goal progress { display: block; width: 100%; height: 12px; accent-color: var(--green); margin: 16px 0; }
+.training-metrics dl { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 22px; }
+.training-metrics dt { color: var(--accent); font-weight: 600; margin-bottom: 8px; }
+.training-metrics dd { color: var(--text-muted); margin: 0; line-height: 1.65; font-size: 14px; }
+.training-mode-guide { margin: 16px 0 22px; padding: 16px; background: var(--surface); border: 1px solid var(--border-soft); border-radius: 8px; }
+.training-mode-guide p { font-size: 14px; line-height: 1.6; margin: 12px 0 6px; }
+.training-mode-links { display: flex; flex-wrap: wrap; gap: 8px; }
+.training-mode-links a { margin: 0; padding: 8px 10px; border-radius: 6px; font-size: 13px; min-height: 36px; color: var(--text-muted); }
+.training-mode-links a[aria-current="page"] { background: rgba(139,159,103,.17); color: var(--accent); }
+.training-mode-links a:hover { background: rgba(224,200,153,.06); }
+.home-training-link { display: inline-flex; align-items: center; justify-content: center; margin: 12px 0 0; padding: 10px 12px; min-height: 44px; width: 100%; border: 1px solid var(--border-soft); border-radius: 6px; color: var(--accent); }
+/* Let mode names and instructions remain visible above the existing game. */
+body.practice-page-active { overflow-y: auto; }
+body.practice-page-active .practice-page { height: auto; overflow: visible; padding-top: 24px; }
+body.practice-page-active .practice-header { display: block; }
+body.practice-page-active .practice-header h1 { font-size: clamp(26px, 3vw, 36px); }
+body.practice-page-active .practice-xp-panel, body.blitz-page-active .blitz-scoreboard, body.streak-page-active .streak-scoreboard { position: static; transform: none; width: 100%; margin: 16px 0; }
+body.practice-page-active .practice-game-layout { height: auto; overflow: visible; margin: 20px 0; padding: 0; }
+body.practice-page-active .practice-board-area { height: auto; }
+@media (min-width: 1101px) and (max-width: 1400px) {
+    body.practice-page-active .practice-game-layout { grid-template-columns: max-content minmax(250px, 1fr); }
+    body.practice-page-active .practice-selector-panel { grid-column: 1 / -1; width: 100%; height: auto; }
+    body.practice-page-active .practice-categories { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); }
+    body.practice-page-active .practice-progress-grid { grid-template-columns: repeat(3, 1fr); }
+}
+@media (max-width: 900px) {
+    .training-page { margin: 24px auto; }
+    .training-header h1 { font-size: 30px; }
+    .training-cards, .training-metrics dl { grid-template-columns: 1fr; }
+    .training-card, .training-progress, .training-metrics, .training-guest, .training-next { padding: 20px; }
+    .training-next { flex-direction: column; align-items: stretch; gap: 16px; }
+    .training-cta { text-align: center; }
+    .training-records { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    body.practice-page-active .practice-page { padding-top: 60px; }
+    .training-mode-links a { min-height: 44px; padding: 10px; }
+}
+
+/* Read first, then keep timed challenges focused on the board and score. */
+body.blitz-page-active:not(.training-challenge-active) .practice-game-layout,
+body.streak-page-active:not(.training-challenge-active) .practice-game-layout { display: none; }
+body.training-challenge-active .training-mode-guide,
+body.training-challenge-active .practice-header p { display: none; }
+body.training-challenge-active .practice-header h1 { font-size: 26px; margin-bottom: 12px; }
+@media (min-width: 1101px) and (max-width: 1400px) {
+    body.training-challenge-active .blitz-side-panel { display: none; }
+}
+
+.practice-game-layout .rank-labels span, .daily-board-area .rank-labels span { transform: none; }
+@media (max-width: 900px) {
+    .practice-game-layout { container-type: inline-size; --mobile-board-size: min(calc(100cqw - 32px), calc(100dvh - 84px), 520px); }
+    .practice-game-layout .rank-labels { grid-template-rows: repeat(8, minmax(0, 1fr)); }
+    .practice-game-layout .rank-labels span { height: auto; min-height: 0; }
+}
+
+body.training-challenge-active .blitz-side-panel { display: none; }
+@media (min-width: 1101px) {
+    body.training-challenge-active .practice-game-layout { grid-template-columns: max-content minmax(250px, 1fr); }
+}
+
+.site-nav .nav-logout { margin: 0; }
+#notification-count[hidden] { display: none; }

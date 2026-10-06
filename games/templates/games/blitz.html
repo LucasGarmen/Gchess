@@ -18,6 +18,9 @@
         <p>{% tr "blitz_intro" %}</p>
     </header>
 
+    {% include 'games/_training_guide.html' %}
+    <button id="training-challenge-start" class="training-cta" type="button" data-ready-text="{% tr 'training_challenge_ready' %}">{% tr 'training_start_challenge' %}</button>
+
     <section class="blitz-scoreboard" aria-label="{% tr "blitz_scoreboard" %}">
         <article class="blitz-timer-card">
             <span>{% tr "blitz_time_remaining" %}</span>
@@ -129,6 +132,7 @@
                     </div>
                 </dl>
                 <p id="blitz-best-message"></p>
+                <a id="blitz-retry" class="training-cta" href="{% url 'blitz' %}" hidden>{% tr 'training_another_round' %} →</a>
             </section>
         </aside>
     </section>
@@ -147,6 +151,6 @@
     window.BLITZ_SAVE_URL = "{% url 'blitz_save' %}";
     window.BLITZ_DURATION_SECONDS = {{ blitz_duration_seconds }};
 </script>
-<script src="{% static 'games/practice.min.js' %}?v=1" defer></script>
+<script src="{% static 'games/practice.min.js' %}?v=2" defer></script>
 
 {% endblock %}

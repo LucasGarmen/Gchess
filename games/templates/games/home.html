@@ -172,11 +172,11 @@
                 {% endif %}
 
                 <div class="home-hub-actions">
-                    <a href="{% url 'daily_puzzle' %}"><strong>{% tr "home_hub_daily" %}</strong><span>{% tr "home_mode_daily_help" %}</span></a>
-                    <a href="{% url 'practice' %}"><strong>{% tr "home_hub_practice" %}</strong><span>{% tr "home_mode_practice_help" %}</span></a>
-                    <a href="{% url 'blitz' %}"><strong>{% tr "home_hub_blitz" %}</strong><span>{% tr "home_mode_blitz_help" %}</span></a>
-                    <a href="{% url 'leaderboard' %}"><strong>{% tr "home_hub_leaderboard" %}</strong><span>{% tr "home_mode_leaderboard_help" %}</span></a>
+                    {% for mode in training_modes %}
+                    <a href="{% url mode.route %}"><strong>{{ mode.title }}</strong><span>{{ mode.goal }}</span></a>
+                    {% endfor %}
                 </div>
+                <a class="home-training-link" href="{% url 'training' %}">{% tr 'training_explore' %} →</a>
             </section>
         </section>
 

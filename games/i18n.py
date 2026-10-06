@@ -1115,6 +1115,16 @@ TRANSLATIONS['en'].update({
 })
 
 
+from .training import TRAINING_TEXTS
+
+for language, texts in TRAINING_TEXTS.items():
+    TRANSLATIONS[language].update(texts)
+
+for language, label in [('es', 'Racha'), ('pt', 'Sequência')]:
+    for key, value in list(TRANSLATIONS[language].items()):
+        if key.startswith('streak_'):
+            TRANSLATIONS[language][key] = value.replace('Streak', label)
+
 def current_language(request):
     return normalize_language(request.session.get('language', DEFAULT_LANGUAGE))
 
@@ -1189,6 +1199,8 @@ def ui_texts(language):
             'exit_analysis_mode',
             'analysis_mode_testing',
             'practice_title',
+            'blitz_title',
+            'streak_title',
             'practice_easy',
             'practice_medium',
             'practice_hard',

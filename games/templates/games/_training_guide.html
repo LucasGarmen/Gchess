@@ -1,0 +1,11 @@
+{% load game_i18n %}
+{% if active_training_mode %}
+<section class="training-mode-guide" aria-label="{% tr 'training_rules' %}">
+    <div class="training-mode-links" role="navigation" aria-label="{% tr 'training_modes' %}">
+        <a href="{% url 'training' %}">← {% tr 'training_all' %}</a>
+        {% for mode in training_modes %}<a href="{% url mode.route %}"{% if mode.route == active_training_mode.route %} aria-current="page"{% endif %}>{{ mode.title }}</a>{% endfor %}
+    </div>
+    <p>{{ active_training_mode.rules }}</p>
+    <details><summary>{% tr 'training_rules' %}</summary><p>{{ active_training_mode.progress }}</p><a href="{% url 'training' %}#training-metrics-title">{% tr 'training_metrics' %} →</a></details>
+</section>
+{% endif %}

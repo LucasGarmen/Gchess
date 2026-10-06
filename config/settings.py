@@ -109,6 +109,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'games.i18n.language_context',
+                'games.training.training_navigation',
             ],
         },
     },

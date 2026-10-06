@@ -92,6 +92,7 @@
     const streakFinalSolvedElement = document.getElementById('streak-final-solved');
     const streakBestMessageElement = document.getElementById('streak-best-message');
     const streakRetryButton = document.getElementById('streak-retry');
+    const blitzRetryLink = document.getElementById('blitz-retry');
     let rewardBurstTimeoutId = null;
 
     if (!boardElement) {
@@ -425,6 +426,7 @@
 
         showBlitzSummary();
         await saveBlitzBestResult();
+        if (blitzRetryLink) blitzRetryLink.hidden = false;
         updateButtons();
         renderBoard();
     }
@@ -1817,9 +1819,22 @@
     }
     updateButtons();
 
+    const challengeStartButton = document.getElementById('training-challenge-start');
     if (puzzles.length > 0 && currentCategory) {
-        selectCategory(currentCategory);
-        startBlitzTimer();
+        if (challengeMode && challengeStartButton) {
+            showResult(challengeStartButton.dataset.readyText, 'neutral');
+            challengeStartButton.addEventListener('click', function () {
+                if (challengeStartButton.disabled) return;
+                challengeStartButton.disabled = true;
+                challengeStartButton.hidden = true;
+                document.body.classList.add('training-challenge-active');
+                selectCategory(currentCategory);
+                startBlitzTimer();
+            });
+        } else {
+            selectCategory(currentCategory);
+            startBlitzTimer();
+        }
     } else {
         showResult(uiText('practice_no_puzzles', 'No hay puzzles disponibles.'), 'neutral');
     }

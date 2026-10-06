@@ -560,6 +560,25 @@ def home(request):
     })
 
 
+def training(request):
+    touch_presence(request.user)
+    context = {}
+    if request.user.is_authenticated:
+        stats = UserPuzzleStats.objects.filter(user=request.user).first() or UserPuzzleStats(user=request.user)
+        daily = DailyPuzzleAttempt.objects.filter(user=request.user, date=timezone.localdate()).first()
+        from accounts.models import ACHIEVEMENT_DEFINITIONS
+        goals = sorted(threshold for _code, metric, threshold, *_rest in ACHIEVEMENT_DEFINITIONS if metric == 'puzzles_correctos')
+        context.update({
+            'training_stats': stats,
+            'training_blitz': BlitzBestResult.objects.filter(user=request.user).first(),
+            'training_streak': StreakBestResult.objects.filter(user=request.user).first(),
+            'daily_completed': bool(daily and daily.resultado in ('correct', 'incorrect')),
+            'daily_in_progress': bool(daily and daily.resultado == 'in_progress'),
+            'training_goal': next((goal for goal in goals if goal > stats.puzzles_correctos), None),
+        })
+    return render(request, 'games/training.html', context)
+
+
 @ensure_csrf_cookie
 def practice(request):
     touch_presence(request.user)

@@ -1,0 +1,73 @@
+{% extends 'games/base.html' %}
+{% load game_i18n %}
+{% block title %}{% tr 'nav_training' %} · Gchess{% endblock %}
+{% block content %}
+<main class="training-page">
+    <header class="training-header">
+        <span class="stats-eyebrow brand-label">Gchess</span>
+        <h1>{% tr 'training_title' %}</h1>
+        <p>{% tr 'training_intro' %}</p>
+    </header>
+    <section class="training-next" aria-labelledby="training-next-title">
+        <div>
+            <h2 id="training-next-title">{% tr 'training_today' %}</h2>
+            <p>{% if not user.is_authenticated %}{% tr 'training_recommended' %}{% elif daily_completed %}{% tr 'training_daily_done' %}{% elif daily_in_progress %}{% tr 'training_daily_continue' %}{% else %}{% tr 'training_daily_ready' %}{% endif %}</p>
+        </div>
+        {% if not user.is_authenticated or daily_completed %}
+            <a class="training-cta" href="{% url 'practice' %}">{% tr 'practice_title' %} →</a>
+        {% else %}
+            <a class="training-cta" href="{% url 'daily_puzzle' %}">{% if daily_in_progress %}{% tr 'training_continue' %}{% else %}{% tr 'daily_title' %}{% endif %} →</a>
+        {% endif %}
+    </section>
+    <section aria-labelledby="training-modes-title">
+        <h2 id="training-modes-title">{% tr 'training_modes' %}</h2>
+        <div class="training-cards">
+            {% for mode in training_modes %}
+            <article class="training-card training-card-{{ mode.route }}">
+                <span class="training-goal">{{ mode.goal }}</span>
+                <h3>{{ mode.title }}</h3>
+                <p>{{ mode.summary }}</p>
+                <p class="training-card-rules">{{ mode.rules }}</p>
+                <details><summary>{% tr 'training_rules' %}</summary><p>{{ mode.progress }}</p></details>
+                {% if mode.account_required and not user.is_authenticated %}
+                    <span class="training-account">{% tr 'training_account' %}</span>
+                    <a class="training-card-link" href="{% url 'login' %}?next={% url mode.route %}">{% tr 'nav_login' %} →</a>
+                {% else %}
+                    <a class="training-card-link" href="{% url mode.route %}">{% if mode.route == 'daily_puzzle' and daily_completed %}{% tr 'training_daily_result' %}{% elif mode.route == 'daily_puzzle' and daily_in_progress %}{% tr 'training_continue' %}{% else %}{% tr 'training_start' %}{% endif %} →</a>
+                {% endif %}
+            </article>
+            {% endfor %}
+        </div>
+    </section>
+    {% if user.is_authenticated %}
+    <section class="training-progress" aria-labelledby="training-progress-title">
+        <h2 id="training-progress-title">{% tr 'training_progress' %}</h2>
+        <dl class="training-records">
+            <div><dt>{% tr 'xp_level' %}</dt><dd>{{ training_stats.nivel }} <small>· {{ training_stats.xp_total }} XP</small></dd></div>
+            <div><dt>{% tr 'stats_puzzle_rating' %}</dt><dd>{{ training_stats.puzzle_rating }}</dd></div>
+            <div><dt>{% tr 'training_record_blitz' %}</dt><dd>{{ training_blitz.score|default:0 }}</dd></div>
+            <div><dt>{% tr 'training_record_streak' %}</dt><dd>{{ training_streak.mejor_racha|default:0 }}</dd></div>
+        </dl>
+        <div class="training-next-goal">
+            <h3>{% tr 'training_goal' %}</h3>
+            {% if training_goal %}
+                <p>{% tr 'training_goal_help' %} <strong>{{ training_stats.puzzles_correctos }} / {{ training_goal }}</strong></p>
+                <progress value="{{ training_stats.puzzles_correctos }}" max="{{ training_goal }}">{{ training_stats.puzzles_correctos }} / {{ training_goal }}</progress>
+            {% else %}<p>{% tr 'training_goal_done' %}</p>{% endif %}
+            <a href="{% url 'profile_achievements' %}">{% tr 'nav_achievements' %} →</a>
+            <a href="{% url 'profile_stats' %}">{% tr 'nav_stats' %} →</a>
+        </div>
+    </section>
+    {% else %}<section class="training-guest"><p>{% tr 'training_guest' %}</p><a href="{% url 'register' %}">{% tr 'nav_register' %} →</a></section>{% endif %}
+    <section class="training-metrics" aria-labelledby="training-metrics-title">
+        <h2 id="training-metrics-title">{% tr 'training_metrics' %}</h2>
+        <dl>
+            <div><dt>XP · {% tr 'xp_level' %}</dt><dd>{% tr 'training_xp_help' %}</dd></div>
+            <div><dt>{% tr 'stats_puzzle_rating' %}</dt><dd>{% tr 'training_rating_help' %}</dd></div>
+            <div><dt>Blitz · {% tr 'streak_title' %}</dt><dd>{% tr 'training_records_help' %}</dd></div>
+            <div><dt>{% tr 'home_hub_streak' %}</dt><dd>{% tr 'training_sequence_help' %}</dd></div>
+        </dl>
+        <a href="{% url 'leaderboard' %}">{% tr 'nav_leaderboard' %} →</a>
+    </section>
+</main>
+{% endblock %}
