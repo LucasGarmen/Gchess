@@ -159,3 +159,7 @@ h1 { font-family: Georgia, 'Times New Roman', serif; font-weight: 400; line-heig
 
 /* Preserve the brand spelling in small section labels too. */
 .stats-eyebrow.brand-label { text-transform: none; }
+
+/* Domain wordmark retains the compact sidebar and mobile proportions. */
+.site-nav .nav-wordmark.nav-domain{font-size:25px;letter-spacing:-.9px;white-space:nowrap}
+@media(max-width:380px){.site-nav .nav-wordmark.nav-domain{font-size:23px}}

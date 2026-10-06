@@ -7,13 +7,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>{% block title %}Gchess{% endblock %}</title>
+    <title>{% block title %}gchess.app{% endblock %}</title>
 
     <link rel="icon" href="{% static 'games/gchess-emblem.svg' %}?v=2" type="image/svg+xml">
     <link rel="shortcut icon" href="{% static 'images/favicon.png' %}?v=2" type="image/png">
     <link rel="apple-touch-icon" href="{% static 'images/apple-touch-icon.png' %}">
     <link rel="stylesheet" href="{% static 'games/style.min.css' %}?v=7">
-    <link rel="stylesheet" href="{% static 'games/rustic.css' %}?v=2">
+    <link rel="stylesheet" href="{% static 'games/rustic.css' %}?v=3">
     <link rel="stylesheet" href="{% static 'games/training.css' %}?v=1">
     <link rel="stylesheet" href="{% static 'games/social.css' %}?v=1">
 </head>
@@ -28,7 +28,7 @@
     <nav id="site-nav" class="site-nav">
     <a class="nav-brand" href="{% url 'home' %}" aria-label="Gchess · {% tr 'nav_home' %}">
         <img src="{% static 'games/gchess-emblem.svg' %}?v=2" alt="" width="42" height="42" decoding="async">
-        <span class="nav-wordmark">Gchess</span>
+        <span class="nav-wordmark nav-domain">gchess.app</span>
     </a>
     <a class="nav-link" href="{% url 'home' %}"{% if request.resolver_match.url_name == 'home' %} aria-current="page"{% endif %}>{% tr "nav_home" %}</a>
     <a class="nav-link" href="{% url 'games_list' %}"{% if request.resolver_match.url_name == 'games_list' %} aria-current="page"{% endif %}>{% tr "nav_games" %}</a>

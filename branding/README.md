@@ -9,4 +9,4 @@ Brand spelling: **Gchess**. The G monogram has a rook crown integrated into its 
 
 Colors: olive #292b20; parchment #ecd3a3. Keep clear space around the mark.
 
-Use Gchess.com in the website wordmark only once ownership and the live domain are confirmed. Keep Gchess as the brand name.
+Public website: https://gchess.app. Website wordmark: gchess.app. Brand name: Gchess.

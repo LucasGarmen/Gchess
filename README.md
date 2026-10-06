@@ -320,3 +320,9 @@ Trainer reliability: Gemini uses a 15-second socket timeout by default and retri
 ## Persistent storage and recovery
 
 See [the migration and recovery runbook](docs/operacion-datos.md) before deploying or changing DATABASE_URL. Save the live SQLite data outside Render first. Production storage checks, /healthz/, export_data and restore_data are available; provisioning, migration and automated remote backups remain operational steps.
+
+## Public domain
+
+Gchess uses `https://gchess.app`. Django accepts `gchess.app` and `www.gchess.app` and their HTTPS CSRF origins in addition to configured hosts and the Render hostname.
+
+In Render, add `gchess.app` as a Custom Domain. In Cloudflare, set two DNS-only CNAME records, `@` and `www`, targeting `gchess-06od.onrender.com`, then verify the domain in Render. Keep the Render subdomain enabled during the transition.

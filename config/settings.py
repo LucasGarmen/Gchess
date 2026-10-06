@@ -59,6 +59,14 @@ DEBUG = env_bool('DJANGO_DEBUG', False)
 
 ALLOWED_HOSTS = env_list('DJANGO_ALLOWED_HOSTS', 'localhost,127.0.0.1')
 CSRF_TRUSTED_ORIGINS = env_list('DJANGO_CSRF_TRUSTED_ORIGINS')
+# Public custom domain; preserve configured hosts and the Render fallback.
+for public_host in ('gchess.app', 'www.gchess.app'):
+    if public_host not in ALLOWED_HOSTS:
+        ALLOWED_HOSTS.append(public_host)
+    public_origin = f'https://{public_host}'
+    if public_origin not in CSRF_TRUSTED_ORIGINS:
+        CSRF_TRUSTED_ORIGINS.append(public_origin)
+
 RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
 
 if RENDER_EXTERNAL_HOSTNAME:
