@@ -3014,6 +3014,10 @@ def choose_engine_move(engine, board, elo):
 def coach_analysis(request):
     try:
         data = parse_json_body(request)
+        if not isinstance(data, dict):
+            raise ValueError("Invalid request.")
+        if not isinstance(data, dict):
+            raise ValueError("Invalid request.")
         moves = validate_moves_payload(data.get("moves", []))
     except ValueError as exc:
         return JsonResponse({'error': str(exc)}, status=400)
@@ -3028,10 +3032,6 @@ def coach_analysis(request):
         return JsonResponse({
             "error": "Não há jogadas para analisar.",
         }, status=400)
-
-    stockfish_path, stockfish_error = configured_stockfish_path()
-    if stockfish_error:
-        return stockfish_missing_response(stockfish_error)
 
     board = chess.Board()
 
@@ -3052,7 +3052,7 @@ def coach_analysis(request):
             return JsonResponse({
                 "error": "A última jogada não é legal.",
             }, status=400)
-    except (KeyError, ValueError):
+    except (KeyError, ValueError, TypeError, AttributeError):
         return JsonResponse({
             "error": "Não consegui ler as jogadas para analisá-las.",
         }, status=400)
@@ -3064,6 +3064,10 @@ def coach_analysis(request):
         return JsonResponse({
             "comment": "",
         })
+
+    stockfish_path, stockfish_error = configured_stockfish_path()
+    if stockfish_error:
+        return stockfish_missing_response(stockfish_error)
 
     engine = None
     try:
@@ -3087,11 +3091,16 @@ def coach_analysis(request):
     except (chess.engine.EngineError, chess.engine.EngineTerminatedError, OSError) as exc:
         logger.exception("Stockfish failed while analyzing a coach move.")
         return JsonResponse({
-            "error": f"Não foi possível analisar a jogada: {exc}",
+            "error": "Move analysis is temporarily unavailable.",
+            "code": "engine_unavailable",
+            "retryable": True,
         }, status=500)
     finally:
         if engine:
-            engine.quit()
+            try:
+                engine.quit()
+            except (chess.engine.EngineError, OSError):
+                logger.warning("Coach engine cleanup failed.")
 
 
 def build_move_from_data(move_data):

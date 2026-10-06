@@ -6,7 +6,7 @@ const assert = require('node:assert/strict');
 async function test() {
     function element() {
         return {
-            children: [], dataset: {}, classList: {add() {}}, innerText: '',
+            replaceChildren() { this.children = []; }, children: [], dataset: {}, classList: {add() {}}, innerText: '',
             listeners: {}, appendChild(child) { this.children.push(child); },
             addEventListener(name, callback) { this.listeners[name] = callback; },
             focus() {},
@@ -83,6 +83,16 @@ async function test() {
     await pending;
     assert.ok(removed, 'Waiting notice must disappear on completion');
     assert.equal(timers.size, 0, 'Completion must clear timers');
+    input.value = 'Old game question';
+    let finishOld;
+    pendingResponse = new Promise(resolve => { finishOld = resolve; });
+    const oldRequest = sandbox.window.GChessTrainerChat.ask(input.value, options);
+    sandbox.window.GChessTrainerChat.reset();
+    finishOld();
+    await oldRequest;
+    assert.equal(log.children.length, 0, 'Reset must discard the old game response even if fetch completes late');
+    assert.equal(input.value, '');
+    assert.equal(timers.size, 0);
     console.log('Trainer client: preserved text, exact retry, historical position and separate engine fallback verified.');
 }
 

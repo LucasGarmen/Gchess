@@ -3793,6 +3793,7 @@ function resetComputerGame() {
     }
 
     resetBotLoadingState();
+    if (window.GChessTrainerChat) window.GChessTrainerChat.reset();
 
     SAVED_MOVES.splice(0, SAVED_MOVES.length);
     gameOver = false;
@@ -3816,6 +3817,7 @@ function toggleCoach() {
     if (coachEnabled) {
         setCoachComment(uiText('coach_enabled', 'Treinador habilitado. Vou comentar suas jogadas.'));
     } else {
+        cancelCoachAnalysisRequest();
         setCoachComment('');
     }
     saveComputerGameState();
@@ -3865,7 +3867,7 @@ function updateTrainerChatControls() {
 }
 
 function trainerChatMoves() {
-    if (typeof ANALYZER_MODE !== 'undefined' && ANALYZER_MODE) {
+    if (typeof ANALYZER_MODE !== 'undefined' && ANALYZER_MODE || !isViewingLatestPosition()) {
         return SAVED_MOVES.slice(0, historyIndex);
     }
 
@@ -3885,6 +3887,7 @@ function trainerChatLogState() {
         fen: item.dataset.fen,
         positionMoves: item.dataset.positionMoves,
         failed: item.dataset.failed,
+        topic: item.dataset.topic,
     }));
 }
 
@@ -3906,6 +3909,7 @@ function restoreTrainerChatLog(messages) {
         if (entry.fen) item.dataset.fen = entry.fen;
         if (entry.positionMoves) item.dataset.positionMoves = entry.positionMoves;
         if (entry.failed) item.dataset.failed = entry.failed;
+        if (entry.topic) item.dataset.topic = entry.topic;
         log.appendChild(item);
     });
 
@@ -4105,6 +4109,13 @@ async function requestCoachAnalysis(requestKey = coachAnalysisKey(), movesSnapsh
     coachAnalysisRequestKey = requestKey;
     coachAnalysisAbortController = createAbortControllerIfAvailable();
     setCoachComment(uiText('trainer_analyzing', 'Treinador analisando...'));
+    const requestController = coachAnalysisAbortController;
+    let timedOut = false;
+    const analysisTimer = setTimeout(() => {
+        if (coachAnalysisRequestKey !== requestKey || coachAnalysisAbortController !== requestController) return;
+        timedOut = true;
+        if (requestController) requestController.abort();
+    }, 15000);
 
     try {
         const fetchOptions = {
@@ -4128,7 +4139,7 @@ async function requestCoachAnalysis(requestKey = coachAnalysisKey(), movesSnapsh
 
         const analysis = await response.json().catch(() => ({}));
 
-        if (coachAnalysisRequestKey !== requestKey) {
+        if (coachAnalysisRequestKey !== requestKey || coachAnalysisAbortController !== requestController) {
             return;
         }
 
@@ -4147,14 +4158,17 @@ async function requestCoachAnalysis(requestKey = coachAnalysisKey(), movesSnapsh
         setCoachComment(analysis.comment || '');
         lastCoachAnalysisCompletedKey = requestKey;
     } catch (error) {
+        if (coachAnalysisRequestKey !== requestKey || coachAnalysisAbortController !== requestController) return;
         if (error.name === 'AbortError') {
+            if (timedOut) setCoachComment(neutralCoachFallbackComment());
             return;
         }
 
         console.error('Erro ao pedir análise do treinador:', error);
         setCoachComment(uiText('trainer_error', 'O treinador não conseguiu responder agora.'));
     } finally {
-        if (coachAnalysisRequestKey === requestKey) {
+        clearTimeout(analysisTimer);
+        if (coachAnalysisRequestKey === requestKey && coachAnalysisAbortController === requestController) {
             isCoachAnalysisLoading = false;
             coachAnalysisRequestKey = '';
             coachAnalysisAbortController = null;

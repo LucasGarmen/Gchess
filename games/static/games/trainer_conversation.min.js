@@ -1,5 +1,6 @@
 (function () {
     let busy = false;
+    let activeRequest = null;
     const labels = {
         es: {
             retry: 'Reintentar', engine: 'Análisis del motor; no es una respuesta conversacional:',
@@ -57,7 +58,7 @@
         if (!log || !input) return;
         const texts = labels[options.language] || labels.pt;
         const entries = Array.from(log.children).filter(item => ['user', 'trainer'].includes(item.dataset.messageType) && item.dataset.failed !== 'true');
-        const lastPosition = entries.slice().reverse().find(item => item.dataset.positionMoves);
+        const lastPosition = entries.slice().reverse().find(item => item.dataset.positionMoves && item.dataset.topic !== 'general');
         const payload = originalPayload || {
             question, language: options.language, player_color: options.color,
             moves: compactMoves(options.moves()),
@@ -77,6 +78,8 @@
         busy = true;
         options.setThinking(true);
         const controller = new AbortController();
+        const currentRequest = {controller, canceled: false};
+        activeRequest = currentRequest;
         const timer = setTimeout(() => controller.abort(), 45000);
         const waitingTexts = {
             es: 'Sigo preparando tu respuesta…',
@@ -112,33 +115,47 @@
                 body: JSON.stringify(payload)
             });
             const data = await response.json().catch(() => ({status: 'invalid_response'}));
+            if (currentRequest.canceled) return;
             if (!response.ok || data.status !== 'ok' || typeof data.answer !== 'string' || !data.answer.trim()) {
                 showFailure(response.status === 429 ? 'quota' : data.code || data.status || 'provider_error');
                 if (data.engine_analysis) append(texts.engine + '\n' + data.engine_analysis, 'engine');
                 return;
             }
             const usedMoves = data.position_moves || payload.moves;
+            userMessage.dataset.topic = data.topic || 'chess';
             userMessage.dataset.positionMoves = JSON.stringify(usedMoves);
             userMessage.dataset.fen = data.fen || '';
             if (JSON.stringify(usedMoves) !== JSON.stringify(compactMoves(options.moves()))) append(texts.changed, 'status');
             const answer = append(data.answer, 'trainer');
+            answer.dataset.topic = userMessage.dataset.topic;
             answer.dataset.positionMoves = userMessage.dataset.positionMoves;
             answer.dataset.fen = userMessage.dataset.fen;
             if (input.value.trim() === question) input.value = '';
         } catch (error) {
-            showFailure(error.name === 'AbortError' ? 'timeout' : 'network');
+            if (!currentRequest.canceled) showFailure(error.name === 'AbortError' ? 'timeout' : 'network');
         } finally {
             clearTimeout(timer);
             clearTimeout(waitingTimer);
             if (waitingMessage) waitingMessage.remove();
             busy = false;
+            activeRequest = null;
             options.setThinking(false);
             if (retryButton) retryButton.disabled = false;
             if (options.onChange) options.onChange();
             if (failed) input.focus();
         }
     }
-    window.GChessTrainerChat = {ask};
+    function reset() {
+        if (activeRequest) {
+            activeRequest.canceled = true;
+            activeRequest.controller.abort();
+        }
+        const log = document.getElementById('trainer-chat-log');
+        const input = document.getElementById('trainer-chat-input');
+        if (log) log.replaceChildren();
+        if (input) input.value = '';
+    }
+    window.GChessTrainerChat = {ask, reset};
     document.querySelectorAll('[data-trainer-question]').forEach(button => {
         button.addEventListener('click', () => {
             const input = document.getElementById('trainer-chat-input');
