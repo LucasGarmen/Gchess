@@ -258,3 +258,19 @@ class GameChatRead(models.Model):
 
     def __str__(self):
         return f"{self.user.username} leu chat da partida {self.game_id}"
+
+
+class Friendship(models.Model):
+    """One canonical pair; only the recipient may accept a pending request."""
+    low_user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='friendships_low')
+    high_user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='friendships_high')
+    requester = models.ForeignKey(User, on_delete=models.CASCADE, related_name='friend_requests_sent')
+    status = models.CharField(max_length=10, choices=[('pending', 'Pending'), ('accepted', 'Accepted')], default='pending')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['low_user', 'high_user'], name='friendship_unique_pair'),
+            models.CheckConstraint(condition=models.Q(low_user__lt=models.F('high_user')), name='friendship_ordered_pair'),
+            models.CheckConstraint(condition=models.Q(requester=models.F('low_user')) | models.Q(requester=models.F('high_user')), name='friendship_requester_member'),
+        ]

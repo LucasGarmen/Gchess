@@ -110,6 +110,7 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 'games.i18n.language_context',
                 'games.training.training_navigation',
+                'games.social_texts.social_navigation',
             ],
         },
     },
