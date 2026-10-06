@@ -19,14 +19,18 @@ async function test() {
     let moves = [{from: 'e2', to: 'e4'}];
     let result = {status: 'timeout', source: 'unavailable', answer: null,
         engine_analysis: 'e4: estimated loss 0.1', retryable: true};
+    const timers = new Map();
+    let timerId = 0;
+    let pendingResponse;
     const sandbox = {
         window: {}, document: {
             getElementById: id => id === 'trainer-chat-log' ? log : input,
             createElement: element,
             querySelectorAll: () => [suggestion],
-        }, AbortController, setTimeout, clearTimeout,
+        }, AbortController, setTimeout: (fn, ms) => { const id = ++timerId; timers.set(id, {fn, ms}); return id; }, clearTimeout: id => timers.delete(id),
         fetch: async (url, request) => {
             requests.push(JSON.parse(request.body));
+            if (pendingResponse) await pendingResponse;
             return {ok: true, status: 200, json: async () => result};
         },
     };
@@ -61,6 +65,24 @@ async function test() {
     input.value = 'Mi propia pregunta';
     suggestion.listeners.click();
     assert.equal(input.value, 'Mi propia pregunta');
+    input.disabled = false;
+    input.value = 'hello';
+    result = {status: 'ok', answer: 'Hello!', position_moves: ['e2e4', 'e7e5']};
+    let finish;
+    pendingResponse = new Promise(resolve => { finish = resolve; });
+    const pending = sandbox.window.GChessTrainerChat.ask(input.value, options);
+    const waiting = Array.from(timers.values()).find(timer => timer.ms === 4000);
+    assert.ok(waiting, 'A delayed request must schedule a waiting notice');
+    assert.ok(Array.from(timers.values()).some(timer => timer.ms === 45000));
+    waiting.fn();
+    const notice = log.children.find(item => item.innerText === 'Sigo preparando tu respuesta…');
+    assert.ok(notice);
+    let removed = false;
+    notice.remove = () => { removed = true; };
+    finish();
+    await pending;
+    assert.ok(removed, 'Waiting notice must disappear on completion');
+    assert.equal(timers.size, 0, 'Completion must clear timers');
     console.log('Trainer client: preserved text, exact retry, historical position and separate engine fallback verified.');
 }
 

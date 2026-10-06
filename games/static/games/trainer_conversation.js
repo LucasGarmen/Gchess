@@ -61,7 +61,7 @@
         const payload = originalPayload || {
             question, language: options.language, player_color: options.color,
             moves: compactMoves(options.moves()),
-            history: entries.slice(-6).map(item => ({role: item.dataset.messageType === 'user' ? 'user' : 'assistant', text: item.innerText.slice(0, 1600), fen: item.dataset.fen || null})),
+            history: entries.slice(-12).map(item => ({role: item.dataset.messageType === 'user' ? 'user' : 'assistant', text: item.innerText.slice(0, 1600), fen: item.dataset.fen || null})),
             reference_moves: lastPosition ? JSON.parse(lastPosition.dataset.positionMoves) : null
         };
         const append = (text, type) => {
@@ -77,7 +77,16 @@
         busy = true;
         options.setThinking(true);
         const controller = new AbortController();
-        const timer = setTimeout(() => controller.abort(), 30000);
+        const timer = setTimeout(() => controller.abort(), 45000);
+        const waitingTexts = {
+            es: 'Sigo preparando tu respuesta…',
+            pt: 'Ainda estou preparando sua resposta…',
+            en: 'Still preparing your answer…'
+        };
+        let waitingMessage;
+        const waitingTimer = setTimeout(() => {
+            waitingMessage = append(waitingTexts[options.language] || waitingTexts.pt, 'status');
+        }, 4000);
         let retryButton;
         let failed = false;
         const showFailure = (code) => {
@@ -120,6 +129,8 @@
             showFailure(error.name === 'AbortError' ? 'timeout' : 'network');
         } finally {
             clearTimeout(timer);
+            clearTimeout(waitingTimer);
+            if (waitingMessage) waitingMessage.remove();
             busy = false;
             options.setThinking(false);
             if (retryButton) retryButton.disabled = false;

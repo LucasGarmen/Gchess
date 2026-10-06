@@ -224,7 +224,7 @@ cannot certify the deployed version. Run the command on hosting; if outdated,
 install an official compatible binary and set `STOCKFISH_PATH`.
 
 Gemini remains configurable using `GEMINI_MODEL`, `GEMINI_ENABLED`,
-`GEMINI_API_KEY`, `GEMINI_TIMEOUT_SECONDS` (1-20, default 8),
+`GEMINI_API_KEY`, `GEMINI_TIMEOUT_SECONDS` (1-20, default 15),
 `GEMINI_MAX_OUTPUT_TOKENS`, `GEMINI_CACHE_SECONDS`, and `GEMINI_TEMPERATURE`.
 The existing default `gemini-2.5-flash-lite` is still listed, but Google restricts
 2.5 model access to projects that used them previously. For a new project,
@@ -314,3 +314,5 @@ The JavaScript test checks preserved input, exact retry payload, earlier-positio
 references and separation of engine facts. It uses a minimal DOM simulation,
 not visual browser rendering. Prompt tests cannot prove every Gemini answer;
 move-reference validation remains syntactic, not a proof of tactical prose.
+
+Trainer reliability: Gemini uses a 15-second socket timeout by default and retries one transient timeout, connection failure, or HTTP 500/502/503/504 within a shared 25-second provider budget. Authentication, model and quota failures are not retried. The browser allows 45 seconds and shows a waiting notice after 4 seconds. Recent conversation includes up to 12 messages with their position metadata; retries preserve the original board. Explicit GEMINI_TIMEOUT_SECONDS environment settings override the default.

@@ -21,7 +21,7 @@ class GeminiTests(SimpleTestCase):
 
     def setUp(self):
         cache.clear()
-        self.env = patch.dict(os.environ, {"GEMINI_ENABLED": "true", "GEMINI_API_KEY": "secret"})
+        self.env = patch.dict(os.environ, {"GEMINI_ENABLED": "true", "GEMINI_API_KEY": "secret", "GEMINI_TIMEOUT_SECONDS": "15"})
         self.env.start()
         self.addCleanup(self.env.stop)
 
@@ -34,6 +34,28 @@ class GeminiTests(SimpleTestCase):
                 self.assertEqual(raised.exception.code, code)
                 self.assertNotIn("secret", str(logs.output))
 
+    def test_transient_failure_retries_and_recovers(self):
+        response = MagicMock()
+        response.__enter__.return_value.read.return_value = b'{"candidates":[{"content":{"parts":[{"text":"Try developing a piece."}]}}]}'
+        for failure in (TimeoutError(), HTTPError("url", 503, "busy", {}, None)):
+            cache.clear()
+            with patch("games.gemini_service.request.urlopen", side_effect=[failure, response]) as call:
+                self.assertEqual(generate_gemini_explanation("retry", report_errors=True), "Try developing a piece.")
+            self.assertEqual(call.call_count, 2)
+
+    def test_permanent_failures_do_not_retry(self):
+        for status in (403, 404, 429):
+            with patch("games.gemini_service.request.urlopen", side_effect=HTTPError("url", status, "error", {}, None)) as call:
+                with self.assertRaises(GeminiFailure):
+                    generate_gemini_explanation("permanent", report_errors=True)
+            self.assertEqual(call.call_count, 1)
+
+    def test_retry_uses_remaining_budget(self):
+        with patch("games.gemini_service.time.monotonic", side_effect=[0, 0, 0, 19, 25]), patch("games.gemini_service.request.urlopen", side_effect=TimeoutError()) as call:
+            with self.assertRaises(GeminiFailure):
+                generate_gemini_explanation("budget", report_errors=True)
+        self.assertEqual([item.kwargs["timeout"] for item in call.call_args_list], [15, 6])
+
     def test_empty_malformed_and_truncated_responses(self):
         for payload, code in [(b"not json", "invalid_response"), (b"[]", "invalid_response"), (b'{}', "empty_response"), (b'{"candidates":[{"finishReason":"MAX_TOKENS","content":{"parts":[{"text":"half"}]}}]}', "invalid_response")]:
             response = MagicMock()
@@ -43,14 +65,14 @@ class GeminiTests(SimpleTestCase):
             self.assertEqual(raised.exception.code, code)
 
     def test_timeout_metrics_exclude_content_and_key(self):
-        with patch("games.gemini_service.time.monotonic", side_effect=[1, 9]), patch("games.gemini_service.request.urlopen", side_effect=TimeoutError()) as call, self.assertLogs("games.gemini_service", level="INFO") as logs:
+        with patch("games.gemini_service.time.monotonic", side_effect=[1, 1, 1, 9, 17]), patch("games.gemini_service.request.urlopen", side_effect=TimeoutError()) as call, self.assertLogs("games.gemini_service", level="INFO") as logs:
             with self.assertRaises(GeminiFailure):
                 generate_gemini_explanation("PRIVATE_QUESTION", report_errors=True)
         self.assertIn("category=timeout", str(logs.output))
-        self.assertIn("elapsed_ms=8000", str(logs.output))
+        self.assertIn("elapsed_ms=16000", str(logs.output))
         self.assertNotIn("PRIVATE_QUESTION", str(logs.output))
         self.assertNotIn("secret", str(logs.output))
-        self.assertEqual(call.call_args.kwargs["timeout"], 8)
+        self.assertEqual(call.call_args.kwargs["timeout"], 15)
 
     def test_success_and_cached_responses_are_measured(self):
         response = MagicMock()
@@ -146,8 +168,17 @@ class TrainerTests(TestCase):
         board.push_uci("e2e4")
         return board.fen()
 
+    def test_extended_history_preserves_position_metadata(self):
+        history = [{"role": "user" if i % 2 == 0 else "assistant", "text": f"message {i}", "fen": chess.Board().fen()} for i in range(12)]
+        with patch("games.views.generate_gemini_explanation", return_value="Hello.") as gemini:
+            response = self.client.post("/trainer-chat/", json.dumps({"question": "hello", "moves": [], "history": history}), content_type="application/json")
+        self.assertEqual(response.json()["status"], "ok")
+        self.assertIn("message 0", gemini.call_args.args[0])
+        self.assertIn("message 11", gemini.call_args.args[0])
+        self.assertIn(chess.Board().fen(), gemini.call_args.args[0])
+
     def test_invalid_inputs_rejected_before_engine(self):
-        for data in ({"question":{}}, {"question":"q", "history":[{}]}, {"question":"q", "history":[{}]*7}, {"question":"q", "moves":[{"from":"e2", "to":"e5"}]}):
+        for data in ({"question":{}}, {"question":"q", "history":[{}]}, {"question":"q", "history":[{}]*13}, {"question":"q", "moves":[{"from":"e2", "to":"e5"}]}):
             with patch("games.views.open_stockfish_engine") as engine:
                 response = self.client.post("/trainer-chat/", json.dumps(data), content_type="application/json")
             self.assertEqual(response.status_code, 400)

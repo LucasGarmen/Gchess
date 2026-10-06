@@ -3481,7 +3481,7 @@ def trainer_chat(request):
 
     question = data.get("question", "")
     history = data.get("history", [])
-    if not isinstance(question, str) or not isinstance(history, list) or len(history) > 6:
+    if not isinstance(question, str) or not isinstance(history, list) or len(history) > 12:
         return JsonResponse({"error": "Invalid conversation.", "code": "invalid_request"}, status=400)
     for entry in history:
         if not isinstance(entry, dict) or entry.get("role") not in ("user", "assistant") or not isinstance(entry.get("text"), str) or len(entry["text"]) > 1600:

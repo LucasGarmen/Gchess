@@ -31,7 +31,7 @@ def bounded_env(name, default, low, high):
 
 
 def gemini_timeout():
-    return bounded_env("GEMINI_TIMEOUT_SECONDS", 8, 1, 20)
+    return bounded_env("GEMINI_TIMEOUT_SECONDS", 15, 1, 20)
 
 
 def gemini_max_output_tokens():
@@ -122,17 +122,30 @@ def generate_gemini_explanation(prompt, namespace="trainer_chat", report_errors=
         method="POST",
     )
 
-    try:
-        with request.urlopen(gemini_request, timeout=gemini_timeout()) as response:
-            response_payload = json.loads(response.read().decode("utf-8"))
-    except error.HTTPError as exc:
-        return fail("quota" if exc.code == 429 else "model_unavailable" if exc.code in (403, 404) else "provider_error", f"http_{exc.code}")
-    except TimeoutError:
-        return fail("timeout")
-    except error.URLError as exc:
-        return fail("timeout" if isinstance(exc.reason, TimeoutError) else "network")
-    except (ValueError, OSError):
-        return fail("invalid_response", "unreadable_payload")
+    # One retry for transient failures; both attempts share a bounded budget.
+    provider_deadline = time.monotonic() + 25
+    for attempt in range(2):
+        remaining = provider_deadline - time.monotonic()
+        if remaining <= 0:
+            return fail("timeout", "provider_budget_exhausted")
+        try:
+            with request.urlopen(gemini_request, timeout=min(gemini_timeout(), remaining)) as response:
+                response_payload = json.loads(response.read().decode("utf-8"))
+            break
+        except error.HTTPError as exc:
+            code = "quota" if exc.code == 429 else "model_unavailable" if exc.code in (403, 404) else "provider_error"
+            reason = f"http_{exc.code}"
+            retryable = exc.code in (500, 502, 503, 504)
+        except TimeoutError:
+            code, reason, retryable = "timeout", "socket_timeout", True
+        except error.URLError as exc:
+            code = "timeout" if isinstance(exc.reason, TimeoutError) else "network"
+            reason, retryable = "connection_failed", True
+        except (ValueError, OSError):
+            return fail("invalid_response", "unreadable_payload")
+        if not retryable or attempt == 1:
+            return fail(code, reason)
+        logger.info("Gemini retry: category=%s attempt=2", code)
 
     try:
         text = extract_text(response_payload)
