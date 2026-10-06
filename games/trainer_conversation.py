@@ -17,11 +17,11 @@ def is_current_position_request(question):
 def is_followup(question):
     if is_current_position_request(question):
         return False
-    return bool(FOLLOWUP.search(normalize_piece_text(question).strip(" ?!")))
+    return bool(FOLLOWUP.search(normalize_piece_text(question).strip(" ¿?¡!.,:;")))
 
 
 def question_topic(question, history):
-    text = normalize_piece_text(question)
+    text = normalize_piece_text(question).strip(" ¿?¡!.,:;")
     notation = SAN_CANDIDATE_RE.search(question) or UCI_CANDIDATE_RE.search(question)
     conceptual = re.search(r"^(que es|que son|o que e|what is|what are|como se|how does)\b", text)
     board_reference = re.search(r"\b(partida|tablero|board|posicion|posicao|position|esta|this|minha|mi)\b", text)

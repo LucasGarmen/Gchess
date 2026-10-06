@@ -76,6 +76,15 @@ class CoachReliabilityTests(TestCase):
         self.assertFalse(explanation_moves_are_grounded('Jugá e2e5.',context))
 
 
+    def test_spanish_followup_with_inverted_question_mark_keeps_chess_position(self):
+        engine=test_trainer.TrainerTests.engine(self)
+        with patch('games.views.configured_stockfish_path',return_value=('stockfish','')),patch('games.views.open_stockfish_engine',return_value=engine),patch('games.views.generate_gemini_explanation',return_value='Tu e4 ocupa el centro.') as provider:
+            response=self.client.post('/trainer-chat/',json.dumps({'question':'¿Por qué?','moves':['e2e4','e7e5'],'reference_moves':['e2e4'],'history':[{'role':'user','text':'¿Mi jugada fue buena?'}],'language':'es'}),content_type='application/json')
+        self.assertEqual(response.json()['topic'],'chess')
+        self.assertEqual(response.json()['position_moves'],['e2e4'])
+        self.assertIn('"played_move"',provider.call_args.args[0])
+
+
 class TrainerProviderBudgetTests(test_trainer.SimpleTestCase):
     def test_expired_correction_budget_never_calls_provider(self):
         from games.gemini_service import generate_gemini_explanation, GeminiFailure
