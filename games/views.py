@@ -3221,7 +3221,7 @@ def automatic_comment_reason(context, language):
 
     if language == "es":
         if classification == "best":
-            return "sigue la primera opción del motor y mantiene la posición sana"
+            return "queda cerca de la mejor opción en este análisis breve"
         if classification == "book":
             return "es una jugada natural de apertura y la evaluación sigue estable"
         if classification == "normal":
@@ -3233,12 +3233,12 @@ def automatic_comment_reason(context, language):
         if classification == "mistake":
             return "cede demasiada evaluación y deja una posición más difícil"
         if classification == "blunder":
-            return "pierde mucha evaluación o permite una táctica decisiva"
+            return "pierde mucha evaluación frente a la alternativa calculada"
         return "los datos del motor no son suficientes para dar una etiqueta confiable"
 
     if language == "en":
         if classification == "best":
-            return "this follows the engine's top choice and keeps the position healthy"
+            return "this stays close to the best choice in this short analysis"
         if classification == "book":
             return "this is a natural opening move and the evaluation stays stable"
         if classification == "normal":
@@ -3250,11 +3250,11 @@ def automatic_comment_reason(context, language):
         if classification == "mistake":
             return "this gives up too much evaluation and leaves a harder position"
         if classification == "blunder":
-            return "this loses a lot of evaluation or allows a decisive tactic"
+            return "this loses substantial evaluation against the calculated alternative"
         return "the engine data was incomplete, so there is no reliable mistake label here"
 
     if classification == "best":
-        return "segue a primeira escolha do motor e mantém a posição saudável"
+        return "fica perto da melhor escolha nesta análise breve"
     if classification == "book":
         return "é uma jogada natural de abertura e a avaliação continua estável"
     if classification == "normal":
@@ -3266,7 +3266,7 @@ def automatic_comment_reason(context, language):
     if classification == "mistake":
         return "cede avaliação demais e deixa uma posição mais difícil"
     if classification == "blunder":
-        return "perde muita avaliação ou permite uma tática decisiva"
+        return "perde muita avaliação diante da alternativa calculada"
 
     if game_phase == "opening" and natural_opening:
         return "parece uma jogada natural de abertura, mas os dados do motor ficaram incompletos"
@@ -3311,6 +3311,32 @@ def automatic_comment_label(classification, language):
     return labels.get(language, labels["pt"]).get(classification, labels.get(language, labels["pt"])["neutral"])
 
 
+def automatic_move_fact(board, move, language):
+    """Describe observable move effects, without claiming a tactical motive."""
+    after = board.copy()
+    capture = board.is_capture(move)
+    castle = board.is_castling(move)
+    after.push(move)
+    if after.is_checkmate():
+        key = "mate"
+    elif castle:
+        key = "castle"
+    elif move.promotion:
+        key = "promotion"
+    elif after.is_check():
+        key = "capture_check" if capture else "check"
+    elif capture:
+        key = "capture"
+    else:
+        return ""
+    facts = {
+        "es": {"mate":"La jugada da jaque mate.", "castle":"Enrocaste: el rey y la torre cambiaron de casilla.", "promotion":"El peón promociona.", "check":"La jugada da jaque.", "capture_check":"Capturaste una pieza y diste jaque.", "capture":"Capturaste una pieza rival."},
+        "en": {"mate":"The move delivers checkmate.", "castle":"You castled: the king and rook changed squares.", "promotion":"The pawn promotes.", "check":"The move gives check.", "capture_check":"You captured an opposing piece with check.", "capture":"You captured an opposing piece."},
+        "pt": {"mate":"A jogada dá xeque-mate.", "castle":"Você fez o roque: o rei e a torre mudaram de casa.", "promotion":"O peão promove.", "check":"A jogada dá xeque.", "capture_check":"Você capturou uma peça e deu xeque.", "capture":"Você capturou uma peça adversária."},
+    }
+    return facts.get(language, facts["pt"])[key]
+
+
 def build_automatic_comment(context, language='pt'):
     classification = context.get("classification", "neutral")
     label = automatic_comment_label(classification, language)
@@ -3332,6 +3358,13 @@ def build_automatic_comment(context, language='pt'):
         else:
             comment += f" Melhor era {best_san}."
 
+    fact = context.get("move_fact")
+    if fact:
+        comment += " " + fact
+    reply = context.get("engine_reply_san")
+    if classification in ("inaccuracy", "mistake", "blunder") and reply:
+        reply_label = {"es":"Respuesta calculada del rival", "en":"Calculated opponent reply", "pt":"Resposta calculada do adversário"}.get(language, "Resposta calculada do adversário")
+        comment += f" {reply_label}: {reply}."
     return comment
 
 
@@ -3387,7 +3420,8 @@ def build_automatic_move_context(engine, board, played_move, move_number=None, l
     played_score_for_mover = score_for_color(after_played_score, moving_color)
     best_score_for_mover = score_for_color(after_best_score, moving_color)
 
-    if before_score is None or after_played_score is None or after_best_score is None:
+    best_is_verified = bool((before or {}).get("pv")) and before["pv"][0] in board.legal_moves
+    if not best_is_verified or before_score is None or after_played_score is None or after_best_score is None:
         loss = None
     elif played_equals_best:
         loss = 0
@@ -3412,6 +3446,13 @@ def build_automatic_move_context(engine, board, played_move, move_number=None, l
         "natural_opening_move": natural_opening_move,
         "played_equals_best": played_equals_best,
     }
+    context["move_fact"] = automatic_move_fact(board, played_move, language)
+    reply = ((after_played or {}).get("pv") or [None])[0]
+    context["engine_reply_san"] = played_board.san(reply) if reply in played_board.legal_moves else None
+    if not best_is_verified:
+        context["best_move_san"] = None
+        context["best_move_uci"] = None
+        context["played_equals_best"] = False
     context["classification"] = classify_automatic_move(context)
     context["comment"] = build_automatic_comment(context, language)
 
@@ -3434,6 +3475,8 @@ def public_automatic_move_context(context):
         "game_phase",
         "natural_opening_move",
         "played_equals_best",
+        "move_fact",
+        "engine_reply_san",
     )
 
     return {key: context.get(key) for key in keys}
