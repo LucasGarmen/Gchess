@@ -826,6 +826,8 @@ function hideGameStatus() {
 }
 
 function updateFinishedPanelState() {
+    const closingPanel = document.getElementById('game-closing-panel');
+    if (closingPanel) closingPanel.hidden = !gameOver;
     if (isHomeComputerGame() && analyzeGameForm) {
         analyzeGameForm.hidden = !gameOver;
     }
@@ -4207,6 +4209,8 @@ if (undoComputerButton) {
     undoComputerButton.addEventListener('click', undoComputerMove);
 }
 
+const playAgainBotButton = document.getElementById('play-again-bot');
+if (playAgainBotButton) playAgainBotButton.addEventListener('click', resetComputerGame);
 const resetComputerButton = document.getElementById('reset-computer-game');
 if (resetComputerButton) {
     resetComputerButton.addEventListener('click', resetComputerGame);
@@ -4440,6 +4444,8 @@ document.querySelectorAll('[data-computer-tab]').forEach(button => {
 if (analyzeGameForm && analyzeGamePgn) {
     analyzeGameForm.addEventListener('submit', function () {
         analyzeGamePgn.value = savedMovesAsInternalPgn();
+        const reviewColor = document.getElementById('analysis-player-color');
+        if (reviewColor) reviewColor.value = PLAYER_COLOR;
     });
 }
 

@@ -209,6 +209,7 @@ class GameInvitation(models.Model):
     is_rated = models.BooleanField(default=False)
     time_control_minutes = models.PositiveIntegerField(blank=True, null=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    rematch_of = models.ForeignKey(ChessGame, on_delete=models.SET_NULL, null=True, blank=True, related_name='rematch_invitations')
     game = models.ForeignKey(ChessGame, on_delete=models.SET_NULL, blank=True, null=True, related_name='invitations')
     created_at = models.DateTimeField(auto_now_add=True)
     responded_at = models.DateTimeField(blank=True, null=True)
@@ -274,3 +275,19 @@ class Friendship(models.Model):
             models.CheckConstraint(condition=models.Q(low_user__lt=models.F('high_user')), name='friendship_ordered_pair'),
             models.CheckConstraint(condition=models.Q(requester=models.F('low_user')) | models.Q(requester=models.F('high_user')), name='friendship_requester_member'),
         ]
+
+
+class GameReview(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='game_reviews')
+    game = models.ForeignKey(ChessGame, on_delete=models.CASCADE, null=True, blank=True, related_name='reviews')
+    fingerprint = models.CharField(max_length=64)
+    language = models.CharField(max_length=2)
+    player_color = models.CharField(max_length=5, choices=[('white', 'White'), ('black', 'Black')])
+    goal_completed_at = models.DateTimeField(null=True, blank=True)
+    pgn = models.TextField()
+    payload = models.JSONField(default=dict)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        constraints = [models.UniqueConstraint(fields=['user', 'fingerprint', 'language', 'player_color'], name='review_unique_user_position')]
+        indexes = [models.Index(fields=['user', '-created_at'], name='review_user_created_idx')]

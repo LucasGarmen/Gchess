@@ -5,7 +5,8 @@ const assert = require('node:assert/strict');
 async function testArtifact(filename) {
     const source = fs.readFileSync(filename, 'utf8');
     const start = source.indexOf('async function requestCoachAnalysis(');
-    const end = source.indexOf("document.getElementById('prev-move')", start);
+    const end = Math.min(...["document.getElementById('prev-move')", 'document.getElementById("prev-move")', 'restoreComputerGameState()'].map(marker => source.indexOf(marker, start)).filter(index => index >= 0));
+    assert.ok(start >= 0 && Number.isFinite(end), 'Coach test boundaries must exist in both artifacts');
     const timers = new Map();
     const comments = [];
     let rejectFetch;

@@ -1,0 +1,1 @@
+{% extends 'games/base.html' %}{% block content %}<main class="learning-page"><section class="learning-panel"><h1>{{ learning.pending }}</h1><p>{{ learning.rematch_help }}</p><form method="post" action="{% url 'rematch_accept' invitation.pk %}">{% csrf_token %}<button class="learning-button">{{ learning.accept }}</button></form></section></main>{% endblock %}

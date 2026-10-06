@@ -32,6 +32,8 @@
     <form id="pgn-analysis-form" method="POST" class="form-card">
         {% csrf_token %}
 
+        <label for="review-player-color">{{ learning.color }}</label>
+        <select name="player_color" id="review-player-color"><option value="white" {% if trainer_player_color == 'white' %}selected{% endif %}>{{ learning.white }}</option><option value="black" {% if trainer_player_color == 'black' %}selected{% endif %}>{{ learning.black }}</option></select>
         <label for="pgn">{% tr "paste_pgn" %}</label>
         <textarea name="pgn" id="pgn" rows="8">{{ pgn_text }}</textarea>
 
@@ -92,6 +94,8 @@
     </section>
 
     <aside class="computer-side computer-play-panel analyzer-side">
+        {% if review_summary %}<details class="learning-summary-toggle"><summary>{{ learning.summary }}</summary>{% include 'games/_review_summary.html' with summary=review_summary %}{% if saved_review %}<p><a class="learning-button" href="{% url 'review_detail' saved_review.pk %}">{{ learning.saved }} · {{ learning.nav }}</a></p>{% else %}<p>{{ learning.login }}</p>{% endif %}</details>{% endif %}
+
         <div class="computer-tabs" role="tablist" aria-label="{% tr "game" %}">
             <button id="computer-tab-coach" class="computer-tab-button active" type="button" role="tab" data-computer-tab="coach" aria-controls="computer-coach-panel" aria-selected="true">{% tr "coach_chat" %}</button>
             <button id="computer-tab-pgn" class="computer-tab-button" type="button" role="tab" data-computer-tab="pgn" aria-controls="computer-pgn-panel" aria-selected="false">PGN</button>
@@ -162,6 +166,7 @@
 <script>
     const GAME_ID = null;
     const ANALYZER_MODE = true;
+    const REVIEW_SAVED = {% if saved_review %}true{% else %}false{% endif %};
     const SAVED_MOVES = JSON.parse(document.getElementById('saved-moves-data').textContent);
     const MOVE_ANALYSIS = JSON.parse(document.getElementById('analysis-data').textContent);
     const UI_LANGUAGE = "{{ current_language }}";
@@ -169,9 +174,9 @@
 </script>
 
 <script src="{% static 'games/trainer_conversation.min.js' %}?v=5" defer></script>
-<script src="{% static 'games/board.min.js' %}?v=6" defer></script>
+<script src="{% static 'games/board.min.js' %}?v=7" defer></script>
 <script src="{% static 'games/analyzer_chat.min.js' %}?v=2" defer></script>
-<script src="{% static 'games/analyzer.min.js' %}?v=1" defer></script>
+<script src="{% static 'games/analyzer.min.js' %}?v=2" defer></script>
 
 {% endif %}
 

@@ -1,0 +1,10 @@
+<section class="learning-panel review-summary">
+<h2>{{ learning.summary }}</h2>
+<p class="learning-muted">{{ learning.estimate }}</p>
+<div class="learning-metrics"><div><strong>{{ summary.evaluated }} / {{ summary.total }}</strong><span>{{ learning.evaluated }}</span></div><div><strong>{{ summary.serious }}</strong><span>{{ learning.serious }}</span></div><div><strong>{{ summary.average_loss|default_if_none:'—' }}</strong><span>{{ learning.average }}</span></div></div>
+<p class="learning-muted">{{ learning.average_help }}</p>
+<h3>{{ learning.moments }}</h3>
+{% for moment in summary.moments %}<article class="learning-moment"><strong>{{ moment.fullmove }}{% if moment.black %}…{% else %}.{% endif %} {{ moment.san }}</strong><p>{{ moment.comment }}</p></article>{% empty %}<p>{% if summary.evaluated %}{{ learning.no_errors }}{% else %}{{ learning.no_data }}{% endif %}</p>{% endfor %}
+<h3>{{ learning.next }} · {{ summary.focus_name }}</h3><p>{{ summary.recommendation }}</p>
+<a class="learning-button" href="{% url 'practice' %}">{{ learning.practice }}</a>
+</section>

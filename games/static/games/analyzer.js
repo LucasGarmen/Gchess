@@ -4,7 +4,8 @@ const leaveAnalysisModal = document.getElementById('leave-analysis-modal');
 const confirmLeaveAnalysisButton = document.getElementById('confirm-leave-analysis');
 const cancelLeaveAnalysisButton = document.getElementById('cancel-leave-analysis');
 let pendingAnalysisExit = null;
-let analysisExitConfirmed = false;
+// Persisted reviews can be reopened safely; guests still need the exit warning.
+let analysisExitConfirmed = typeof REVIEW_SAVED !== 'undefined' && REVIEW_SAVED;
 
 //funçao atualiza comentario do coach a cada jogada
 function updateAnalysisComment() {

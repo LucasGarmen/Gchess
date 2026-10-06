@@ -4188,6 +4188,10 @@ def build_pgn_from_saved_game(game):
 
 @rate_limit(12, 60, 'game-analyzer')
 def game_analyzer(request):
+    from .learning import cached_review, save_review, build_review_summary
+    from .models import GameReview
+    source_game = None
+    saved_review = None
     language = current_language(request)
     trainer_player_color = "white"
     moves = []
@@ -4214,8 +4218,29 @@ def game_analyzer(request):
                 error_message = f"Nao foi possivel gerar o PGN da partida: {exc}"
 
     if request.method == "POST":
+        source_game = None
+        trainer_player_color = request.POST.get('player_color', 'white')
+        if trainer_player_color not in ('white', 'black'): trainer_player_color = 'white'
         pgn_text = request.POST.get("pgn", "").strip()
         should_analyze = True
+
+    review_id = request.GET.get('review_id') if request.method == 'GET' else None
+    if review_id:
+        if not request.user.is_authenticated: return redirect('login')
+        if not review_id.isdigit():
+            from django.http import Http404
+            raise Http404
+        saved_review = get_object_or_404(GameReview, pk=review_id, user=request.user)
+        trainer_player_color = saved_review.player_color
+        source_game = saved_review.game
+        pgn_text = saved_review.pgn
+    elif should_analyze:
+        saved_review = cached_review(request.user, pgn_text, language, trainer_player_color, source_game)
+    if saved_review:
+        moves = saved_review.payload.get('moves', [])
+        analysis = saved_review.payload.get('analysis', [])
+        opening_name = saved_review.payload.get('opening', '')
+        should_analyze = False
 
     if should_analyze:
         game, parse_error = read_analyzer_game(pgn_text) if pgn_text and len(pgn_text.encode('utf-8')) <= MAX_PGN_BYTES else (None, None)
@@ -4309,7 +4334,12 @@ def game_analyzer(request):
                     except chess.engine.EngineTerminatedError:
                         pass
 
+    if moves and analysis and not error_message and not saved_review:
+        saved_review = save_review(request.user, pgn_text, language, trainer_player_color, moves, analysis, opening_name, source_game)
+    review_summary = build_review_summary(moves, analysis, trainer_player_color, language) if moves and analysis else None
     return render(request, "games/game_analyzer.html", {
+        "review_summary": review_summary,
+        "saved_review": saved_review,
         "trainer_player_color": trainer_player_color,
         "moves": moves,
         "analysis": analysis,

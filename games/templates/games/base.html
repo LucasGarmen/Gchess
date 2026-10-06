@@ -16,6 +16,7 @@
     <link rel="stylesheet" href="{% static 'games/rustic.css' %}?v=3">
     <link rel="stylesheet" href="{% static 'games/training.css' %}?v=1">
     <link rel="stylesheet" href="{% static 'games/social.css' %}?v=1">
+    <link rel="stylesheet" href="{% static 'games/learning.css' %}?v=2">
 </head>
 
 <body>
@@ -53,6 +54,7 @@
 
     {% if user.is_authenticated %}
         <a class="nav-link" href="{% url 'friends' %}"{% if request.resolver_match.url_name == 'friends' %} aria-current="page"{% endif %}>{{ social_nav_title }}{% if friend_request_count %} · {{ friend_request_count }}{% endif %}</a>
+        <a class="nav-link" href="{% url 'learning' %}"{% if request.resolver_match.url_name == 'learning' %} aria-current="page"{% endif %}>{{ learning.nav }}</a>
         <span>{% tr "nav_hello" %}, {{ user.username }}{% if user.player_profile %} · {% tr "nav_elo" %} {{ user.player_profile.elo }}{% endif %}</span>
 
         <a class="nav-link" href="{% url 'profile_stats' %}"{% if request.resolver_match.url_name == 'profile_stats' %} aria-current="page"{% endif %}>{% tr "nav_stats" %}</a>

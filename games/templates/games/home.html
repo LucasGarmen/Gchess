@@ -81,6 +81,9 @@
         <form id="analyze-game-form" class="game-actions home-finished-action" method="POST" action="{% url 'game_analyzer' %}" hidden>
             {% csrf_token %}
             <textarea id="analyze-game-pgn" name="pgn" hidden></textarea>
+            <input id="analysis-player-color" type="hidden" name="player_color" value="white">
+            <p>{{ learning.review_first }}</p>
+            <button id="play-again-bot" type="button">{{ learning.new_round }}</button>
             <p>{% tr "home_finished_help" %}</p>
             <button id="analyze-game-button" class="analyze-game-button" type="submit" hidden>{% tr "analyze_finished_game" %}</button>
         </form>
@@ -215,7 +218,7 @@
 
 <script src="{% static 'games/analysis_loading.min.js' %}?v=1"></script>
 <script src="{% static 'games/trainer_conversation.min.js' %}?v=5" defer></script>
-<script src="{% static 'games/board.min.js' %}?v=6" defer></script>
+<script src="{% static 'games/board.min.js' %}?v=7" defer></script>
 <script>
     window.GChessAnalysisLoading.bindForm('analyze-game-form', { navigate: true });
 </script>

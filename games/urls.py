@@ -1,9 +1,15 @@
 from django.urls import path
 from .views import home, games_list, game_detail, game_create,save_move
-from . import views, social
+from . import views, social, learning
 
 
 urlpatterns = [
+    path('learning/', learning.learning_history, name='learning'),
+    path('learning/reviews/<int:review_id>/', learning.review_detail, name='review_detail'),
+    path('learning/reviews/<int:review_id>/goal/', learning.review_goal, name='review_goal'),
+    path('games/<int:game_id>/review/', learning.game_review, name='game_review'),
+    path('games/<int:game_id>/rematch/', learning.rematch, name='game_rematch'),
+    path('rematches/<int:invitation_id>/accept/', learning.rematch_accept, name='rematch_accept'),
     path('friends/', social.friends, name='friends'),
     path('friends/<int:user_id>/action/', social.friend_action, name='friend_action'),
     path('friends/<int:user_id>/challenge/', social.friend_challenge, name='friend_challenge'),

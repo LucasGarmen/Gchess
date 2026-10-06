@@ -5,7 +5,7 @@ const assert = require('node:assert/strict');
 function test() {
     const source = fs.readFileSync('games/static/games/board.js', 'utf8');
     const elements = {};
-    for (const id of ['home-open-bot', 'home-start-play', 'board', 'mobile-bot-setup', 'mobile-computer-elo', 'mobile-start-bot-game']) {
+    for (const id of ['home-open-bot', 'home-start-play', 'board', 'mobile-bot-setup', 'mobile-computer-elo', 'mobile-start-bot-game', 'game-closing-panel']) {
         elements[id] = {hidden: true, listeners: {}, addEventListener(event, fn) { this.listeners[event] = fn; },
             focus() { this.focused = true; }, scrollIntoView() { this.scrolled = true; }};
     }
@@ -32,12 +32,15 @@ function test() {
     assert.ok(optionsSynced && gameOpened, 'Mobile CTA must retain existing game setup');
     sandbox.updateFinishedPanelState();
     assert.equal(form.hidden, true);
+    assert.equal(elements['game-closing-panel'].hidden, true);
     sandbox.gameOver = true;
     sandbox.updateFinishedPanelState();
     assert.equal(form.hidden, false, 'Finished game analysis must be reachable without switching tabs');
+    assert.equal(elements['game-closing-panel'].hidden, false, 'Review and rematch must appear after the game');
     sandbox.gameOver = false;
     sandbox.updateFinishedPanelState();
     assert.equal(form.hidden, true);
+    assert.equal(elements['game-closing-panel'].hidden, true);
     console.log('Onboarding: desktop/mobile entry and finished analysis visibility verified.');
 }
 module.exports = test;

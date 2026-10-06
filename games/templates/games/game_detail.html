@@ -283,6 +283,10 @@
             <button id="last-move">{% tr "last_position" %}</button>
         </div>
 
+        <section id="game-closing-panel" class="game-closing-panel" {% if game.status != 'finished' %}hidden{% endif %}>
+            <h3>{{ learning.finished }}</h3><a class="learning-button" href="{% url 'game_review' game.pk %}">{{ learning.review }}</a>
+            {% if player_color %}<form method="post" action="{% url 'game_rematch' game.pk %}">{% csrf_token %}<button class="learning-button">{{ learning.rematch }}</button></form><p>{{ learning.rematch_help }}</p>{% endif %}
+        </section>
         <div class="game-actions">
             <a id="analyze-game-button" class="analyze-game-button" href="{% url 'game_analyzer' %}?game_id={{ game.id }}" {% if game.status != 'finished' %}hidden{% endif %}>{% tr "analyze_finished_game" %}</a>
             <button id="offer-draw-button" type="button">{% tr "offer_draw" %}</button>
@@ -397,6 +401,6 @@
 <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin defer></script>
 <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin defer></script>
 <script src="{% static 'games/react/game_detail_app.min.js' %}?v=1" defer></script>
-<script src="{% static 'games/board.min.js' %}?v=6" defer></script>
+<script src="{% static 'games/board.min.js' %}?v=7" defer></script>
 
 {% endblock %}

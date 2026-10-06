@@ -1,0 +1,8 @@
+{% extends 'games/base.html' %}
+{% block title %}{{ learning.your_review }} · Gchess{% endblock %}
+{% block content %}
+<main class="learning-page"><header><p>Gchess · {{ learning.your_review }}</p><h1>{{ result_text }}</h1>{% if source_game %}<p>{{ source_game.white_player }} — {{ source_game.black_player }}</p><p>{{ learning.result_help }}</p>{% endif %}</header>
+{% if summary %}{% include 'games/_review_summary.html' %}{% else %}<section class="learning-panel"><h2>{{ learning.summary }}</h2><p>{{ learning.save_help }}</p><a class="learning-button" href="{{ analyzer_url }}">{{ learning.analyze }}</a>{% if not user.is_authenticated %}<p>{{ learning.login }}</p>{% endif %}</section>{% endif %}
+{% if summary %}<div class="learning-panel"><a class="learning-button" href="{{ analyzer_url }}">{{ learning.analyze }}</a>{% if review %}<h3>{{ learning.goal }}</h3><p>{{ learning.goal_help }}</p>{% if review.goal_completed_at %}<p>{{ learning.goal_done }}</p>{% else %}<form method="post" action="{% url 'review_goal' review.pk %}">{% csrf_token %}<button class="learning-button">{{ learning.complete }}</button></form>{% endif %}{% endif %}</div>{% endif %}
+<section class="learning-panel"><h2>{{ learning.next }}</h2>{% if can_rematch and source_game %}<form method="post" action="{% url 'game_rematch' source_game.pk %}">{% csrf_token %}<button class="learning-button">{{ learning.rematch }}</button></form><p>{{ learning.rematch_help }}</p>{% endif %}<div class="learning-links"><a href="{% url 'learning' %}">{{ learning.nav }}</a>{% if source_game %}<a href="{% url 'game_detail' source_game.pk %}">{{ learning.back }}</a>{% endif %}<a href="{% url 'training' %}">{{ learning.practice }}</a></div></section></main>
+{% endblock %}
