@@ -17,6 +17,7 @@ import random
 import re
 import shutil
 import uuid
+import time
 from functools import lru_cache, wraps
 from io import StringIO
 from pathlib import Path
@@ -32,12 +33,13 @@ from accounts.models import (
     achievement_metric_value,
     unlock_achievements_for_stats,
 )
-from .engine_analysis import build_trainer_engine_context
-from .gemini_service import generate_gemini_explanation
+from .engine_analysis import build_trainer_engine_context, explanation_moves_are_grounded, add_played_move_context
+from .gemini_service import GeminiFailure, generate_gemini_explanation
 from .i18n import current_language, normalize_language, t
 from .models import BlitzBestResult, ChessGame, DailyPuzzle, DailyPuzzleAttempt, GameChatMessage, GameChatRead, GameInvitation, Move, StreakBestResult, UserPresence
 from .puzzles import PRACTICE_CATEGORIES, PRACTICE_LEVELS, get_practice_puzzle, public_practice_puzzles
 from .prompts import build_trainer_chat_prompt
+from .trainer_conversation import question_topic, is_followup, analysis_question, useful_engine_fallback
 from .realtime import broadcast_move_created
 
 PROMOTION_PIECES = {
@@ -2854,6 +2856,7 @@ def stockfish_missing_response(error_message=""):
             "Stockfish is not available. Check the STOCKFISH_PATH environment variable "
             f"and make sure the executable exists. Detail: {error_message}"
         ),
+        "code": "engine_unavailable",
     }, status=503)
 
 
@@ -2962,12 +2965,15 @@ def engine_move(request):
     except (chess.engine.EngineError, chess.engine.EngineTerminatedError, OSError) as exc:
         logger.exception("Stockfish failed while calculating an engine move.")
         return JsonResponse({
-            "error": f"Não foi possível calcular a jogada: {exc}",
+            "error": "Chess engine could not calculate a move. Please retry.", "code": "engine_unavailable",
         }, status=500)
 
     finally:
         if engine:
-            engine.quit()
+            try:
+                engine.quit()
+            except (chess.engine.EngineError, OSError):
+                logger.warning("Engine move cleanup failed.")
 
 
 def choose_engine_move(engine, board, elo):
@@ -3448,16 +3454,48 @@ def board_from_move_data(moves):
     return board, san_moves
 
 
+def decode_trainer_moves(moves):
+    moves = validate_moves_payload(moves)
+    decoded = []
+    for item in moves:
+        if isinstance(item, str):
+            move = chess.Move.from_uci(item)
+            if not move:
+                raise ValueError("Null moves are not allowed.")
+            decoded.append({"from":item[:2], "to":item[2:4], "promotion":{"q":"queen", "r":"rook", "b":"bishop", "n":"horse"}.get(item[4:] or "")})
+        else:
+            decoded.append(item)
+    return decoded
+
+
 @require_POST
 @rate_limit(20, 60, 'trainer-chat')
 def trainer_chat(request):
     try:
         data = parse_json_body(request)
-        moves = validate_moves_payload(data.get("moves", []))
+        if not isinstance(data, dict):
+            raise ValueError("Invalid request.")
+        moves = decode_trainer_moves(data.get("moves", []))
     except ValueError as exc:
         return JsonResponse({'error': str(exc)}, status=400)
 
-    question = data.get("question", "").strip()
+    question = data.get("question", "")
+    history = data.get("history", [])
+    if not isinstance(question, str) or not isinstance(history, list) or len(history) > 6:
+        return JsonResponse({"error": "Invalid conversation.", "code": "invalid_request"}, status=400)
+    for entry in history:
+        if not isinstance(entry, dict) or entry.get("role") not in ("user", "assistant") or not isinstance(entry.get("text"), str) or len(entry["text"]) > 1600:
+            return JsonResponse({"error": "Invalid conversation.", "code": "invalid_request"}, status=400)
+    for entry in history:
+        if entry.get("fen"):
+            try:
+                history_board = chess.Board(entry["fen"])
+                if not history_board.is_valid():
+                    raise ValueError("Invalid board")
+            except (ValueError, TypeError, AttributeError):
+                return JsonResponse({"error":"Invalid historical position."}, status=400)
+    history = [{"role":entry["role"], "text":entry["text"], "fen":entry.get("fen")} for entry in history]
+    question = question.strip()
     player_color = data.get("player_color", "white")
     language = normalize_language(data.get("language") or current_language(request))
 
@@ -3474,53 +3512,76 @@ def trainer_chat(request):
 
     try:
         board, san_moves = board_from_move_data(moves)
-    except (KeyError, ValueError):
+    except (KeyError, ValueError, TypeError, AttributeError):
         return JsonResponse({
             "error": "Não consegui ler a posição atual.",
         }, status=400)
 
-    stockfish_path, stockfish_error = configured_stockfish_path()
-    if stockfish_error:
-        return stockfish_missing_response(stockfish_error)
-
-    engine = None
-    try:
-        engine = open_stockfish_engine(stockfish_path)
-        answer = None
-        source = "stockfish_fallback"
-
+    trainer_logger = logging.getLogger("games.trainer")
+    started = time.monotonic()
+    topic = question_topic(question, history)
+    reference_moves = data.get("reference_moves")
+    if topic == "chess" and is_followup(question) and reference_moves is not None:
         try:
-            opening_name = detect_opening(san_moves)
-            engine_context = build_trainer_engine_context(
-                engine,
-                board,
-                san_moves,
-                question,
-                player_color,
-                language,
-                opening_name,
-            )
-            prompt = build_trainer_chat_prompt(question, engine_context, language)
-            answer = generate_gemini_explanation(prompt, namespace="trainer_chat")
-            source = "gemini" if answer else "stockfish_fallback"
-        except Exception as exc:
-            logger.warning("Gemini trainer context failed; using Stockfish fallback: %s", exc)
+            board, san_moves = board_from_move_data(decode_trainer_moves(reference_moves))
+        except (KeyError, ValueError, TypeError, AttributeError):
+            return JsonResponse({"error":"Invalid reference position.", "code":"invalid_request"}, status=400)
+    engine_context = None
+    engine = None
+    if topic == "chess":
+        stockfish_path, stockfish_error = configured_stockfish_path()
+        if stockfish_error:
+            trainer_logger.warning("Trainer result: category=engine_unavailable elapsed_ms=%d", round((time.monotonic()-started)*1000))
+            return JsonResponse({"error":"Chess analysis is unavailable.", "code":"engine_unavailable", "retryable":True}, status=503)
+        try:
+            engine = open_stockfish_engine(stockfish_path)
+            target_question = analysis_question(question, history)
+            engine_context = build_trainer_engine_context(engine, board, san_moves, target_question, player_color, language, detect_opening(san_moves))
+            engine_context = add_played_move_context(engine, board, target_question, engine_context)
+        except (chess.engine.EngineError, OSError):
+            trainer_logger.warning("Trainer result: category=engine_error elapsed_ms=%d", round((time.monotonic()-started)*1000))
+            return JsonResponse({"error":"Chess analysis failed.", "code":"engine_unavailable", "retryable":True}, status=503)
+        finally:
+            if engine:
+                try:
+                    engine.quit()
+                except (chess.engine.EngineError, OSError):
+                    trainer_logger.warning("Trainer engine cleanup failed.")
+    answer = None
+    status = "ok"
+    try:
+        prompt = build_trainer_chat_prompt(question, engine_context, language, history)
+        answer = generate_gemini_explanation(prompt, namespace="trainer_chat", report_errors=True)
+    except GeminiFailure as exc:
+        status = exc.code
+    if answer and engine_context and not explanation_moves_are_grounded(answer, engine_context):
+        trainer_logger.warning("Trainer validation: reason=unsupported_move_reference")
+        answer = None
+        status = "invalid_response"
+    if not answer and status == "ok":
+        status = "empty_response"
+    fallback = useful_engine_fallback(engine_context, analysis_question(question, history), language) if not answer and engine_context else None
+    trainer_logger.info("Trainer result: category=%s topic=%s elapsed_ms=%d", status, topic, round((time.monotonic()-started)*1000))
+    return JsonResponse({"answer":answer, "engine_analysis":fallback, "source":"gemini" if answer else "unavailable", "status":status, "retryable":not bool(answer), "fen":board.fen(), "topic":topic, "position_moves":[move.uci() for move in board.move_stack]})
 
-        if not answer:
-            answer = build_trainer_chat_answer(engine, board, san_moves, question, player_color, language)
 
-        return JsonResponse({
-            "answer": answer,
-            "source": source,
-        })
-    except (chess.engine.EngineError, chess.engine.EngineTerminatedError, OSError) as exc:
-        logger.exception("Stockfish failed while answering trainer chat.")
-        return JsonResponse({
-            "error": f"Não foi possível responder agora: {exc}",
-        }, status=500)
-    finally:
-        if engine:
-            engine.quit()
+def trainer_context_fallback(context, language):
+    data = context["engine"]
+    move = data["best_move_san"]
+    score = data["score_cp_for_player"] / 100
+    line = " ".join(data["principal_variation_san"])
+    illegal = context.get("proposed_move") and not context["proposed_move"]["legal"]
+    turn = context["turn"]
+    labels = {
+        "es": ("blancas" if turn == "white" else "negras", "Esa jugada no es legal. ", "La posicion termino; no hay jugada para recomendar.", "Juegan {}. Recomendacion: {}. Evaluacion estimada para tu color: {:+.2f} peones. Linea: {}."),
+        "en": (turn, "That move is illegal. ", "The position has ended; no move to recommend.", "{} to move. Recommendation: {}. Estimated evaluation for your color: {:+.2f} pawns. Line: {}."),
+        "pt": ("brancas" if turn == "white" else "pretas", "Essa jogada nao e legal. ", "A posicao terminou; nao ha jogada para recomendar.", "Vez de {}. Recomendacao: {}. Avaliacao estimada para sua cor: {:+.2f} peoes. Linha: {}."),
+    }
+    name, prefix, ended, template = labels[language]
+    if abs(score) >= 900:
+        score_text = {"es": "Hay una secuencia de mate; no es una evaluacion en peones.", "en": "There is a mate sequence; this is not a pawn evaluation.", "pt": "Ha uma sequencia de mate; nao ? uma avaliacao em peoes."}[language]
+        return (prefix if illegal else "") + (f"{move}. {score_text} {line}" if move else ended)
+    return (prefix if illegal else "") + (template.format(name, move, score, line) if move else ended)
 
 
 def build_trainer_chat_answer(engine, board, san_moves, question, player_color, language='pt'):
@@ -4027,6 +4088,7 @@ def build_pgn_from_saved_game(game):
 @rate_limit(12, 60, 'game-analyzer')
 def game_analyzer(request):
     language = current_language(request)
+    trainer_player_color = "white"
     moves = []
     analysis = []
     pgn_text = ""
@@ -4038,6 +4100,8 @@ def game_analyzer(request):
 
     if source_game_id:
         source_game = get_game_for_user(source_game_id, request.user, request.session.get('guest_id'))
+
+        trainer_player_color = player_color_for_game(source_game, request.user, request.session.get('guest_id')) or 'white'
 
         if source_game.status != 'finished':
             error_message = t(language, 'analyze_requires_finished')
@@ -4145,6 +4209,7 @@ def game_analyzer(request):
                         pass
 
     return render(request, "games/game_analyzer.html", {
+        "trainer_player_color": trainer_player_color,
         "moves": moves,
         "analysis": analysis,
         "pgn_text": pgn_text,

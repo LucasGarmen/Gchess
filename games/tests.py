@@ -1538,7 +1538,7 @@ class GameAccessTests(TestCase):
         self.assertIn('id="leave-analysis-modal"', template)
         self.assertIn('{% tr "first_position" %}', template)
         self.assertIn('games/analyzer_chat.min.js', template)
-        self.assertIn("let PLAYER_COLOR = 'white';", template)
+        self.assertIn('trainer_player_color|default:"white"', template)
 
     def test_board_notifies_analyzer_when_position_changes(self):
         source = open("games/static/games/board.js", encoding="utf-8").read()
@@ -1773,7 +1773,7 @@ class StockfishEndpointTests(TestCase):
 
         with patch("games.views.configured_stockfish_path", return_value=("stockfish", "")), \
                 patch("games.views.chess.engine.SimpleEngine.popen_uci", return_value=self.FakeEngine()), \
-                patch("games.views.build_trainer_chat_answer", return_value="ok"):
+                patch("games.views.build_trainer_engine_context", return_value={}), patch("games.views.generate_gemini_explanation", return_value="ok"), patch("games.views.explanation_moves_are_grounded", return_value=True):
             for language in ("pt", "es", "en"):
                 response = self.client.post(
                     reverse("trainer_chat"),

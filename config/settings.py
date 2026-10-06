@@ -259,3 +259,15 @@ if not DEBUG:
     SECURE_HSTS_SECONDS = int(os.environ.get('DJANGO_SECURE_HSTS_SECONDS', '31536000'))
     SECURE_HSTS_INCLUDE_SUBDOMAINS = env_bool('DJANGO_SECURE_HSTS_INCLUDE_SUBDOMAINS', True)
     SECURE_HSTS_PRELOAD = env_bool('DJANGO_SECURE_HSTS_PRELOAD', True)
+
+
+# Coach metrics contain only category, model/topic and elapsed time.
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "handlers": {"trainer_console": {"class": "logging.StreamHandler"}},
+    "loggers": {
+        "games.trainer": {"handlers": ["trainer_console"], "level": "INFO", "propagate": False},
+        "games.gemini_service": {"handlers": ["trainer_console"], "level": "INFO", "propagate": False},
+    },
+}

@@ -3661,6 +3661,8 @@ function createAbortControllerIfAvailable() {
 
 function setEngineThinking(value) {
     isEngineThinking = value;
+    const retryButton = document.getElementById('retry-bot-move');
+    if (retryButton) retryButton.disabled = value;
     computerThinking = value;
     updateTurnIndicator();
     updateHistoryControls();
@@ -3846,6 +3848,8 @@ function addTrainerChatMessage(message, type) {
 function updateTrainerChatControls() {
     const submitButton = document.getElementById('trainer-chat-submit');
     const input = document.getElementById('trainer-chat-input');
+    const log = document.getElementById('trainer-chat-log');
+    if (log) log.setAttribute('aria-busy', String(trainerChatThinking));
 
     if (submitButton) {
         submitButton.disabled = trainerChatThinking;
@@ -3875,6 +3879,9 @@ function trainerChatLogState() {
     return Array.from(log.children).map(item => ({
         type: item.dataset.messageType || (item.classList.contains('trainer-chat-message-user') ? 'user' : 'trainer'),
         message: item.innerText,
+        fen: item.dataset.fen,
+        positionMoves: item.dataset.positionMoves,
+        failed: item.dataset.failed,
     }));
 }
 
@@ -3889,10 +3896,13 @@ function restoreTrainerChatLog(messages) {
 
     messages.forEach(entry => {
         const item = document.createElement('div');
-        const type = entry.type === 'user' ? 'user' : 'trainer';
+        const type = ['user', 'trainer', 'status', 'error', 'engine'].includes(entry.type) ? entry.type : 'trainer';
         item.classList.add('trainer-chat-message', `trainer-chat-message-${type}`);
         item.dataset.messageType = type;
         item.innerText = entry.message || '';
+        if (entry.fen) item.dataset.fen = entry.fen;
+        if (entry.positionMoves) item.dataset.positionMoves = entry.positionMoves;
+        if (entry.failed) item.dataset.failed = entry.failed;
         log.appendChild(item);
     });
 
@@ -4057,45 +4067,13 @@ function initMobileGameNavigation() {
 }
 
 async function askTrainerChat(question) {
-    trainerChatThinking = true;
-    updateTrainerChatControls();
-    addTrainerChatMessage(question, 'user');
-
-    try {
-        const response = await fetch('/trainer-chat/', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': getCSRFToken(),
-            },
-            body: JSON.stringify({
-                question: question,
-                moves: trainerChatMoves(),
-                player_color: playerColor(),
-                language: typeof UI_LANGUAGE !== 'undefined' ? UI_LANGUAGE : 'pt',
-            }),
-        });
-
-        const data = await response.json();
-
-        if (!response.ok || data.error) {
-            console.error('Erro do chat do treinador:', data.error || response.statusText);
-            addTrainerChatMessage(uiText('trainer_error', 'O treinador não conseguiu responder agora.'), 'trainer');
-            return;
-        }
-
-        if (data.source) {
-            console.log('Fonte do chat do treinador:', data.source);
-        }
-
-        addTrainerChatMessage(data.answer, 'trainer');
-    } catch (error) {
-        console.error('Erro ao perguntar ao treinador:', error);
-        addTrainerChatMessage(uiText('trainer_error', 'O treinador não conseguiu responder agora.'), 'trainer');
-    } finally {
-        trainerChatThinking = false;
-        updateTrainerChatControls();
-    }
+    return window.GChessTrainerChat.ask(question, {
+        moves: trainerChatMoves, color: playerColor(),
+        language: typeof UI_LANGUAGE !== 'undefined' ? UI_LANGUAGE : 'pt',
+        csrf: getCSRFToken,
+        setThinking: value => { trainerChatThinking = value; updateTrainerChatControls(); },
+        onChange: saveComputerGameState,
+    });
 }
 
 async function requestCoachAnalysis(requestKey = coachAnalysisKey(), movesSnapshot = SAVED_MOVES.map(move => ({ ...move }))) {
@@ -4405,7 +4383,6 @@ function submitTrainerChatQuestion() {
         return;
     }
 
-    input.value = '';
     askTrainerChat(question);
 }
 
@@ -4591,6 +4568,23 @@ function scheduleEngineMoveRetry(requestKey, elo, delayMs = ENGINE_MOVE_RETRY_MS
     }, delayMs);
 }
 
+function showBotError(code) {
+    const panel = document.getElementById('bot-error-panel');
+    const message = document.getElementById('bot-error-message');
+    if (!panel || !message) return;
+    const lang = typeof UI_LANGUAGE !== 'undefined' ? UI_LANGUAGE : 'pt';
+    const texts = {
+        es: {engine_unavailable: 'El motor de ajedrez no esta disponible. No se pudo jugar la respuesta.', timeout: 'El motor tardo demasiado. Puedes reintentar la jugada.', network: 'No se pudo obtener la jugada del bot. Puedes reintentar.'},
+        en: {engine_unavailable: 'The chess engine is unavailable. Could not play its reply.', timeout: 'The engine timed out. You can retry the move.', network: 'Could not get the bot move. You can retry.'},
+        pt: {engine_unavailable: 'O motor de xadrez esta indisponivel. Nao foi possivel jogar a resposta.', timeout: 'O motor demorou demais. Tente a jogada novamente.', network: 'Nao foi possivel obter a jogada do bot. Tente novamente.'},
+    };
+    message.innerText = (texts[lang] || texts.pt)[code] || (texts[lang] || texts.pt).network;
+    panel.hidden = false;
+}
+
+const retryBotMove = document.getElementById('retry-bot-move');
+if (retryBotMove) retryBotMove.addEventListener('click', () => askComputerMove());
+
 async function askComputerMove() {
     if (
         !isComputerMode() ||
@@ -4615,10 +4609,18 @@ async function askComputerMove() {
         return;
     }
 
+    const errorPanel = document.getElementById('bot-error-panel');
+    if (errorPanel) errorPanel.hidden = true;
     setEngineThinking(true);
     engineMoveRequestKey = requestKey;
     engineMoveAbortController = createAbortControllerIfAvailable();
 
+    const timeoutController = engineMoveAbortController;
+    let timedOut = false;
+    const timeoutId = setTimeout(() => {
+        timedOut = true;
+        if (timeoutController) timeoutController.abort();
+    }, 15000);
     try {
         const fetchOptions = {
             method: 'POST',
@@ -4650,7 +4652,8 @@ async function askComputerMove() {
         }
 
         if (!response.ok || move.error) {
-            console.error('Erro do computador:', move.error || response.statusText);
+            showBotError(move.code || (response.status === 503 ? 'engine_unavailable' : 'network'));
+            console.error('Bot request failed:', response.status);
             return;
         }
 
@@ -4668,17 +4671,21 @@ async function askComputerMove() {
         const toSquare = getSquare(move.to);
 
         if (!fromSquare || !toSquare) {
+            showBotError('network');
             return;
         }
 
         await playMove(fromSquare, toSquare, true, move.promotion || null);
     } catch (error) {
         if (error.name === 'AbortError') {
+            if (timedOut && engineMoveRequestKey === requestKey) showBotError('timeout');
             return;
         }
 
-        console.error('Erro ao pedir jogada do computador:', error);
+        showBotError('network');
+        console.error('Bot request failed:', error.name);
     } finally {
+        clearTimeout(timeoutId);
         if (engineMoveRequestKey === requestKey) {
             engineMoveRequestKey = '';
             engineMoveAbortController = null;

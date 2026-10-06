@@ -1,8 +1,16 @@
+import os
 import re
 import unicodedata
 
 import chess
 import chess.engine
+
+
+def trainer_analysis_seconds():
+    try:
+        return max(0.05, min(1.0, float(os.getenv("TRAINER_ANALYSIS_SECONDS", "0.12"))))
+    except ValueError:
+        return 0.12
 
 
 DEFAULT_ANALYSIS_LIMIT = chess.engine.Limit(time=0.12)
@@ -124,7 +132,7 @@ def engine_multipv(engine, board, limit=DEFAULT_ANALYSIS_LIMIT, multipv=3):
     lines = []
     for item in analyses:
         pv = item.get("pv") or []
-        if not pv:
+        if not pv or pv[0] not in board.legal_moves:
             continue
 
         score_cp_white = score_to_cp(item["score"].white())
@@ -292,7 +300,7 @@ def analyze_proposed_move(engine, board, proposed, before_score_cp_white):
     move_san = board.san(move)
     board_after = board.copy()
     board_after.push(move)
-    after = engine.analyse(board_after, QUICK_ANALYSIS_LIMIT)
+    after = engine.analyse(board_after, chess.engine.Limit(time=trainer_analysis_seconds()))
     after_score_cp_white = score_to_cp(after["score"].white())
     response_move = (after.get("pv") or [None])[0]
     response_san = san_or_uci(board_after, response_move) if response_move else None
@@ -316,7 +324,11 @@ def analyze_proposed_move(engine, board, proposed, before_score_cp_white):
 
 
 def build_trainer_engine_context(engine, board, san_moves, question, player_color, language="pt", opening_name=""):
-    lines = engine_multipv(engine, board, DEFAULT_ANALYSIS_LIMIT, multipv=3)
+    if "Threads" in getattr(engine, "options", {}):
+        engine.configure({"Threads": 1})
+    lines = engine_multipv(engine, board, chess.engine.Limit(time=trainer_analysis_seconds()), multipv=3)
+    if not lines and not board.is_game_over():
+        raise chess.engine.EngineError("No usable analysis for this position")
     best_line = lines[0] if lines else None
     score_cp_white = best_line["score_cp_white"] if best_line else 0
     proposed = parse_proposed_move(board, question)
@@ -344,7 +356,7 @@ def build_trainer_engine_context(engine, board, san_moves, question, player_colo
         "threats": immediate_threats(board),
         "material": material_summary(board),
         "king_state": king_state(board),
-        "legal_moves_san": [san_or_uci(board, move) for move in list(board.legal_moves)[:40]],
+        "legal_moves_san": [san_or_uci(board, move) for move in list(board.legal_moves)],
     }
 
 
@@ -365,3 +377,70 @@ def build_pgn_analysis_context(move_analysis, pgn_text="", selected_move_number=
         "move_count": len(move_analysis),
         "engine_move_analysis": items,
     }
+
+
+def explanation_moves_are_grounded(text, context):
+    """Reject explicit SAN/UCI moves absent from the supplied engine facts.
+
+    This is a syntactic guard, not a proof of natural-language claims.
+    """
+    allowed = set(context["legal_moves_san"])
+    for line in context["engine"]["candidate_lines"]:
+        allowed.update(line["pv_san"])
+        allowed.add(line["move_uci"])
+    proposed = context.get("proposed_move") or {}
+    if proposed.get("legal"):
+        allowed.update(filter(None, [proposed.get("move_san"), proposed.get("move_uci"), proposed.get("engine_reply_san")]))
+    elif proposed.get("raw"):
+        allowed.add(proposed["raw"])
+    played = context.get("played_move") or {}
+    allowed.update(filter(None, [played.get("move_san"), played.get("move_uci"), played.get("engine_reply_san"), played.get("best_alternative_san")]))
+    allowed.update(played.get("best_alternative_line", []))
+    normalized = {move.rstrip("+#") for move in allowed}
+    # Local piece letters must be matched as a whole, not as pawn-square suffixes.
+    localized = re.compile(r"\b[CATDR][a-h]?[1-8]?x?[a-h][1-8](?:=[CATDR])?[+#]?\b")
+    local_tokens = [match.group(0) for match in localized.finditer(text)]
+    text = localized.sub("", text)
+    tokens = [match.group(0) for match in SAN_CANDIDATE_RE.finditer(text)]
+    tokens += [match.group(0) for match in UCI_CANDIDATE_RE.finditer(text)]
+    aliases = {"C":"N", "A":"B", "T":"R", "D":"Q", "R":"K"}
+    def supported_local(token):
+        token = token.rstrip("+#")
+        translated = aliases[token[0]] + token[1:]
+        if "=" in translated:
+            head, promotion = translated.split("=")
+            translated = head + "=" + aliases.get(promotion, promotion)
+        return token in normalized or translated in normalized
+    return all(token.rstrip("+#") in normalized for token in tokens) and all(supported_local(token) for token in local_tokens)
+
+
+def add_played_move_context(engine, board, question, context):
+    """Find an explicitly named played move, never treat it as a new illegal move."""
+    from .trainer_conversation import PAST
+    proposed = context.get("proposed_move") or {}
+    if (not PAST.search(normalize_piece_text(question)) and proposed.get("legal") is not False) or not board.move_stack:
+        return context
+    previous = board.copy(stack=True)
+    selected = None
+    for _ in range(min(16, len(previous.move_stack))):
+        actual = previous.pop()
+        proposed = parse_proposed_move(previous, question)
+        if proposed and proposed.get("legal") and proposed["move"] == actual:
+            selected = (previous.copy(stack=True), actual)
+            break
+        if not SAN_CANDIDATE_RE.search(question) and not UCI_CANDIDATE_RE.search(question):
+            selected = (previous.copy(stack=True), actual)
+            break
+    if selected:
+        before_board, move = selected
+        lines = engine_multipv(engine, before_board, chess.engine.Limit(time=trainer_analysis_seconds()))
+        if not lines:
+            raise chess.engine.EngineError("Missing pre-move analysis")
+        detail = analyze_proposed_move(engine, before_board, {"move":move, "legal":True, "raw":before_board.san(move)}, lines[0]["score_cp_white"])
+        detail.update({"before_fen":before_board.fen(), "best_alternative_san":lines[0]["move_san"], "best_alternative_line":lines[0]["pv_san"], "moving_color":color_name(before_board.turn), "material_before":material_summary(before_board), "material_after":material_summary(chess.Board(detail["resulting_fen"]))})
+        context["played_move"] = detail
+        context["proposed_move"] = None
+    elif PAST.search(normalize_piece_text(question)):
+        context["played_move_unavailable"] = True
+        context["proposed_move"] = None
+    return context

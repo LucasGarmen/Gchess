@@ -1,0 +1,187 @@
+/* Analyzer layout: independent of the compact computer-game screen. */
+body.mobile-analyzer-playing:not(.analysis-leave-modal-active):not(.analysis-loading-active) {
+height: auto;
+min-height: 100svh;
+overflow-y: auto;
+}
+body.mobile-analyzer-playing .analyzer-game-layout {
+--analyzer-board-size: min(560px, calc(100vw - 720px));
+--square-size: calc(var(--analyzer-board-size) / 8);
+display: grid;
+grid-template-columns: minmax(0, 1fr) minmax(300px, 360px);
+align-items: start;
+gap: 24px;
+height: auto;
+max-height: none;
+width: 100%;
+max-width: 1200px;
+margin: 24px auto;
+padding: 0;
+overflow: visible;
+}
+body.mobile-analyzer-playing .analyzer-game-layout .board-area {
+height: auto;
+width: 100%;
+max-width: 100%;
+min-width: 0;
+padding: 0;
+align-items: start;
+justify-content: center;
+}
+body.mobile-analyzer-playing .analyzer-game-layout .board-wrapper {
+width: calc(var(--analyzer-board-size) + 40px);
+max-width: 100%;
+margin: 0 auto;
+padding: 8px;
+gap: 4px;
+}
+body.mobile-analyzer-playing .analyzer-game-layout .board-wrapper > div:not(.rank-labels) {
+flex: 0 1 auto;
+width: calc(var(--analyzer-board-size) + 6px);
+max-width: 100%;
+min-width: 0;
+}
+body.mobile-analyzer-playing .analyzer-game-layout .board {
+width: var(--analyzer-board-size);
+height: var(--analyzer-board-size);
+max-width: none;
+grid-template-columns: repeat(8, var(--square-size));
+grid-template-rows: repeat(8, var(--square-size));
+}
+body.mobile-analyzer-playing .analyzer-game-layout .square {
+width: var(--square-size);
+height: var(--square-size);
+min-width: 0;
+min-height: 0;
+flex-basis: var(--square-size);
+}
+body.mobile-analyzer-playing .analyzer-game-layout .piece {
+width: calc(var(--square-size) * 0.75);
+height: calc(var(--square-size) * 1.2);
+}
+body.mobile-analyzer-playing .analyzer-game-layout .rank-labels {
+height: var(--analyzer-board-size);
+width: 14px;
+grid-template-rows: repeat(8, var(--square-size));
+}
+body.mobile-analyzer-playing .analyzer-game-layout .file-labels {
+width: var(--analyzer-board-size);
+grid-template-columns: repeat(8, var(--square-size));
+}
+body.mobile-analyzer-playing .analyzer-game-layout .board-toolbar {
+width: 100%;
+flex-wrap: wrap;
+}
+body.mobile-analyzer-playing .analyzer-game-layout .analyzer-side,
+body.mobile-analyzer-playing .analyzer-game-layout .computer-tab-panel {
+position: static;
+align-self: start;
+height: auto;
+max-height: none;
+width: 100%;
+max-width: 100%;
+min-width: 0;
+min-height: 0;
+overflow: visible;
+}
+body.mobile-analyzer-playing .analyzer-game-layout .computer-tabs {
+display: flex;
+flex-wrap: wrap;
+width: 100%;
+}
+body.mobile-analyzer-playing .analyzer-game-layout .computer-tab-button {
+min-height: 44px;
+white-space: normal;
+}
+body.mobile-analyzer-playing .analyzer-game-layout .computer-tab-panel {
+display: flex;
+flex-direction: column;
+gap: 12px;
+padding: 14px;
+}
+body.mobile-analyzer-playing .analyzer-game-layout .computer-tab-panel[hidden] {
+display: none !important;
+}
+body.mobile-analyzer-playing .analyzer-game-layout .trainer-chat {
+display: flex;
+flex-direction: column;
+flex: 0 0 auto;
+height: auto;
+min-height: 0;
+max-height: none;
+overflow: visible;
+gap: 8px;
+}
+body.mobile-analyzer-playing .analyzer-game-layout .trainer-chat-log {
+flex: 0 0 auto;
+height: clamp(160px, 30svh, 260px);
+min-height: 0;
+max-height: 260px;
+overflow-y: auto;
+overflow-x: hidden;
+overscroll-behavior-y: contain;
+}
+body.mobile-analyzer-playing .analyzer-game-layout .trainer-chat-message {
+flex-shrink: 0;
+overflow-wrap: anywhere;
+}
+body.mobile-analyzer-playing .analyzer-game-layout .trainer-chat-form {
+display: grid;
+grid-template-columns: minmax(0, 1fr) auto;
+gap: 8px;
+width: 100%;
+margin: 0;
+}
+body.mobile-analyzer-playing .analyzer-game-layout .trainer-chat-form input,
+body.mobile-analyzer-playing .analyzer-game-layout .trainer-chat-form button {
+width: 100%;
+min-width: 0;
+min-height: 44px;
+margin: 0;
+}
+body.mobile-analyzer-playing .analyzer-game-layout .history-controls {
+display: flex;
+flex-wrap: wrap;
+gap: 8px;
+}
+body.mobile-analyzer-playing .analyzer-game-layout .history-controls button {
+display: block;
+flex: 1 1 90px;
+min-height: 44px;
+width: auto;
+}
+body.mobile-analyzer-playing .analyzer-game-layout .pgn-box {
+width: 100%;
+min-width: 0;
+max-height: 400px;
+overflow: auto;
+white-space: pre-wrap;
+overflow-wrap: anywhere;
+}
+@media (max-width: 1100px) {
+body.mobile-analyzer-playing .analyzer-game-layout {
+--analyzer-board-size: min(560px, calc(100vw - 472px));
+}
+}
+@media (max-width: 900px) {
+body.mobile-analyzer-playing {
+padding: 8px;
+}
+body.mobile-analyzer-playing .analyzer-game-layout {
+--analyzer-board-size: min(560px, calc(100vw - 64px));
+grid-template-columns: minmax(0, 1fr);
+gap: 16px;
+margin: 8px auto 24px;
+}
+body.mobile-analyzer-playing .analyzer-game-layout .analyzer-side {
+max-width: 600px;
+justify-self: center;
+}
+body.mobile-analyzer-playing .analyzer-game-layout .history-controls #prev-move,
+body.mobile-analyzer-playing .analyzer-game-layout .history-controls #next-move {
+display: block;
+}
+body.mobile-analyzer-playing .analyzer-game-layout .trainer-chat-form {
+grid-template-columns: minmax(0, 1fr);
+}
+}

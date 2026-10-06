@@ -4933,3 +4933,74 @@ select:focus {
         font-size: 24px;
     }
 }
+
+.trainer-chat-message { overflow-wrap: anywhere; }
+.trainer-chat-form input { min-width: 0; }
+.trainer-chat-message-status,.trainer-chat-message-error { border-left: 3px solid #d99b32; padding: 10px; }
+@media(max-width:480px) { .trainer-chat-form { flex-wrap:wrap; } .trainer-chat-form input { width:100%; } }
+
+/* Bot screen: scroll the coach panel instead of clipping its chat form. */
+@media (min-width: 901px) {
+    .home-computer-layout #computer-coach-panel {
+        overflow-y: auto;
+        overflow-x: hidden;
+        min-height: 0;
+        scrollbar-gutter: stable;
+        scrollbar-width: thin;
+        scrollbar-color: #b69a6d var(--surface-deep);
+    }
+
+    .home-computer-layout #computer-coach-panel::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    .home-computer-layout #computer-coach-panel::-webkit-scrollbar-track {
+        background: var(--surface-deep);
+        border-radius: 999px;
+        margin-block: 8px;
+    }
+
+    .home-computer-layout #computer-coach-panel::-webkit-scrollbar-thumb {
+        background: #b69a6d;
+        border: 2px solid var(--surface-deep);
+        border-radius: 999px;
+        min-height: 40px;
+    }
+
+    .home-computer-layout #computer-coach-panel::-webkit-scrollbar-thumb:hover {
+        background: var(--accent);
+    }
+
+    .home-computer-layout #computer-coach-panel::-webkit-scrollbar-thumb:active {
+        background: var(--accent-strong);
+    }
+
+    .home-computer-layout #computer-coach-panel .trainer-chat {
+        flex: 0 0 auto;
+        min-height: auto;
+    }
+
+    .home-computer-layout #computer-coach-panel .trainer-chat-form,
+    .home-computer-layout #computer-coach-panel .trainer-chat-message {
+        flex-shrink: 0;
+    }
+}
+
+/* Keep competitive shortcuts below the coach and chat on every screen. */
+.home-computer-layout #computer-coach-panel .home-hub-panel {
+    order: 10;
+    flex-shrink: 0;
+}
+
+.trainer-chat-message-error button {
+    display: block;
+    min-height: 44px;
+    margin-top: 8px;
+}
+
+.trainer-chat-message-engine {
+    background: var(--surface-deep);
+    border-left: 3px solid var(--accent);
+    padding: 10px;
+    color: var(--text-muted);
+}

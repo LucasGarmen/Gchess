@@ -2,6 +2,7 @@ import hashlib
 import json
 import logging
 import os
+import time
 from urllib import error, parse, request
 
 from django.core.cache import cache
@@ -21,20 +22,28 @@ def gemini_model():
     return os.environ.get("GEMINI_MODEL", "gemini-2.5-flash-lite")
 
 
+def bounded_env(name, default, low, high):
+    try:
+        value = float(os.environ.get(name, str(default)))
+        return max(low, min(high, value))
+    except ValueError:
+        return default
+
+
 def gemini_timeout():
-    return float(os.environ.get("GEMINI_TIMEOUT_SECONDS", "8"))
+    return bounded_env("GEMINI_TIMEOUT_SECONDS", 8, 1, 20)
 
 
 def gemini_max_output_tokens():
-    return int(os.environ.get("GEMINI_MAX_OUTPUT_TOKENS", "350"))
+    return int(bounded_env("GEMINI_MAX_OUTPUT_TOKENS", 350, 100, 1000))
 
 
 def gemini_cache_seconds():
-    return int(os.environ.get("GEMINI_CACHE_SECONDS", "120"))
+    return int(bounded_env("GEMINI_CACHE_SECONDS", 120, 0, 3600))
 
 
 def gemini_temperature():
-    return float(os.environ.get("GEMINI_TEMPERATURE", "0.2"))
+    return bounded_env("GEMINI_TEMPERATURE", 0.2, 0, 1)
 
 
 def cache_key_for_prompt(namespace, model, prompt):
@@ -56,20 +65,37 @@ def extract_text(response_payload):
     return ""
 
 
-def generate_gemini_explanation(prompt, namespace="trainer_chat"):
-    if not gemini_enabled():
+class GeminiFailure(Exception):
+    def __init__(self, code):
+        self.code = code
+        super().__init__(code)
+
+
+def generate_gemini_explanation(prompt, namespace="trainer_chat", report_errors=False):
+    started = time.monotonic()
+    def record(code, level=logging.INFO):
+        logger.log(level, "Gemini result: category=%s elapsed_ms=%d model=%s", code, round((time.monotonic() - started) * 1000), gemini_model())
+    def fail(code, reason=None):
+        if reason:
+            logger.warning("Gemini failure detail: reason=%s", reason)
+        record(code, logging.WARNING)
+        if report_errors:
+            raise GeminiFailure(code)
         return None
+    if not gemini_enabled():
+        return fail("disabled")
 
     model = gemini_model()
     cache_key = cache_key_for_prompt(namespace, model, prompt)
     cached = cache.get(cache_key)
 
     if cached:
+        record("cached")
         return cached
 
     api_key = os.environ["GEMINI_API_KEY"]
     encoded_model = parse.quote(model, safe="")
-    url = f"https://generativelanguage.googleapis.com/v1beta/models/{encoded_model}:generateContent?key={api_key}"
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/{encoded_model}:generateContent"
     payload = {
         "contents": [
             {
@@ -87,7 +113,7 @@ def generate_gemini_explanation(prompt, namespace="trainer_chat"):
     gemini_request = request.Request(
         url,
         data=body,
-        headers={"Content-Type": "application/json"},
+        headers={"Content-Type": "application/json", "x-goog-api-key": api_key},
         method="POST",
     )
 
@@ -95,23 +121,29 @@ def generate_gemini_explanation(prompt, namespace="trainer_chat"):
         with request.urlopen(gemini_request, timeout=gemini_timeout()) as response:
             response_payload = json.loads(response.read().decode("utf-8"))
     except error.HTTPError as exc:
-        body = ""
-        try:
-            body = exc.read().decode("utf-8", errors="replace")[:800]
-        except OSError:
-            body = ""
-        logger.warning("Gemini HTTP error %s: %s %s", exc.code, exc.reason, body)
-        return None
-    except (error.URLError, TimeoutError, json.JSONDecodeError) as exc:
-        logger.warning("Gemini request failed: %s", exc)
-        return None
+        return fail("quota" if exc.code == 429 else "model_unavailable" if exc.code in (403, 404) else "provider_error", f"http_{exc.code}")
+    except TimeoutError:
+        return fail("timeout")
+    except error.URLError as exc:
+        return fail("timeout" if isinstance(exc.reason, TimeoutError) else "network")
+    except (ValueError, OSError):
+        return fail("invalid_response", "unreadable_payload")
 
-    text = extract_text(response_payload)
-
+    try:
+        text = extract_text(response_payload)
+        candidate = (response_payload.get("candidates") or [{}])[0]
+        if candidate.get("finishReason", "STOP") != "STOP":
+            return fail("invalid_response", "generation_not_completed")
+    except (AttributeError, TypeError):
+        return fail("invalid_response", "unexpected_payload_shape")
     if not text:
-        logger.warning("Gemini returned an empty answer.")
-        return None
+        return fail("empty_response")
+    if text.startswith(("{", "[", "```")):
+        return fail("invalid_response", "unexpected_format")
 
-    text = text.strip()[:1600]
+    if len(text) > 1600:
+        return fail("invalid_response", "response_too_long")
+    text = text.strip()
     cache.set(cache_key, text, gemini_cache_seconds())
+    record("ok")
     return text

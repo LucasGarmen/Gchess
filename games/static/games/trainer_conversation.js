@@ -1,0 +1,131 @@
+(function () {
+    let busy = false;
+    const labels = {
+        es: {
+            retry: 'Reintentar', engine: 'Análisis del motor; no es una respuesta conversacional:',
+            quota: 'Se alcanzó el límite de uso. Esperá antes de reintentar.',
+            timeout: 'El entrenador tardó demasiado. Tu pregunta se conserva.',
+            disabled: 'La respuesta conversacional está desactivada.',
+            model_unavailable: 'El modelo configurado no está disponible para este proyecto.',
+            empty_response: 'El entrenador devolvió una respuesta vacía.',
+            invalid_response: 'La respuesta no se pudo validar.',
+            provider_error: 'El servicio del entrenador falló temporalmente.',
+            network: 'No pudimos conectar con el entrenador.',
+            engine_unavailable: 'No se pudo analizar la partida con el motor.',
+            invalid_request: 'No se pudo leer la pregunta o la posición.',
+            changed: 'Esta respuesta corresponde a la posición de la consulta, no al tablero que estás mirando ahora.'
+        },
+        pt: {
+            retry: 'Tentar novamente', engine: 'Análise do motor; não é uma resposta conversacional:',
+            quota: 'Limite de uso atingido. Aguarde antes de tentar novamente.',
+            timeout: 'O treinador demorou demais. Sua pergunta foi preservada.',
+            disabled: 'A resposta conversacional está desativada.',
+            model_unavailable: 'O modelo configurado está indisponível para este projeto.',
+            empty_response: 'O treinador retornou uma resposta vazia.',
+            invalid_response: 'Não foi possível validar a resposta.',
+            provider_error: 'O serviço do treinador falhou temporariamente.',
+            network: 'Não foi possível conectar ao treinador.',
+            engine_unavailable: 'Não foi possível analisar a partida com o motor.',
+            invalid_request: 'Não foi possível ler a pergunta ou a posição.',
+            changed: 'Esta resposta corresponde à posição da consulta, não ao tabuleiro exibido agora.'
+        },
+        en: {
+            retry: 'Retry', engine: 'Engine analysis; not a conversational answer:',
+            quota: 'Usage limit reached. Wait before retrying.',
+            timeout: 'The coach took too long. Your question is preserved.',
+            disabled: 'Conversational responses are disabled.',
+            model_unavailable: 'The configured model is unavailable for this project.',
+            empty_response: 'The coach returned an empty response.',
+            invalid_response: 'The response could not be validated.',
+            provider_error: 'The coach service failed temporarily.',
+            network: 'Could not connect to the coach.',
+            engine_unavailable: 'Could not analyze the game with the engine.',
+            invalid_request: 'Could not read the question or position.',
+            changed: 'This answer refers to the query position, not the board you are viewing now.'
+        }
+    };
+
+    function compactMoves(moves) {
+        const promotions = {queen: 'q', rook: 'r', bishop: 'b', horse: 'n', knight: 'n'};
+        return moves.map(move => typeof move === 'string' ? move : move.from + move.to + (promotions[move.promotion] || move.promotion || ''));
+    }
+
+    async function ask(question, options, originalPayload) {
+        if (busy) return;
+        const log = document.getElementById('trainer-chat-log');
+        const input = document.getElementById('trainer-chat-input');
+        if (!log || !input) return;
+        const texts = labels[options.language] || labels.pt;
+        const entries = Array.from(log.children).filter(item => ['user', 'trainer'].includes(item.dataset.messageType) && item.dataset.failed !== 'true');
+        const lastPosition = entries.slice().reverse().find(item => item.dataset.positionMoves);
+        const payload = originalPayload || {
+            question, language: options.language, player_color: options.color,
+            moves: compactMoves(options.moves()),
+            history: entries.slice(-6).map(item => ({role: item.dataset.messageType === 'user' ? 'user' : 'assistant', text: item.innerText.slice(0, 1600), fen: item.dataset.fen || null})),
+            reference_moves: lastPosition ? JSON.parse(lastPosition.dataset.positionMoves) : null
+        };
+        const append = (text, type) => {
+            const item = document.createElement('div');
+            item.classList.add('trainer-chat-message', `trainer-chat-message-${type}`);
+            item.dataset.messageType = type;
+            item.innerText = text;
+            log.appendChild(item);
+            log.scrollTop = log.scrollHeight;
+            return item;
+        };
+        const userMessage = append(question, 'user');
+        busy = true;
+        options.setThinking(true);
+        const controller = new AbortController();
+        const timer = setTimeout(() => controller.abort(), 30000);
+        let retryButton;
+        let failed = false;
+        const showFailure = (code) => {
+            failed = true;
+            userMessage.dataset.failed = 'true';
+            if (!input.value.trim() || input.value.trim() === question) input.value = question;
+            const item = append(texts[code] || texts.provider_error, 'error');
+            retryButton = document.createElement('button');
+            retryButton.type = 'button';
+            retryButton.innerText = texts.retry;
+            retryButton.disabled = true;
+            retryButton.addEventListener('click', () => {
+                if (busy) return;
+                retryButton.disabled = true;
+                return ask(question, options, payload);
+            });
+            item.appendChild(retryButton);
+        };
+        try {
+            const response = await fetch('/trainer-chat/', {
+                method: 'POST', signal: controller.signal,
+                headers: {'Content-Type': 'application/json', 'X-CSRFToken': options.csrf()},
+                body: JSON.stringify(payload)
+            });
+            const data = await response.json().catch(() => ({status: 'invalid_response'}));
+            if (!response.ok || data.status !== 'ok' || typeof data.answer !== 'string' || !data.answer.trim()) {
+                showFailure(response.status === 429 ? 'quota' : data.code || data.status || 'provider_error');
+                if (data.engine_analysis) append(texts.engine + '\n' + data.engine_analysis, 'engine');
+                return;
+            }
+            const usedMoves = data.position_moves || payload.moves;
+            userMessage.dataset.positionMoves = JSON.stringify(usedMoves);
+            userMessage.dataset.fen = data.fen || '';
+            if (JSON.stringify(usedMoves) !== JSON.stringify(compactMoves(options.moves()))) append(texts.changed, 'status');
+            const answer = append(data.answer, 'trainer');
+            answer.dataset.positionMoves = userMessage.dataset.positionMoves;
+            answer.dataset.fen = userMessage.dataset.fen;
+            if (input.value.trim() === question) input.value = '';
+        } catch (error) {
+            showFailure(error.name === 'AbortError' ? 'timeout' : 'network');
+        } finally {
+            clearTimeout(timer);
+            busy = false;
+            options.setThinking(false);
+            if (retryButton) retryButton.disabled = false;
+            if (options.onChange) options.onChange();
+            if (failed) input.focus();
+        }
+    }
+    window.GChessTrainerChat = {ask};
+}());

@@ -1,4 +1,8 @@
 (function () {
+    const colorSelect = document.getElementById('trainer-player-color');
+    if (colorSelect) {
+        colorSelect.addEventListener('change', () => { PLAYER_COLOR = colorSelect.value; });
+    }
     const form = document.getElementById('trainer-chat-form');
 
     if (!form || form.dataset.trainerChatBound === 'true') {
@@ -51,6 +55,7 @@
     }
 
     function updateControls() {
+        if (log) log.setAttribute('aria-busy', String(thinking));
         if (submitButton) {
             submitButton.disabled = thinking;
             submitButton.innerText = thinking ? uiText('thinking', 'Pensando...') : uiText('ask', 'Perguntar');
@@ -62,39 +67,12 @@
     }
 
     async function askCoach(question) {
-        thinking = true;
-        updateControls();
-        addMessage(question, 'user');
-
-        try {
-            const response = await fetch('/trainer-chat/', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': csrfToken(),
-                },
-                body: JSON.stringify({
-                    question: question,
-                    moves: currentMoves(),
-                    player_color: 'white',
-                    language: typeof UI_LANGUAGE !== 'undefined' ? UI_LANGUAGE : 'pt',
-                }),
-            });
-            const data = await response.json();
-
-            if (!response.ok || data.error) {
-                addMessage(uiText('trainer_error', 'O treinador nao conseguiu responder agora.'), 'trainer');
-                return;
-            }
-
-            addMessage(data.answer, 'trainer');
-        } catch (error) {
-            console.error('Erro ao perguntar ao treinador:', error);
-            addMessage(uiText('trainer_error', 'O treinador nao conseguiu responder agora.'), 'trainer');
-        } finally {
-            thinking = false;
-            updateControls();
-        }
+        return window.GChessTrainerChat.ask(question, {
+            moves: currentMoves, color: typeof PLAYER_COLOR !== 'undefined' ? PLAYER_COLOR : 'white',
+            language: typeof UI_LANGUAGE !== 'undefined' ? UI_LANGUAGE : 'pt',
+            csrf: csrfToken,
+            setThinking: value => { thinking = value; updateControls(); },
+        });
     }
 
     function submitQuestion() {
@@ -104,7 +82,6 @@
             return;
         }
 
-        input.value = '';
         askCoach(question);
     }
 
