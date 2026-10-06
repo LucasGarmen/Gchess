@@ -51,6 +51,11 @@ def cache_key_for_prompt(namespace, model, prompt):
     return f"gemini:{namespace}:{digest}"
 
 
+def discard_gemini_explanation(prompt, namespace="trainer_chat"):
+    """A rejected answer must not be served again from the provider cache."""
+    cache.delete(cache_key_for_prompt(namespace, gemini_model(), prompt))
+
+
 def extract_text(response_payload):
     candidates = response_payload.get("candidates") or []
 

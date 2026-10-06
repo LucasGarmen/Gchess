@@ -826,6 +826,9 @@ function hideGameStatus() {
 }
 
 function updateFinishedPanelState() {
+    if (isHomeComputerGame() && analyzeGameForm) {
+        analyzeGameForm.hidden = !gameOver;
+    }
     if (pgnPanel) {
         pgnPanel.classList.toggle('game-finished-panel', gameOver);
     }
@@ -4040,6 +4043,15 @@ function showMobileBotGame() {
 }
 
 function initMobileGameNavigation() {
+    const openBotButton = document.getElementById('home-open-bot');
+    if (openBotButton) {
+        openBotButton.addEventListener('click', function () {
+            showMobileBotSetup();
+            const setup = document.getElementById('mobile-bot-setup');
+            setup.scrollIntoView({block: 'nearest', behavior: 'smooth'});
+            document.getElementById('mobile-computer-elo').focus({preventScroll: true});
+        });
+    }
     const {
         botButton,
         setupPanel,

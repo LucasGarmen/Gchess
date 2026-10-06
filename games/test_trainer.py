@@ -6,12 +6,19 @@ from urllib.error import HTTPError
 import chess
 from django.test import TestCase, SimpleTestCase
 from django.core.cache import cache
-from .gemini_service import generate_gemini_explanation, GeminiFailure
+from .gemini_service import generate_gemini_explanation, GeminiFailure, cache_key_for_prompt, gemini_model, discard_gemini_explanation
 from .engine_analysis import build_trainer_engine_context, explanation_moves_are_grounded
 from .prompts import build_trainer_chat_prompt
 
 
 class GeminiTests(SimpleTestCase):
+    def test_rejected_answer_is_removed_from_cache(self):
+        prompt = 'test position'
+        key = cache_key_for_prompt('trainer_chat', gemini_model(), prompt)
+        cache.set(key, 'unsupported move')
+        discard_gemini_explanation(prompt)
+        self.assertIsNone(cache.get(key))
+
     def setUp(self):
         cache.clear()
         self.env = patch.dict(os.environ, {"GEMINI_ENABLED": "true", "GEMINI_API_KEY": "secret"})
@@ -59,6 +66,31 @@ class GeminiTests(SimpleTestCase):
 
 
 class TrainerTests(TestCase):
+    def test_last_move_answer_can_mention_verified_previous_move(self):
+        with patch("games.views.configured_stockfish_path", return_value=("stockfish", "")), patch("games.views.open_stockfish_engine", return_value=self.engine()), patch("games.views.generate_gemini_explanation", return_value="e5 fue buena: responde a tu e4. Ahora podés desarrollar con Cf3."):
+            response = self.client.post("/trainer-chat/", json.dumps({"question":"¿La última jugada fue buena?", "moves":["e2e4", "e7e5"], "language":"es"}), content_type="application/json")
+        self.assertEqual(response.json()["status"], "ok")
+        self.assertEqual(response.json()["source"], "gemini")
+
+    def test_unsupported_move_remains_rejected_and_cache_is_discarded(self):
+        with patch("games.views.configured_stockfish_path", return_value=("stockfish", "")), patch("games.views.open_stockfish_engine", return_value=self.engine()), patch("games.views.generate_gemini_explanation", return_value="Jugá Qh8."), patch("games.views.discard_gemini_explanation") as discard:
+            response = self.client.post("/trainer-chat/", json.dumps({"question":"¿La última jugada fue buena?", "moves":["e2e4", "e7e5"], "language":"es"}), content_type="application/json")
+        self.assertEqual(response.json()["status"], "invalid_response")
+        self.assertIsNone(response.json()["answer"])
+        discard.assert_called_once()
+
+    def test_starting_position_supplies_pawn_origin_and_destination(self):
+        engine = self.engine()
+        info = {"score": chess.engine.PovScore(chess.engine.Cp(45), chess.WHITE), "pv": [chess.Move.from_uci("e2e4")]}
+        engine.analyse.side_effect = lambda board, limit, **kwargs: [info] if kwargs.get('multipv') else info
+        with patch("games.views.configured_stockfish_path", return_value=("stockfish", "")), patch("games.views.open_stockfish_engine", return_value=engine), patch("games.views.generate_gemini_explanation", return_value="Todavía estás en la posición inicial: mové el peón de e2 a e4.") as gemini:
+            response = self.client.post("/trainer-chat/", json.dumps({"question":"¿Qué hago ahora en esta posición?", "moves":[], "language":"es"}), content_type="application/json")
+        self.assertEqual(response.json()["status"], "ok")
+        prompt = gemini.call_args.args[0]
+        self.assertIn('"move_count":0', prompt)
+        self.assertIn('"best_move_details":{"piece":"pawn","color":"white","from":"e2","to":"e4"}', prompt)
+        self.assertIn('explicitly say this is the starting position', prompt)
+
     def test_local_piece_letters_are_validated_without_ignoring_moves(self):
         context = {"legal_moves_san":["Nc3", "Bb5", "Rae1", "Qh5", "Kf1"], "engine":{"candidate_lines":[]}}
         for move in ["Cc3", "Ab5", "Tae1", "Dh5", "Rf1", "Nc3"]:

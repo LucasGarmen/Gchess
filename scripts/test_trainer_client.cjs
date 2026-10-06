@@ -15,6 +15,7 @@ async function test() {
     const log = element();
     const input = {...element(), value: 'e4 fue buena?'};
     const requests = [];
+    const suggestion = {...element(), innerText: 'Que hago ahora?'};
     let moves = [{from: 'e2', to: 'e4'}];
     let result = {status: 'timeout', source: 'unavailable', answer: null,
         engine_analysis: 'e4: estimated loss 0.1', retryable: true};
@@ -22,6 +23,7 @@ async function test() {
         window: {}, document: {
             getElementById: id => id === 'trainer-chat-log' ? log : input,
             createElement: element,
+            querySelectorAll: () => [suggestion],
         }, AbortController, setTimeout, clearTimeout,
         fetch: async (url, request) => {
             requests.push(JSON.parse(request.body));
@@ -52,6 +54,13 @@ async function test() {
     await sandbox.window.GChessTrainerChat.ask(input.value, options);
     assert.equal(input.value, 'Hablame del espacio');
     assert.equal(log.children.filter(x => x.dataset.messageType === 'engine').length, before);
+    suggestion.listeners.click();
+    assert.equal(input.value, suggestion.innerText);
+    assert.equal(requests.length, 4, 'Suggestions fill the field without sending a question');
+    input.disabled = true;
+    input.value = 'Mi propia pregunta';
+    suggestion.listeners.click();
+    assert.equal(input.value, 'Mi propia pregunta');
     console.log('Trainer client: preserved text, exact retry, historical position and separate engine fallback verified.');
 }
 

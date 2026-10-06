@@ -330,6 +330,8 @@ def build_trainer_engine_context(engine, board, san_moves, question, player_colo
     if not lines and not board.is_game_over():
         raise chess.engine.EngineError("No usable analysis for this position")
     best_line = lines[0] if lines else None
+    best_move = chess.Move.from_uci(best_line["move_uci"]) if best_line else None
+    best_piece = board.piece_at(best_move.from_square) if best_move else None
     score_cp_white = best_line["score_cp_white"] if best_line else 0
     proposed = parse_proposed_move(board, question)
 
@@ -349,6 +351,12 @@ def build_trainer_engine_context(engine, board, san_moves, question, player_colo
             "evaluation_for_player": describe_score(score_for_player(score_cp_white, player_color)),
             "best_move_san": best_line["move_san"] if best_line else None,
             "best_move_uci": best_line["move_uci"] if best_line else None,
+            "best_move_details": {
+                "piece": piece_name(best_piece.piece_type),
+                "color": color_name(best_piece.color),
+                "from": chess.square_name(best_move.from_square),
+                "to": chess.square_name(best_move.to_square),
+            } if best_piece else None,
             "principal_variation_san": best_line["pv_san"] if best_line else [],
             "candidate_lines": lines,
         },
@@ -385,15 +393,22 @@ def explanation_moves_are_grounded(text, context):
     This is a syntactic guard, not a proof of natural-language claims.
     """
     allowed = set(context["legal_moves_san"])
+    allowed.update(context.get("recent_moves_san", []))
+    best_details = context["engine"].get("best_move_details") or {}
+    allowed.update(filter(None, [best_details.get("from"), best_details.get("to")]))
     for line in context["engine"]["candidate_lines"]:
         allowed.update(line["pv_san"])
         allowed.add(line["move_uci"])
     proposed = context.get("proposed_move") or {}
     if proposed.get("legal"):
         allowed.update(filter(None, [proposed.get("move_san"), proposed.get("move_uci"), proposed.get("engine_reply_san")]))
+        if proposed.get("move_uci"):
+            allowed.add(proposed["move_uci"][:2])
     elif proposed.get("raw"):
         allowed.add(proposed["raw"])
     played = context.get("played_move") or {}
+    if played.get("move_uci"):
+        allowed.add(played["move_uci"][:2])
     allowed.update(filter(None, [played.get("move_san"), played.get("move_uci"), played.get("engine_reply_san"), played.get("best_alternative_san")]))
     allowed.update(played.get("best_alternative_line", []))
     normalized = {move.rstrip("+#") for move in allowed}

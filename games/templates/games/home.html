@@ -26,6 +26,7 @@
 {% block content %}
 
 <section id="mobile-home-menu" class="mobile-home-menu">
+    {% include 'games/_home_intro.html' with mobile=True %}
     <div id="mobile-bot-setup" class="mobile-bot-setup" hidden>
         <label for="mobile-computer-elo">{% tr "bot_elo" %}</label>
         <select id="mobile-computer-elo">
@@ -66,7 +67,7 @@
                     <button id="toggle-analysis-mode" class="analysis-mode-button" type="button">{% tr "analysis_mode" %}</button>
                     <button id="flip-board" class="icon-button" type="button" title="{% tr "flip_board" %}" aria-label="{% tr "flip_board" %}">↻</button>
                 </div>
-                <div id="board" class="board"></div>
+                <div id="board" class="board" tabindex="-1" aria-label="{% tr 'game' %}"></div>
 
                 <div class="file-labels">
                     <span>a</span><span>b</span><span>c</span><span>d</span>
@@ -77,6 +78,12 @@
     </section>
 
     <aside class="computer-side computer-play-panel">
+        <form id="analyze-game-form" class="game-actions home-finished-action" method="POST" action="{% url 'game_analyzer' %}" hidden>
+            {% csrf_token %}
+            <textarea id="analyze-game-pgn" name="pgn" hidden></textarea>
+            <p>{% tr "home_finished_help" %}</p>
+            <button id="analyze-game-button" class="analyze-game-button" type="submit" hidden>{% tr "analyze_finished_game" %}</button>
+        </form>
         <div class="computer-tabs" role="tablist" aria-label="{% tr "game" %}">
             <button id="computer-tab-coach" class="computer-tab-button active" type="button" data-computer-tab="coach" aria-controls="computer-coach-panel" aria-selected="true">{% tr "coach_chat" %}</button>
             <button id="computer-tab-pgn" class="computer-tab-button" type="button" data-computer-tab="pgn" aria-controls="computer-pgn-panel" aria-selected="false">PGN</button>
@@ -117,6 +124,7 @@
 
             <div class="trainer-chat">
                 <h2>{% tr "coach_chat" %}</h2>
+                {% include 'games/_trainer_suggestions.html' %}
                 <div id="trainer-chat-log" class="trainer-chat-log" role="log" aria-live="polite"></div>
                 <form id="trainer-chat-form" class="trainer-chat-form">
                     <input
@@ -179,12 +187,6 @@
                 <button id="last-move">{% tr "last_position" %}</button>
             </div>
 
-            <form id="analyze-game-form" class="game-actions" method="POST" action="{% url 'game_analyzer' %}">
-                {% csrf_token %}
-                <textarea id="analyze-game-pgn" name="pgn" hidden></textarea>
-                <button id="analyze-game-button" class="analyze-game-button" type="submit" hidden>{% tr "analyze_finished_game" %}</button>
-            </form>
-
             <ul id="move-list" style="display: none;"></ul>
             <pre id="pgn-box" class="pgn-box"></pre>
         </section>
@@ -211,8 +213,8 @@
 </script>
 
 <script src="{% static 'games/analysis_loading.min.js' %}?v=1"></script>
-<script src="{% static 'games/trainer_conversation.min.js' %}?v=1" defer></script>
-<script src="{% static 'games/board.min.js' %}?v=3" defer></script>
+<script src="{% static 'games/trainer_conversation.min.js' %}?v=3" defer></script>
+<script src="{% static 'games/board.min.js' %}?v=5" defer></script>
 <script>
     window.GChessAnalysisLoading.bindForm('analyze-game-form', { navigate: true });
 </script>

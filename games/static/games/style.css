@@ -5004,3 +5004,79 @@ select:focus {
     padding: 10px;
     color: var(--text-muted);
 }
+
+.home-intro {
+    flex: 0 0 auto;
+    border-bottom: 1px solid var(--border-soft);
+    padding-bottom: 12px;
+    margin-bottom: 12px;
+}
+
+.home-intro h1 {
+    font-size: 20px;
+    line-height: 1.3;
+    margin: 0 0 8px;
+}
+
+.home-intro p,
+.home-finished-action p {
+    color: var(--text-muted);
+    font-size: 13px;
+    line-height: 1.5;
+    margin: 0 0 10px;
+}
+
+.home-intro .home-play-button,
+.home-computer-layout .home-finished-action .analyze-game-button {
+    background: linear-gradient(180deg, var(--accent-strong), var(--accent));
+    color: #17130f;
+    width: 100%;
+    min-height: 44px;
+    white-space: normal;
+}
+
+.home-intro .home-play-help {
+    margin: 8px 0 0;
+    font-size: 12px;
+}
+
+.home-finished-action {
+    display: block;
+    flex: 0 0 auto;
+    margin: 0 0 10px;
+}
+
+.home-finished-action[hidden] {
+    display: none;
+}
+
+.trainer-suggestions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    flex: 0 0 auto;
+    margin-bottom: 6px;
+    min-width: 0;
+}
+
+.trainer-suggestions span {
+    flex-basis: 100%;
+    color: var(--text-muted);
+    font-size: 12px;
+}
+
+.trainer-chat .trainer-suggestions button {
+    min-height: 30px;
+    padding: 4px 8px;
+    line-height: 1.25;
+    max-width: 100%;
+    white-space: normal;
+    font-size: 11px;
+    text-align: left;
+}
+
+@media (max-width: 900px) {
+    .trainer-chat .trainer-suggestions button { min-height: 40px; }
+    .home-intro-desktop { display: none; }
+    .home-intro-mobile { padding: 14px; }
+}

@@ -34,7 +34,7 @@ from accounts.models import (
     unlock_achievements_for_stats,
 )
 from .engine_analysis import build_trainer_engine_context, explanation_moves_are_grounded, add_played_move_context
-from .gemini_service import GeminiFailure, generate_gemini_explanation
+from .gemini_service import GeminiFailure, generate_gemini_explanation, discard_gemini_explanation
 from .i18n import current_language, normalize_language, t
 from .models import BlitzBestResult, ChessGame, DailyPuzzle, DailyPuzzleAttempt, GameChatMessage, GameChatRead, GameInvitation, Move, StreakBestResult, UserPresence
 from .puzzles import PRACTICE_CATEGORIES, PRACTICE_LEVELS, get_practice_puzzle, public_practice_puzzles
@@ -3556,6 +3556,7 @@ def trainer_chat(request):
         status = exc.code
     if answer and engine_context and not explanation_moves_are_grounded(answer, engine_context):
         trainer_logger.warning("Trainer validation: reason=unsupported_move_reference")
+        discard_gemini_explanation(prompt)
         answer = None
         status = "invalid_response"
     if not answer and status == "ok":

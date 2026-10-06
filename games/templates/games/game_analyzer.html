@@ -100,6 +100,7 @@
         <section id="computer-coach-panel" class="computer-tab-panel computer-panel analyzer-panel" data-computer-panel="coach" role="tabpanel" aria-labelledby="computer-tab-coach">
             <div class="trainer-chat">
                 <h2>{% tr "coach_chat" %}</h2>
+                {% include 'games/_trainer_suggestions.html' %}
                 <label for="trainer-player-color">{% tr "piece_color" %}</label>
                 <select id="trainer-player-color">
                     <option value="white" {% if trainer_player_color != 'black' %}selected{% endif %}>{% tr "white" %}</option>
@@ -167,8 +168,8 @@
     let PLAYER_COLOR = '{{ trainer_player_color|default:"white" }}';
 </script>
 
-<script src="{% static 'games/trainer_conversation.min.js' %}?v=1" defer></script>
-<script src="{% static 'games/board.min.js' %}?v=3" defer></script>
+<script src="{% static 'games/trainer_conversation.min.js' %}?v=3" defer></script>
+<script src="{% static 'games/board.min.js' %}?v=5" defer></script>
 <script src="{% static 'games/analyzer_chat.min.js' %}?v=2" defer></script>
 <script src="{% static 'games/analyzer.min.js' %}?v=1" defer></script>
 

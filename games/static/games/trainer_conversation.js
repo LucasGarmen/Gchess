@@ -8,7 +8,7 @@
             disabled: 'La respuesta conversacional está desactivada.',
             model_unavailable: 'El modelo configurado no está disponible para este proyecto.',
             empty_response: 'El entrenador devolvió una respuesta vacía.',
-            invalid_response: 'La respuesta no se pudo validar.',
+            invalid_response: 'La respuesta del entrenador no pasó la validación. Reintentá para pedir una nueva.',
             provider_error: 'El servicio del entrenador falló temporalmente.',
             network: 'No pudimos conectar con el entrenador.',
             engine_unavailable: 'No se pudo analizar la partida con el motor.',
@@ -22,7 +22,7 @@
             disabled: 'A resposta conversacional está desativada.',
             model_unavailable: 'O modelo configurado está indisponível para este projeto.',
             empty_response: 'O treinador retornou uma resposta vazia.',
-            invalid_response: 'Não foi possível validar a resposta.',
+            invalid_response: 'A resposta do treinador não passou na validação. Tente novamente para pedir outra.',
             provider_error: 'O serviço do treinador falhou temporariamente.',
             network: 'Não foi possível conectar ao treinador.',
             engine_unavailable: 'Não foi possível analisar a partida com o motor.',
@@ -36,7 +36,7 @@
             disabled: 'Conversational responses are disabled.',
             model_unavailable: 'The configured model is unavailable for this project.',
             empty_response: 'The coach returned an empty response.',
-            invalid_response: 'The response could not be validated.',
+            invalid_response: 'The coach response did not pass validation. Retry to request a new one.',
             provider_error: 'The coach service failed temporarily.',
             network: 'Could not connect to the coach.',
             engine_unavailable: 'Could not analyze the game with the engine.',
@@ -128,4 +128,12 @@
         }
     }
     window.GChessTrainerChat = {ask};
+    document.querySelectorAll('[data-trainer-question]').forEach(button => {
+        button.addEventListener('click', () => {
+            const input = document.getElementById('trainer-chat-input');
+            if (!input || input.disabled || busy) return;
+            input.value = button.innerText.trim();
+            input.focus();
+        });
+    });
 }());

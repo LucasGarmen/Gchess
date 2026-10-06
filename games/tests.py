@@ -1567,7 +1567,7 @@ class GameAccessTests(TestCase):
         styles = open("games/static/games/style.css", encoding="utf-8").read()
 
         toolbar_start = home.index('<div class="board-toolbar">')
-        toolbar_end = home.index('<div id="board" class="board"></div>')
+        toolbar_end = home.index('<div id="board" class="board"')
         pgn_start = home.index('id="computer-pgn-panel"')
         pgn_end = home.index('<ul id="move-list"', pgn_start)
 

@@ -1065,6 +1065,35 @@ def normalize_language(language):
     return language if language in codes else DEFAULT_LANGUAGE
 
 
+TRANSLATIONS['pt'].update({
+    'home_learning_title': 'Jogue e entenda sua partida',
+    'home_learning_intro': 'Jogue contra o computador e explore suas jogadas com seu treinador.',
+    'home_play_help': 'Escolha o nível e sua cor. No tabuleiro, toque em uma peça e depois na casa de destino.',
+    'home_finished_help': 'Partida encerrada. Reveja suas jogadas e faça perguntas ao treinador.',
+    'trainer_suggestions': 'Experimente perguntar:',
+    'trainer_question_plan': 'O que faço agora nesta posição?',
+    'trainer_question_last': 'A última jogada foi boa?',
+})
+TRANSLATIONS['es'].update({
+    'home_learning_title': 'Jugá y entendé tu partida',
+    'home_learning_intro': 'Jugá contra la computadora y explorá tus jugadas con tu entrenador.',
+    'home_play_help': 'Elegí el nivel y tu color. En el tablero, tocá una pieza y después la casilla de destino.',
+    'home_finished_help': 'Partida terminada. Revisá tus jugadas y hacé preguntas al entrenador.',
+    'trainer_suggestions': 'Probá preguntar:',
+    'trainer_question_plan': '¿Qué hago ahora en esta posición?',
+    'trainer_question_last': '¿La última jugada fue buena?',
+})
+TRANSLATIONS['en'].update({
+    'home_learning_title': 'Play and understand your game',
+    'home_learning_intro': 'Play against the computer and explore your moves with your coach.',
+    'home_play_help': 'Choose the level and your color. On the board, select a piece, then its destination square.',
+    'home_finished_help': 'Game finished. Review your moves and ask the coach questions.',
+    'trainer_suggestions': 'Try asking:',
+    'trainer_question_plan': 'What should I do now in this position?',
+    'trainer_question_last': 'Was the last move good?',
+})
+
+
 def current_language(request):
     return normalize_language(request.session.get('language', DEFAULT_LANGUAGE))
 
