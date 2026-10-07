@@ -244,6 +244,9 @@ else:
         },
     }
 
+# Keep the existing two-week player session policy explicit.
+SESSION_COOKIE_AGE = 14 * 24 * 60 * 60
+SESSION_EXPIRE_AT_BROWSER_CLOSE = False
 SESSION_COOKIE_HTTPONLY = True
 CSRF_COOKIE_HTTPONLY = False
 SESSION_COOKIE_SAMESITE = 'Lax'

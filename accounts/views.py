@@ -142,7 +142,9 @@ def register(request):
         if form.is_valid():
             user = form.save()
             PlayerProfile.objects.get_or_create(user=user)
-            login(request, user)
+            # Newly created users have no backend attribute; Axes adds a second
+            # backend, so Django requires an explicit one for automatic login.
+            login(request, user, backend='django.contrib.auth.backends.ModelBackend')
             return redirect('home')
     else:
         form = RegisterForm()
