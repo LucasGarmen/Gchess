@@ -1,0 +1,1 @@
+{% extends 'admin/index.html' %}{% block content %}{% if user.is_superuser %}<div class="module"><h2>Gchess · Jugadores</h2><p style="padding:16px"><a href="{% url 'admin:player_activity' %}">Ver jugadores online, cuentas nuevas y actividad →</a></p></div>{% endif %}{{ block.super }}{% endblock %}

@@ -46,3 +46,20 @@ class DailyVisitMiddleware:
             )
         except (OperationalError, ProgrammingError):
             pass
+
+
+class PlayerActivityMiddleware:
+    """Record one registered player/day, without storing IPs or visited URLs."""
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        response = self.get_response(request)
+        if (response.status_code < 400 and request.user.is_authenticated
+                and request.user.is_active and not request.user.is_staff
+                and not request.path_info.startswith(DailyVisitMiddleware.EXCLUDED_PREFIXES)):
+            from .models import PlayerActivityDay
+            from .views import touch_presence
+            touch_presence(request.user)
+            PlayerActivityDay.objects.get_or_create(user=request.user, date=timezone.localdate())
+        return response

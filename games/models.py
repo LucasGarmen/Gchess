@@ -385,3 +385,12 @@ class DismissedNotice(models.Model):
 
     class Meta:
         constraints = [models.UniqueConstraint(fields=['user', 'key'], name='dismissed_notice_user_key')]
+
+
+class PlayerActivityDay(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='activity_days')
+    date = models.DateField()
+
+    class Meta:
+        constraints = [models.UniqueConstraint(fields=['user', 'date'], name='player_activity_unique_day')]
+        indexes = [models.Index(fields=['date'], name='player_activity_date_idx')]
