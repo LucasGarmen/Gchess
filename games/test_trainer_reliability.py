@@ -95,3 +95,17 @@ class TrainerProviderBudgetTests(test_trainer.SimpleTestCase):
                 generate_gemini_explanation('expired correction',report_errors=True,deadline=2)
         self.assertEqual(failure.exception.code,'timeout')
         provider.assert_not_called()
+
+
+class EmptyBoardCoachTests(TestCase):
+    def test_last_move_question_is_fast_local_and_translated(self):
+        for language,question,expected in (('es','¿La última jugada fue buena?','Todavía no hay'),('pt','A última jogada foi boa?','Ainda não há'),('en','Was the last move good?','There is no move')):
+            with patch('games.views.generate_gemini_explanation') as provider,patch('games.views.open_stockfish_engine') as engine:
+                response=self.client.post('/trainer-chat/',json.dumps(dict(question=question,language=language)),content_type='application/json')
+            self.assertEqual(response.json()['source'],'board')
+            self.assertEqual(response.json()['status'],'ok')
+            self.assertIn(expected,response.json()['answer'])
+            provider.assert_not_called();engine.assert_not_called()
+    def test_explicit_proposed_move_still_requires_analysis(self):
+        from .trainer_conversation import position_turn_answer
+        self.assertIsNone(position_turn_answer('Would e4 be a good last move?',chess.Board(),'en'))

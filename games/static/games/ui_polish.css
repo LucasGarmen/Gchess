@@ -84,3 +84,10 @@ button:disabled:hover { transform: none; filter: none; }
     background: #ead2a0;
     text-decoration: none;
 }
+
+/* Keep conversation controls usable by touch and prevent iOS input zoom. */
+@media (max-width: 600px) {
+ #trainer-chat-form #trainer-chat-input { min-height: 44px; font-size: 16px !important; line-height: 1.5; padding: 10px 12px; box-sizing: border-box; }
+ #trainer-chat-form #trainer-chat-submit { min-height: 44px; font-size: 14px !important; line-height: 1.4; padding: 10px 14px; }
+ #trainer-chat-log .trainer-chat-message button { min-height: 44px; font-size: 14px; padding: 10px 14px; }
+}

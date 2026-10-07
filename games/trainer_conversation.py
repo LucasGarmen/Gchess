@@ -87,6 +87,13 @@ def useful_engine_fallback(context, question, language):
 def position_turn_answer(question, board, language):
     """Answer a narrow turn question from board state without a provider call."""
     text = normalize_piece_text(question)
+    # The initial board has no last move. Answer this fact without external services.
+    if not board.move_stack and re.search(r"\b(ultima jugada|ultima jogada|last move)\b", text) and not SAN_CANDIDATE_RE.search(question) and not UCI_CANDIDATE_RE.search(question):
+        return {
+            'es':'Todavía no hay ninguna jugada para evaluar. Hacé tu primer movimiento y después preguntame qué me pareció.',
+            'pt':'Ainda não há nenhuma jogada para avaliar. Faça seu primeiro movimento e depois pergunte o que achei.',
+            'en':'There is no move to evaluate yet. Make your first move, then ask me what I think.',
+        }[language]
     turn_question = re.search(r"\b(a quien le toca|a quien toca|quien juega|whose turn|who moves|who is to move|vez de quem|de quem e a vez|quem joga agora)\b", text)
     if not turn_question:
         return None
