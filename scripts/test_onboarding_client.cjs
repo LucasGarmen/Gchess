@@ -7,14 +7,15 @@ function test() {
     const elements = {};
     for (const id of ['home-open-bot', 'home-start-play', 'board', 'mobile-bot-setup', 'mobile-computer-elo', 'mobile-start-bot-game', 'game-closing-panel']) {
         elements[id] = {hidden: true, listeners: {}, addEventListener(event, fn) { this.listeners[event] = fn; },
-            focus() { this.focused = true; }, scrollIntoView() { this.scrolled = true; }};
+            focus() { this.focused = true; }, scrollIntoView() { this.scrolled = true; }, setAttribute() {}};
     }
     const form = {hidden: true};
     let setupOpened = false, optionsSynced = false, gameOpened = false;
     const sandbox = {
         document: {getElementById: id => elements[id]},
         isHomeComputerGame: () => true, analyzeGameForm: form, gameOver: false,
-        pgnPanel: null, computerCoachPanel: null,
+        pgnPanel: null, computerCoachPanel: null, SAVED_MOVES: [],
+        startEntryCoachGame() { optionsSynced = true; gameOpened = true; },
         mobileHomeElements: () => ({startButton: elements['mobile-start-bot-game'], setupPanel: elements['mobile-bot-setup']}),
         showMobileBotSetup() { setupOpened = true; elements['mobile-bot-setup'].hidden = false; },
         syncMobileBotOptions() { optionsSynced = true; }, showMobileBotGame() { gameOpened = true; },

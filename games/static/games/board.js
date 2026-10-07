@@ -1668,6 +1668,7 @@ if (isMultiplayerMode() && SAVED_MOVES.length === 0 && typeof GAME_ID !== 'undef
 
 
 restoreComputerGameState();
+applyEntryGameOptions();
 updateBoardOrientation();
 renderSavedMoveList();
 loadPositionUntil(SAVED_MOVES.length);
@@ -4054,11 +4055,34 @@ function showMobileBotGame() {
     }
 }
 
+function applyEntryGameOptions() {
+    if (!isHomeComputerGame() || SAVED_MOVES.length) return;
+    const params = new URLSearchParams(window.location.search);
+    const level = params.get('level'), color = params.get('color');
+    if (['500','800','1000','1320','1600','2000','2500'].includes(level)) document.getElementById('computer-elo').value = level;
+    if (['white','black'].includes(color)) { PLAYER_COLOR = color; document.getElementById('player-color').value = color; }
+}
+
+function startEntryCoachGame() {
+    if (SAVED_MOVES.length) {
+        saveComputerGameState();
+        const id = 'bot-' + (window.crypto?.randomUUID?.() || Date.now().toString(36) + Math.random().toString(36).slice(2));
+        const params = new URLSearchParams({bot:id,level:document.getElementById('mobile-computer-elo').value,color:document.getElementById('mobile-player-color').value});
+        window.location.assign(window.location.pathname + '?' + params);
+        return;
+    }
+    syncMobileBotOptions();
+    showMobileBotGame();
+    saveComputerGameState();
+    document.getElementById('home-computer-game')?.scrollIntoView({block:'start'});
+}
+
 function initMobileGameNavigation() {
     const openBotButton = document.getElementById('home-open-bot');
     if (openBotButton) {
         openBotButton.addEventListener('click', function () {
             showMobileBotSetup();
+            openBotButton.setAttribute('aria-expanded', 'true');
             const setup = document.getElementById('mobile-bot-setup');
             setup.scrollIntoView({block: 'nearest', behavior: 'smooth'});
             document.getElementById('mobile-computer-elo').focus({preventScroll: true});
@@ -4078,8 +4102,7 @@ function initMobileGameNavigation() {
 
     if (startButton) {
         startButton.addEventListener('click', function () {
-            syncMobileBotOptions();
-            showMobileBotGame();
+            startEntryCoachGame();
         });
     }
 
@@ -4087,6 +4110,11 @@ function initMobileGameNavigation() {
         setupPanel.hidden = true;
     }
 
+    const resumeButton = document.getElementById('home-resume-bot');
+    if (resumeButton) {
+        resumeButton.hidden = SAVED_MOVES.length === 0;
+        resumeButton.addEventListener('click', () => { showMobileBotGame(); document.getElementById('home-computer-game')?.scrollIntoView({block:'start'}); });
+    }
     mountMobileNavToggleInBoardToolbar();
 }
 
@@ -4738,6 +4766,6 @@ async function askComputerMove() {
 
 window.addEventListener('pagehide', saveComputerGameState);
 
-if (isHomeComputerGame() && isMobileLayout() && new URLSearchParams(window.location.search).has('bot')) {
+if (isHomeComputerGame() && new URLSearchParams(window.location.search).has('bot')) {
     showMobileBotGame();
 }

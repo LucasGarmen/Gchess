@@ -1,0 +1,11 @@
+const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict');
+const source=fs.readFileSync('games/static/games/board.js','utf8');
+const code=source.slice(source.indexOf('function applyEntryGameOptions()'),source.indexOf('function initMobileGameNavigation()'));
+const elements={'computer-elo':{value:'500'},'player-color':{value:'white'},'mobile-computer-elo':{value:'800'},'mobile-player-color':{value:'black'}};
+let saved=0,synced=0,opened=0,url='';
+const ctx={isHomeComputerGame:()=>true,SAVED_MOVES:[],PLAYER_COLOR:'white',URLSearchParams,document:{getElementById:id=>elements[id]},window:{location:{search:'?level=1000&color=black',pathname:'/',assign:value=>url=value},crypto:{randomUUID:()=> 'new-test'}},saveComputerGameState:()=>saved++,syncMobileBotOptions:()=>synced++,showMobileBotGame:()=>opened++};
+vm.runInNewContext(code,ctx);ctx.applyEntryGameOptions();assert.equal(elements['computer-elo'].value,'1000');assert.equal(ctx.PLAYER_COLOR,'black');
+ctx.SAVED_MOVES.push({from:'e2',to:'e4'});ctx.window.location.search='?level=2500&color=white';ctx.applyEntryGameOptions();assert.equal(elements['computer-elo'].value,'1000','Existing game settings must be preserved');
+ctx.startEntryCoachGame();assert.equal(saved,1);assert.equal(synced,0);assert.equal(opened,0);assert.ok(url.includes('bot=bot-new-test'));assert.ok(url.includes('level=800'));assert.ok(url.includes('color=black'));assert.equal(ctx.SAVED_MOVES.length,1);
+ctx.SAVED_MOVES.length=0;ctx.window.location.search='?level=bad&color=bad';ctx.applyEntryGameOptions();assert.equal(elements['computer-elo'].value,'1000');
+console.log('Entry setup: supported options, invalid options and preservation of existing games verified.');

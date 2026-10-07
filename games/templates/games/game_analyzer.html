@@ -94,6 +94,7 @@
     </section>
 
     <aside class="computer-side computer-play-panel analyzer-side">
+        {% if saved_review %}{% include "games/_review_practice_link.html" %}{% endif %}
         {% if review_summary %}<details class="learning-summary-toggle"><summary>{{ learning.summary }}</summary>{% include 'games/_review_summary.html' with summary=review_summary %}{% if saved_review %}<p><a class="learning-button" href="{% url 'review_detail' saved_review.pk %}">{{ learning.saved }} · {{ learning.nav }}</a></p>{% else %}<p>{{ learning.login }}</p>{% endif %}</details>{% endif %}
 
         <div class="computer-tabs" role="tablist" aria-label="{% tr "game" %}">
@@ -174,7 +175,7 @@
 </script>
 
 <script src="{% static 'games/trainer_conversation.min.js' %}?v=5" defer></script>
-<script src="{% static 'games/board.min.js' %}?v=12" defer></script>
+<script src="{% static 'games/board.min.js' %}?v=13" defer></script>
 <script src="{% static 'games/analyzer_chat.min.js' %}?v=2" defer></script>
 <script src="{% static 'games/analyzer.min.js' %}?v=2" defer></script>
 

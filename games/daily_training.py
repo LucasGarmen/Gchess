@@ -19,9 +19,11 @@ from .i18n import current_language
 from .views import rate_limit, friendly_move_name, friendly_opening_fact
 
 
-def candidates(user):
+def candidates(user,review_id=None):
     found={}
-    for review in GameReview.objects.filter(user=user).order_by('-created_at')[:60]:
+    reviews=GameReview.objects.filter(user=user)
+    if review_id is not None:reviews=reviews.filter(pk=review_id)
+    for review in reviews.order_by('-created_at')[:60]:
         payload=review.payload
         if not isinstance(payload,dict):continue
         moves,analysis=payload.get('moves',[]),payload.get('analysis',[])

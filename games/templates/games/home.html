@@ -25,18 +25,19 @@
 
 {% block content %}
 
+<link rel="stylesheet" href="{% static 'games/first_steps.css' %}?v=1">
 <section id="mobile-home-menu" class="mobile-home-menu">
     {% include 'games/_home_intro.html' with mobile=True %}
     <div id="mobile-bot-setup" class="mobile-bot-setup" hidden>
-        <label for="mobile-computer-elo">{% tr "bot_elo" %}</label>
+        <h2>{{ flow.setup }}</h2><p>{{ flow.level_help }}</p><label for="mobile-computer-elo">{{ flow.level }}</label>
         <select id="mobile-computer-elo">
-            <option value="500">ELO 500</option>
-            <option value="800">ELO 800</option>
-            <option value="1000">ELO 1000</option>
-            <option value="1320" selected>ELO 1320</option>
-            <option value="1600">ELO 1600</option>
-            <option value="2000">ELO 2000</option>
-            <option value="2500">ELO 2500</option>
+            <option value="500" selected>{{ flow.easy }}</option>
+            <option value="800">{{ flow.casual }}</option>
+            <option value="1000">{{ flow.regular }}</option>
+            <option value="1320">{{ flow.club }}</option>
+            <option value="1600">{{ flow.advanced }}</option>
+            <option value="2000">{{ flow.expert }}</option>
+            <option value="2500">{{ flow.master }}</option>
         </select>
 
         <label for="mobile-player-color">{% tr "play_as" %}</label>
@@ -45,12 +46,13 @@
             <option value="black">{% tr "black" %}</option>
         </select>
 
-        <button id="mobile-start-bot-game" type="button">{% tr "start_game" %}</button>
+        <p>{{ flow.start_help }}</p><button id="mobile-start-bot-game" type="button">{% tr "start_game" %}</button>
     </div>
 </section>
 
 <main id="home-computer-game" class="game-layout computer-game-layout home-computer-layout">
     <section class="board-area">
+        <p class="entry-board-tip">{{ flow.board_help }}</p>
         <div class="board-wrapper">
             <div class="rank-labels">
                 <span>8</span><span>7</span><span>6</span><span>5</span>
@@ -82,10 +84,10 @@
             {% csrf_token %}
             <textarea id="analyze-game-pgn" name="pgn" hidden></textarea>
             <input id="analysis-player-color" type="hidden" name="player_color" value="white">
-            <p>{{ learning.review_first }}</p>
-            <button id="play-again-bot" type="button">{{ learning.new_round }}</button>
+            <h2>{{ flow.review_first }}</h2><p>{{ flow.review_help }}</p>
             <p>{% tr "home_finished_help" %}</p>
             <button id="analyze-game-button" class="analyze-game-button" type="submit" hidden>{% tr "analyze_finished_game" %}</button>
+            <button id="play-again-bot" type="button">{% tr "play_bot" %} · {% tr "new_game" %}</button>
         </form>
         <div class="computer-tabs" role="tablist" aria-label="{% tr "game" %}">
             <button id="computer-tab-coach" class="computer-tab-button active" type="button" data-computer-tab="coach" aria-controls="computer-coach-panel" aria-selected="true">{% tr "coach_chat" %}</button>
@@ -95,15 +97,15 @@
         <section id="computer-coach-panel" class="computer-tab-panel computer-panel" data-computer-panel="coach" role="tabpanel" aria-labelledby="computer-tab-coach">
             <div class="coach-settings">
                 <div>
-                    <label for="computer-elo">{% tr "bot_elo" %}</label>
+                    <label for="computer-elo">{{ flow.level }}</label>
                     <select id="computer-elo">
-                        <option value="500">ELO 500</option>
-                        <option value="800">ELO 800</option>
-                        <option value="1000">ELO 1000</option>
-                        <option value="1320" selected>ELO 1320</option>
-                        <option value="1600">ELO 1600</option>
-                        <option value="2000">ELO 2000</option>
-                        <option value="2500">ELO 2500</option>
+                        <option value="500" selected>{{ flow.easy }}</option>
+                        <option value="800">{{ flow.casual }}</option>
+                        <option value="1000">{{ flow.regular }}</option>
+                        <option value="1320">{{ flow.club }}</option>
+                        <option value="1600">{{ flow.advanced }}</option>
+                        <option value="2000">{{ flow.expert }}</option>
+                        <option value="2500">{{ flow.master }}</option>
                     </select>
                 </div>
                 <div>
@@ -126,6 +128,7 @@
                 <button id="retry-bot-move" type="button">{% if current_language == 'es' %}Reintentar jugada{% elif current_language == 'en' %}Retry move{% else %}Tentar jogada novamente{% endif %}</button>
             </div>
 
+            <details class="entry-coach-help"><summary>{{ flow.coach_help_title }}</summary><p>{{ flow.coach_help_text }}</p></details>
             <div class="trainer-chat">
                 <h2>{% tr "coach_chat" %}</h2>
                 {% include 'games/_trainer_suggestions.html' %}
@@ -218,7 +221,7 @@
 
 <script src="{% static 'games/analysis_loading.min.js' %}?v=1"></script>
 <script src="{% static 'games/trainer_conversation.min.js' %}?v=5" defer></script>
-<script src="{% static 'games/board.min.js' %}?v=12" defer></script>
+<script src="{% static 'games/board.min.js' %}?v=13" defer></script>
 <script>
     window.GChessAnalysisLoading.bindForm('analyze-game-form', { navigate: true });
 </script>
