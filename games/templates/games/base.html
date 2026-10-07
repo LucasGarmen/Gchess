@@ -20,6 +20,8 @@
     <link rel="stylesheet" href="{% static 'games/chess_visuals.css' %}?v=1">
     <link rel="stylesheet" href="{% static 'games/workspace.css' %}?v=2">
     <script src="{% static 'games/workspace.js' %}?v=2" defer></script>
+    <link rel="stylesheet" href="{% static 'games/navigation.css' %}?v=1">
+    <script src="{% static 'games/navigation.js' %}?v=1" defer></script>
 </head>
 
 <body>
@@ -34,51 +36,56 @@
         <img src="{% static 'games/gchess-emblem.png' %}?v=3" alt="" width="42" height="42" decoding="async">
         <span class="nav-wordmark nav-domain">gchess.app</span>
     </a>
-    <a class="nav-link" href="{% url 'home' %}"{% if request.resolver_match.url_name == 'home' %} aria-current="page"{% endif %}>{% tr "nav_home" %}</a>
-    <a class="nav-link" href="{% url 'games_list' %}"{% if request.resolver_match.url_name == 'games_list' %} aria-current="page"{% endif %}>{% tr "nav_games" %}</a>
-    <a class="nav-link" href="{% url 'game_create' %}"{% if request.resolver_match.url_name == 'game_create' %} aria-current="page"{% endif %}>{% tr "nav_new_game" %}</a>
-    <a class="nav-link" href="{% url 'game_analyzer' %}"{% if request.resolver_match.url_name == 'game_analyzer' %} aria-current="page"{% endif %}>{% tr "nav_analyze_pgn" %}</a>
-    <a class="nav-link" href="{% url 'training' %}"{% if is_training_page %} aria-current="page"{% endif %}>{% tr "nav_training" %}</a>
-    <a class="nav-link" href="{% url 'leaderboard' %}"{% if request.resolver_match.url_name == 'leaderboard' %} aria-current="page"{% endif %}>{% tr "nav_leaderboard" %}</a>
-
-    <form class="language-form" method="POST" action="{% url 'set_language' %}">
-        {% csrf_token %}
-        <input type="hidden" name="next" value="{{ request.get_full_path }}">
-        <label for="language-select">{% tr "language" %}</label>
-        <select id="language-select" name="language">
-            {% for code, label in language_options %}
-                <option value="{{ code }}"{% if code == current_language %} selected{% endif %}>{{ label }}</option>
-            {% endfor %}
-        </select>
-    </form>
-
-    {% block nav_extra %}
-    {% endblock %}
-
+    <a class="nav-link nav-main-row" href="{% url 'home' %}"{% if request.resolver_match.url_name == 'home' %} aria-current="page"{% endif %}>{% tr "nav_home" %}</a>
+    <div class="nav-group">
+        <div class="nav-main-row"><a class="nav-link" href="{% url 'games_list' %}"{% if request.resolver_match.url_name == 'games_list' or request.resolver_match.url_name == 'game_create' or request.resolver_match.url_name == 'game_detail' %} aria-current="page"{% endif %}>{% tr "nav_games" %}</a><button class="nav-disclosure" type="button" aria-expanded="false" aria-controls="nav-games-options" aria-label="{% tr 'nav_games' %}">›</button></div>
+        <div id="nav-games-options" class="nav-submenu" hidden>
+            <a href="{% url 'home' %}?bot=main">{% tr "play_bot" %}</a>
+            <a href="{% url 'game_create' %}">{% tr "nav_new_game" %}</a>
+            <a href="{% url 'games_list' %}">{% tr "nav_games" %}</a>
+        </div>
+    </div>
+    <div class="nav-group">
+        <div class="nav-main-row"><a class="nav-link" href="{% url 'game_analyzer' %}"{% if request.resolver_match.url_name == 'game_analyzer' %} aria-current="page"{% endif %}>{% tr "nav_analyze_pgn" %}</a><button class="nav-disclosure" type="button" aria-expanded="false" aria-controls="nav-analysis-options" aria-label="{% tr 'nav_analyze_pgn' %}">›</button></div>
+        <div id="nav-analysis-options" class="nav-submenu" hidden>
+            <a href="{% url 'game_analyzer' %}">{% tr "nav_analyze_pgn" %}</a>
+            <a href="{% url 'games_list' %}">{% tr "nav_games" %}</a>
+            {% if user.is_authenticated %}<a href="{% url 'learning' %}">{{ learning.nav }}</a>{% endif %}
+        </div>
+    </div>
+    <div class="nav-group">
+        <div class="nav-main-row"><a class="nav-link" href="{% url 'training' %}"{% if is_training_page %} aria-current="page"{% endif %}>{% tr "nav_training" %}</a><button class="nav-disclosure" type="button" aria-expanded="false" aria-controls="nav-training-options" aria-label="{% tr 'nav_training' %}">›</button></div>
+        <div id="nav-training-options" class="nav-submenu" hidden>
+            {% for mode in training_modes %}<a href="{% url mode.route %}"{% if active_training_mode.route == mode.route %} aria-current="page"{% endif %}><strong>{{ mode.title }}</strong><small>{{ mode.goal }}</small></a>{% endfor %}
+        </div>
+    </div>
+    <a class="nav-link nav-main-row" href="{% url 'leaderboard' %}"{% if request.resolver_match.url_name == 'leaderboard' %} aria-current="page"{% endif %}>{% tr "nav_leaderboard" %}</a>
     {% if user.is_authenticated %}
-        <a class="nav-link" href="{% url 'friends' %}"{% if request.resolver_match.url_name == 'friends' %} aria-current="page"{% endif %}>{{ social_nav_title }}{% if friend_request_count %} · {{ friend_request_count }}{% endif %}</a>
-        <a class="nav-link" href="{% url 'learning' %}"{% if request.resolver_match.url_name == 'learning' %} aria-current="page"{% endif %}>{{ learning.nav }}</a>
-        <span>{% tr "nav_hello" %}, {{ user.username }}{% if user.player_profile %} · {% tr "nav_elo" %} {{ user.player_profile.elo }}{% endif %}</span>
-
-        <a class="nav-link" href="{% url 'profile_stats' %}"{% if request.resolver_match.url_name == 'profile_stats' %} aria-current="page"{% endif %}>{% tr "nav_stats" %}</a>
-        <a class="nav-link" href="{% url 'profile_achievements' %}"{% if request.resolver_match.url_name == 'profile_achievements' %} aria-current="page"{% endif %}>{% tr "nav_achievements" %}</a>
-        <a class="nav-link" href="{% url 'password_change' %}"{% if request.resolver_match.url_name == 'password_change' %} aria-current="page"{% endif %}>{% tr "nav_change_password" %}</a>
-
-        <div class="notification-area">
-            <button id="notification-toggle" type="button">{% tr "nav_invitations" %} <span id="notification-count" hidden>0</span></button>
-            <div id="notification-panel" class="notification-panel" hidden>
-                <p class="notification-empty">{% tr "nav_no_invitations" %}</p>
+        <a class="nav-link nav-main-row" href="{% url 'friends' %}"{% if request.resolver_match.url_name == 'friends' %} aria-current="page"{% endif %}>{{ social_nav_title }}{% if friend_request_count %} · {{ friend_request_count }}{% endif %}</a>
+        <a class="nav-link nav-main-row" href="{% url 'learning' %}"{% if request.resolver_match.url_name == 'learning' %} aria-current="page"{% endif %}>{{ learning.nav }}</a>
+        <div class="nav-group">
+            <div class="nav-main-row"><a class="nav-link nav-account" href="{% url 'profile_stats' %}"><strong>{{ user.username }}</strong>{% if user.player_profile %}<small>{% tr "nav_elo" %} {{ user.player_profile.elo }}</small>{% endif %}</a><button class="nav-disclosure" type="button" aria-expanded="false" aria-controls="nav-account-options" aria-label="{{ user.username }}">›</button></div>
+            <div id="nav-account-options" class="nav-submenu" hidden>
+                <a href="{% url 'profile_stats' %}">{% tr "nav_stats" %}</a>
+                <a href="{% url 'profile_achievements' %}">{% tr "nav_achievements" %}</a>
+                <a href="{% url 'password_change' %}">{% tr "nav_change_password" %}</a>
+                <form method="POST" action="{% url 'logout' %}" class="nav-logout">{% csrf_token %}<button type="submit">{% tr "nav_logout" %}</button></form>
             </div>
         </div>
-
-        <form method="POST" action="{% url 'logout' %}" class="nav-logout">
-            {% csrf_token %}
-            <button type="submit">{% tr "nav_logout" %}</button>
-        </form>
+        <div class="notification-area nav-main-row">
+            <button id="notification-toggle" type="button">{% tr "nav_invitations" %} <span id="notification-count" hidden>0</span></button>
+            <div id="notification-panel" class="notification-panel" hidden><p class="notification-empty">{% tr "nav_no_invitations" %}</p></div>
+        </div>
     {% else %}
-        <a class="nav-link" href="{% url 'login' %}"{% if request.resolver_match.url_name == 'login' %} aria-current="page"{% endif %}>{% tr "nav_login" %}</a>
-        <a class="nav-link" href="{% url 'register' %}"{% if request.resolver_match.url_name == 'register' %} aria-current="page"{% endif %}>{% tr "nav_register" %}</a>
+        <a class="nav-link nav-main-row" href="{% url 'login' %}"{% if request.resolver_match.url_name == 'login' %} aria-current="page"{% endif %}>{% tr "nav_login" %}</a>
+        <a class="nav-link nav-main-row" href="{% url 'register' %}"{% if request.resolver_match.url_name == 'register' %} aria-current="page"{% endif %}>{% tr "nav_register" %}</a>
     {% endif %}
+    {% block nav_extra %}{% endblock %}
+    <form class="language-form" method="POST" action="{% url 'set_language' %}">
+        {% csrf_token %}<input type="hidden" name="next" value="{{ request.get_full_path }}">
+        <label for="language-select">{% tr "language" %}</label>
+        <select id="language-select" name="language">{% for code, label in language_options %}<option value="{{ code }}"{% if code == current_language %} selected{% endif %}>{{ label }}</option>{% endfor %}</select>
+    </form>
 
     {% block nav_mobile_extra %}
     {% endblock %}

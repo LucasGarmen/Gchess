@@ -1,0 +1,53 @@
+/* Compact navigation, with independent landing links and accessible flyouts. */
+#site-nav{gap:0;overflow:visible}
+#site-nav .nav-main-row{display:flex;align-items:center;min-width:0;min-height:42px;border:0;border-bottom:1px solid rgba(226,202,161,.12);border-radius:0;margin:0;padding:0;width:100%;box-sizing:border-box}
+#site-nav > a.nav-main-row{padding:10px 12px}
+#site-nav .nav-group{position:relative;min-width:0;width:100%;padding:0;border:0}
+#site-nav .nav-main-row .nav-link{flex:1;min-width:0;min-height:42px;padding:10px 12px;border:0;border-radius:0;box-sizing:border-box}
+#site-nav .nav-main-row .nav-disclosure{display:flex;align-items:center;justify-content:center;flex:0 0 30px;width:30px;min-height:42px;background:transparent;border:0;border-radius:0;color:#caba9c;padding:0;font-size:20px;cursor:pointer}
+#site-nav .nav-group[data-open=true] .nav-main-row{background:rgba(226,202,161,.06)}
+#site-nav .nav-submenu{position:fixed;z-index:1300;width:272px;max-width:calc(100vw - 24px);padding:8px;background:#29271f;color:#f2e6cf;border:1px solid rgba(226,202,161,.25);border-radius:10px;box-shadow:0 10px 30px #0006;box-sizing:border-box}
+#site-nav .nav-submenu[hidden]{display:none!important}
+#site-nav .nav-submenu a,#site-nav .nav-submenu .nav-logout button{display:block;width:100%;box-sizing:border-box;padding:11px 12px;min-height:42px;text-align:left;font-size:13px;font-weight:500;text-decoration:none;border:0;border-bottom:1px solid rgba(226,202,161,.10);border-radius:4px;color:#eee0c6;background:transparent;margin:0}
+#site-nav .nav-submenu a:hover,#site-nav .nav-submenu button:hover{background:rgba(226,202,161,.08)}
+#site-nav .nav-submenu a:last-child{border-bottom:0}
+#site-nav .nav-submenu strong{display:block;font-weight:600}
+#site-nav .nav-submenu small{display:block;margin-top:4px;color:#bfb49f;font-size:12px;font-weight:400;line-height:1.35}
+#site-nav .nav-account strong{display:block;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#site-nav .nav-account small{font-size:11px;color:#c3b79e}
+#site-nav .notification-area>button{background:transparent;border:0;color:#dcc7a0;margin:0;padding:10px 12px;font-weight:600;min-height:42px;border-radius:0}
+#site-nav .language-form{padding:10px 0 0;margin:12px 0 0;flex-shrink:0;border-top:1px solid rgba(226,202,161,.12)}
+@media(min-width:1101px){
+ #site-nav{padding:14px 12px;overflow:visible;display:flex;flex-direction:column}
+ #site-nav .nav-brand{min-height:58px;padding:4px 4px 12px;margin:0 0 8px;border-bottom:1px solid rgba(226,202,161,.12)}
+ #site-nav>.nav-main-row,#site-nav>.nav-group{flex-shrink:0}
+ #site-nav .language-form{margin-top:auto}
+ #site-nav .nav-captured-material{margin-top:10px;flex-shrink:0}
+}
+@media(min-width:1101px) and (max-height:650px){
+ #site-nav{padding:8px 12px}
+ #site-nav .nav-main-row,#site-nav .nav-main-row .nav-link,#site-nav .nav-main-row .nav-disclosure,#site-nav .notification-area>button{min-height:34px}
+ #site-nav>a.nav-main-row,#site-nav .nav-main-row .nav-link,#site-nav .notification-area>button{padding:7px 10px;font-size:12px}
+ #site-nav .nav-brand{min-height:50px;margin-bottom:4px;padding-bottom:8px}
+ #site-nav .language-form{padding-top:6px}
+}
+@media(min-width:901px) and (max-width:1100px){
+ #site-nav{display:flex;flex-wrap:wrap;gap:0 8px}
+ #site-nav>.nav-main-row,#site-nav>.nav-group{width:auto}
+ #site-nav .nav-brand{min-height:48px}
+ #site-nav .language-form{margin:0;padding:0;border:0}
+}
+@media(max-width:900px){
+ #site-nav{grid-template-columns:repeat(2,minmax(0,1fr));gap:0 12px;overflow:visible}
+ #site-nav .nav-brand{min-height:48px;margin-bottom:8px}
+ #site-nav .nav-main-row .nav-link,#site-nav>a.nav-main-row{display:flex;align-items:center;justify-content:flex-start;text-align:left;font-size:13px;padding:8px}
+ #site-nav .nav-disclosure{transform:rotate(90deg)}
+ #site-nav .nav-group[data-open=true] .nav-disclosure{transform:rotate(-90deg)}
+ #site-nav .language-form{grid-column:1/-1;padding-top:8px;margin:8px 0 0}
+ #site-nav .notification-area>button{text-align:left;justify-content:flex-start;padding:8px;font-size:13px}
+ #site-nav .nav-captured-material{grid-column:1/-1}
+}
+
+#site-nav .nav-main-row .nav-account{display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:3px}#site-nav .nav-account strong{max-width:100%}
+
+@media(max-width:900px){body:not(.mobile-nav-open) #site-nav > :not(.nav-brand){display:none!important}}
