@@ -1,123 +1,57 @@
 {% extends 'games/base.html' %}
-{% load game_i18n %}
-
-{% block title %}
-{% tr "new_game" %}
-{% endblock %}
-
+{% load game_i18n static %}
+{% block title %}{% tr "new_game" %}{% endblock %}
 {% block content %}
-
-<main class="game-create-page">
-<h1>{% tr "new_game" %}</h1>
-
-<form method="POST" class="form-card game-create-form" novalidate>
-    {% csrf_token %}
-
-    <div class="form-field">
-        <span class="form-label">{% tr "game_type" %}</span>
-        <div class="option-group">
-            {% for option in form.game_type %}
-                <label class="option-item">
-                    {{ option.tag }}
-                    <span>{{ option.choice_label }}</span>
-                </label>
-            {% endfor %}
+<link rel="stylesheet" href="{% static 'games/game_create.css' %}?v=1">
+<main class="game-create-page create-refresh">
+    <header class="create-heading"><p>Gchess</p><h1>{% tr "new_game" %}</h1><p>{{ create_texts.intro }}</p></header>
+    <form method="POST" class="game-create-form create-layout" novalidate id="create-game-form">
+        {% csrf_token %}
+        <div class="create-options">
+            {% for error in form.non_field_errors %}<p class="field-error" role="alert">{{ error }}</p>{% endfor %}
+            <fieldset class="create-section"><legend>01 · {% tr "opponent" %}</legend>
+                <p class="create-help">{{ create_texts.opponent_help }}</p>
+                <div class="create-choice-grid">
+                {% for option in form.opponent_mode %}
+                    <label class="create-choice">{{ option.tag }}<span><strong>{{ option.choice_label }}</strong><small>{% if option.data.value == 'random' %}{{ create_texts.random_help }}{% elif option.data.value == 'choose' %}{{ create_texts.choose_help }}{% else %}{{ create_texts.link_help }}{% endif %}</small></span></label>
+                {% endfor %}
+                </div>
+                {% for error in form.opponent_mode.errors %}<p class="field-error" role="alert">{{ error }}</p>{% endfor %}
+                <div id="opponent-name-field" class="create-name"><label for="{{ form.opponent_name.id_for_label }}">{% tr "opponent_name" %}</label>{{ form.opponent_name }}
+                {% for error in form.opponent_name.errors %}<p class="field-error" role="alert">{{ error }}</p>{% endfor %}</div>
+            </fieldset>
+            <fieldset class="create-section"><legend>02 · {% tr "game_type" %}</legend>
+                <div class="create-choice-grid">
+                {% for option in form.game_type %}<label class="create-choice">{{ option.tag }}<span><strong>{{ option.choice_label }}</strong><small>{% if option.data.value == 'ranked' %}{{ create_texts.ranked_help }}{% else %}{{ create_texts.casual_help }}{% endif %}</small></span></label>{% endfor %}
+                </div>
+                {% if not user.is_authenticated %}<p class="create-help">{% tr "ranked_login_help" %}</p>{% endif %}
+                {% for error in form.game_type.errors %}<p class="field-error" role="alert">{{ error }}</p>{% endfor %}
+            </fieldset>
+            <fieldset class="create-section"><legend>03 · {% tr "piece_color" %}</legend>
+                <div class="create-colors">
+                {% for option in form.color_choice %}<label class="create-choice create-color">{{ option.tag }}<span class="create-piece-pair">
+                    {% if option.data.value != 'black' %}<img src="{% static 'games/pieces-rustic/king_white.svg' %}" alt="" width="42" height="50">{% endif %}
+                    {% if option.data.value != 'white' %}<img src="{% static 'games/pieces-rustic/king_black.svg' %}" alt="" width="42" height="50">{% endif %}
+                    </span><strong>{{ option.choice_label }}</strong></label>{% endfor %}
+                </div>
+                {% for error in form.color_choice.errors %}<p class="field-error" role="alert">{{ error }}</p>{% endfor %}
+            </fieldset>
+            <fieldset class="create-section"><legend>04 · {{ create_texts.time }}</legend>
+                <p class="create-help">{{ create_texts.time_help }}</p>
+                <div class="create-time-presets" aria-label="{{ create_texts.time }}">
+                    <button type="button" data-minutes="3" aria-pressed="false">3 min</button><button type="button" data-minutes="5" aria-pressed="false">5 min</button><button type="button" data-minutes="10" aria-pressed="false">10 min</button><button type="button" data-minutes="" aria-pressed="false">{{ create_texts.no_clock }}</button>
+                </div>
+                <label for="{{ form.time_control_minutes.id_for_label }}">{{ create_texts.custom }}</label>{{ form.time_control_minutes }}
+                {% for error in form.time_control_minutes.errors %}<p class="field-error" role="alert">{{ error }}</p>{% endfor %}
+            </fieldset>
         </div>
-        {% if not user.is_authenticated %}
-            <p class="field-help">{% tr "ranked_login_help" %}</p>
-        {% endif %}
-        {% for error in form.game_type.errors %}
-            <p class="field-error">{{ error }}</p>
-        {% endfor %}
-    </div>
-
-    <div class="form-field">
-        <span class="form-label">{% tr "opponent" %}</span>
-        <div class="option-group">
-            {% for option in form.opponent_mode %}
-                <label class="option-item">
-                    {{ option.tag }}
-                    <span>{{ option.choice_label }}</span>
-                </label>
-            {% endfor %}
-        </div>
-        {% for error in form.opponent_mode.errors %}
-            <p class="field-error">{{ error }}</p>
-        {% endfor %}
-    </div>
-
-    <div class="form-field" id="opponent-name-field">
-        <label for="{{ form.opponent_name.id_for_label }}">{% tr "opponent_name" %}</label>
-        {{ form.opponent_name }}
-        {% for error in form.opponent_name.errors %}
-            <p class="field-error">{{ error }}</p>
-        {% endfor %}
-    </div>
-
-    <div class="form-field">
-        <span class="form-label">{% tr "piece_color" %}</span>
-        <div class="option-group">
-            {% for option in form.color_choice %}
-                <label class="option-item">
-                    {{ option.tag }}
-                    <span>{{ option.choice_label }}</span>
-                </label>
-            {% endfor %}
-        </div>
-        {% for error in form.color_choice.errors %}
-            <p class="field-error">{{ error }}</p>
-        {% endfor %}
-    </div>
-
-    <div class="form-field">
-        <label for="{{ form.time_control_minutes.id_for_label }}">{% tr "time_per_player" %}</label>
-        {{ form.time_control_minutes }}
-        {% for error in form.time_control_minutes.errors %}
-            <p class="field-error">{{ error }}</p>
-        {% endfor %}
-    </div>
-
-    <button type="submit">{% tr "create_game" %}</button>
-</form>
-
-<script>
-    const opponentModeInputs = document.querySelectorAll('input[name="opponent_mode"]');
-    const opponentNameField = document.getElementById('opponent-name-field');
-    const timeControlInput = document.getElementById('{{ form.time_control_minutes.id_for_label }}');
-
-    function updateOpponentNameVisibility() {
-        const selectedMode = document.querySelector('input[name="opponent_mode"]:checked')?.value;
-        opponentNameField.hidden = selectedMode !== 'choose';
-    }
-
-    opponentModeInputs.forEach(function (input) {
-        input.addEventListener('change', updateOpponentNameVisibility);
-    });
-
-    if (timeControlInput) {
-        timeControlInput.addEventListener('wheel', function (event) {
-            event.preventDefault();
-
-            const currentValue = timeControlInput.value === ''
-                ? null
-                : Number(timeControlInput.value);
-
-            if (event.deltaY < 0) {
-                timeControlInput.value = Math.min((currentValue || 0) + 1, 5000);
-                return;
-            }
-
-            if (!currentValue || currentValue <= 1) {
-                timeControlInput.value = '';
-                return;
-            }
-
-            timeControlInput.value = currentValue - 1;
-        }, { passive: false });
-    }
-
-    updateOpponentNameVisibility();
-</script>
+        <aside class="create-summary" aria-label="{{ create_texts.summary }}">
+            <h2>{{ create_texts.summary }}</h2><p>{{ create_texts.ready }}</p>
+            <dl><dt>{% tr "opponent" %}</dt><dd id="create-summary-opponent">—</dd><dt>{% tr "game_type" %}</dt><dd id="create-summary-type">—</dd><dt>{% tr "piece_color" %}</dt><dd id="create-summary-color">—</dd><dt>{{ create_texts.time }}</dt><dd id="create-summary-time">{{ create_texts.no_clock }}</dd></dl>
+            <button type="submit">{% tr "create_game" %} →</button>
+        </aside>
+    </form>
 </main>
-
+{{ create_texts|json_script:"create-game-texts" }}
+<script src="{% static 'games/game_create.js' %}?v=1" defer></script>
 {% endblock %}

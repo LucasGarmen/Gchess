@@ -63,6 +63,9 @@ class ChessGameForm(forms.Form):
     def __init__(self, *args, language='pt', user=None, **kwargs):
         super().__init__(*args, **kwargs)
         self.user = user
+        from .create_texts import TEXTS
+        self.create_texts = TEXTS[language]
+        self.fields['time_control_minutes'].widget.attrs['placeholder'] = self.create_texts['no_clock']
         self.fields['game_type'].choices = [
             ('casual', t(language, 'casual_game')),
             ('ranked', t(language, 'ranked_game')),
@@ -97,7 +100,7 @@ class ChessGameForm(forms.Form):
             cleaned_data['opponent_mode'] = 'link'
 
         if cleaned_data.get('opponent_mode') == 'choose' and not cleaned_data.get('opponent_name'):
-            self.add_error('opponent_name', 'Informe o nome do oponente.')
+            self.add_error('opponent_name', self.create_texts['missing_name'])
 
         time_control = cleaned_data.get('time_control_minutes')
 

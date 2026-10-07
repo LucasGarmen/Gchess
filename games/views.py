@@ -2034,9 +2034,9 @@ def game_create(request):
 
             if opponent_mode == 'choose':
                 if not opponent:
-                    form.add_error('opponent_name', 'Esse usuário não está online ou não existe.')
+                    form.add_error('opponent_name', form.create_texts['unavailable'])
                 elif opponent == request.user:
-                    form.add_error('opponent_name', 'Você não pode jogar contra você mesmo.')
+                    form.add_error('opponent_name', form.create_texts['self_play'])
                 else:
                     invitation = GameInvitation.objects.create(
                         creator=request.user,
@@ -2070,7 +2070,9 @@ def game_create(request):
     else:
         form = ChessGameForm(language=current_language(request), user=request.user)
 
+    from .create_texts import TEXTS as CREATE_TEXTS
     return render(request, 'games/game_create.html', {
+        'create_texts': CREATE_TEXTS[current_language(request)],
         'form': form
     })
     
