@@ -1,0 +1,79 @@
+/* Shared interaction and mobile refinements. Keep chess geometry in chess_visuals.css. */
+button:disabled { cursor: not-allowed; }
+button:disabled:hover { transform: none; filter: none; }
+#site-nav .nav-submenu { max-height: calc(100dvh - 16px); overflow-y: auto; overscroll-behavior: contain; }
+#site-nav .nav-main-row button { box-shadow: none; transform: none; filter: none; }
+.stats-page .profile-power-panel { width: 100%; margin: 0; }
+.stats-page .profile-power-panel span { white-space: normal; overflow-wrap: anywhere; }
+.stats-page > .training-stat-note { margin: 0; line-height: 1.65; }
+.analyzer-create-page #pgn-analysis-form label { display: block; margin: 0 0 8px; }
+.analyzer-create-page #review-player-color { display: block; min-height: 44px; min-width: 150px; max-width: 100%; margin: 0 0 20px; padding: 10px 12px; border-radius: 8px; }
+.analyzer-create-page #pgn-analysis-form textarea { width: 100%; max-width: 100%; min-height: 180px; }
+.analyzer-create-page #pgn-analysis-form button { min-height: 44px; }
+
+/* Explicit states preserve text contrast on both ivory and dark controls. */
+@media (hover: hover) and (pointer: fine) {
+ .entry-paths a:hover, .entry-paths button:not(:disabled):hover,
+ .tournament-button:not(:disabled):hover { background: #ead2a0; color: #29241a; border-color: #ead2a0; }
+ .entry-paths #home-resume-bot:hover { background: #353526; color: #ead2a0; }
+ .social-page button:not(:disabled):hover, .learning-button:not(:disabled):hover { background: #795334; color: #fff8eb; border-color: #795334; }
+ .social-page .social-secondary:hover { background: #efe4d2; color: #543821; }
+ .social-panel a:not(.learning-button):hover, .learning-links a:not(.learning-button):hover { color: #49311f; text-decoration: underline; text-underline-offset: 3px; }
+ .create-refresh .create-choice:hover { background: #303126; border-color: #a38b60; transform: none; }
+ .create-refresh .create-choice:has(input:checked):hover { background: #454530; border-color: #dbc18a; }
+ .create-time-presets button:hover { background: #3a3c2b; color: #ead8b4; }
+ .create-time-presets button[aria-pressed=true]:hover { background: #e2ca98; color: #26251d; }
+ #site-nav .nav-main-row .nav-disclosure:hover, #site-nav .notification-area > button:hover { background: #343329; color: #f2e6cf; }
+ .game-workspace .workspace-game:hover { background: #404a36; border-color: #c3a96e; }
+ .game-workspace #workspace-toggle:hover { background: #35402f; color: #f1e6cc; transform: none; filter: none; }
+ .home-computer-layout .trainer-chat .trainer-suggestions button:hover { background: #3a3629; color: #ecd3a3; }
+}
+
+@media (max-width: 900px) {
+ body { padding-bottom: max(88px, calc(72px + env(safe-area-inset-bottom))); }
+ #site-nav .nav-main-row .nav-disclosure { flex-basis: 44px; width: 44px; min-height: 44px; }
+ #site-nav .nav-main-row .nav-link, #site-nav > a.nav-main-row,
+ #site-nav .notification-area > button { min-height: 44px; }
+ #site-nav .language-form select { min-height: 44px; font-size: 16px; }
+ .game-workspace { bottom: max(12px, env(safe-area-inset-bottom)); }
+ .game-workspace #workspace-toggle, .game-workspace #workspace-close,
+ .game-workspace .workspace-actions a, .game-workspace .workspace-actions button { min-height: 44px; }
+ .game-workspace #workspace-close { min-width: 44px; }
+ .trainer-chat input, .game-chat input, .social-page input,
+ .create-name input, .tournament-form input, .tournament-form select,
+ .mobile-bot-setup select, .coach-settings select,
+ .analyzer-create-page input, .analyzer-create-page textarea, .analyzer-create-page select { font-size: 16px; }
+ .home-computer-layout .trainer-chat .trainer-suggestions button { min-height: 44px; padding: 10px 12px; }
+ body.mobile-bot-playing .home-computer-layout .board-toolbar button,
+ body .online-game-layout .board-toolbar button,
+ body .analyzer-game-layout .board-toolbar button,
+ body .practice-game-layout .board-toolbar button { min-height: 44px; height: auto; }
+ .board-toolbar button:not(#toggle-analysis-mode):not(.mobile-nav-toggle) { min-width: 36px; }
+ .entry-coach-help summary, .training-card summary, .training-mode-guide summary { min-height: 44px; display: list-item; padding-top: 10px; padding-bottom: 10px; }
+ .stats-page, .leaderboard-page { min-width: 0; padding: 20px 0 32px; }
+ .stats-page .profile-power-panel, .stats-page .stats-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+ .stats-page .profile-power-panel { padding: 12px; gap: 10px; }
+ .stats-page .profile-power-panel div { padding: 12px; }
+ .stats-page .profile-power-panel strong { font-size: 28px; }
+ .stats-page .stat-card { min-width: 0; padding: 14px; }
+ .stats-page .stat-card span { overflow-wrap: anywhere; }
+ .learning-page .learning-metrics { grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); }
+ .training-page, .tournament-page, .social-page, .learning-page { overflow-wrap: break-word; }
+}
+@media (max-width: 360px) {
+ #site-nav { column-gap: 6px; }
+ #site-nav .nav-main-row .nav-link, #site-nav > a.nav-main-row { font-size: 12px; padding: 8px 6px; }
+ body.mobile-bot-playing .home-computer-layout .board-toolbar { display: grid; grid-template-columns: minmax(0, 1fr) repeat(3, 44px); gap: 4px; }
+ body.mobile-bot-playing .home-computer-layout .board-toolbar button { width: 100%; min-width: 0; }
+ body.mobile-bot-playing .home-computer-layout .board-toolbar #toggle-analysis-mode { grid-column: 1 / -1; grid-row: 2; }
+ body.mobile-bot-playing .home-computer-layout .board-toolbar #flip-board { grid-column: 4; grid-row: 1; }
+ body.mobile-bot-playing .home-computer-layout .board-toolbar #prev-move { grid-column: 2; grid-row: 1; }
+ body.mobile-bot-playing .home-computer-layout .board-toolbar #next-move { grid-column: 3; grid-row: 1; }
+ .board-toolbar { gap: 4px; }
+ .board-toolbar button { padding-left: 6px; padding-right: 6px; font-size: 11px; }
+}
+@media (prefers-reduced-motion: reduce) {
+ button, a, .game-card, .option-item, .xp-progress-track span { transition: none; }
+ .game-card:hover, .option-item:hover, button:hover { transform: none; }
+ .game-chat-emoji-toggle:hover { transform: translateY(-50%); }
+}
