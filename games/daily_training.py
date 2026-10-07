@@ -19,11 +19,11 @@ from .i18n import current_language
 from .views import rate_limit, friendly_move_name, friendly_opening_fact
 
 
-def candidates(user,review_id=None):
+def candidates(user,review_id=None,*,max_reviews=60,max_positions=None):
     found={}
     reviews=GameReview.objects.filter(user=user)
     if review_id is not None:reviews=reviews.filter(pk=review_id)
-    for review in reviews.order_by('-created_at')[:60]:
+    for review in reviews.order_by('-created_at')[:max_reviews]:
         payload=review.payload
         if not isinstance(payload,dict):continue
         moves,analysis=payload.get('moves',[]),payload.get('analysis',[])
@@ -42,6 +42,8 @@ def candidates(user,review_id=None):
             key=board.fen()
             if key not in found:
                 found[key]=dict(fen=key,solution=best.uci(),source=review.pk,phase=context.get('game_phase','general'),loss=loss)
+            if max_positions is not None and len(found)>=max_positions:
+                return sorted(found.values(),key=lambda task:-task['loss'])
     return sorted(found.values(),key=lambda task:-task['loss'])
 
 

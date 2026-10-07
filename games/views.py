@@ -3598,6 +3598,11 @@ def trainer_chat(request):
     trainer_logger = logging.getLogger("games.trainer")
     started = time.monotonic()
     topic = question_topic(question, history)
+    if topic == 'learning':
+        # Private saved progress stays on this server; no engine or provider request.
+        from .coach_learning import learning_context, learning_fallback
+        learning = learning_context(request.user,language)
+        return JsonResponse({"answer":learning_fallback(learning,language,question),"engine_analysis":None,"source":"learning","status":"ok","retryable":False,"fen":board.fen(),"topic":topic,"position_moves":[move.uci() for move in board.move_stack]})
     reference_moves = data.get("reference_moves")
     if topic == "chess" and is_followup(question) and reference_moves is not None:
         try:

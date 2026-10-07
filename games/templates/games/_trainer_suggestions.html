@@ -3,4 +3,5 @@
     <span>{% tr "trainer_suggestions" %}</span>
     <button type="button" data-trainer-question>{% tr "trainer_question_plan" %}</button>
     <button type="button" data-trainer-question>{% tr "trainer_question_last" %}</button>
+    {% if request.user.is_authenticated %}<button type="button" data-trainer-question>{% tr "trainer_question_learning" %}</button>{% endif %}
 </div>

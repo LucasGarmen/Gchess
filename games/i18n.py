@@ -1267,3 +1267,6 @@ def language_context(request):
         'language_options': LANGUAGE_OPTIONS,
         'ui_texts': ui_texts(language),
     }
+
+for language, question in {'es':'¿Qué debería practicar según mi progreso?','pt':'O que devo praticar conforme meu progresso?','en':'What should I practice based on my progress?'}.items():
+    TRANSLATIONS[language]['trainer_question_learning']=question
