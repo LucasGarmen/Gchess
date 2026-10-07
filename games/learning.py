@@ -8,6 +8,7 @@ from django.http import HttpResponseBadRequest
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.views.decorators.http import require_POST
+from django.views.decorators.cache import never_cache
 
 from .i18n import current_language
 from .learning_texts import LEARNING_TEXTS
@@ -83,6 +84,7 @@ def review_detail(request, review_id):
 
 
 @login_required
+@never_cache
 def learning_history(request):
     lang=current_language(request);texts=LEARNING_TEXTS[lang]
     reviews=[];seen=set()
@@ -104,7 +106,9 @@ def learning_history(request):
         summary=row['summary']
         phases.update({phase: count for phase, count in summary['phase_errors'].items() if phase in ('opening','middlegame','endgame')})
     focus=phases.most_common(1)[0][0] if phases else 'general'
-    return render(request,'games/learning.html',dict(learning=texts,reviews=reviews[:30],review_count=GameReview.objects.filter(user=request.user).values('fingerprint','player_color').distinct().count(),
+    from .learning_progress import learning_progress
+    progress=learning_progress(request.user,lang,reviews)
+    return render(request,'games/learning.html',dict(learning=texts,progress=progress,reviews=reviews[:30],review_count=GameReview.objects.filter(user=request.user).values('fingerprint','player_color').distinct().count(),
         recent_average=recent_average,previous_average=previous_average,trend=trend,
         focus_name=texts[focus],recommendation=texts['recommend_'+focus]))
 
