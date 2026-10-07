@@ -3242,103 +3242,6 @@ def classify_automatic_move(context):
     return "blunder"
 
 
-def automatic_comment_reason(context, language):
-    classification = context.get("classification")
-    game_phase = context.get("game_phase")
-    natural_opening = context.get("natural_opening_move")
-
-    if language == "es":
-        if classification == "best":
-            return "queda cerca de la mejor opción en este análisis breve"
-        if classification == "book":
-            return "es una jugada natural de apertura y la evaluación sigue estable"
-        if classification == "normal":
-            return "es una jugada natural de apertura; la pérdida de evaluación no es grave"
-        if classification == "good":
-            return "mantiene la evaluación cerca de la mejor línea"
-        if classification == "inaccuracy":
-            return "permite que el rival mejore un poco, pero no es un error serio"
-        if classification == "mistake":
-            return "cede demasiada evaluación y deja una posición más difícil"
-        if classification == "blunder":
-            return "pierde mucha evaluación frente a la alternativa calculada"
-        return "los datos del motor no son suficientes para dar una etiqueta confiable"
-
-    if language == "en":
-        if classification == "best":
-            return "this stays close to the best choice in this short analysis"
-        if classification == "book":
-            return "this is a natural opening move and the evaluation stays stable"
-        if classification == "normal":
-            return "this is a natural opening move; the evaluation loss is not serious"
-        if classification == "good":
-            return "this keeps the evaluation close to the best line"
-        if classification == "inaccuracy":
-            return "this lets the opponent improve a little, but it is not a serious mistake"
-        if classification == "mistake":
-            return "this gives up too much evaluation and leaves a harder position"
-        if classification == "blunder":
-            return "this loses substantial evaluation against the calculated alternative"
-        return "the engine data was incomplete, so there is no reliable mistake label here"
-
-    if classification == "best":
-        return "fica perto da melhor escolha nesta análise breve"
-    if classification == "book":
-        return "é uma jogada natural de abertura e a avaliação continua estável"
-    if classification == "normal":
-        return "é uma jogada natural de abertura; a perda de avaliação não é séria"
-    if classification == "good":
-        return "mantém a avaliação perto da melhor linha"
-    if classification == "inaccuracy":
-        return "permite que o adversário melhore um pouco, mas não é um erro sério"
-    if classification == "mistake":
-        return "cede avaliação demais e deixa uma posição mais difícil"
-    if classification == "blunder":
-        return "perde muita avaliação diante da alternativa calculada"
-
-    if game_phase == "opening" and natural_opening:
-        return "parece uma jogada natural de abertura, mas os dados do motor ficaram incompletos"
-
-    return "os dados do motor ficaram incompletos, então não há um rótulo confiável de erro aqui"
-
-
-def automatic_comment_label(classification, language):
-    labels = {
-        "en": {
-            "best": "Best move",
-            "book": "Book-like move",
-            "normal": "Normal move",
-            "good": "Good move",
-            "inaccuracy": "Inaccuracy",
-            "mistake": "Mistake",
-            "blunder": "Blunder",
-            "neutral": "Move analyzed",
-        },
-        "es": {
-            "best": "Mejor jugada",
-            "book": "Jugada de apertura",
-            "normal": "Jugada normal",
-            "good": "Buena jugada",
-            "inaccuracy": "Imprecisión",
-            "mistake": "Error",
-            "blunder": "Blunder",
-            "neutral": "Jugada analizada",
-        },
-        "pt": {
-            "best": "Melhor jogada",
-            "book": "Jogada de abertura",
-            "normal": "Jogada normal",
-            "good": "Boa jogada",
-            "inaccuracy": "Imprecisão",
-            "mistake": "Erro",
-            "blunder": "Blunder",
-            "neutral": "Jogada analisada",
-        },
-    }
-
-    return labels.get(language, labels["pt"]).get(classification, labels.get(language, labels["pt"])["neutral"])
-
-
 def automatic_move_fact(board, move, language):
     """Describe observable move effects, without claiming a tactical motive."""
     after = board.copy()
@@ -3365,34 +3268,116 @@ def automatic_move_fact(board, move, language):
     return facts.get(language, facts["pt"])[key]
 
 
+def friendly_move_name(board, move, language):
+    """Translate a verified move into words instead of requiring SAN knowledge."""
+    names = {
+        'es': ['peón', 'caballo', 'alfil', 'torre', 'dama', 'rey'],
+        'pt': ['peão', 'cavalo', 'bispo', 'torre', 'dama', 'rei'],
+        'en': ['pawn', 'knight', 'bishop', 'rook', 'queen', 'king'],
+    }.get(language, ['peão', 'cavalo', 'bispo', 'torre', 'dama', 'rei'])
+    if move not in board.legal_moves:
+        return ''
+    if board.is_castling(move):
+        short = chess.square_file(move.to_square) == 6
+        return {'es': 'enroque corto' if short else 'enroque largo',
+                'pt': 'roque curto' if short else 'roque longo',
+                'en': 'kingside castling' if short else 'queenside castling'}.get(language, 'roque')
+    piece = board.piece_at(move.from_square)
+    destination = chess.square_name(move.to_square)
+    connector = ' to ' if language == 'en' else ' a ' if language == 'es' else ' para '
+    result = names[piece.piece_type - 1] + connector + destination
+    if move.promotion:
+        result += {'es': ', coronando a ', 'pt': ', promovendo a ', 'en': ', promoting to '}.get(language, ', promovendo a ') + names[move.promotion - 1]
+    return result
+
+
+def friendly_opening_fact(board, move, language):
+    piece = board.piece_at(move.from_square)
+    after = board.copy()
+    after.push(move)
+    home_rank = 0 if piece.color == chess.WHITE else 7
+    if piece.piece_type in (chess.KNIGHT, chess.BISHOP) and chess.square_rank(move.from_square) == home_rank:
+        controls_center = bool(set(after.attacks(move.to_square)) & CENTER_SQUARES)
+        if controls_center:
+            return {'es': 'Sacaste una pieza de la fila inicial y ahora controla casillas del centro.', 'pt': 'Você tirou uma peça da fileira inicial e agora ela controla casas do centro.', 'en': 'You brought a piece off its starting rank, and it now controls central squares.'}.get(language, '')
+        return {'es': 'Sacaste una pieza de la fila inicial para ponerla en juego.', 'pt': 'Você tirou uma peça da fileira inicial para colocá-la em jogo.', 'en': 'You brought a piece off its starting rank and into the game.'}.get(language, '')
+    if piece.piece_type == chess.PAWN and move.to_square in CENTER_SQUARES:
+        return {'es': 'Ese peón ocupa una casilla del centro.', 'pt': 'Esse peão ocupa uma casa do centro.', 'en': 'That pawn occupies a central square.'}.get(language, '')
+    return ''
+
+
 def build_automatic_comment(context, language='pt'):
-    classification = context.get("classification", "neutral")
-    label = automatic_comment_label(classification, language)
-    played_san = context.get("played_move_san") or ""
-    best_san = context.get("best_move_san") or ""
-    reason = automatic_comment_reason(context, language)
-    same_move = context.get("played_equals_best")
-
-    if classification == "neutral":
-        return f"{label}: {reason}."
-
-    comment = f"{label}: {played_san} - {reason}."
-
-    if classification in ("inaccuracy", "mistake", "blunder") and best_san and not same_move:
-        if language == "es":
-            comment += f" Mejor era {best_san}."
-        elif language == "en":
-            comment += f" Better was {best_san}."
-        else:
-            comment += f" Melhor era {best_san}."
-
-    fact = context.get("move_fact")
+    language = language if language in ('es', 'pt', 'en') else 'pt'
+    lines = {
+        'es': {
+            'best': '¡Bien! {move} está entre las mejores opciones que encontré.',
+            'book': 'Bien, {move} es una buena opción para empezar la partida.',
+            'normal': '{move} es una opción razonable, aunque había una jugada un poco más fuerte.',
+            'good': 'Bien, {move} es una buena opción en esta posición.',
+            'inaccuracy': 'Con {move} le das un poco más de juego al rival. Todavía podés seguir peleando la partida.',
+            'mistake': 'Ojo con {move}: después de esta jugada tu posición queda más difícil.',
+            'blunder': 'Cuidado: {move} le da una ventaja importante al rival.',
+            'neutral': 'No pude analizar bien esta jugada, así que prefiero no decirte si fue buena o mala.',
+        },
+        'pt': {
+            'best': 'Boa! {move} está entre as melhores opções que encontrei.',
+            'book': 'Boa, {move} é uma boa opção para começar a partida.',
+            'normal': '{move} é uma opção razoável, mas havia uma jogada um pouco mais forte.',
+            'good': 'Boa, {move} é uma boa opção nessa posição.',
+            'inaccuracy': 'Com {move}, você dá um pouco mais de espaço ao adversário. Ainda dá para lutar pela partida.',
+            'mistake': 'Atenção com {move}: sua posição fica mais difícil depois dessa jogada.',
+            'blunder': 'Cuidado: {move} dá uma vantagem importante ao adversário.',
+            'neutral': 'Não consegui analisar bem essa jogada, então prefiro não dizer se foi boa ou ruim.',
+        },
+        'en': {
+            'best': 'Nice! {move} is among the strongest options I found.',
+            'book': 'Nice, {move} is a good way to start the game.',
+            'normal': '{move} is reasonable, though there was a slightly stronger move.',
+            'good': 'Nice, {move} is a good option in this position.',
+            'inaccuracy': '{move} gives your opponent a little more room. You can still put up a fight.',
+            'mistake': 'Watch out with {move}: it leaves you with a harder position to play.',
+            'blunder': 'Careful: {move} gives your opponent a big advantage.',
+            'neutral': "I could not analyse this move properly, so I would rather not call it good or bad.",
+        },
+    }
+    classification = context.get('classification', 'neutral')
+    if classification not in lines[language]:
+        classification = 'neutral'
+    if classification == 'neutral':
+        return lines[language]['neutral']
+    board = None
+    move = None
+    played = context.get('played_move_san') or {'es':'esta jugada', 'pt':'essa jogada', 'en':'this move'}[language]
+    try:
+        board = chess.Board(context['fen_before'])
+        move = chess.Move.from_uci(context['played_move_uci'])
+        played = friendly_move_name(board, move, language) or played
+    except (KeyError, ValueError, TypeError):
+        pass
+    comment = lines[language][classification].format(move=played)
+    fact = context.get('move_fact')
+    if not fact and board is not None and move is not None and move in board.legal_moves and context.get('game_phase') == 'opening':
+        fact = friendly_opening_fact(board, move, language)
     if fact:
-        comment += " " + fact
-    reply = context.get("engine_reply_san")
-    if classification in ("inaccuracy", "mistake", "blunder") and reply:
-        reply_label = {"es":"Respuesta calculada del rival", "en":"Calculated opponent reply", "pt":"Resposta calculada do adversário"}.get(language, "Resposta calculada do adversário")
-        comment += f" {reply_label}: {reply}."
+        comment += ' ' + fact
+    if classification in ('inaccuracy', 'mistake', 'blunder') and not context.get('played_equals_best'):
+        best = ''
+        try:
+            best = friendly_move_name(board, chess.Move.from_uci(context['best_move_uci']), language) if board is not None else ''
+        except (KeyError, ValueError, TypeError):
+            pass
+        if best:
+            comment += {'es':' Yo probaría ', 'pt':' Eu tentaria ', 'en':' I would try '}[language] + best + '.'
+        reply = context.get('engine_reply_san')
+        if reply and board is not None and move is not None and move in board.legal_moves:
+            after = board.copy()
+            after.push(move)
+            try:
+                reply = friendly_move_name(after, after.parse_san(reply), language)
+            except ValueError:
+                reply = ''
+            if reply:
+                comment += {'es':' Prestá atención: el rival podría responder con ', 'pt':' Fique atento: o adversário pode responder com ', 'en':' Watch out: your opponent could reply with '}[language] + reply + '.'
     return comment
 
 

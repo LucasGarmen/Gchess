@@ -920,6 +920,19 @@ class FakeAnalysisEngine:
 
 
 class AutomaticCommentaryTests(SimpleTestCase):
+    def test_opening_knight_is_explained_without_san_or_evaluation_jargon(self):
+        context = self.build_context("b1c3", "e2e4", played_cp=10, best_cp=45, language="es")
+        self.assertIn("caballo a c3", context["comment"])
+        self.assertIn("centro", context["comment"])
+        self.assertNotIn("Nc3", context["comment"])
+        self.assertNotIn("evaluación", context["comment"])
+
+    def test_bad_move_alternative_uses_piece_names_in_all_languages(self):
+        for language, name in [("es", "peón a e4"), ("pt", "peão para e4"), ("en", "pawn to e4")]:
+            context = self.build_context("g2g4", "e2e4", played_cp=-320, best_cp=45, language=language)
+            self.assertIn(name, context["comment"])
+            self.assertNotIn("Blunder:", context["comment"])
+
     def build_context(self, played_uci, best_uci, played_cp, best_cp, before_cp=0, language="en"):
         board = chess.Board()
         played_move = chess.Move.from_uci(played_uci)
@@ -983,7 +996,7 @@ class AutomaticCommentaryTests(SimpleTestCase):
 
         self.assertEqual(context["classification"], "neutral")
         self.assertIsNone(context["centipawn_loss"])
-        self.assertIn("engine data was incomplete", context["comment"])
+        self.assertIn("could not analyse", context["comment"])
 
 
 class InvitationLinkTests(TestCase):
