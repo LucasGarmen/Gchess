@@ -10,6 +10,8 @@
 <h1>{% tr "my_games" %}</h1>
 
 <p>{% tr "saved_games_help" %}</p>
+<p><a class="button" href="{% url 'game_create' %}">{% tr "new_game" %} →</a></p>
+{% if pending_search %}<p><a href="{% url 'game_invitation_wait' pending_search.pk %}">{% tr "resume_search" %} →</a></p>{% endif %}
 
 {% if game_cards %}
 <div class="games-columns">

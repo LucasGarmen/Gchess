@@ -1182,6 +1182,9 @@ def ui_texts(language):
             'invitation_rejected',
             'invitation_cancelled',
             'invitation_waiting',
+            'search_connection_retry',
+            'search_auto_open',
+            'auto_open_when_accepted',
             'invitation_cancel_error',
             'notification_polling_stopped',
             'notification_update_failed',
@@ -1270,3 +1273,13 @@ def language_context(request):
 
 for language, question in {'es':'¿Qué debería practicar según mi progreso?','pt':'O que devo praticar conforme meu progresso?','en':'What should I practice based on my progress?'}.items():
     TRANSLATIONS[language]['trainer_question_learning']=question
+
+for lang, values in {
+    'es': {'resume_search':'Retomar búsqueda de rival', 'matching_rules_help':'Te conectamos con alguien que busque el mismo tiempo, tipo de partida y modo. La búsqueda sigue mientras esta pestaña esté abierta y visible.', 'waiting_coach':'¿Preferís practicar? Abrí una partida con el coach', 'search_connection_retry':'No pudimos comprobar la búsqueda. Reintentamos automáticamente al recuperar la conexión.'},
+    'pt': {'resume_search':'Retomar busca por adversário', 'matching_rules_help':'Conectamos você a quem busca o mesmo tempo, tipo de partida e modo. A busca continua enquanto esta aba estiver aberta e visível.', 'waiting_coach':'Prefere praticar? Abra uma partida com o coach', 'search_connection_retry':'Não foi possível verificar a busca. Tentaremos novamente quando a conexão voltar.'},
+    'en': {'resume_search':'Resume opponent search', 'matching_rules_help':'We match players looking for the same time control, game type and mode. Searching continues while this tab stays open and visible.', 'waiting_coach':'Prefer to practice? Open a game with the coach', 'search_connection_retry':'Could not check the search. We retry automatically when the connection returns.'},
+}.items():
+    TRANSLATIONS[lang].update(values)
+
+for lang,value in {'es':'Cuando encontremos un rival compatible, el tablero se abrirá automáticamente.','pt':'Quando encontrarmos um adversário compatível, o tabuleiro abrirá automaticamente.','en':'When we find a compatible opponent, the board will open automatically.'}.items():
+    TRANSLATIONS[lang]['search_auto_open']=value

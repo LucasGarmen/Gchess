@@ -202,6 +202,7 @@ class GameInvitation(models.Model):
 
     creator = models.ForeignKey(User, on_delete=models.CASCADE, blank=True, null=True, related_name='sent_game_invitations')
     creator_guest_id = models.CharField(max_length=40, blank=True)
+    search_seen_at = models.DateTimeField(null=True, blank=True)
     creator_guest_name = models.CharField(max_length=100, blank=True)
     opponent = models.ForeignKey(User, on_delete=models.CASCADE, blank=True, null=True, related_name='received_game_invitations')
     token = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)

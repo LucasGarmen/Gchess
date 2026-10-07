@@ -1794,6 +1794,7 @@ def games_list(request):
         'game_cards': game_cards,
         'in_progress_cards': [card for card in game_cards if card['is_in_progress']],
         'finished_cards': [card for card in game_cards if card['is_finished']],
+        'pending_search': GameInvitation.objects.filter(creator=request.user, status='pending', opponent_mode='random', search_seen_at__isnull=False).order_by('-pk').first() if request.user.is_authenticated else None,
     })
 
 
@@ -2062,14 +2063,11 @@ def game_create(request):
                 )
                 return redirect('game_invitation_wait', invitation_id=invitation.id)
             else:
-                invitation = GameInvitation.objects.create(
-                    creator=request.user,
-                    opponent_mode='random',
-                    creator_color=form.cleaned_data['color_choice'],
-                    is_rated=is_rated,
-                    blindfold_only=form.cleaned_data['blindfold_only'],
-                    time_control_minutes=form.cleaned_data['time_control_minutes'],
-                )
+                from .matchmaking import start_search, match_search
+                invitation = start_search(request.user, color=form.cleaned_data['color_choice'], rated=is_rated, blindfold=form.cleaned_data['blindfold_only'], minutes=form.cleaned_data['time_control_minutes'])
+                invitation = match_search(request.user, invitation.pk)
+                if invitation.game_id:
+                    return redirect('game_detail', game_id=invitation.game_id)
                 return redirect('game_invitation_wait', invitation_id=invitation.id)
     else:
         form = ChessGameForm(language=current_language(request), user=request.user, initial={'blindfold_only': request.GET.get('blindfold') == 'exclusive'})
@@ -2409,9 +2407,11 @@ def game_invitation_wait(request, invitation_id):
     touch_presence(request.user)
     invitation = get_object_or_404(
         GameInvitation,
-        Q(creator=request.user) if request.user.is_authenticated else Q(creator_guest_id=request.session.get('guest_id', '')),
+        Q(creator=request.user) if request.user.is_authenticated else (Q(creator_guest_id=request.session['guest_id']) if request.session.get('guest_id') else Q(pk__in=[])),
         id=invitation_id,
     )
+    if invitation.game_id:
+        return redirect('game_detail', game_id=invitation.game_id)
     invitation_accept_url = request.build_absolute_uri(
         reverse('accept_invitation_link', args=[invitation.token])
     )
@@ -2426,7 +2426,7 @@ def invitation_status(request, invitation_id):
     touch_presence(request.user)
     invitation = get_object_or_404(
         GameInvitation,
-        Q(creator=request.user) if request.user.is_authenticated else Q(creator_guest_id=request.session.get('guest_id', '')),
+        Q(creator=request.user) if request.user.is_authenticated else (Q(creator_guest_id=request.session['guest_id']) if request.session.get('guest_id') else Q(pk__in=[])),
         id=invitation_id,
     )
 
@@ -2445,7 +2445,7 @@ def cancel_invitation(request, invitation_id):
     touch_presence(request.user)
     invitation = get_object_or_404(
         GameInvitation,
-        Q(creator=request.user) if request.user.is_authenticated else Q(creator_guest_id=request.session.get('guest_id', '')),
+        Q(creator=request.user) if request.user.is_authenticated else (Q(creator_guest_id=request.session['guest_id']) if request.session.get('guest_id') else Q(pk__in=[])),
         id=invitation_id,
     )
 
@@ -2477,7 +2477,7 @@ def game_notifications(request):
     ).filter(
         Q(opponent=request.user) |
         Q(opponent_mode='random', opponent__isnull=True)
-    ).exclude(
+    ).filter(Q(search_seen_at__isnull=True) | Q(search_seen_at__gte=timezone.now()-timezone.timedelta(seconds=45))).exclude(
         creator=request.user
     ).select_related('creator').annotate(notice_priority=Case(When(opponent=request.user,then=0),default=1,output_field=IntegerField())).order_by('notice_priority','created_at')[:32]
 

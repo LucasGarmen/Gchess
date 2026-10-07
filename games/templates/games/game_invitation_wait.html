@@ -12,7 +12,7 @@
         <h1>{% tr "waiting_opponent" %}</h1>
 
         {% if invitation.opponent_mode == 'random' %}
-            <p>{% tr "searching_random" %}</p>
+            <p>{% tr "searching_random" %}</p><p class="field-help">{% tr "matching_rules_help" %}</p><p><a href="{% url 'home' %}?bot=waiting-practice" target="_blank" rel="noopener">{% tr "waiting_coach" %}</a></p>
         {% elif invitation.opponent_mode == 'link' %}
             <p>{% tr "send_this_link" %}</p>
             <div class="invite-link-row">
@@ -33,7 +33,7 @@
 
         {% if invitation.blindfold_only %}<p><strong>{{ blindfold.exclusive }}</strong> · {{ blindfold.exclusive_help }}</p>{% endif %}
         <div class="loading-line"></div>
-        <p id="invitation-wait-status" class="field-help">{% tr "auto_open_when_accepted" %}</p>
+        <p id="invitation-wait-status" class="field-help">{% if invitation.search_seen_at %}{% tr "search_auto_open" %}{% else %}{% tr "auto_open_when_accepted" %}{% endif %}</p>
         <button id="cancel-invitation" type="button">{% tr "cancel_request" %}</button>
     </section>
 </main>
@@ -45,7 +45,9 @@
     const cancelInvitationButton = document.getElementById('cancel-invitation');
     const invitationLinkInput = document.getElementById('invitation-link');
     const copyInvitationLinkButton = document.getElementById('copy-invitation-link');
+    const autoSearchUrl = {% if invitation.search_seen_at %}"{% url 'search_tick' invitation.pk %}"{% else %}null{% endif %};
     let invitationPollingStopped = false;
+    let invitationRequestActive = false;
 
     function getWaitCSRFToken() {
         const cookies = document.cookie.split(';');
@@ -62,15 +64,22 @@
     }
 
     async function checkInvitationStatus() {
-        if (invitationPollingStopped) {
+        if (invitationPollingStopped || invitationRequestActive) {
             return;
         }
 
+        if (document.hidden) { setTimeout(checkInvitationStatus, 3000); return; }
+        invitationRequestActive = true;
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 10000);
         try {
-            const response = await fetch(invitationStatusUrl, {
+            const response = await fetch(autoSearchUrl || invitationStatusUrl, {
+                method: autoSearchUrl ? 'POST' : 'GET',
+                signal: controller.signal,
                 cache: 'no-store',
                 headers: {
                     'Cache-Control': 'no-cache',
+                    'X-CSRFToken': getWaitCSRFToken(),
                 },
             });
 
@@ -86,6 +95,7 @@
                 return;
             }
 
+            waitStatus.innerText = autoSearchUrl ? UI_TEXTS.search_auto_open : UI_TEXTS.auto_open_when_accepted;
             if (data.status === 'rejected') {
                 invitationPollingStopped = true;
                 waitStatus.innerText = UI_TEXTS.invitation_rejected;
@@ -100,17 +110,21 @@
                 return;
             }
         } catch (error) {
-            waitStatus.innerText = UI_TEXTS.invitation_waiting;
-        }
+            waitStatus.innerText = UI_TEXTS.search_connection_retry;
+        } finally { clearTimeout(timeout); invitationRequestActive = false; }
 
-        setTimeout(checkInvitationStatus, 1500);
+        setTimeout(checkInvitationStatus, 3000);
     }
 
     cancelInvitationButton.addEventListener('click', async function () {
         invitationPollingStopped = true;
         cancelInvitationButton.disabled = true;
 
+        const cancelController = new AbortController();
+        const cancelTimeout = setTimeout(() => cancelController.abort(), 10000);
+        try {
         const response = await fetch(cancelInvitationUrl, {
+            signal: cancelController.signal,
             method: 'POST',
             headers: {
                 'X-CSRFToken': getWaitCSRFToken(),
@@ -126,6 +140,11 @@
         invitationPollingStopped = false;
         setTimeout(checkInvitationStatus, 1500);
         waitStatus.innerText = data.error || UI_TEXTS.invitation_cancel_error;
+        } catch (error) {
+            invitationPollingStopped = false;
+            waitStatus.innerText = UI_TEXTS.search_connection_retry;
+            setTimeout(checkInvitationStatus, 3000);
+        } finally { clearTimeout(cancelTimeout); cancelInvitationButton.disabled = false; }
     });
 
     if (copyInvitationLinkButton && invitationLinkInput) {

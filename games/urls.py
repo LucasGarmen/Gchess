@@ -1,9 +1,10 @@
 from django.urls import path
 from .views import home, games_list, game_detail, game_create,save_move
-from . import blindfold, views, social, learning, workspace, tournaments, daily_training, weekly, review_practice, notices
+from . import matchmaking, blindfold, views, social, learning, workspace, tournaments, daily_training, weekly, review_practice, notices
 
 
 urlpatterns = [
+    path('invitations/<int:invitation_id>/search/', matchmaking.search_tick, name='search_tick'),
     path('blindfold/', blindfold.landing, name='blindfold'),
     path('blindfold/position/', blindfold.position, name='blindfold_position'),
     path('notifications/dismiss/<str:key>/', notices.dismiss, name='notice_dismiss'),
