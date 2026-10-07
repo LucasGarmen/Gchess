@@ -8,6 +8,7 @@ urlpatterns = [
     path('healthz/', health, name='health'),
     path('favicon.ico', RedirectView.as_view(url=static('images/favicon.png'), permanent=True)),
     path('admin/', admin.site.urls),
+    path('staff-auth/', include('config.staff_urls', namespace='two_factor')),
     path('', include('games.urls')),
     path('accounts/', include('accounts.urls')),
     path('accounts/', include('django.contrib.auth.urls')),

@@ -79,7 +79,12 @@ if RENDER_EXTERNAL_HOSTNAME:
 INSTALLED_APPS = [
     'daphne',
     'channels',
-    'django.contrib.admin',
+    'config.admin_apps.SecureAdminConfig',
+    'axes',
+    'django_otp',
+    'django_otp.plugins.otp_static',
+    'django_otp.plugins.otp_totp',
+    'two_factor',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
@@ -97,8 +102,11 @@ MIDDLEWARE = [
     'games.middleware.DailyVisitMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django_otp.middleware.OTPMiddleware',
+    'config.admin_security.StaffAuthMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'axes.middleware.AxesMiddleware',
 ]
 
 if find_spec('whitenoise'):
@@ -263,3 +271,23 @@ LOGGING = {
         "games.gemini_service": {"handlers": ["trainer_console"], "level": "INFO", "propagate": False},
     },
 }
+
+
+# Database-backed login protection works across Render workers and deploys.
+AUTHENTICATION_BACKENDS = ['axes.backends.AxesStandaloneBackend', 'django.contrib.auth.backends.ModelBackend']
+AXES_FAILURE_LIMIT = 5
+from datetime import timedelta
+AXES_COOLOFF_TIME = timedelta(minutes=15)
+# Render's proxy may share REMOTE_ADDR across visitors: never lock all users by proxy IP.
+AXES_LOCKOUT_PARAMETERS = ['username']
+AXES_RESET_ON_SUCCESS = True
+AXES_RESET_COOL_OFF_ON_FAILURE_DURING_LOCKOUT = False
+AXES_HANDLER = 'axes.handlers.database.AxesDatabaseHandler'
+AXES_LOCKOUT_TEMPLATE = 'accounts/login_locked.html'
+TWO_FACTOR_PATCH_ADMIN = False
+TWO_FACTOR_REMEMBER_COOKIE_AGE = 0
+OTP_TOTP_ISSUER = 'Gchess admin'
+
+# This deliberate account-wide limit cannot be bypassed by changing IP/cookies.
+# W006 assumes client-based limits; adding a shared proxy-IP lock would block unrelated users.
+SILENCED_SYSTEM_CHECKS = ['axes.W006']

@@ -11,7 +11,14 @@ constantly==23.10.4
 cryptography==48.0.0
 daphne==4.2.1
 dj-database-url==3.0.1
-Django==6.0.5
+Django==6.0.9
+django-axes==8.3.1
+django-two-factor-auth[phonenumberslite]==1.18.1
+django-otp==1.7.3
+django-formtools==2.7
+django-phonenumber-field==8.5.0
+phonenumberslite==8.13.55
+qrcode==8.2
 gunicorn==23.0.0
 hyperlink==21.0.0
 idna==3.16

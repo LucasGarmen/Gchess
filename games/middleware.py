@@ -8,6 +8,7 @@ from .models import DailyVisit
 class DailyVisitMiddleware:
     EXCLUDED_PREFIXES = (
         '/admin/',
+        '/staff-auth/',
         '/static/',
         '/favicon.ico',
         '/healthz/',
