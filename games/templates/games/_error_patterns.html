@@ -1,0 +1,5 @@
+{% load static %}<link rel="stylesheet" href="{% static 'games/error_patterns.css' %}?v=1">
+<section class="learning-panel error-patterns" aria-labelledby="recurring-errors-title">
+<h2 id="recurring-errors-title">{{ errors.texts.title }}</h2><p class="learning-muted">{{ errors.texts.scope }}</p>
+{% for pattern in errors.patterns %}<article class="learning-history-row"><div><h3>{{ pattern.label }}</h3><p>{{ pattern.count_text }}</p><p>{{ pattern.tip }}</p><details><summary>{{ errors.texts.evidence }}</summary>{% for example in pattern.examples %}<p>{{ example.explanation }} <a href="{{ example.url }}">{{ errors.texts.review }} · {{ example.date|date:'d/m/Y' }}</a></p>{% endfor %}</details></div><a class="learning-button" href="{{ pattern.practice_url }}">{{ errors.texts.practice }} →</a></article>{% empty %}<p>{{ errors.texts.empty }}</p>{% endfor %}
+</section>

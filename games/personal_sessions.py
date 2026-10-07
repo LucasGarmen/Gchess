@@ -64,7 +64,9 @@ def preparation(user, today):
     due = [t for t in tasks if position_key(t['fen']) in memory and memory[position_key(t['fen'])]['due'] <= today]
     fresh = [t for t in tasks if position_key(t['fen']) not in memory]
     due.sort(key=lambda t:(memory[position_key(t['fen'])]['independent'],memory[position_key(t['fen'])]['due'],-t['loss']))
-    fresh.sort(key=lambda t:(t['theme'] != focus,-t['loss']))
+    from .error_patterns import recurring_errors
+    recurring=recurring_errors(user,'en')['positions']
+    fresh.sort(key=lambda t:(position_key(t['fen']) not in recurring,t['theme'] != focus,-t['loss']))
     return dict(tasks=tasks, memory=memory, counts=counts, focus=focus, due=due, fresh=fresh)
 
 

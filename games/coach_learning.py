@@ -17,7 +17,7 @@ def learning_context(user, language):
     latest=GameReview.objects.filter(user=user).order_by('-created_at').values_list('pk',flat=True).first()
     if not latest and not current: return None
     revision=json.dumps(current.progress if current else [],sort_keys=True)+str(current.completed_at if current else '')
-    key=f'coach-learning:v1:{user.pk}:{language}:{today}:{latest}:{current.pk if current else 0}:'+hashlib.sha256(revision.encode()).hexdigest()
+    key=f'coach-learning:v2:{user.pk}:{language}:{today}:{latest}:{current.pk if current else 0}:'+hashlib.sha256(revision.encode()).hexdigest()
     cached=cache.get(key)
     if cached is not None: return cached
     from .daily_training import candidates
@@ -48,6 +48,9 @@ def learning_context(user, language):
         context['session']=dict(date=today.isoformat(),status='completed' if current.completed_at else 'in_progress',
             focus=texts[theme],tip=texts['tip_'+theme],uses_own_games=bool(themes),resolved=len(resolved),
             total=len(current.tasks),independent=independent,with_help_or_retries=len(resolved)-independent)
+    from .error_patterns import recurring_errors
+    findings=recurring_errors(user,language)
+    context['recurring']=[dict(label=p['label'],tip=p['tip'],games=p['games'],examples=[e['explanation'] for e in p['examples']]) for p in findings['patterns']]
     if not unique and not current: return None
     cache.set(key,context,60)
     return context
@@ -71,6 +74,10 @@ def learning_fallback(context, language, question=""):
         return {'es':'En los repasos guardados hay {confirmed} posiciones que resolviste al primer intento y sin ayuda en días distintos. En {needs_support}, el último intento necesitó pistas o reintentos. Es una señal sobre esos ejercicios; todavía no demuestra que juegues mejor en partidas nuevas. Mi aprendizaje te muestra qué repasar.',
                 'pt':'Nas revisões salvas há {confirmed} posições resolvidas na primeira tentativa e sem ajuda em dias diferentes. Em {needs_support}, a última tentativa precisou de dicas ou repetições. Isso descreve esses exercícios; ainda não demonstra melhora em partidas novas. Meu aprendizado mostra o que revisar.',
                 'en':'In saved practice, {confirmed} positions were solved on the first attempt without help on different days. For {needs_support}, the latest attempt needed hints or retries. That describes these exercises; it does not yet demonstrate improvement in new games. My learning shows what to revisit.'}[language].format(**practice)
+    if context.get('recurring'):
+        pattern=context['recurring'][0]
+        intro={'es':'En {games} partidas revisadas aparece este error: {label}.','pt':'Em {games} partidas revisadas aparece este erro: {label}.','en':'This mistake appears in {games} reviewed games: {label}.'}[language].format(**pattern)
+        return intro+' '+pattern['examples'][0]+' '+pattern['tip']+' '+{'es':'En Mi aprendizaje podés ver los ejemplos y practicar.','pt':'Em Meu aprendizado você pode ver os exemplos e praticar.','en':'Open My learning to see the examples and practice.'}[language]
     if session:
         return {'es':'Hoy te propongo practicar esto: {focus}. Resolviste {resolved} de {total} posiciones, {independent} al primer intento y sin pistas. {tip} En Mi aprendizaje podés ver el próximo paso.',
                 'pt':'Hoje sugiro praticar isto: {focus}. Você resolveu {resolved} de {total} posições, {independent} na primeira tentativa e sem dicas. {tip} Em Meu aprendizado você pode ver o próximo passo.',

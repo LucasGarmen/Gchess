@@ -25,7 +25,7 @@ def is_learning_question(question):
     if re.search(r"\b(salud|saude|health|fitness|ingles|english|espanol|portugues|nasa|universo|universe|trabajo|workout)\b",text): return False
     # Requests about a specific move/board still require current engine facts.
     if re.search(r"\b(posicion|posicao|position|tablero|board|jugada|jogada|move|ultima|ultimo|last)\b",text) or SAN_CANDIDATE_RE.search(question) or UCI_CANDIDATE_RE.search(question): return False
-    return bool(re.search(r"(que.*(practicar|entrenar|repasar)|que.*(praticar|treinar|revisar)|what.*(practice|train|work on)|como.*(mejorar|melhorar)|how.*improv|estoy mejorando|estou melhorando|am i improving|mis dificultades|mis errores|my weaknesses|my mistakes|minhas dificuldades|meus erros|aprendizaje|aprendizado|learning history|como.*(progreso|entrenamientos)|how.*(training|progress)|que.*aprendi|what.*learned)",text))
+    return bool(re.search(r"(que.*(practicar|entrenar|repasar)|que.*(praticar|treinar|revisar)|what.*(practice|train|work on)|como.*(mejorar|melhorar)|how.*improv|estoy mejorando|estou melhorando|am i improving|errores.*(repito|repet)|erros.*(repit|repet)|mistakes.*repeat|keep.*mistakes|mis dificultades|mis errores|my weaknesses|my mistakes|minhas dificuldades|meus erros|aprendizaje|aprendizado|learning history|como.*(progreso|entrenamientos)|how.*(training|progress)|que.*aprendi|what.*learned)",text))
 
 
 def question_topic(question, history):
