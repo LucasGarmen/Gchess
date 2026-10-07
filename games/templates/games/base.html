@@ -18,10 +18,11 @@
     <link rel="stylesheet" href="{% static 'games/social.css' %}?v=1">
     <link rel="stylesheet" href="{% static 'games/learning.css' %}?v=2">
     <link rel="stylesheet" href="{% static 'games/chess_visuals.css' %}?v=1">
-    <link rel="stylesheet" href="{% static 'games/workspace.css' %}?v=2">
-    <script src="{% static 'games/workspace.js' %}?v=3" defer></script>
+    <link rel="stylesheet" href="{% static 'games/workspace.css' %}?v=3">
+    <script src="{% static 'games/workspace.js' %}?v=4" defer></script>
     <link rel="stylesheet" href="{% static 'games/navigation.css' %}?v=1">
     <script src="{% static 'games/navigation.js' %}?v=1" defer></script>
+    <link rel="stylesheet" href="{% static 'games/tournaments.css' %}?v=1">
 </head>
 
 <body>
@@ -58,6 +59,10 @@
         <div id="nav-training-options" class="nav-submenu" hidden>
             {% for mode in training_modes %}<a href="{% url mode.route %}"{% if active_training_mode.route == mode.route %} aria-current="page"{% endif %}><strong>{{ mode.title }}</strong><small>{{ mode.goal }}</small></a>{% endfor %}
         </div>
+    </div>
+    <div class="nav-group">
+        <div class="nav-main-row"><a class="nav-link" href="{% url 'tournaments' %}"{% if request.resolver_match.url_name == 'tournaments' or request.resolver_match.url_name == 'tournament_detail' or request.resolver_match.url_name == 'tournament_create' %} aria-current="page"{% endif %}>{{ tournament_texts.nav }}</a><button class="nav-disclosure" type="button" aria-expanded="false" aria-controls="nav-tournaments-options" aria-label="{{ tournament_texts.nav }}">›</button></div>
+        <div id="nav-tournaments-options" class="nav-submenu" hidden><a href="{% url 'tournaments' %}">{{ tournament_texts.mine }}</a><a href="{% url 'tournament_create' %}">{{ tournament_texts.create }}</a></div>
     </div>
     <a class="nav-link nav-main-row" href="{% url 'leaderboard' %}"{% if request.resolver_match.url_name == 'leaderboard' %} aria-current="page"{% endif %}>{% tr "nav_leaderboard" %}</a>
     {% if user.is_authenticated %}

@@ -41,5 +41,5 @@ def active_games(request):
         white = game.white_user_id == request.user.pk if request.user.is_authenticated else game.white_guest_id == request.session['guest_id']
         color = 'white' if white else 'black'
         turn = 'black' if game.last_color == 'white' else 'white'
-        entries.append({'id': game.pk, 'url': reverse('game_detail', args=[game.pk]), 'opponent': game.black_player if white else game.white_player, 'yourTurn': turn == color, 'rated': game.is_rated})
+        entries.append({'id': game.pk, 'url': reverse('game_detail', args=[game.pk]), 'opponent': game.black_player if white else game.white_player, 'title': game.title, 'yourTurn': turn == color, 'rated': game.is_rated})
     return JsonResponse({'actor': actor, 'games': entries})

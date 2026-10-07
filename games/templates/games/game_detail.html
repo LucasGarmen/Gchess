@@ -264,6 +264,7 @@
 
     <div class="online-side">
     <aside class="pgn-panel">
+        {% if game.tournament_match %}<p class="tournament-game-return"><a href="{% url 'tournament_detail' game.tournament_match.tournament.token %}">{{ tournament_texts.nav }} · {{ game.tournament_match.tournament.name }} →</a></p>{% endif %}
         <h2>PGN</h2>
         <p id="turn-indicator">{% tr "turn_white" %}</p>
         {% if clock %}

@@ -122,7 +122,7 @@
             bots.forEach(bot => card(config.home + '?bot=' + encodeURIComponent(bot.id), 'Coach ' + bot.number + (bot.elo ? ' · ' + bot.elo : ''), bot.finished ? words[6] : (onHome && bot.id === botId ? (bot.yourTurn === false ? words[4] : words[3]) : words[5]), onHome && bot.id === botId, onHome && bot.id === botId && bot.yourTurn));
         }
         section(words[11]);
-        humans.forEach(game => card(game.url, game.opponent || '—', words[game.yourTurn ? 3 : 4], location.pathname === game.url, game.yourTurn));
+        humans.forEach(game => card(game.url, game.opponent || '—', words[game.yourTurn ? 3 : 4] + (game.title ? ' · ' + game.title : ''), location.pathname === game.url, game.yourTurn));
         if (!humans.length || failed) { const empty = document.createElement('p'); empty.textContent = failed ? words[9] : words[13]; list.append(empty); }
     }
     async function refresh() {

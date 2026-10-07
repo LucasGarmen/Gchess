@@ -121,6 +121,7 @@ TEMPLATES = [
                 'games.social_texts.social_navigation',
                 'games.learning_texts.learning_navigation',
                 'games.workspace.workspace_context',
+                'games.tournament_texts.tournament_navigation',
             ],
         },
     },

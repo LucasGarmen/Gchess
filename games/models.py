@@ -291,3 +291,43 @@ class GameReview(models.Model):
     class Meta:
         constraints = [models.UniqueConstraint(fields=['user', 'fingerprint', 'language', 'player_color'], name='review_unique_user_position')]
         indexes = [models.Index(fields=['user', '-created_at'], name='review_user_created_idx')]
+
+
+class Tournament(models.Model):
+    token = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
+    creator = models.ForeignKey(User, on_delete=models.PROTECT, related_name='created_tournaments')
+    name = models.CharField(max_length=80)
+    status = models.CharField(max_length=12, choices=[('lobby', 'Lobby'), ('active', 'Active'), ('finished', 'Finished'), ('cancelled', 'Cancelled')], default='lobby')
+    max_players = models.PositiveSmallIntegerField(default=8)
+    time_control_minutes = models.PositiveSmallIntegerField(default=10)
+    current_round = models.PositiveSmallIntegerField(default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
+    started_at = models.DateTimeField(null=True, blank=True)
+    finished_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ['-created_at']
+        constraints = [models.CheckConstraint(condition=models.Q(max_players__gte=2, max_players__lte=16), name='tournament_capacity_range'), models.CheckConstraint(condition=models.Q(time_control_minutes__in=[3,5,10,15,30]), name='tournament_valid_time')]
+
+
+class TournamentEntry(models.Model):
+    tournament = models.ForeignKey(Tournament, on_delete=models.CASCADE, related_name='entries')
+    user = models.ForeignKey(User, on_delete=models.PROTECT, related_name='tournament_entries')
+    joined_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['joined_at', 'pk']
+        constraints = [models.UniqueConstraint(fields=['tournament', 'user'], name='unique_tournament_player')]
+
+
+class TournamentMatch(models.Model):
+    tournament = models.ForeignKey(Tournament, on_delete=models.CASCADE, related_name='matches')
+    round_number = models.PositiveSmallIntegerField()
+    board_number = models.PositiveSmallIntegerField()
+    white = models.ForeignKey(User, on_delete=models.PROTECT, related_name='white_tournament_matches')
+    black = models.ForeignKey(User, on_delete=models.PROTECT, related_name='black_tournament_matches', null=True, blank=True)
+    game = models.OneToOneField(ChessGame, on_delete=models.PROTECT, related_name='tournament_match', null=True, blank=True)
+
+    class Meta:
+        ordering = ['round_number', 'board_number']
+        constraints = [models.UniqueConstraint(fields=['tournament', 'round_number', 'board_number'], name='unique_tournament_board'), models.CheckConstraint(condition=~models.Q(white=models.F('black')), name='tournament_distinct_players')]
