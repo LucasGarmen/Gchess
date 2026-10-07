@@ -19,10 +19,10 @@
     <link rel="stylesheet" href="{% static 'games/learning.css' %}?v=2">
     <link rel="stylesheet" href="{% static 'games/chess_visuals.css' %}?v=1">
     <link rel="stylesheet" href="{% static 'games/workspace.css' %}?v=3">
-    <script src="{% static 'games/workspace.js' %}?v=4" defer></script>
+    <script src="{% static 'games/workspace.js' %}?v=5" defer></script>
     <link rel="stylesheet" href="{% static 'games/navigation.css' %}?v=1">
     <script src="{% static 'games/navigation.js' %}?v=1" defer></script>
-    <link rel="stylesheet" href="{% static 'games/tournaments.css' %}?v=1">
+    <link rel="stylesheet" href="{% static 'games/tournaments.css' %}?v=2">
 </head>
 
 <body>
@@ -78,7 +78,7 @@
             </div>
         </div>
         <div class="notification-area nav-main-row">
-            <button id="notification-toggle" type="button">{% tr "nav_invitations" %} <span id="notification-count" hidden>0</span></button>
+            <button id="notification-toggle" type="button">{{ tournament_texts.notifications }} <span id="notification-count" hidden>0</span></button>
             <div id="notification-panel" class="notification-panel" hidden><p class="notification-empty">{% tr "nav_no_invitations" %}</p></div>
         </div>
     {% else %}
@@ -208,6 +208,8 @@
             positionNotificationPanel();
         });
 
+        document.addEventListener('click',event=>{if(!event.target.closest('.notification-area')){notificationPanel.hidden=true;positionNotificationPanel();}});
+        document.addEventListener('keydown',event=>{if(event.key==='Escape'&&!notificationPanel.hidden){notificationPanel.hidden=true;notificationToggle.focus();positionNotificationPanel();}});
         window.addEventListener('resize', positionNotificationPanel);
         window.addEventListener('scroll', positionNotificationPanel, true);
 
@@ -228,19 +230,32 @@
             fetchGameNotifications();
         }
 
-        function renderGameNotifications(invitations) {
+        function renderGameNotifications(invitations, tournamentNotices = []) {
             notificationPanel.replaceChildren();
-            notificationCount.innerText = invitations.length;
-            notificationCount.hidden = invitations.length === 0;
+            notificationCount.innerText = invitations.length + tournamentNotices.length;
+            notificationCount.hidden = invitations.length + tournamentNotices.length === 0;
 
-            if (invitations.length === 0) {
+            if (invitations.length + tournamentNotices.length === 0) {
                 const empty = document.createElement('p');
                 empty.className = 'notification-empty';
-                empty.innerText = UI_TEXTS.nav_no_invitations;
+                empty.innerText = '{{ tournament_texts.no_notifications|escapejs }}';
                 notificationPanel.appendChild(empty);
                 return;
             }
 
+            tournamentNotices.forEach(function (notice) {
+                const item = document.createElement('div');item.className='notification-item';
+                const text=document.createElement('p');text.innerText=notice.label;
+                const actions=document.createElement('div');actions.className='notification-actions';
+                const link=document.createElement('a');link.href=notice.url;link.innerText=notice.open_label;
+                const dismiss=document.createElement('button');dismiss.type='button';dismiss.innerText=notice.dismiss_label;
+                dismiss.addEventListener('click',async()=>{
+                    dismiss.disabled=true;
+                    try {const response=await fetch(notice.dismiss_url,{method:'POST',headers:{'X-CSRFToken':getBaseCSRFToken()}});if(response.ok)await fetchGameNotifications();}
+                    finally {dismiss.disabled=false;}
+                });
+                actions.append(link,dismiss);item.append(text,actions);notificationPanel.append(item);
+            });
             invitations.forEach(function (invitation) {
                 const item = document.createElement('div');
                 item.className = 'notification-item';
@@ -296,7 +311,8 @@
 
                 notificationNetworkWarningShown = false;
                 const data = await response.json();
-                renderGameNotifications(data.invitations || []);
+                renderGameNotifications(data.invitations || [], data.tournament_notices || []);
+                positionNotificationPanel();
             } catch (error) {
                 if (!notificationNetworkWarningShown) {
                     console.warn(UI_TEXTS.notification_update_failed, error);

@@ -9,3 +9,5 @@ Scores: win 1, draw ½, loss 0. White/black assignments differ by at most one ga
 Migration: `python manage.py migrate` applies `0022_tournament_tournamententry_tournamentmatch_and_more`. The existing Docker build already runs migrations. No production deployment has been triggered by this change.
 
 Verification: `python manage.py test games.test_tournaments --settings=config.test_settings`.
+
+Hosts can invite accepted friends from the lobby. Invitations appear under Notifications; opening the tournament does not enroll a player. Players explicitly join, subject to capacity and registration status. Each new round creates one private notification per participant (including byes); opening the tournament clears that round notice. Old invitations disappear after registration closes. Migration 0023 stores notices. Mobile standings show rank, player and points; full win/draw/loss columns remain available on desktop.

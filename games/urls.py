@@ -4,6 +4,7 @@ from . import views, social, learning, workspace, tournaments
 
 
 urlpatterns = [
+    path('tournament-notices/<int:notice_id>/read/', tournaments.tournament_notice_read, name='tournament_notice_read'),
     path('tournaments/', tournaments.tournament_list, name='tournaments'),
     path('tournaments/new/', tournaments.tournament_create, name='tournament_create'),
     path('tournaments/<uuid:token>/', tournaments.tournament_detail, name='tournament_detail'),

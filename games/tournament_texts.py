@@ -16,3 +16,10 @@ for language,labels in {
     'en': ('How it works', 'First place'),
 }.items():
     TEXTS[language]['rules_title'], TEXTS[language]['first_place'] = labels
+
+for language,values in {
+ 'es': ['Invitar amigos','Invitar','Invitación enviada','Todavía no tenés amigos disponibles para invitar. Podés compartir el enlace.','Te invitaron a {name}. Abrí el torneo para unirte.','{name}: la ronda {round} está lista. Revisá tu partida o descanso.','Ocultar','Avisos','No hay avisos pendientes.'],
+ 'pt': ['Convidar amigos','Convidar','Convite enviado','Nenhum amigo disponível para convidar. Você pode compartilhar o link.','Você recebeu um convite para {name}. Abra o torneio para participar.','{name}: a rodada {round} está pronta. Confira sua partida ou descanso.','Dispensar','Avisos','Nenhum aviso pendente.'],
+ 'en': ['Invite friends','Invite','Invitation sent','No friends available to invite. You can share the link.','You are invited to {name}. Open the tournament to join.','{name}: round {round} is ready. Check your game or bye.','Dismiss','Notifications','No pending notifications.'],
+}.items():
+ TEXTS[language].update(zip(['invite_friends','invite','sent','no_friends','invite_notice','round_notice','dismiss','notifications','no_notifications'],values))

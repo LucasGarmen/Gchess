@@ -10,7 +10,8 @@ from django.utils import timezone
 from django.views.decorators.cache import never_cache
 from django.views.decorators.http import require_POST, require_GET
 from .i18n import current_language
-from .models import Tournament, TournamentEntry, TournamentMatch, ChessGame
+from .models import Tournament, TournamentEntry, TournamentMatch, ChessGame, TournamentNotice, Friendship
+from django.db.models import Q, F
 from .tournament_texts import TEXTS
 from .views import rate_limit
 
@@ -51,6 +52,7 @@ def open_round(tournament, number):
             title=f'{tournament.name} · {number}', category='casual', is_rated=False,
             time_control_minutes=tournament.time_control_minutes, **build_initial_clock_settings(tournament.time_control_minutes))
         match.save(update_fields=['game'])
+    TournamentNotice.objects.bulk_create([TournamentNotice(tournament=tournament,user_id=uid,kind='round',round_number=number) for uid in tournament.entries.values_list('user_id',flat=True)], ignore_conflicts=True)
     tournament.current_round = number
     tournament.save(update_fields=['current_round'])
 
@@ -134,13 +136,24 @@ def tournament_create(request):
 def tournament_detail(request, token):
     tournament=get_object_or_404(Tournament.objects.select_related('creator'),token=token)
     entries=list(tournament.entries.select_related('user'))
+    friends=[]
+    if tournament.creator_id==request.user.pk and tournament.status=='lobby':
+        invited=set(tournament.notices.filter(kind='invite').values_list('user_id',flat=True))
+        joined={entry.user_id for entry in entries}
+        for pair in Friendship.objects.filter(Q(low_user=request.user)|Q(high_user=request.user),status='accepted').select_related('low_user','high_user'):
+            friend=pair.high_user if pair.low_user_id==request.user.pk else pair.low_user
+            if friend.pk not in joined:friends.append(dict(user=friend,invited=friend.pk in invited))
+        friends.sort(key=lambda row:row['user'].username.casefold())
+    TournamentNotice.objects.filter(tournament=tournament,user=request.user,kind='round',round_number__lte=tournament.current_round).update(read=True)
+    if any(entry.user_id==request.user.pk for entry in entries):
+        TournamentNotice.objects.filter(tournament=tournament,user=request.user,kind='invite').update(read=True)
     member=any(entry.user_id==request.user.pk for entry in entries)
     matches=list(tournament.matches.select_related('white','black','game')) if member else []
     own_match=next((match for match in matches if match.round_number==tournament.current_round and request.user.pk in (match.white_id,match.black_id)),None)
     rounds=defaultdict(list)
     for match in matches: rounds[match.round_number].append(match)
     return render(request,'games/tournament_detail.html',dict(tournament=tournament,t=TEXTS[current_language(request)],
-        entries=entries,member=member,is_owner=tournament.creator_id==request.user.pk,own_match=own_match,
+        friends=friends,entries=entries,member=member,is_owner=tournament.creator_id==request.user.pk,own_match=own_match,
         table=standings(tournament,entries,matches) if member else [],rounds=sorted(rounds.items()),
         share_url=request.build_absolute_uri(reverse('tournament_detail',args=[token])),snapshot=revision(tournament),
         notice=TEXTS[current_language(request)].get(request.GET.get('notice'),'') ))
@@ -156,7 +169,19 @@ def tournament_action(request, token):
         tournament=get_object_or_404(Tournament.objects.select_for_update(),token=token)
         entries=tournament.entries
         owner=tournament.creator_id==request.user.pk
-        if action=='join':
+        if action=='invite':
+            if not owner:return HttpResponseForbidden()
+            if tournament.status!='lobby':notice='closed'
+            elif entries.count()>=tournament.max_players:notice='full'
+            else:
+                try:uid=int(request.POST.get('friend_id',''))
+                except ValueError:return HttpResponseBadRequest()
+                low,high=sorted((request.user.pk,uid))
+                if not Friendship.objects.filter(low_user_id=low,high_user_id=high,status='accepted').exists():return HttpResponseForbidden()
+                if not entries.filter(user_id=uid).exists():
+                    TournamentNotice.objects.get_or_create(tournament=tournament,user_id=uid,kind='invite')
+                notice='sent'
+        elif action=='join':
             if entries.filter(user=request.user).exists(): pass
             elif tournament.status!='lobby':notice='closed'
             elif entries.count()>=tournament.max_players:notice='full'
@@ -194,3 +219,18 @@ def tournament_state(request, token):
     advance_tournament(tournament.pk)
     tournament.refresh_from_db()
     return JsonResponse({'revision':revision(tournament)})
+
+
+def notification_items(user,language):
+    texts=TEXTS[language]
+    notices=TournamentNotice.objects.filter(user=user,read=False).filter(
+        Q(kind='invite',tournament__status='lobby') | Q(kind='round',tournament__status='active',round_number=F('tournament__current_round'))
+    ).select_related('tournament').order_by('-created_at')[:16]
+    return [dict(id=n.pk,label=(texts['invite_notice'] if n.kind=='invite' else texts['round_notice']).format(name=n.tournament.name,round=n.round_number),url=reverse('tournament_detail',args=[n.tournament.token]),dismiss_url=reverse('tournament_notice_read',args=[n.pk]),open_label=texts['view'],dismiss_label=texts['dismiss']) for n in notices]
+
+@login_required
+@require_POST
+def tournament_notice_read(request,notice_id):
+    notice=get_object_or_404(TournamentNotice,pk=notice_id,user=request.user)
+    notice.read=True;notice.save(update_fields=['read'])
+    return JsonResponse({'ok':True})

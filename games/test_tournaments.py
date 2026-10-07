@@ -159,3 +159,42 @@ class TournamentTests(TestCase):
         self.assertEqual(response.status_code,200)
         game.refresh_from_db();self.assertEqual(game.status,'finished');self.assertEqual(game.result,'black')
         self.tournament.refresh_from_db();self.assertEqual(self.tournament.status,'finished')
+
+
+class TournamentNoticeTests(TournamentTests):
+    def test_friend_invitation_permissions_and_private_notifications(self):
+        from .models import Friendship, TournamentNotice
+        friend=self.players[1]
+        self.assertEqual(self.client.post(self.action,{'action':'invite','friend_id':friend.pk}).status_code,403)
+        Friendship.objects.create(low_user=self.host,high_user=friend,requester=self.host,status='accepted')
+        for _ in range(2):self.client.post(self.action,{'action':'invite','friend_id':friend.pk})
+        self.assertEqual(TournamentNotice.objects.count(),1)
+        self.assertEqual(self.client.get(reverse('game_notifications')).json()['tournament_notices'],[])
+        self.client.force_login(friend)
+        self.assertEqual(self.client.post(self.action,{'action':'invite','friend_id':self.host.pk}).status_code,403)
+        notices=self.client.get(reverse('game_notifications')).json()['tournament_notices']
+        self.assertEqual(len(notices),1)
+        self.client.get(notices[0]['url'])
+        self.assertEqual(len(self.client.get(reverse('game_notifications')).json()['tournament_notices']),1)
+        self.client.post(self.action,{'action':'join'})
+        self.client.get(notices[0]['url'])
+        self.assertEqual(self.client.get(reverse('game_notifications')).json()['tournament_notices'],[])
+
+    def test_round_notifications_are_unique_and_dismiss_is_recipient_only(self):
+        from .models import TournamentNotice
+        self.enroll();self.start();self.start()
+        self.assertEqual(TournamentNotice.objects.filter(kind='round').count(),4)
+        notice=TournamentNotice.objects.get(user=self.players[1],kind='round')
+        url=reverse('tournament_notice_read',args=[notice.pk])
+        self.assertEqual(self.client.post(url).status_code,404)
+        self.client.force_login(self.players[1])
+        self.assertEqual(self.client.get(url).status_code,405)
+        self.assertEqual(self.client.post(url).status_code,200)
+        self.assertEqual(self.client.get(reverse('game_notifications')).json()['tournament_notices'],[])
+
+    def test_started_tournament_does_not_offer_old_invitation(self):
+        from .models import TournamentNotice
+        TournamentNotice.objects.create(tournament=self.tournament,user=self.players[3],kind='invite')
+        self.enroll(2);self.start()
+        self.client.force_login(self.players[3])
+        self.assertEqual(self.client.get(reverse('game_notifications')).json()['tournament_notices'],[])

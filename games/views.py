@@ -2471,7 +2471,9 @@ def game_notifications(request):
         creator=request.user
     ).select_related('creator').order_by('created_at')[:8]
 
+    from .tournaments import notification_items
     return JsonResponse({
+        'tournament_notices': notification_items(request.user,language),
         'invitations': [
             {
                 'id': invitation.id,

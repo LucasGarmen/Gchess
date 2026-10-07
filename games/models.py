@@ -331,3 +331,16 @@ class TournamentMatch(models.Model):
     class Meta:
         ordering = ['round_number', 'board_number']
         constraints = [models.UniqueConstraint(fields=['tournament', 'round_number', 'board_number'], name='unique_tournament_board'), models.CheckConstraint(condition=~models.Q(white=models.F('black')), name='tournament_distinct_players')]
+
+
+class TournamentNotice(models.Model):
+    tournament = models.ForeignKey(Tournament, on_delete=models.CASCADE, related_name='notices')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='tournament_notices')
+    kind = models.CharField(max_length=12, choices=[('invite','Invite'),('round','Round')])
+    round_number = models.PositiveSmallIntegerField(default=0)
+    read = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        constraints = [models.UniqueConstraint(fields=['tournament','user','kind','round_number'], name='unique_tournament_notice')]
+        indexes = [models.Index(fields=['user','read'], name='tournament_notice_user_idx')]

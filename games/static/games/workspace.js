@@ -28,7 +28,8 @@
     function positionBubble(x, y) {
         const box = toggle.getBoundingClientRect();
         x = Math.max(8, Math.min(x, window.innerWidth - box.width - 8));
-        y = Math.max(8, Math.min(y, window.innerHeight - box.height - 8));
+        const minimumY = window.innerWidth <= 900 ? Math.min(112, window.innerHeight - box.height - 8) : 8;
+        y = Math.max(minimumY, Math.min(y, window.innerHeight - box.height - 8));
         Object.assign(bubble.style, {left:x + 'px', top:y + 'px', right:'auto', bottom:'auto'});
         positionPanel();
         return {x, y};
