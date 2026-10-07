@@ -2465,6 +2465,7 @@ def cancel_invitation(request, invitation_id):
 def game_notifications(request):
     touch_presence(request.user)
     language = current_language(request)
+    from django.db.models import Case, When, IntegerField
     invitations = GameInvitation.objects.filter(
         status='pending',
     ).filter(
@@ -2472,35 +2473,43 @@ def game_notifications(request):
         Q(opponent_mode='random', opponent__isnull=True)
     ).exclude(
         creator=request.user
-    ).select_related('creator').order_by('created_at')[:8]
+    ).select_related('creator').annotate(notice_priority=Case(When(opponent=request.user,then=0),default=1,output_field=IntegerField())).order_by('notice_priority','created_at')[:32]
 
+    from .models import DismissedNotice
+    hidden=set(DismissedNotice.objects.filter(user=request.user,key__in=[f'invite:{i.pk}' for i in invitations]).values_list('key',flat=True))
+    invitations=[i for i in invitations if f'invite:{i.pk}' not in hidden][:8]
     from .tournaments import notification_items
-    return JsonResponse({
+    from .notices import items
+    response = JsonResponse({
+        **items(request.user, language),
         'tournament_notices': notification_items(request.user,language),
         'invitations': [
             {
                 'id': invitation.id,
-                'creator': invitation.creator.username,
+                'dismiss_url': reverse('notice_dismiss',args=[f'invite:{invitation.pk}']),
+                'creator': (invitation.creator.username if invitation.creator_id else invitation.creator_guest_name or 'Guest'),
                 'opponent_mode': invitation.opponent_mode,
                 'creator_color': invitation.creator_color,
                 'time_control_minutes': invitation.time_control_minutes,
                 'label': (
-                    f"{invitation.creator.username} procura um oponente aleatório."
+                    f"{(invitation.creator.username if invitation.creator_id else invitation.creator_guest_name or 'Guest')} procura um oponente aleatório."
                     if invitation.opponent_mode == 'random'
-                    else f"{invitation.creator.username} convidou você para jogar."
+                    else f"{(invitation.creator.username if invitation.creator_id else invitation.creator_guest_name or 'Guest')} convidou você para jogar."
                 ) if language == 'pt' else (
-                    f"{invitation.creator.username} busca un oponente aleatorio."
+                    f"{(invitation.creator.username if invitation.creator_id else invitation.creator_guest_name or 'Guest')} busca un oponente aleatorio."
                     if invitation.opponent_mode == 'random'
-                    else f"{invitation.creator.username} te invitó a jugar."
+                    else f"{(invitation.creator.username if invitation.creator_id else invitation.creator_guest_name or 'Guest')} te invitó a jugar."
                 ) if language == 'es' else (
-                    f"{invitation.creator.username} is looking for a random opponent."
+                    f"{(invitation.creator.username if invitation.creator_id else invitation.creator_guest_name or 'Guest')} is looking for a random opponent."
                     if invitation.opponent_mode == 'random'
-                    else f"{invitation.creator.username} invited you to play."
+                    else f"{(invitation.creator.username if invitation.creator_id else invitation.creator_guest_name or 'Guest')} invited you to play."
                 ),
             }
             for invitation in invitations
         ]
     })
+    response['Cache-Control']='private, no-store'
+    return response
 
 
 @login_required

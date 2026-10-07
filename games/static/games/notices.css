@@ -1,0 +1,19 @@
+
+.notification-panel{width:360px;overflow-y:auto;overscroll-behavior:contain;padding:14px;scrollbar-width:thin}
+.notification-group h3{font-size:12px;letter-spacing:.04em;color:#dcc7a0;margin:4px 0 10px;text-transform:uppercase}
+.notification-group+.notification-group{border-top:1px solid #665537;padding-top:14px;margin-top:14px}
+.notification-item{padding:10px 0;border-bottom:1px solid #514734}
+.notification-item:last-child{border-bottom:0}
+.notification-item p{margin:0 0 8px;font-size:14px;line-height:1.5}
+.notification-actions{display:flex;flex-wrap:wrap;gap:8px}
+.notification-actions button,.notification-actions a{min-height:44px;font-size:12px;white-space:normal}
+.notification-training{opacity:.88}
+.notification-footnote{font-size:11px;line-height:1.5;color:#bfae93;margin:12px 0 0}
+.notification-status{color:#ffe1b6;font-size:13px;line-height:1.5}
+@media(max-width:480px){.notification-panel{width:calc(100vw - 24px);padding:12px}}
+
+#notification-panel .notification-actions button,#notification-panel .notification-actions a{width:auto;flex:0 1 auto;padding:0 12px}
+#notification-panel .notification-actions .notice-dismiss{background:transparent;color:#c5b697;border:1px solid #63563d;box-shadow:none;font-weight:400}
+#notification-panel .notification-actions .notice-dismiss:hover{background:#ffffff0a;color:#eee0c6}
+#notification-panel .notification-actions a{color:#ead5aa;font-weight:600;text-decoration:underline;text-underline-offset:3px}
+#notification-panel .notification-actions button:focus-visible,#notification-panel .notification-actions a:focus-visible{outline:2px solid #dcc7a0;outline-offset:2px}

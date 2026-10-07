@@ -376,3 +376,12 @@ class WeeklyChallengeEntry(models.Model):
 
     class Meta:
         constraints = [models.UniqueConstraint(fields=['challenge','user'], name='unique_weekly_challenge_user'), models.CheckConstraint(condition=models.Q(score__lte=50), name='weekly_score_maximum')]
+
+
+class DismissedNotice(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='dismissed_notices')
+    key = models.CharField(max_length=100)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        constraints = [models.UniqueConstraint(fields=['user', 'key'], name='dismissed_notice_user_key')]

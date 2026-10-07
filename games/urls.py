@@ -1,9 +1,10 @@
 from django.urls import path
 from .views import home, games_list, game_detail, game_create,save_move
-from . import views, social, learning, workspace, tournaments, daily_training, weekly, review_practice
+from . import views, social, learning, workspace, tournaments, daily_training, weekly, review_practice, notices
 
 
 urlpatterns = [
+    path('notifications/dismiss/<str:key>/', notices.dismiss, name='notice_dismiss'),
     path("learning/reviews/<int:review_id>/practice/",review_practice.play,name="review_practice"),
     path("learning/reviews/<int:review_id>/practice/start/",review_practice.start,name="review_practice_start"),
     path("learning/practice/answer/",review_practice.answer,name="review_practice_answer"),
