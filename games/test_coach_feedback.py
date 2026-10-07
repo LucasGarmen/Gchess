@@ -43,4 +43,4 @@ class CoachFeedbackTests(SimpleTestCase):
         context = build_automatic_move_context(engine,board,played,language="es")
         self.assertEqual(context["classification"],"mistake")
         self.assertEqual(context["engine_reply_san"],"e5")
-        self.assertIn("Respuesta calculada del rival: e5",context["comment"])
+        self.assertIn("el rival podría responder con peón a e5",context["comment"])

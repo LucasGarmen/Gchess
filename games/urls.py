@@ -1,9 +1,13 @@
 from django.urls import path
 from .views import home, games_list, game_detail, game_create,save_move
-from . import views, social, learning, workspace, tournaments, daily_training
+from . import views, social, learning, workspace, tournaments, daily_training, weekly
 
 
 urlpatterns = [
+    path('training/weekly/', weekly.weekly_challenge, name='weekly_challenge'),
+    path('training/weekly/start/', weekly.weekly_start, name='weekly_start'),
+    path('training/weekly/play/<int:entry_id>/', weekly.weekly_play, name='weekly_play'),
+    path('training/weekly/answer/', weekly.weekly_answer, name='weekly_answer'),
     path('training/today/', daily_training.daily_training, name='daily_training'),
     path('training/today/start/', daily_training.daily_training_start, name='daily_training_start'),
     path('training/today/answer/', daily_training.daily_training_answer, name='daily_training_answer'),

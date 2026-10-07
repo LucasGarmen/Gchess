@@ -25,7 +25,8 @@
   }
  }
  function render(){
-  get('week-count').textContent=state.recent_count;
+  if(get('week-count'))get('week-count').textContent=state.recent_count;
+  document.dispatchEvent(new CustomEvent('gchess:training-state',{detail:state}));
   selected=null;waiting=false;get('promotion').hidden=true;get('feedback').textContent='';get('next').hidden=true;
   get('play').hidden=state.completed;get('finish').hidden=!state.completed;
   if(state.completed){get('summary').textContent=texts.summary.replace('{total}',state.total);get('independent').textContent=state.independent;get('helped').textContent=state.helped;return;}
@@ -47,14 +48,15 @@
  async function send(action,move){
   if(busy||waiting)return;busy=true;get('hint').disabled=true;get('reveal').disabled=true;draw(state.task.fen);
   try{
-   const response=await fetch(app.dataset.answerUrl,{method:'POST',headers:{'Content-Type':'application/json','X-CSRFToken':csrf()},body:JSON.stringify({id:state.id,index:state.index,action,move})});
+   const response=await fetch(app.dataset.answerUrl,{method:'POST',headers:{'Content-Type':'application/json','X-CSRFToken':csrf()},body:JSON.stringify({id:state.id,index:state.index,action,move,practice:state.practice===true})});
    if(response.redirected)throw new Error('auth');
    const data=await response.json();
    if(response.status===409&&data.state){state=data.state;busy=false;render();return;}
    if(!response.ok)throw new Error('save');
    get('feedback').textContent=data.feedback;busy=false;
    if(data.resolved){waiting=true;draw(data.result_fen,data.result_move);state=data.state;get('next').hidden=false;get('next').textContent=state.completed?texts.finish+' →':texts.next+' →';}
-   else{get('hint').disabled=false;get('reveal').disabled=false;draw(state.task.fen);}
+   else{state=data.state;get('hint').disabled=false;get('reveal').disabled=false;draw(state.task.fen);}
+   document.dispatchEvent(new CustomEvent('gchess:training-state',{detail:state}));
   }catch(error){busy=false;get('feedback').textContent=texts.connection;get('hint').disabled=false;get('reveal').disabled=false;draw(state.task.fen);}
  }
  get('hint').addEventListener('click',()=>send('hint'));get('reveal').addEventListener('click',()=>send('reveal'));

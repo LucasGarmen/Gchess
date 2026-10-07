@@ -358,3 +358,21 @@ class DailyTraining(models.Model):
 
     class Meta:
         constraints = [models.UniqueConstraint(fields=['user','date'], name='unique_daily_training_user_date')]
+
+
+class WeeklyChallenge(models.Model):
+    week_start = models.DateField(unique=True)
+    tasks = models.JSONField(default=list)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+
+class WeeklyChallengeEntry(models.Model):
+    challenge = models.ForeignKey(WeeklyChallenge, on_delete=models.CASCADE, related_name='entries')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='weekly_challenges')
+    progress = models.JSONField(default=list)
+    score = models.PositiveSmallIntegerField(default=0)
+    started_at = models.DateTimeField(auto_now_add=True)
+    completed_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        constraints = [models.UniqueConstraint(fields=['challenge','user'], name='unique_weekly_challenge_user'), models.CheckConstraint(condition=models.Q(score__lte=50), name='weekly_score_maximum')]

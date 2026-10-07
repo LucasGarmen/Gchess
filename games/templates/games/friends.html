@@ -4,6 +4,7 @@
 {% block content %}
 <main class="social-page">
 <header><p class="eyebrow">Gchess · {{ s.title }}</p><h1>{{ s.title }}</h1><p>{{ s.intro }}</p></header>
+<section class="social-panel"><h2>{{ weekly.title }}</h2><p>{{ weekly.intro }}</p><a href="{% url 'weekly_challenge' %}">{{ weekly.start }} →</a></section>
 {% if feedback %}<p class="social-feedback" role="status">{{ feedback }}</p>{% endif %}
 <section class="social-panel"><h2>{{ s.search }}</h2>
 <form method="get" class="social-search"><label for="friend-query">{{ s.search_hint }}</label><input id="friend-query" name="q" value="{{ query }}" maxlength="150" minlength="2" required autocomplete="off"><button>{{ s.find }}</button></form>
