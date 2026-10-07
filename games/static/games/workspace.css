@@ -3,3 +3,12 @@
 .game-workspace #workspace-panel{position:fixed}.game-workspace #workspace-toggle{touch-action:none;user-select:none;cursor:grab}.workspace-dragging #workspace-toggle{cursor:grabbing}
 
 .game-workspace{width:max-content}.game-workspace #workspace-toggle{white-space:nowrap}
+
+#coach-exit-dialog{box-sizing:border-box;width:min(480px,calc(100vw - 32px));max-height:calc(100dvh - 32px);overflow:auto;padding:24px;background:#29271f;color:#eee0c6;border:1px solid #74603e;border-radius:12px;box-shadow:0 18px 60px #0009}
+#coach-exit-dialog::backdrop{background:#0009}
+#coach-exit-dialog h2{margin:0 0 14px;font-size:24px;color:#ead5aa}
+#coach-exit-dialog p{line-height:1.65;margin:0 0 20px;font-size:15px}
+.coach-exit-actions{display:flex;flex-wrap:wrap;gap:12px}
+.coach-exit-actions button{min-height:44px;padding:10px 14px}
+#coach-exit-confirm{background:transparent;border:1px solid #86704c;color:#ead5aa}
+@media(max-width:480px){#coach-exit-dialog{padding:20px}.coach-exit-actions{flex-direction:column}.coach-exit-actions button{width:100%}}

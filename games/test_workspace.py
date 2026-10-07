@@ -35,3 +35,17 @@ class WorkspaceTests(TestCase):
         self.assertContains(page,'game-workspace-config')
         self.assertContains(page,'workspace-new-bot')
 
+
+class CoachStorageNoticeTests(TestCase):
+    def test_temporary_storage_notice_translated_for_guests_and_accounts(self):
+        from games.workspace import EXIT_TEXTS
+        user=User.objects.create_user('coach-storage-owner')
+        for authenticated in (False,True):
+            if authenticated: self.client.force_login(user)
+            for language in ('es','pt','en'):
+                session=self.client.session;session['language']=language;session.save()
+                response=self.client.get(reverse('home'))
+                self.assertContains(response,EXIT_TEXTS[language]['storage'])
+                self.assertContains(response,'logoutWarning')
+                self.assertContains(response,'workspace.js')
+            self.assertFalse(ChessGame.objects.exists())

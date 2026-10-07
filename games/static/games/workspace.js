@@ -146,6 +146,41 @@
         write('open', false);
         location.assign(config.home + '?bot=' + encodeURIComponent(id));
     });
+    function hasUnfinishedCoachGames() {
+        // Check all games belonging to this identity, including games on other pages.
+        const currentBots = read('bots', []);
+        if (!Array.isArray(currentBots)) return false;
+        return currentBots.some(bot => {
+            if (!bot || !validId(bot.id) || bot.finished === true) return false;
+            const state = read('bot:' + bot.id, null);
+            return state && Array.isArray(state.moves) && state.moves.length > 0;
+        });
+    }
+    const exitDialog = document.getElementById('coach-exit-dialog');
+    let exitForm = null;
+    let confirmedExit = false;
+    document.querySelectorAll('form.nav-logout').forEach(form => {
+        form.addEventListener('submit', event => {
+            if (confirmedExit || !hasUnfinishedCoachGames()) return;
+            event.preventDefault();
+            exitForm = form;
+            if (!exitDialog.open) exitDialog.showModal();
+        });
+    });
+    document.getElementById('coach-exit-cancel').addEventListener('click', () => {
+        exitForm = null;
+        exitDialog.close();
+    });
+    exitDialog.addEventListener('cancel', () => { exitForm = null; });
+    document.getElementById('coach-exit-confirm').addEventListener('click', () => {
+        if (!exitForm) return;
+        const form = exitForm;
+        exitForm = null;
+        confirmedExit = true;
+        exitDialog.close();
+        // Submit the existing POST form, preserving CSRF and normal logout behavior.
+        try { form.requestSubmit(); } finally { confirmedExit = false; }
+    });
     window.addEventListener('focus', refresh);
     document.addEventListener('visibilitychange', () => { if (!document.hidden) refresh(); });
     const savedPosition = read('position', null);

@@ -14,6 +14,21 @@ TEXTS = {
  'en': ['My games', 'New game with the coach', 'New human game', 'Your turn', "Opponent’s turn", 'Paused', 'Finished', 'View all', 'Human game clocks keep running. The coach waits until you return.', 'Could not refresh games. Use “View all” to check them.', 'Close selector', 'Human games', 'Coach games in this browser', 'No human games open yet.'],
 }
 
+EXIT_TEXTS = {
+ 'es': {
+  'storage': 'Las partidas con el coach son temporales y quedan solo en esta pestaña. No se guardan en tu cuenta; al cerrar la pestaña podés perderlas.',
+  'logout': 'Tenés partidas con el coach empezadas. Al cerrar sesión dejarán de aparecer en Mis partidas. Son temporales: no se guardan en tu cuenta y al cerrar esta pestaña podés perderlas. ¿Querés cerrar sesión?',
+ },
+ 'pt': {
+  'storage': 'As partidas com o coach são temporárias e ficam apenas nesta aba. Não são salvas na sua conta; ao fechar a aba você pode perdê-las.',
+  'logout': 'Você tem partidas com o coach em andamento. Ao sair da conta, elas deixarão de aparecer em Minhas partidas. São temporárias: não são salvas na sua conta e ao fechar esta aba você pode perdê-las. Quer sair da conta?',
+ },
+ 'en': {
+  'storage': 'Coach games are temporary and stay only in this tab. They are not saved to your account; closing the tab can lose them.',
+  'logout': 'You have coach games in progress. Logging out will hide them from My games. They are temporary: they are not saved to your account and closing this tab can lose them. Log out?',
+ },
+}
+
 def namespace(request):
     if request.user.is_authenticated:
         return 'user:' + str(request.user.pk)
@@ -22,8 +37,10 @@ def namespace(request):
     return 'guest:' + request.session['guest_id']
 
 def workspace_context(request):
-    words = TEXTS.get(current_language(request), TEXTS['pt'])
-    return {'workspace_config': {'actor': namespace(request), 'endpoint': reverse('active_games'), 'home': reverse('home'), 'newHuman': reverse('game_create'), 'allGames': reverse('games_list'), 'words': words}}
+    language = current_language(request)
+    words = TEXTS.get(language, TEXTS['pt'])
+    exit_texts = EXIT_TEXTS.get(language, EXIT_TEXTS['pt'])
+    return {'workspace_config': {'actor': namespace(request), 'endpoint': reverse('active_games'), 'home': reverse('home'), 'newHuman': reverse('game_create'), 'allGames': reverse('games_list'), 'words': words, 'storageNotice': exit_texts['storage'], 'logoutWarning': exit_texts['logout'], 'stayLabel': {'es':'Seguir conectado','pt':'Continuar conectado','en':'Stay signed in'}[language], 'leaveLabel': {'es':'Cerrar sesión','pt':'Sair da conta','en':'Log out'}[language]}}
 
 @require_GET
 @never_cache
