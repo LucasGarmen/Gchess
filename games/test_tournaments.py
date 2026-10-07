@@ -28,7 +28,7 @@ class TournamentTests(TestCase):
     def setUp(self):
         self.players=[User.objects.create_user(username='tour'+str(i)) for i in range(4)]
         self.host=self.players[0]
-        self.tournament=Tournament.objects.create(creator=self.host,name='Friends cup',max_players=4)
+        self.tournament=Tournament.objects.create(creator=self.host,name='Friends cup',max_players=4,visibility='public')
         TournamentEntry.objects.create(tournament=self.tournament,user=self.host)
         self.action=reverse('tournament_action',args=[self.tournament.token])
         self.client.force_login(self.host)
@@ -128,7 +128,7 @@ class TournamentTests(TestCase):
         self.assertNotContains(self.client.get(reverse('tournaments')),'Other private cup')
         self.client.post(reverse('tournament_create'),{'name':'Bad','max_players':999,'time_control_minutes':999})
         self.assertEqual(Tournament.objects.count(),2)
-        self.client.post(reverse('tournament_create'),{'name':'New cup','max_players':8,'time_control_minutes':5})
+        self.client.post(reverse('tournament_create'),{'name':'New cup','max_players':8,'time_control_minutes':5,'visibility':'public'})
         self.assertTrue(TournamentEntry.objects.filter(tournament__name='New cup',user=self.host).exists())
 
     def test_resigning_the_normal_game_finishes_the_tournament(self):

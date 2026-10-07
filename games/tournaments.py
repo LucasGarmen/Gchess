@@ -1,4 +1,4 @@
-"""Private round-robin tournaments reuse the normal game and clock rules."""
+"""Round-robin tournaments reuse the normal game and clock rules."""
 from collections import defaultdict
 from django import forms
 from django.contrib.auth.decorators import login_required
@@ -11,13 +11,17 @@ from django.views.decorators.cache import never_cache
 from django.views.decorators.http import require_POST, require_GET
 from .i18n import current_language
 from .models import Tournament, TournamentEntry, TournamentMatch, ChessGame, TournamentNotice, Friendship
-from django.db.models import Q, F
+from django.db.models import Q, F, Count
+from django.core.paginator import Paginator
+from django.contrib.auth.hashers import make_password, check_password
 from .tournament_texts import TEXTS
 from .views import rate_limit
 
 
 class TournamentForm(forms.Form):
     name = forms.CharField(max_length=80, strip=True)
+    visibility = forms.ChoiceField(choices=[('private','Private'),('public','Public')], initial='private')
+    password = forms.CharField(required=False, max_length=128, strip=False, widget=forms.PasswordInput(attrs={'autocomplete':'new-password','minlength':6}))
     max_players = forms.TypedChoiceField(choices=[(n,str(n)) for n in (4,8,12,16)], coerce=int, initial=8)
     time_control_minutes = forms.TypedChoiceField(choices=[(n,str(n)) for n in (3,5,10,15,30)], coerce=int, initial=10)
 
@@ -25,6 +29,16 @@ class TournamentForm(forms.Form):
         super().__init__(*args, **kwargs)
         for key, field in self.fields.items():
             field.label = TEXTS[language][{'max_players':'capacity','time_control_minutes':'minutes'}.get(key,key)]
+        self.texts=TEXTS[language]
+        self.fields['visibility'].choices=[(key,self.texts[key]) for key in ('private','public')]
+        self.fields['visibility'].help_text=self.texts['visibility_help']
+        self.fields['password'].help_text=self.texts['password_help']
+
+    def clean(self):
+        data=super().clean()
+        if data.get('visibility')=='private' and (not data.get('password','').strip() or len(data.get('password',''))<6):
+            self.add_error('password',self.texts['password_required'])
+        return data
 
 
 def round_robin(players):
@@ -113,9 +127,15 @@ def revision(tournament):
 
 
 @login_required
+@never_cache
 def tournament_list(request):
-    tournaments = Tournament.objects.filter(entries__user=request.user).select_related('creator').distinct()
-    return render(request,'games/tournaments.html',{'tournaments':tournaments,'t':TEXTS[current_language(request)]})
+    # Count every player, not just the current account's matching join row.
+    mine_ids=TournamentEntry.objects.filter(user=request.user).values_list('tournament_id',flat=True)
+    tournaments=Tournament.objects.filter(pk__in=mine_ids).select_related('creator').annotate(player_count=Count('entries')).order_by('-created_at','-pk')
+    status=request.GET.get('status','lobby')
+    if status not in ('lobby','active','finished'):status='lobby'
+    public=Tournament.objects.filter(visibility='public',status=status).select_related('creator').annotate(player_count=Count('entries')).order_by('-created_at')
+    return render(request,'games/tournaments.html',{'tournaments':Paginator(tournaments,12).get_page(request.GET.get('mine_page')),'public_tournaments':Paginator(public,12).get_page(request.GET.get('page')),'public_status':status,'t':TEXTS[current_language(request)]})
 
 
 @login_required
@@ -125,7 +145,8 @@ def tournament_create(request):
     form=TournamentForm(request.POST or None,language=current_language(request))
     if request.method=='POST' and form.is_valid():
         with transaction.atomic():
-            tournament=Tournament.objects.create(creator=request.user,**form.cleaned_data)
+            data=dict(form.cleaned_data);password=data.pop('password','')
+            tournament=Tournament.objects.create(creator=request.user,password_hash=make_password(password) if data['visibility']=='private' else '',**data)
             TournamentEntry.objects.create(tournament=tournament,user=request.user)
         return redirect('tournament_detail',token=tournament.token)
     return render(request,'games/tournament_create.html',{'form':form,'t':texts})
@@ -135,6 +156,10 @@ def tournament_create(request):
 @never_cache
 def tournament_detail(request, token):
     tournament=get_object_or_404(Tournament.objects.select_related('creator'),token=token)
+    texts=TEXTS[current_language(request)]
+    member=tournament.entries.filter(user=request.user).exists()
+    if tournament.visibility=='private' and not member and tournament.creator_id!=request.user.pk:
+        return render(request,'games/tournament_locked.html',dict(tournament=tournament,t=texts,player_count=tournament.entries.count(),notice=texts.get(request.GET.get('notice'),'')))
     entries=list(tournament.entries.select_related('user'))
     friends=[]
     if tournament.creator_id==request.user.pk and tournament.status=='lobby':
@@ -148,13 +173,13 @@ def tournament_detail(request, token):
     if any(entry.user_id==request.user.pk for entry in entries):
         TournamentNotice.objects.filter(tournament=tournament,user=request.user,kind='invite').update(read=True)
     member=any(entry.user_id==request.user.pk for entry in entries)
-    matches=list(tournament.matches.select_related('white','black','game')) if member else []
+    matches=list(tournament.matches.select_related('white','black','game')) if member or tournament.visibility=='public' else []
     own_match=next((match for match in matches if match.round_number==tournament.current_round and request.user.pk in (match.white_id,match.black_id)),None)
     rounds=defaultdict(list)
     for match in matches: rounds[match.round_number].append(match)
     return render(request,'games/tournament_detail.html',dict(tournament=tournament,t=TEXTS[current_language(request)],
         friends=friends,entries=entries,member=member,is_owner=tournament.creator_id==request.user.pk,own_match=own_match,
-        table=standings(tournament,entries,matches) if member else [],rounds=sorted(rounds.items()),
+        table=standings(tournament,entries,matches) if matches else [],rounds=sorted(rounds.items()),
         share_url=request.build_absolute_uri(reverse('tournament_detail',args=[token])),snapshot=revision(tournament),
         notice=TEXTS[current_language(request)].get(request.GET.get('notice'),'') ))
 
@@ -181,11 +206,23 @@ def tournament_action(request, token):
                 if not entries.filter(user_id=uid).exists():
                     TournamentNotice.objects.get_or_create(tournament=tournament,user_id=uid,kind='invite')
                 notice='sent'
+        elif action=='password':
+            if not owner:return HttpResponseForbidden()
+            if tournament.status!='lobby' or tournament.visibility!='private':notice='closed'
+            else:
+                password=request.POST.get('password','')
+                if not password.strip() or not 6<=len(password)<=128:notice='password_required'
+                else:
+                    tournament.password_hash=make_password(password);tournament.save(update_fields=['password_hash']);notice='password_saved'
         elif action=='join':
             if entries.filter(user=request.user).exists(): pass
             elif tournament.status!='lobby':notice='closed'
             elif entries.count()>=tournament.max_players:notice='full'
-            else:TournamentEntry.objects.create(tournament=tournament,user=request.user)
+            else:
+                if tournament.visibility=='private':
+                    response=verify_tournament_password(request,tournament)
+                    if response is not None:return response
+                TournamentEntry.objects.create(tournament=tournament,user=request.user)
         elif action=='leave':
             if tournament.status!='lobby':notice='closed'
             elif owner:notice='owner_only'
@@ -195,6 +232,7 @@ def tournament_action(request, token):
             if tournament.status!='lobby':notice='closed'
             elif action=='cancel':
                 tournament.status='cancelled';tournament.save(update_fields=['status'])
+            elif tournament.visibility=='private' and not tournament.password_hash:notice='password_required'
             elif entries.count()<2:notice='min_players'
             else:
                 players=list(entries.values_list('user_id',flat=True))
@@ -234,3 +272,11 @@ def tournament_notice_read(request,notice_id):
     notice=get_object_or_404(TournamentNotice,pk=notice_id,user=request.user)
     notice.read=True;notice.save(update_fields=['read'])
     return JsonResponse({'ok':True})
+
+
+@rate_limit(8,60,'tournament-password-check')
+def verify_tournament_password(request,tournament):
+    raw=request.POST.get('password','')
+    if not tournament.password_hash or not raw or len(raw)>128 or not check_password(raw,tournament.password_hash):
+        return redirect(reverse('tournament_detail',args=[tournament.token])+'?notice=wrong_password')
+    return None

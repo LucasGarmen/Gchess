@@ -1,5 +1,12 @@
 (() => {
     'use strict';
+    const visibility=document.getElementById('id_visibility');
+    const passwordField=document.getElementById('tournament-password-field');
+    if(visibility&&passwordField){
+        const input=passwordField.querySelector('input');
+        function update(){const privateMode=visibility.value==='private';passwordField.hidden=!privateMode;input.required=privateMode;input.disabled=!privateMode;}
+        visibility.addEventListener('change',update);update();
+    }
     const copy=document.getElementById('tournament-copy');
     if(copy)copy.addEventListener('click',async()=>{
         const field=document.getElementById('tournament-share-link');

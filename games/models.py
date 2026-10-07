@@ -298,6 +298,8 @@ class Tournament(models.Model):
     creator = models.ForeignKey(User, on_delete=models.PROTECT, related_name='created_tournaments')
     name = models.CharField(max_length=80)
     status = models.CharField(max_length=12, choices=[('lobby', 'Lobby'), ('active', 'Active'), ('finished', 'Finished'), ('cancelled', 'Cancelled')], default='lobby')
+    visibility = models.CharField(max_length=7, choices=[('private','Private'),('public','Public')], default='private', db_index=True)
+    password_hash = models.CharField(max_length=128, blank=True, editable=False)
     max_players = models.PositiveSmallIntegerField(default=8)
     time_control_minutes = models.PositiveSmallIntegerField(default=10)
     current_round = models.PositiveSmallIntegerField(default=0)
