@@ -31,6 +31,7 @@
             {% endif %}
         </p>
 
+        {% if invitation.blindfold_only %}<p><strong>{{ blindfold.exclusive }}</strong> · {{ blindfold.exclusive_help }}</p>{% endif %}
         <div class="loading-line"></div>
         <p id="invitation-wait-status" class="field-help">{% tr "auto_open_when_accepted" %}</p>
         <button id="cancel-invitation" type="button">{% tr "cancel_request" %}</button>

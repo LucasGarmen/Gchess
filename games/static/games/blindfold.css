@@ -1,0 +1,53 @@
+/* Blindfold play leaves board mechanics intact, while hiding its visual representation. */
+.blindfold-card { min-width:0; border:1px solid #786544; border-radius:12px; background:#29291f; color:#eee1c7; padding:20px; margin:0 0 18px; }
+.blindfold-card header { display:flex; align-items:center; justify-content:space-between; gap:12px; }
+.blindfold-card h2 { font:400 24px/1.35 Georgia,serif; margin:0 0 14px; color:#ead2a0; }
+.blindfold-card p { font-size:13px; line-height:1.6; }
+.blindfold-switch { display:flex; align-items:center; gap:12px; min-height:44px; cursor:pointer; }
+.blindfold-switch input { width:20px; height:20px; margin:0; flex-shrink:0; accent-color:#b8a06b; }
+#blindfold-play[hidden] { display:none!important; }
+#blindfold-form label { display:block; font-size:13px; margin:14px 0 8px; }
+#blindfold-form select { width:100%; max-width:100%; min-height:44px; font-size:14px; border-radius:8px; margin:0; }
+.blindfold-input-row { display:flex; gap:10px; }
+.blindfold-input-row input { flex:1; width:0; min-width:0; min-height:48px; font:18px/1.4 monospace; border-radius:8px; margin:0; }
+.blindfold-input-row button { min-height:48px; color:#242117; background:#dfc58f; }
+#blindfold-error { color:#f5bea4; }
+#blindfold-turn { border-left:3px solid #a0b277; padding-left:12px; }
+#blindfold-history { max-height:280px; overflow:auto; padding-left:32px; font:16px/1.7 monospace; }
+#blindfold-history li { padding:6px; }
+.blindfold-active .board-wrapper, .blindfold-active .board-captured-material { display:none!important; }
+body.blindfold-playing .nav-captured-material, body.blindfold-playing .move-animation-piece, body.blindfold-playing .drag-piece { display:none!important; }
+.blindfold-active .board-area { height:auto!important; min-height:0; width:100%; align-items:stretch; }
+.blindfold-active.home-computer-layout, .blindfold-active.online-game-layout { grid-template-columns:minmax(0,1fr) minmax(280px,360px); height:auto!important; min-height:0; align-items:start; }
+#blindfold-nav-slot .mobile-nav-toggle { position:static!important; min-height:44px; margin:0; display:none; }
+.blindfold-landing { max-width:980px; margin:32px auto 90px; }
+.blindfold-landing>p { line-height:1.7; }
+.blindfold-choices { display:flex; gap:16px; flex-wrap:wrap; margin:24px 0; }
+.blindfold-cta { padding:14px 18px; min-height:48px; border-radius:8px; color:#29241a; background:#dfc58f; margin:0; }
+.blindfold-cta:hover { color:#29241a; background:#ead2a0; }
+@media(max-width:900px) {
+ .blindfold-card { padding:16px; }
+ .blindfold-active.home-computer-layout, .blindfold-active.online-game-layout { grid-template-columns:minmax(0,1fr); overflow:visible; }
+ #blindfold-nav-slot .mobile-nav-toggle { display:inline-flex; }
+ #blindfold-form select { font-size:16px; }
+ .blindfold-card h2 { font-size:22px; }
+ .blindfold-choices { flex-direction:column; }
+ .blindfold-cta { text-align:center; }
+}
+
+/* Normal games show only a compact switch; the full editor opens on demand. */
+#blindfold-panel[data-active=false] { padding:4px 12px; margin-bottom:8px; background:transparent; }
+#blindfold-panel[data-active=false] > header, #blindfold-panel[data-active=false] > #blindfold-rule { display:none; }
+
+/* Keep the normal board footprint; its compact switch lives beside the board on desktop. */
+#blindfold-panel { flex-shrink:0; }
+.blindfold-active .entry-board-tip:first-of-type { display:none; }
+body.blindfold-playing, html.online-game-detail-page-root:has(body.blindfold-playing) { overflow-y:auto!important; }
+body.blindfold-playing .game-layout.blindfold-active { overflow:visible!important; }
+body.blindfold-playing .online-game-layout.blindfold-active .board-area { align-items:stretch; justify-content:start; padding-top:0; }
+@media(max-width:900px) {
+ .game-layout .board-area:has(#blindfold-panel) { justify-content:flex-start; height:auto!important; }
+}
+
+#blindfold-submit:disabled { opacity:.5; cursor:default; }
+body.blindfold-exclusive-playing #analyze-game-button { display:none!important; }

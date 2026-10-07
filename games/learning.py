@@ -138,7 +138,7 @@ def _rematch(request,game_id):
             creator_guest_name='' if request.user.is_authenticated else (game.white_player if color=='white' else game.black_player),
             opponent=other,opponent_mode='direct' if request.user.is_authenticated and other else 'link',
             creator_color='black' if color=='white' else 'white',time_control_minutes=game.time_control_minutes,
-            is_rated=bool(game.is_rated and request.user.is_authenticated and other))
+            is_rated=bool(game.is_rated and request.user.is_authenticated and other),blindfold_only=game.blindfold_only)
     return redirect('game_invitation_wait',invitation_id=invitation.pk)
 
 

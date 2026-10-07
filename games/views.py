@@ -379,6 +379,7 @@ def create_game_from_invitation(invitation, opponent=None, opponent_guest_id='',
         black_player=black_player,
         category='ranked' if invitation.is_rated else 'casual',
         is_rated=invitation.is_rated,
+        blindfold_only=invitation.blindfold_only,
         time_control_minutes=invitation.time_control_minutes,
         **clock_settings,
     )
@@ -2044,6 +2045,7 @@ def game_create(request):
                         opponent_mode='direct',
                         creator_color=form.cleaned_data['color_choice'],
                         is_rated=is_rated,
+                        blindfold_only=form.cleaned_data['blindfold_only'],
                         time_control_minutes=form.cleaned_data['time_control_minutes'],
                     )
                     return redirect('game_invitation_wait', invitation_id=invitation.id)
@@ -2055,6 +2057,7 @@ def game_create(request):
                     opponent_mode='link',
                     creator_color=form.cleaned_data['color_choice'],
                     is_rated=is_rated,
+                    blindfold_only=form.cleaned_data['blindfold_only'],
                     time_control_minutes=form.cleaned_data['time_control_minutes'],
                 )
                 return redirect('game_invitation_wait', invitation_id=invitation.id)
@@ -2064,11 +2067,12 @@ def game_create(request):
                     opponent_mode='random',
                     creator_color=form.cleaned_data['color_choice'],
                     is_rated=is_rated,
+                    blindfold_only=form.cleaned_data['blindfold_only'],
                     time_control_minutes=form.cleaned_data['time_control_minutes'],
                 )
                 return redirect('game_invitation_wait', invitation_id=invitation.id)
     else:
-        form = ChessGameForm(language=current_language(request), user=request.user)
+        form = ChessGameForm(language=current_language(request), user=request.user, initial={'blindfold_only': request.GET.get('blindfold') == 'exclusive'})
 
     from .create_texts import TEXTS as CREATE_TEXTS
     return render(request, 'games/game_create.html', {
@@ -2492,6 +2496,7 @@ def game_notifications(request):
                 'creator': (invitation.creator.username if invitation.creator_id else invitation.creator_guest_name or 'Guest'),
                 'opponent_mode': invitation.opponent_mode,
                 'creator_color': invitation.creator_color,
+                'blindfold_only': invitation.blindfold_only,
                 'time_control_minutes': invitation.time_control_minutes,
                 'label': (
                     f"{(invitation.creator.username if invitation.creator_id else invitation.creator_guest_name or 'Guest')} procura um oponente aleatório."

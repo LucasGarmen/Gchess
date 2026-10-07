@@ -219,7 +219,7 @@
 <h1 class="online-game-page-title">{{ game.title }}</h1>
 {% endif %}
 
-<main class="game-layout online-game-layout">
+<main class="game-layout online-game-layout{% if game.blindfold_only %} blindfold-active{% endif %}">
     <aside class="card game-info-card">
         <div class="game-info-item">
             <strong>{% tr "white" %}:</strong>
@@ -236,6 +236,7 @@
     </aside>
 
     <section class="board-area">
+        {% include "games/_blindfold_controls.html" %}
         <div class="board-wrapper">
             <div class="rank-labels">
                 <span>8</span><span>7</span><span>6</span><span>5</span>
@@ -403,5 +404,6 @@
 <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin defer></script>
 <script src="{% static 'games/react/game_detail_app.min.js' %}?v=1" defer></script>
 <script src="{% static 'games/board.min.js' %}?v=13" defer></script>
+<script src="{% static 'games/blindfold.js' %}?v=1" defer></script>
 
 {% endblock %}

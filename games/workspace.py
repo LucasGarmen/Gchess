@@ -40,7 +40,7 @@ def workspace_context(request):
     language = current_language(request)
     words = TEXTS.get(language, TEXTS['pt'])
     exit_texts = EXIT_TEXTS.get(language, EXIT_TEXTS['pt'])
-    return {'workspace_config': {'actor': namespace(request), 'endpoint': reverse('active_games'), 'home': reverse('home'), 'newHuman': reverse('game_create'), 'allGames': reverse('games_list'), 'words': words, 'storageNotice': exit_texts['storage'], 'logoutWarning': exit_texts['logout'], 'stayLabel': {'es':'Seguir conectado','pt':'Continuar conectado','en':'Stay signed in'}[language], 'leaveLabel': {'es':'Cerrar sesión','pt':'Sair da conta','en':'Log out'}[language]}}
+    return {'workspace_config': {'actor': namespace(request), 'endpoint': reverse('active_games'), 'home': reverse('home'), 'newHuman': reverse('game_create'), 'allGames': reverse('games_list'), 'words': words, 'blindfoldLabel':{'es':'A ciegas','pt':'Às cegas','en':'Blindfold'}[language], 'storageNotice': exit_texts['storage'], 'logoutWarning': exit_texts['logout'], 'stayLabel': {'es':'Seguir conectado','pt':'Continuar conectado','en':'Stay signed in'}[language], 'leaveLabel': {'es':'Cerrar sesión','pt':'Sair da conta','en':'Log out'}[language]}}
 
 @require_GET
 @never_cache
@@ -58,5 +58,5 @@ def active_games(request):
         white = game.white_user_id == request.user.pk if request.user.is_authenticated else game.white_guest_id == request.session['guest_id']
         color = 'white' if white else 'black'
         turn = 'black' if game.last_color == 'white' else 'white'
-        entries.append({'id': game.pk, 'url': reverse('game_detail', args=[game.pk]), 'opponent': game.black_player if white else game.white_player, 'title': game.title, 'yourTurn': turn == color, 'rated': game.is_rated})
+        entries.append({'id': game.pk, 'url': reverse('game_detail', args=[game.pk]), 'opponent': game.black_player if white else game.white_player, 'title': game.title, 'yourTurn': turn == color, 'rated': game.is_rated, 'blindfoldOnly':game.blindfold_only})
     return JsonResponse({'actor': actor, 'games': entries})

@@ -1,0 +1,10 @@
+<section id="blindfold-panel" class="blindfold-card" data-exclusive="{{ game.blindfold_only|yesno:'true,false' }}" data-endpoint="{% url 'blindfold_position' %}" aria-label="{{ blindfold.title }}">
+<header><h2>{{ blindfold.title }}</h2><span id="blindfold-nav-slot"></span></header>
+<label class="blindfold-switch"><input id="blindfold-toggle" type="checkbox"{% if game.blindfold_only %} checked disabled{% endif %}> {{ blindfold.toggle }}</label>
+<p id="blindfold-rule">{% if game.blindfold_only %}{{ blindfold.exclusive_help }}{% else %}{{ blindfold.personal_help }}{% endif %}</p>
+<div id="blindfold-play" hidden>
+<p id="blindfold-turn" role="status"></p>
+<form id="blindfold-form"><label for="blindfold-notation-language">{{ blindfold.notation }}</label><select id="blindfold-notation-language"><option value="local">{{ blindfold.native }}</option>{% if current_language != 'en' %}<option value="en">{{ blindfold.english }}</option>{% endif %}</select>
+<label for="blindfold-move">{{ blindfold.move }}</label><div class="blindfold-input-row"><input id="blindfold-move" type="text" maxlength="32" autocomplete="off" autocapitalize="off" spellcheck="false" aria-describedby="blindfold-help blindfold-error" required><button type="submit" id="blindfold-submit">{{ blindfold.send }}</button></div><p id="blindfold-help">{{ blindfold.help }}</p><p id="blindfold-error" role="alert"></p></form>
+<h3>{{ blindfold.history }}</h3><p id="blindfold-empty">{{ blindfold.empty }}</p><ol id="blindfold-history"></ol>
+</div></section>{{ blindfold|json_script:'blindfold-texts' }}

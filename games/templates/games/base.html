@@ -19,12 +19,13 @@
     <link rel="stylesheet" href="{% static 'games/learning.css' %}?v=2">
     <link rel="stylesheet" href="{% static 'games/chess_visuals.css' %}?v=1">
     <link rel="stylesheet" href="{% static 'games/workspace.css' %}?v=4">
-    <script src="{% static 'games/workspace.js' %}?v=6" defer></script>
+    <script src="{% static 'games/workspace.js' %}?v=7" defer></script>
     <link rel="stylesheet" href="{% static 'games/navigation.css' %}?v=1">
     <link rel="stylesheet" href="{% static 'games/notices.css' %}?v=1">
     <script src="{% static 'games/navigation.js' %}?v=1" defer></script>
     <link rel="stylesheet" href="{% static 'games/tournaments.css' %}?v=4">
     <link rel="stylesheet" href="{% static 'games/ui_polish.css' %}?v=2">
+    <link rel="stylesheet" href="{% static 'games/blindfold.css' %}?v=1">
 </head>
 
 <body>
@@ -45,6 +46,7 @@
         <div id="nav-games-options" class="nav-submenu" hidden>
             <a href="{% url 'home' %}?bot=main">{% tr "play_bot" %}</a>
             <a href="{% url 'game_create' %}">{% tr "nav_new_game" %}</a>
+            <a href="{% url 'blindfold' %}">{{ blindfold.title }}</a>
             <a href="{% url 'games_list' %}">{% tr "nav_games" %}</a>
         </div>
     </div>
@@ -268,7 +270,7 @@
                 const group=section(words.actions || 'Games');
                 invitations.sort((a,b)=>(a.opponent_mode==='random')-(b.opponent_mode==='random')).forEach(invitation=>{
                     const item=document.createElement('div');item.className='notification-item';
-                    const text=document.createElement('p');text.textContent=invitation.label;
+                    const text=document.createElement('p');text.textContent=invitation.label+(invitation.blindfold_only ? ' · {{ blindfold.exclusive|escapejs }}' : '');
                     const actions=document.createElement('div');actions.className='notification-actions';
                     const accept=document.createElement('button');accept.type='button';accept.textContent=UI_TEXTS.accept;
                     const reject=document.createElement('button');reject.type='button';reject.textContent=UI_TEXTS.reject;

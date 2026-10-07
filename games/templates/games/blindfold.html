@@ -1,0 +1,3 @@
+{% extends 'games/base.html' %}
+{% block title %}{{ blindfold.title }} · Gchess{% endblock %}
+{% block content %}<main class="blindfold-landing"><p>Gchess</p><h1>{{ blindfold.title }}</h1><p>{{ blindfold.intro }}</p><section class="blindfold-choices"><a class="blindfold-cta" href="{{ coach_url }}">{{ blindfold.coach }} →</a><a class="blindfold-cta" href="{% url 'game_create' %}?blindfold=exclusive">{{ blindfold.human }} →</a></section><section class="blindfold-card"><h2>{{ blindfold.mode }}</h2><p>{{ blindfold.personal_help }}</p><p>{{ blindfold.exclusive_help }}</p><p>{{ blindfold.fair_help }}</p><h2>{{ blindfold.notation }}</h2><p>{{ blindfold.help }}</p><p>{{ blindfold.native }}</p><p>{{ blindfold.english }}</p></section></main>{% endblock %}

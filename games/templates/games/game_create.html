@@ -44,14 +44,15 @@
                 <label for="{{ form.time_control_minutes.id_for_label }}">{{ create_texts.custom }}</label>{{ form.time_control_minutes }}
                 {% for error in form.time_control_minutes.errors %}<p class="field-error" role="alert">{{ error }}</p>{% endfor %}
             </fieldset>
+            <fieldset class="create-section"><legend>05 · {{ blindfold.mode }}</legend><label class="create-choice">{{ form.blindfold_only }}<span><strong>{{ blindfold.exclusive }}</strong><small>{{ blindfold.exclusive_help }}</small></span></label><p class="create-help">{{ blindfold.fair_help }}</p></fieldset>
         </div>
         <aside class="create-summary" aria-label="{{ create_texts.summary }}">
             <h2>{{ create_texts.summary }}</h2><p>{{ create_texts.ready }}</p>
-            <dl><dt>{% tr "opponent" %}</dt><dd id="create-summary-opponent">—</dd><dt>{% tr "game_type" %}</dt><dd id="create-summary-type">—</dd><dt>{% tr "piece_color" %}</dt><dd id="create-summary-color">—</dd><dt>{{ create_texts.time }}</dt><dd id="create-summary-time">{{ create_texts.no_clock }}</dd></dl>
+            <dl><dt>{% tr "opponent" %}</dt><dd id="create-summary-opponent">—</dd><dt>{% tr "game_type" %}</dt><dd id="create-summary-type">—</dd><dt>{% tr "piece_color" %}</dt><dd id="create-summary-color">—</dd><dt>{{ blindfold.mode }}</dt><dd id="create-summary-mode" data-normal="{{ blindfold.normal }}" data-blind="{{ blindfold.exclusive }}">{% if form.blindfold_only.value %}{{ blindfold.exclusive }}{% else %}{{ blindfold.normal }}{% endif %}</dd><dt>{{ create_texts.time }}</dt><dd id="create-summary-time">{{ create_texts.no_clock }}</dd></dl>
             <button type="submit">{% tr "create_game" %} →</button>
         </aside>
     </form>
 </main>
 {{ create_texts|json_script:"create-game-texts" }}
-<script src="{% static 'games/game_create.js' %}?v=1" defer></script>
+<script src="{% static 'games/game_create.js' %}?v=2" defer></script>
 {% endblock %}

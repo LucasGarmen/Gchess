@@ -10,6 +10,7 @@ ONLINE_SECONDS = 60
 
 
 class ChessGameForm(forms.Form):
+    blindfold_only = forms.BooleanField(required=False)
     game_type = forms.ChoiceField(
         label='Tipo de partida',
         choices=[

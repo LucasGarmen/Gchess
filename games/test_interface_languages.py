@@ -26,7 +26,7 @@ class InterfaceLanguageTests(SimpleTestCase):
             ("create_texts", "TEXTS"), ("social_texts", "SOCIAL_TEXTS"),
             ("learning_texts", "LEARNING_TEXTS"), ("learning_progress_texts", "TEXTS"),
             ("daily_training_texts", "TEXTS"), ("weekly_texts", "TEXTS"),
-            ("tournament_texts", "TEXTS"), ("first_steps", "TEXTS"),
+            ("tournament_texts", "TEXTS"), ("blindfold", "TEXTS"), ("first_steps", "TEXTS"),
         ):
             catalog = getattr(importlib.import_module(f"games.{name}"), attribute)
             yield name, {language: flatten_texts(row) for language, row in catalog.items()}
