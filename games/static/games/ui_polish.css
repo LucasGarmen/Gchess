@@ -77,3 +77,10 @@ button:disabled:hover { transform: none; filter: none; }
  .game-card:hover, .option-item:hover, button:hover { transform: none; }
  .game-chat-emoji-toggle:hover { transform: translateY(-50%); }
 }
+
+/* Ivory analysis links must not inherit the pale global link hover color. */
+.analyze-game-button:is(:hover, :focus-visible, :active) {
+    color: #17130f;
+    background: #ead2a0;
+    text-decoration: none;
+}
