@@ -344,3 +344,15 @@ class TournamentNotice(models.Model):
     class Meta:
         constraints = [models.UniqueConstraint(fields=['tournament','user','kind','round_number'], name='unique_tournament_notice')]
         indexes = [models.Index(fields=['user','read'], name='tournament_notice_user_idx')]
+
+
+class DailyTraining(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='daily_training_sessions')
+    date = models.DateField()
+    tasks = models.JSONField(default=list)
+    progress = models.JSONField(default=list)
+    created_at = models.DateTimeField(auto_now_add=True)
+    completed_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        constraints = [models.UniqueConstraint(fields=['user','date'], name='unique_daily_training_user_date')]

@@ -122,6 +122,7 @@ TEMPLATES = [
                 'games.learning_texts.learning_navigation',
                 'games.workspace.workspace_context',
                 'games.tournament_texts.tournament_navigation',
+                'games.daily_training_texts.daily_training_navigation',
             ],
         },
     },

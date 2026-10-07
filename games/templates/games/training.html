@@ -9,15 +9,8 @@
         <p>{% tr 'training_intro' %}</p>
     </header>
     <section class="training-next" aria-labelledby="training-next-title">
-        <div>
-            <h2 id="training-next-title">{% tr 'training_today' %}</h2>
-            <p>{% if not user.is_authenticated %}{% tr 'training_recommended' %}{% elif daily_completed %}{% tr 'training_daily_done' %}{% elif daily_in_progress %}{% tr 'training_daily_continue' %}{% else %}{% tr 'training_daily_ready' %}{% endif %}</p>
-        </div>
-        {% if not user.is_authenticated or daily_completed %}
-            <a class="training-cta" href="{% url 'practice' %}">{% tr 'practice_title' %} →</a>
-        {% else %}
-            <a class="training-cta" href="{% url 'daily_puzzle' %}">{% if daily_in_progress %}{% tr 'training_continue' %}{% else %}{% tr 'daily_title' %}{% endif %} →</a>
-        {% endif %}
+        <div><h2 id="training-next-title">{{ dt.title }}</h2><p>{{ dt.intro }}</p>{% if today_training.completed_at %}<strong>{{ dt.done }}</strong>{% endif %}</div>
+        <a class="training-cta" href="{% url 'daily_training' %}">{% if today_training.completed_at %}{{ dt.done }}{% elif today_training %}{{ dt.continue }}{% else %}{{ dt.start }}{% endif %} →</a>
     </section>
     <section aria-labelledby="training-modes-title">
         <h2 id="training-modes-title">{% tr 'training_modes' %}</h2>

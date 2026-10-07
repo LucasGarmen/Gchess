@@ -119,4 +119,4 @@ def training_navigation(request):
              for route, row in zip(MODE_ROUTES, MODE_CONTENT[language])]
     route = getattr(request.resolver_match, 'url_name', None)
     active = next((mode for mode in modes if mode['route'] == route), None)
-    return {'training_modes': modes, 'active_training_mode': active, 'is_training_page': bool(active or route == 'training')}
+    return {'training_modes': modes, 'active_training_mode': active, 'is_training_page': bool(active or route in ('training','daily_training'))}

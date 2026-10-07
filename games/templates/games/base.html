@@ -57,6 +57,7 @@
     <div class="nav-group">
         <div class="nav-main-row"><a class="nav-link" href="{% url 'training' %}"{% if is_training_page %} aria-current="page"{% endif %}>{% tr "nav_training" %}</a><button class="nav-disclosure" type="button" aria-expanded="false" aria-controls="nav-training-options" aria-label="{% tr 'nav_training' %}">›</button></div>
         <div id="nav-training-options" class="nav-submenu" hidden>
+            <a href="{% url 'daily_training' %}"><strong>{{ dt.title }}</strong></a>
             {% for mode in training_modes %}<a href="{% url mode.route %}"{% if active_training_mode.route == mode.route %} aria-current="page"{% endif %}><strong>{{ mode.title }}</strong><small>{{ mode.goal }}</small></a>{% endfor %}
         </div>
     </div>

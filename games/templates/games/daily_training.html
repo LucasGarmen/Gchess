@@ -1,0 +1,21 @@
+{% extends 'games/base.html' %}{% load static %}
+{% block title %}{{ dt.title }} · Gchess{% endblock %}
+{% block content %}
+<link rel="stylesheet" href="{% static 'games/daily_training.css' %}?v=2">
+<main class="daily-training-page">
+<a href="{% url 'training' %}">← {{ dt.back }}</a>
+<header><p class="eyebrow">Gchess</p><h1>{{ dt.title }}</h1><p>{{ dt.intro }}</p></header>
+{% if not plan %}<section class="daily-training-card daily-training-welcome"><h2>{{ dt.choose_move }}</h2><p>{% if has_personal %}{{ dt.personal }}. {{ dt.goal }}{% else %}{{ dt.fallback }}{% endif %}</p><form method="post" action="{% url 'daily_training_start' %}">{% csrf_token %}<button class="daily-primary">{{ dt.start }} →</button></form><p>{{ dt.review_help }}</p><a href="{% url 'game_analyzer' %}">{{ dt.analyze }} →</a></section>
+{% else %}
+{{ session_data|json_script:'daily-training-state' }}{{ dt|json_script:'daily-training-texts' }}
+<div id="daily-training-app" data-answer-url="{% url 'daily_training_answer' %}" data-pieces="{% static 'games/pieces-rustic/' %}">
+<section id="daily-training-play" class="daily-training-layout"{% if plan.completed_at %} hidden{% endif %}>
+<div class="daily-training-board-area"><p id="daily-training-turn"></p><div id="daily-training-board" class="daily-training-board" role="group" aria-label="{{ dt.choose_move }}"></div><div id="daily-training-promotion" class="daily-training-card" hidden><p>{{ dt.promotion }}</p><div></div></div></div>
+<aside class="daily-training-card"><p id="daily-training-counter"></p><progress id="daily-training-progress" max="3" value="0"></progress><p id="daily-training-origin"></p><h2 id="daily-training-goal"></h2><p>{{ dt.select }}</p><a id="daily-training-source" hidden>{{ dt.source }} →</a><p id="daily-training-feedback" role="status" aria-live="polite"></p><div class="daily-training-actions"><button id="daily-training-hint" type="button">{{ dt.hint }}</button><button id="daily-training-reveal" type="button">{{ dt.reveal }}</button><button id="daily-training-next" class="daily-primary" type="button" hidden>{{ dt.next }} →</button></div></aside>
+</section>
+<section id="daily-training-finish" class="daily-training-card"{% if not plan.completed_at %} hidden{% endif %}><h2>{{ dt.finish }}</h2><p id="daily-training-summary"></p><div class="daily-training-results"><p><strong id="daily-training-independent"></strong><span>{{ dt.independent }}</span></p><p><strong id="daily-training-helped"></strong><span>{{ dt.helped }}</span></p></div><p>{{ dt.review_help }}</p><a class="daily-primary" href="{% url 'game_analyzer' %}">{{ dt.analyze }} →</a><a href="{% url 'training' %}">{{ dt.back }} →</a></section>
+</div>
+{% endif %}
+<p class="daily-training-week">{{ dt.sessions }}: <strong id="daily-training-week-count">{{ recent_count }}</strong></p>
+</main><script src="{% static 'games/daily_training.js' %}?v=2" defer></script>
+{% endblock %}

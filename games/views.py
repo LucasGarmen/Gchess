@@ -562,7 +562,10 @@ def home(request):
 
 def training(request):
     touch_presence(request.user)
+    from .models import DailyTraining
     context = {}
+    if request.user.is_authenticated:
+        context['today_training'] = DailyTraining.objects.filter(user=request.user,date=timezone.localdate()).first()
     if request.user.is_authenticated:
         stats = UserPuzzleStats.objects.filter(user=request.user).first() or UserPuzzleStats(user=request.user)
         daily = DailyPuzzleAttempt.objects.filter(user=request.user, date=timezone.localdate()).first()
