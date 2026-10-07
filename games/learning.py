@@ -108,7 +108,11 @@ def learning_history(request):
     focus=phases.most_common(1)[0][0] if phases else 'general'
     from .learning_progress import learning_progress
     progress=learning_progress(request.user,lang,reviews)
-    return render(request,'games/learning.html',dict(learning=texts,progress=progress,reviews=reviews[:30],review_count=GameReview.objects.filter(user=request.user).values('fingerprint','player_color').distinct().count(),
+    from .personal_sessions import next_session
+    from .models import DailyTraining
+    from django.utils import timezone
+    current=DailyTraining.objects.filter(user=request.user,date=timezone.localdate()).first()
+    return render(request,'games/learning.html',dict(next_session=next_session(request.user,lang,current),learning=texts,progress=progress,reviews=reviews[:30],review_count=GameReview.objects.filter(user=request.user).values('fingerprint','player_color').distinct().count(),
         recent_average=recent_average,previous_average=previous_average,trend=trend,
         focus_name=texts[focus],recommendation=texts['recommend_'+focus]))
 

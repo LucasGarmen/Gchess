@@ -46,14 +46,9 @@ def candidates(user,review_id=None):
 
 
 def build_plan(user,date):
-    personal=candidates(user)
+    from .personal_sessions import personal_selection
+    tasks=personal_selection(user,date)
     rng=random.Random(f'{user.pk}:{date.isoformat()}')
-    recent=list(DailyTraining.objects.filter(user=user,date__lt=date,date__gte=date-timedelta(days=3)).values_list('tasks',flat=True))
-    used={task['fen'] for tasks in recent for task in tasks}
-    fresh=[task for task in personal if task['fen'] not in used]
-    pool=fresh if len(fresh)>=3 else personal
-    # Prefer serious errors, rotating within the top candidates rather than repeating the same three.
-    selection=pool[:12];rng.shuffle(selection);tasks=selection[:3]
     from .puzzles import PRACTICE_PUZZLES
     fallback=[]
     for puzzle in PRACTICE_PUZZLES:
@@ -79,9 +74,17 @@ def session_data(plan,language):
     if index<len(plan.tasks):
         saved=plan.tasks[index];board=chess.Board(saved['fen'])
         task=dict(fen=saved['fen'],legal_moves=[move.uci() for move in board.legal_moves],
-            personal=bool(saved['source']),phase=texts.get(saved['phase'],texts['general']),
+            personal=bool(saved['source']),revisit=bool(saved.get('revisit')),phase=texts.get(saved['phase'],texts['general']),
             source_url=reverse('review_detail',args=[saved['source']]) if saved['source'] and GameReview.objects.filter(pk=saved['source'],user=plan.user).exists() else None,
             turn=texts['white' if board.turn else 'black'])
+    from .personal_session_texts import TEXTS as SESSION_TEXTS
+    return_texts=SESSION_TEXTS[language]
+    if task and saved.get('source'):
+        from .personal_sessions import theme_for
+        theme=theme_for(saved)
+        task['practice_label']=return_texts['repeat' if saved.get('revisit') else 'new_position']
+        task['focus']=return_texts[theme]
+        task['tip']=return_texts['tip_'+theme]
     recent_count=DailyTraining.objects.filter(user=plan.user,date__gte=timezone.localdate()-timedelta(days=6),completed_at__isnull=False).count()
     return dict(recent_count=recent_count,id=plan.pk,date=plan.date.isoformat(),index=index,total=len(plan.tasks),completed=bool(plan.completed_at),task=task,
         independent=sum(p['resolved'] and p['correct'] and not p['helped'] and p['attempts']==1 for p in plan.progress),
@@ -92,7 +95,8 @@ def session_data(plan,language):
 @never_cache
 def daily_training(request):
     plan=DailyTraining.objects.filter(user=request.user,date=timezone.localdate()).first()
-    return render(request,'games/daily_training.html',dict(dt=TEXTS[current_language(request)],plan=plan,
+    from .personal_sessions import next_session
+    return render(request,'games/daily_training.html',dict(next_session=next_session(request.user,current_language(request),plan),dt=TEXTS[current_language(request)],plan=plan,
         session_data=session_data(plan,current_language(request)) if plan else None,has_personal=bool(candidates(request.user)) if not plan else False,
         recent_count=DailyTraining.objects.filter(user=request.user,date__gte=timezone.localdate()-timedelta(days=6),completed_at__isnull=False).count()))
 
@@ -151,7 +155,7 @@ def daily_training_answer(request):
             # Accept every checkmate, rather than rejecting another equally final move.
             correct=move==best or after.is_checkmate()
             if correct:
-                progress['correct']=action=='try';progress['resolved']=True;resolved=True
+                progress['correct']=action=='try';progress['resolved']=True;progress['resolved_on']=timezone.localdate().isoformat();resolved=True
                 feedback=texts['correct' if action=='try' else 'shown']+' '+explanation(board,move,language)
                 result_fen=after.fen();result_move=move.uci()
             else:feedback=texts['legal'] if task['source'] else texts['retry']
