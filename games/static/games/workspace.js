@@ -119,7 +119,7 @@
         document.getElementById('workspace-count').textContent = String(humans.length + bots.length);
         if (bots.length) {
             section(words[12]);
-            bots.forEach(bot => card(config.home + '?bot=' + encodeURIComponent(bot.id), 'Bot ' + bot.number + (bot.elo ? ' · ' + bot.elo : ''), bot.finished ? words[6] : (onHome && bot.id === botId ? (bot.yourTurn === false ? words[4] : words[3]) : words[5]), onHome && bot.id === botId, onHome && bot.id === botId && bot.yourTurn));
+            bots.forEach(bot => card(config.home + '?bot=' + encodeURIComponent(bot.id), 'Coach ' + bot.number + (bot.elo ? ' · ' + bot.elo : ''), bot.finished ? words[6] : (onHome && bot.id === botId ? (bot.yourTurn === false ? words[4] : words[3]) : words[5]), onHome && bot.id === botId, onHome && bot.id === botId && bot.yourTurn));
         }
         section(words[11]);
         humans.forEach(game => card(game.url, game.opponent || '—', words[game.yourTurn ? 3 : 4], location.pathname === game.url, game.yourTurn));

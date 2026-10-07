@@ -503,7 +503,7 @@ function updateTurnIndicator() {
     }
 
     if (botRequestLocked()) {
-        turnIndicator.innerText = uiText('computer_thinking', 'Computer thinking...');
+        turnIndicator.innerText = uiText('computer_thinking', 'Coach thinking...');
         return;
     }
 
@@ -4612,9 +4612,9 @@ function showBotError(code) {
     if (!panel || !message) return;
     const lang = typeof UI_LANGUAGE !== 'undefined' ? UI_LANGUAGE : 'pt';
     const texts = {
-        es: {engine_unavailable: 'El motor de ajedrez no esta disponible. No se pudo jugar la respuesta.', timeout: 'El motor tardo demasiado. Puedes reintentar la jugada.', network: 'No se pudo obtener la jugada del bot. Puedes reintentar.'},
-        en: {engine_unavailable: 'The chess engine is unavailable. Could not play its reply.', timeout: 'The engine timed out. You can retry the move.', network: 'Could not get the bot move. You can retry.'},
-        pt: {engine_unavailable: 'O motor de xadrez esta indisponivel. Nao foi possivel jogar a resposta.', timeout: 'O motor demorou demais. Tente a jogada novamente.', network: 'Nao foi possivel obter a jogada do bot. Tente novamente.'},
+        es: {engine_unavailable: 'El motor de ajedrez no esta disponible. No se pudo jugar la respuesta.', timeout: 'El motor tardo demasiado. Puedes reintentar la jugada.', network: 'No se pudo obtener la jugada del coach. Puedes reintentar.'},
+        en: {engine_unavailable: 'The chess engine is unavailable. Could not play its reply.', timeout: 'The engine timed out. You can retry the move.', network: 'Could not get the coach move. You can retry.'},
+        pt: {engine_unavailable: 'O motor de xadrez esta indisponivel. Nao foi possivel jogar a resposta.', timeout: 'O motor demorou demais. Tente a jogada novamente.', network: 'Nao foi possivel obter a jogada do coach. Tente novamente.'},
     };
     message.innerText = (texts[lang] || texts.pt)[code] || (texts[lang] || texts.pt).network;
     panel.hidden = false;

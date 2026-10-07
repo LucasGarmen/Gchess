@@ -9,9 +9,9 @@ from .models import ChessGame, Move
 from .i18n import current_language
 
 TEXTS = {
- 'es': ['Mis partidas', 'Nueva contra bot', 'Nueva contra persona', 'Tu turno', 'Turno del rival', 'Pausada', 'Terminada', 'Ver todas', 'Los relojes contra personas siguen corriendo. Los bots esperan hasta que vuelvas.', 'No se pudieron actualizar las partidas. Podés verlas en “Ver todas”.', 'Cerrar selector', 'Partidas contra personas', 'Bots en este navegador', 'Todavía no hay partidas contra personas abiertas.'],
- 'pt': ['Minhas partidas', 'Nova contra bot', 'Nova contra pessoa', 'Sua vez', 'Vez do adversário', 'Pausada', 'Finalizada', 'Ver todas', 'Os relógios contra pessoas continuam correndo. Os bots esperam até você voltar.', 'Não foi possível atualizar as partidas. Consulte “Ver todas”.', 'Fechar seletor', 'Partidas contra pessoas', 'Bots neste navegador', 'Nenhuma partida contra pessoas aberta.'],
- 'en': ['My games', 'New bot game', 'New human game', 'Your turn', "Opponent’s turn", 'Paused', 'Finished', 'View all', 'Human game clocks keep running. Bots wait until you return.', 'Could not refresh games. Use “View all” to check them.', 'Close selector', 'Human games', 'Bots in this browser', 'No human games open yet.'],
+ 'es': ['Mis partidas', 'Nueva con el coach', 'Nueva contra persona', 'Tu turno', 'Turno del rival', 'Pausada', 'Terminada', 'Ver todas', 'Los relojes contra personas siguen corriendo. El coach espera hasta que vuelvas.', 'No se pudieron actualizar las partidas. Podés verlas en “Ver todas”.', 'Cerrar selector', 'Partidas contra personas', 'Partidas con el coach en este navegador', 'Todavía no hay partidas contra personas abiertas.'],
+ 'pt': ['Minhas partidas', 'Nova com o coach', 'Nova contra pessoa', 'Sua vez', 'Vez do adversário', 'Pausada', 'Finalizada', 'Ver todas', 'Os relógios contra pessoas continuam correndo. O coach espera até você voltar.', 'Não foi possível atualizar as partidas. Consulte “Ver todas”.', 'Fechar seletor', 'Partidas contra pessoas', 'Partidas com o coach neste navegador', 'Nenhuma partida contra pessoas aberta.'],
+ 'en': ['My games', 'New game with the coach', 'New human game', 'Your turn', "Opponent’s turn", 'Paused', 'Finished', 'View all', 'Human game clocks keep running. The coach waits until you return.', 'Could not refresh games. Use “View all” to check them.', 'Close selector', 'Human games', 'Coach games in this browser', 'No human games open yet.'],
 }
 
 def namespace(request):
