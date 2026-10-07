@@ -4739,6 +4739,5 @@ async function askComputerMove() {
 window.addEventListener('pagehide', saveComputerGameState);
 
 if (isHomeComputerGame() && isMobileLayout() && new URLSearchParams(window.location.search).has('bot')) {
-    if (SAVED_MOVES.length) showMobileBotGame();
-    else showMobileBotSetup();
+    showMobileBotGame();
 }
