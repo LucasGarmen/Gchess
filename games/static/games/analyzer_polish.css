@@ -43,3 +43,14 @@ body.mobile-analyzer-playing .analyzer-game-layout .history-controls button{disp
 
 .analyzer-side .entry-review-next{padding:16px;margin-top:16px}.analyzer-side .entry-review-next h3{font-size:16px;margin:0 0 8px}.analyzer-side .entry-review-next p{font-size:13px;line-height:1.5}.analyzer-create-page .analyzer-color-field select{margin:0}.analyzer-create-page .analyzer-color-field p{margin:0}
 @media(max-width:650px){.analyzer-review-header{align-items:flex-start;flex-direction:column;gap:8px}.analyzer-review-header>div{padding-right:80px}}
+
+@media(min-width:901px){
+ body.mobile-analyzer-playing .analyzer-game-layout{--analyzer-board-size:min(800px,calc(100vw - 620px));grid-template-columns:minmax(0,1fr) 300px;gap:16px;max-width:1160px;margin-left:0;margin-right:auto}
+ body.mobile-analyzer-playing .analyzer-game-layout .board-area{align-items:stretch;justify-content:flex-start}
+ body.mobile-analyzer-playing .analyzer-game-layout .board-wrapper{margin:0}
+ body.mobile-analyzer-playing .analyzer-game-layout .history-controls{max-width:calc(var(--analyzer-board-size) + 40px)}
+ body.mobile-analyzer-playing .analyzer-game-layout .computer-tab-panel{padding:12px;gap:10px}
+ body.mobile-analyzer-playing .analyzer-game-layout .computer-tab-button{font-size:12px;padding:8px;min-height:38px}
+ body.mobile-analyzer-playing .analyzer-game-layout .trainer-chat-log{height:150px;max-height:230px}
+ .analyzer-panel .analysis-move-panel{padding:10px}.analyzer-panel .trainer-chat h2{margin:8px 0;font-size:17px}
+}

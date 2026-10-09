@@ -12,3 +12,20 @@
 .tournament-grid .tournament-card>a{display:inline-flex;align-items:center;min-height:44px}.tournament-filters a{font-size:13px}.tournament-filters{margin:16px 0}.tournament-pagination{font-size:13px}@media(max-width:700px){.tournament-filters a{min-width:0;flex:1 1 85px;padding:10px 6px}.tournament-form button{width:100%}}
 
 .tournament-filters{align-items:stretch}.tournament-filters a{display:inline-flex;align-items:center;justify-content:center}
+
+/* Group related tournament tasks rather than spreading cards down the page. */
+.tournament-page{max-width:1000px;margin:20px auto 70px;padding:0 12px}
+.tournament-heading{gap:16px;margin:12px 0 18px}.tournament-heading p{margin:6px 0}.tournament-heading h1{margin:4px 0 8px}
+.tournament-page h2{margin:0 0 10px;font-size:20px;line-height:1.35}
+.tournament-page p{margin:8px 0;line-height:1.5}
+.tournament-page>section{margin-top:16px;padding:18px;border:1px solid #e2caa125;border-radius:12px;background:#26241e}
+.tournament-card{padding:18px;margin:12px 0}.tournament-grid{gap:12px;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));align-items:start}
+.tournament-grid .tournament-card{margin:0;background:#20211b;padding:16px}.tournament-grid .tournament-card h3{margin:8px 0}
+.tournament-filters{margin:12px 0;gap:8px}.tournament-filters a{padding:8px 12px}
+.tournament-badges{gap:10px;margin:0 0 12px}.tournament-facts{gap:20px;flex-wrap:wrap;margin:12px 0}.tournament-facts dd{font-size:18px;margin:4px 0}
+.tournament-lobby-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;align-items:start}
+.tournament-lobby-grid>.tournament-card{margin:0}.tournament-lobby-grid>.tournament-card:last-child:nth-child(odd){grid-column:1/-1}
+.tournament-actions,.tournament-share{margin:12px 0;gap:8px}.tournament-overview{gap:12px;grid-template-columns:minmax(220px,.8fr) minmax(0,1.2fr)}
+.tournament-friend-list form{padding:8px 0}.tournament-field{margin:14px 0}.tournament-form{max-width:640px}
+@media(max-width:1050px){.tournament-overview{grid-template-columns:minmax(0,1fr)}}
+@media(max-width:700px){.tournament-page{margin:14px auto 100px;padding:0 8px}.tournament-lobby-grid{grid-template-columns:minmax(0,1fr)}.tournament-card,.tournament-page>section{padding:14px}.tournament-lobby-grid>.tournament-card{grid-column:auto!important}.tournament-heading{gap:10px}}
