@@ -1,0 +1,45 @@
+/* Scoped PGN entry and review surfaces. */
+.analyzer-create-page{max-width:850px!important;margin:32px auto!important;padding:0 16px}
+.analyzer-intro h1{margin:8px 0 12px;font-size:clamp(28px,4vw,42px);text-align:left}
+.analyzer-eyebrow{font-size:12px;color:#c9ac75;letter-spacing:.08em;text-transform:uppercase}
+.analyzer-intro p{max-width:650px;line-height:1.6;color:#c8bca3;margin:0}
+.analyzer-steps{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;list-style:none;padding:0;margin:24px 0}
+.analyzer-steps li{display:flex;gap:9px;align-items:center;color:#d8c6a5;font-size:13px}
+.analyzer-steps li span{border:1px solid #796744;display:grid;place-items:center;width:26px;height:26px;flex-shrink:0;border-radius:50%;color:#d5b57b}
+.analyzer-create-page .form-card{max-width:none;margin:0;padding:24px;border:1px solid #79674470;border-radius:14px;background:linear-gradient(145deg,#2b2e23,#20251f);box-shadow:0 14px 38px #0002}
+.analyzer-color-field{display:grid;grid-template-columns:auto 180px;align-items:center;gap:8px 16px;margin-bottom:24px}
+.analyzer-color-field p{grid-column:1/-1;font-size:12px;color:#b8ad94;margin:0}
+.analyzer-create-page .form-card label{margin:0;font-weight:600}
+.analyzer-input-heading{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.analyzer-input-heading .analyzer-file-button{display:inline-flex;padding:8px 12px;border:1px solid #887550;border-radius:7px;color:#e0c794;font-size:12px;cursor:pointer}
+.analyzer-file-button:hover{background:#3b4431}
+.analyzer-file-input{position:absolute;width:1px;height:1px;opacity:0}
+.analyzer-input-heading:focus-within .analyzer-file-button{outline:2px solid #d7b777;outline-offset:2px}
+.analyzer-input-help,#pgn-file-status{font-size:12px;color:#c3b599;line-height:1.5;margin:10px 0}
+.analyzer-create-page #pgn{width:100%;min-height:220px;resize:vertical;padding:16px;background:#161d18;color:#e8d6b6;border:1px solid #726449;border-radius:9px;font:14px/1.7 ui-monospace,Consolas,monospace;box-sizing:border-box}
+.analyzer-create-page #pgn:focus{outline:2px solid #bc9c61;outline-offset:2px}
+.analyzer-create-page .form-card>button{margin-top:18px;min-height:46px;width:100%;color:#30291d;background:#dcc18c;border:1px solid #e4cfa4}
+.analyzer-create-page .form-card>button:hover{background:#efdbb3;color:#30291d}
+.analyzer-create-page .analyzer-error{margin-top:16px;border-left:3px solid #c5896e;color:#efd1bf}
+.analyzer-review-header{display:flex;justify-content:space-between;align-items:center;gap:16px;margin:20px 0 0}
+.analyzer-review-header h1{font-size:24px;margin:6px 0}
+.analyzer-new-link{color:#ddc499;padding:9px 12px;border:1px solid #796744;border-radius:7px;text-decoration:none;font-size:13px}
+body.mobile-analyzer-playing .analyzer-game-layout{margin-top:16px}
+body.mobile-analyzer-playing .analyzer-game-layout .history-controls{display:flex;gap:8px;margin:8px 0 12px}
+body.mobile-analyzer-playing .analyzer-game-layout .history-controls button{display:block!important;flex:1;width:auto;max-width:none;min-height:38px;font-size:12px;margin:0}
+.analyzer-panel .analysis-move-panel{padding:14px;border:1px solid #9d85534d;border-radius:9px;background:#30372a}
+.analyzer-panel .analysis-move-panel h2{font-size:13px;color:#d2b785;margin:0 0 8px}
+.analyzer-panel .analysis-comment{line-height:1.55;margin:0;font-size:14px}
+.analyzer-panel .trainer-chat h2{font-size:18px}
+@media(max-width:650px){
+ .analyzer-create-page{margin:18px auto!important;padding:0 8px}
+ .analyzer-steps{grid-template-columns:1fr;gap:8px;margin:18px 0}
+ .analyzer-create-page .form-card{padding:16px}
+ .analyzer-color-field{grid-template-columns:1fr;gap:8px}
+ .analyzer-input-heading{align-items:flex-start;flex-wrap:wrap}
+ .analyzer-review-header{margin:14px 8px 0}.analyzer-review-header h1{font-size:21px}
+ .analyzer-review-header .analyzer-eyebrow{font-size:10px}
+}
+
+.analyzer-side .entry-review-next{padding:16px;margin-top:16px}.analyzer-side .entry-review-next h3{font-size:16px;margin:0 0 8px}.analyzer-side .entry-review-next p{font-size:13px;line-height:1.5}.analyzer-create-page .analyzer-color-field select{margin:0}.analyzer-create-page .analyzer-color-field p{margin:0}
+@media(max-width:650px){.analyzer-review-header{align-items:flex-start;flex-direction:column;gap:8px}.analyzer-review-header>div{padding-right:80px}}

@@ -5,7 +5,7 @@
     const text = JSON.parse(document.getElementById('blindfold-texts').textContent);
     const workspace = JSON.parse(document.getElementById('game-workspace-config').textContent);
     const layout = panel.closest('.game-layout');
-    const boardArea = panel.parentElement;
+    const boardArea = layout.querySelector(".board-area");
     const side = layout.querySelector('.computer-side, .online-side');
     const toggle = document.getElementById('blindfold-toggle');
     const form = document.getElementById('blindfold-form');
@@ -46,7 +46,8 @@
         panel.dataset.active = String(active);
         document.getElementById('blindfold-play').hidden = !active;
         document.getElementById('blindfold-rule').textContent = exclusive ? text.exclusive_help : text.personal_help;
-        const host = !active && !isMobileLayout() && side ? side : boardArea;
+        const coachPanel = layout.querySelector('#computer-coach-panel');
+        const host = active ? boardArea : (coachPanel || side || boardArea);
         if (panel.parentElement !== host) host.prepend(panel);
         const menu = document.getElementById('mobile-nav-toggle');
         if (active && menu && isMobileLayout()) {

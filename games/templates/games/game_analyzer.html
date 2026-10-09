@@ -1,6 +1,6 @@
 {% extends 'games/base.html' %}
 {% load static %}
-{% load game_i18n %}
+{% load game_i18n cosmetic_art %}
 
 {% block title %}
 {% tr "analyze_pgn" %}
@@ -22,26 +22,32 @@
 {% endblock %}
 
 {% block content %}
+{% analyzer_words current_language as analyzer_ui %}
 
 <link rel="stylesheet" href="{% static 'games/analyzer_layout.min.css' %}?v=3">
+<link rel="stylesheet" href="{% static 'games/analyzer_polish.css' %}?v=1">
+<script src="{% static 'games/analyzer_import.js' %}?v=1" defer></script>
 
 {% if not moves %}
     <section class="analyzer-create-page">
-    <h1>{% tr "analyze_pgn" %}</h1>
+    <header class="analyzer-intro"><span class="analyzer-eyebrow">{{ analyzer_ui.eyebrow }}</span><h1>{% tr "analyze_pgn" %}</h1><p>{{ analyzer_ui.intro }}</p></header>
+    <ol class="analyzer-steps"><li><span>1</span>{{ analyzer_ui.load }}</li><li><span>2</span>{{ analyzer_ui.review }}</li><li><span>3</span>{{ analyzer_ui.coach }}</li></ol>
 
     <form id="pgn-analysis-form" method="POST" class="form-card">
         {% csrf_token %}
 
-        <label for="review-player-color">{{ learning.color }}</label>
-        <select name="player_color" id="review-player-color"><option value="white" {% if trainer_player_color == 'white' %}selected{% endif %}>{{ learning.white }}</option><option value="black" {% if trainer_player_color == 'black' %}selected{% endif %}>{{ learning.black }}</option></select>
-        <label for="pgn">{% tr "paste_pgn" %}</label>
-        <textarea name="pgn" id="pgn" rows="8">{{ pgn_text }}</textarea>
+        <div class="analyzer-color-field"><label for="review-player-color">{{ learning.color }}</label>
+        <select name="player_color" id="review-player-color"><option value="white" {% if trainer_player_color == 'white' %}selected{% endif %}>{{ learning.white }}</option><option value="black" {% if trainer_player_color == 'black' %}selected{% endif %}>{{ learning.black }}</option></select><p>{{ analyzer_ui.color_help }}</p></div>
+        <div class="analyzer-input-heading"><label for="pgn">{% tr "paste_pgn" %}</label><label class="analyzer-file-button" for="pgn-file">{{ analyzer_ui.file }}</label><input id="pgn-file" type="file" accept=".pgn,.txt,text/plain" class="analyzer-file-input" aria-describedby="pgn-file-status"></div>
+        <p id="pgn-input-help" class="analyzer-input-help">{{ analyzer_ui.file_help }}</p>
+        <p id="pgn-file-status" role="status" aria-live="polite" data-error="{{ analyzer_ui.file_error }}" data-loaded="{{ analyzer_ui.loaded }}" hidden></p>
+        <textarea name="pgn" id="pgn" rows="10" spellcheck="false" required aria-describedby="pgn-input-help{% if error_message %} pgn-server-error{% endif %}" {% if error_message %}aria-invalid="true"{% endif %} placeholder="1. e4 e5 2. Nf3 Nc6 3. Bb5 a6 ...">{{ pgn_text }}</textarea>
 
         <button type="submit">{% tr "analyze_game" %}</button>
     </form>
 
     {% if error_message %}
-        <div class="card">
+        <div class="card analyzer-error" id="pgn-server-error" role="alert">
             <h2>{% tr "error" %}</h2>
             <p>{{ error_message }}</p>
         </div>
@@ -68,8 +74,14 @@
     document.body.classList.add('mobile-analyzer-playing');
 </script>
 
+<header class="analyzer-review-header"><div><span class="analyzer-eyebrow">{{ analyzer_ui.eyebrow }}</span><h1>{% tr "analysis" %}</h1></div><a href="{% url 'game_analyzer' %}" class="analyzer-new-link">{{ analyzer_ui.new }} ↗</a></header>
 <main class="game-layout analyzer-game-layout">
     <section class="board-area">
+            <div class="history-controls">
+                <button id="prev-move">{% tr "previous" %}</button>
+                <button id="next-move">{% tr "next" %}</button>
+                <button id="last-move">{% tr "first_position" %}</button>
+            </div>
         <div class="board-wrapper">
             <div class="rank-labels">
                 <span>8</span><span>7</span><span>6</span><span>5</span>
@@ -83,6 +95,7 @@
                     <button id="toggle-analysis-mode" class="analysis-mode-button" type="button">{% tr "analysis_mode" %}</button>
                     <button id="flip-board" class="icon-button" type="button" title="{% tr "flip_board" %}" aria-label="{% tr "flip_board" %}">↻</button>
                 </div>
+
                 <div id="board" class="board"></div>
 
                 <div class="file-labels">
@@ -94,15 +107,18 @@
     </section>
 
     <aside class="computer-side computer-play-panel analyzer-side">
-        {% if saved_review %}{% include "games/_review_practice_link.html" %}{% endif %}
-        {% if review_summary %}<details class="learning-summary-toggle"><summary>{{ learning.summary }}</summary>{% include 'games/_review_summary.html' with summary=review_summary %}{% if saved_review %}<p><a class="learning-button" href="{% url 'review_detail' saved_review.pk %}">{{ learning.saved }} · {{ learning.nav }}</a></p>{% else %}<p>{{ learning.login }}</p>{% endif %}</details>{% endif %}
-
         <div class="computer-tabs" role="tablist" aria-label="{% tr "game" %}">
             <button id="computer-tab-coach" class="computer-tab-button active" type="button" role="tab" data-computer-tab="coach" aria-controls="computer-coach-panel" aria-selected="true">{% tr "coach_chat" %}</button>
             <button id="computer-tab-pgn" class="computer-tab-button" type="button" role="tab" data-computer-tab="pgn" aria-controls="computer-pgn-panel" aria-selected="false">PGN</button>
         </div>
 
         <section id="computer-coach-panel" class="computer-tab-panel computer-panel analyzer-panel" data-computer-panel="coach" role="tabpanel" aria-labelledby="computer-tab-coach">
+            <section class="analysis-move-panel">
+                <h2>{{ analyzer_ui.position }}</h2>
+                <div id="analysis-comment" class="analysis-comment" data-initial-comment="{% tr "initial_position" %}">
+                    {% tr "initial_position" %}
+                </div>
+            </section>
             <div class="trainer-chat">
                 <h2>{% tr "coach_chat" %}</h2>
                 {% include 'games/_trainer_suggestions.html' %}
@@ -124,18 +140,9 @@
                 </form>
             </div>
 
-            <section class="analysis-move-panel">
-                <h2>{% tr "analysis" %}</h2>
-                <div id="analysis-comment" class="analysis-comment" data-initial-comment="{% tr "initial_position" %}">
-                    {% tr "initial_position" %}
-                </div>
-            </section>
 
-            <div class="history-controls">
-                <button id="prev-move">{% tr "previous" %}</button>
-                <button id="next-move">{% tr "next" %}</button>
-                <button id="last-move">{% tr "first_position" %}</button>
-            </div>
+
+
 
             <p id="turn-indicator">{% tr "turn_white" %}</p>
             <p id="game-status" class="game-status" hidden></p>
@@ -147,6 +154,9 @@
             <ul id="move-list" style="display: none;"></ul>
             <pre id="pgn-box" class="pgn-box"></pre>
         </section>
+        {% if saved_review %}{% include "games/_review_practice_link.html" %}{% endif %}
+        {% if review_summary %}<details class="learning-summary-toggle"><summary>{{ learning.summary }}</summary>{% include 'games/_review_summary.html' with summary=review_summary %}{% if saved_review %}<p><a class="learning-button" href="{% url 'review_detail' saved_review.pk %}">{{ learning.saved }} · {{ learning.nav }}</a></p>{% else %}<p>{{ learning.login }}</p>{% endif %}</details>{% endif %}
+
     </aside>
 </main>
 

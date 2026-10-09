@@ -51,3 +51,8 @@ body.blindfold-playing .online-game-layout.blindfold-active .board-area { align-
 
 #blindfold-submit:disabled { opacity:.5; cursor:default; }
 body.blindfold-exclusive-playing #analyze-game-button { display:none!important; }
+
+/* Quiet control inside the coach panel; the move editor stays accessible when active. */
+#blindfold-panel[data-active=false]{padding:0 0 8px;margin:0 0 12px;border:0;border-bottom:1px solid #78654455;border-radius:0;background:transparent}
+#blindfold-panel[data-active=false] .blindfold-switch{min-height:32px;gap:8px;font-size:12px;font-weight:400;color:#c8b99b;margin:0;justify-content:flex-start}
+#blindfold-panel[data-active=false] .blindfold-switch input{width:16px;height:16px}
