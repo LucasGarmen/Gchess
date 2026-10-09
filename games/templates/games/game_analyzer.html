@@ -25,7 +25,7 @@
 {% analyzer_words current_language as analyzer_ui %}
 
 <link rel="stylesheet" href="{% static 'games/analyzer_layout.min.css' %}?v=3">
-<link rel="stylesheet" href="{% static 'games/analyzer_polish.css' %}?v=2">
+<link rel="stylesheet" href="{% static 'games/analyzer_polish.css' %}?v=3">
 <script src="{% static 'games/analyzer_import.js' %}?v=1" defer></script>
 
 {% if not moves %}
@@ -77,10 +77,11 @@
 <header class="analyzer-review-header"><div><span class="analyzer-eyebrow">{{ analyzer_ui.eyebrow }}</span><h1>{% tr "analysis" %}</h1></div><a href="{% url 'game_analyzer' %}" class="analyzer-new-link">{{ analyzer_ui.new }} ↗</a></header>
 <main class="game-layout analyzer-game-layout">
     <section class="board-area">
-            <div class="history-controls">
-                <button id="prev-move">{% tr "previous" %}</button>
-                <button id="next-move">{% tr "next" %}</button>
-                <button id="last-move">{% tr "first_position" %}</button>
+            <div class="history-controls analyzer-review-controls" aria-label="{% tr 'analysis' %}">
+                <button id="last-move" type="button" title="{% tr 'first_position' %}" aria-label="{% tr 'first_position' %}">|←</button>
+                <button id="prev-move" type="button" title="{% tr 'previous' %}" aria-label="{% tr 'previous' %}">←</button>
+                <span id="analyzer-position-counter" role="status" aria-live="polite">0 / {{ moves|length }}</span>
+                <button id="next-move" type="button" title="{% tr 'next' %}" aria-label="{% tr 'next' %}">→</button>
             </div>
         <div class="board-wrapper">
             <div class="rank-labels">
@@ -188,6 +189,7 @@
 <script src="{% static 'games/board.min.js' %}?v=17" defer></script>
 <script src="{% static 'games/analyzer_chat.min.js' %}?v=2" defer></script>
 <script src="{% static 'games/analyzer.min.js' %}?v=2" defer></script>
+<script src="{% static 'games/analyzer_controls.js' %}?v=1" defer></script>
 
 {% endif %}
 

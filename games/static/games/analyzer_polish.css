@@ -54,3 +54,9 @@ body.mobile-analyzer-playing .analyzer-game-layout .history-controls button{disp
  body.mobile-analyzer-playing .analyzer-game-layout .trainer-chat-log{height:150px;max-height:230px}
  .analyzer-panel .analysis-move-panel{padding:10px}.analyzer-panel .trainer-chat h2{margin:8px 0;font-size:17px}
 }
+
+/* Review controls stay in one short row, with a readable position counter. */
+body.mobile-analyzer-playing .analyzer-game-layout .analyzer-review-controls{display:grid;grid-template-columns:44px 44px minmax(70px,1fr) 44px;gap:8px;align-items:center}
+body.mobile-analyzer-playing .analyzer-game-layout .analyzer-review-controls button{width:44px;min-height:42px;font-size:20px;padding:4px;flex:none}
+#analyzer-position-counter{text-align:center;font-size:13px;color:#dfc899;font-variant-numeric:tabular-nums}
+@media(min-width:901px){body.mobile-analyzer-playing .analyzer-game-layout{--analyzer-board-size:min(560px,calc(100svh - 210px),calc(100vw - 620px));grid-template-columns:calc(var(--analyzer-board-size) + 40px) 300px;max-width:max-content;gap:16px;margin:16px auto}.analyzer-review-header{max-width:916px;margin:18px auto 0}}
