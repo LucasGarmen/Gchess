@@ -1283,3 +1283,10 @@ for lang, values in {
 
 for lang,value in {'es':'Cuando encontremos un rival compatible, el tablero se abrirá automáticamente.','pt':'Quando encontrarmos um adversário compatível, o tabuleiro abrirá automaticamente.','en':'When we find a compatible opponent, the board will open automatically.'}.items():
     TRANSLATIONS[lang]['search_auto_open']=value
+
+for lang, values in {
+    'es': {'auth_login_intro':'Volvé a tus partidas, tus amigos y tu aprendizaje.', 'auth_register_intro':'Creá tu cuenta y empezá a jugar, entrenar y compartir partidas.'},
+    'pt': {'auth_login_intro':'Volte às suas partidas, seus amigos e seu aprendizado.', 'auth_register_intro':'Crie sua conta e comece a jogar, treinar e compartilhar partidas.'},
+    'en': {'auth_login_intro':'Return to your games, friends and learning.', 'auth_register_intro':'Create your account to play, train and share games.'},
+}.items():
+    TRANSLATIONS[lang].update(values)

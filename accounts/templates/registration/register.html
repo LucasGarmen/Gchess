@@ -1,5 +1,5 @@
 {% extends 'games/base.html' %}
-{% load game_i18n %}
+{% load game_i18n static %}
 
 {% block title %}
 {% tr "register" %}
@@ -7,14 +7,17 @@
 
 {% block content %}
 
-<main class="auth-page">
+<link rel="stylesheet" href="{% static 'games/auth_polish.css' %}?v=1">
+<main class="auth-page auth-modern">
     <form method="POST" class="form-card auth-card" novalidate>
         {% csrf_token %}
 
+        <header class="auth-heading"><img class="auth-emblem" src="{% static 'games/gchess-emblem.png' %}?v=3" alt="" width="58" height="58"><span class="auth-brand">Gchess</span>
         <h1>{% tr "register" %}</h1>
+        <p>{% tr "auth_register_intro" %}</p></header>
 
         {% if form.non_field_errors %}
-            <div class="form-errors">
+            <div class="form-errors" role="alert">
                 {{ form.non_field_errors }}
             </div>
         {% endif %}

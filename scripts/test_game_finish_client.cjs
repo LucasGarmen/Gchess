@@ -1,0 +1,11 @@
+const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm');
+let refresh;
+const flags=new Set(),layout={classList:{contains:key=>flags.has(key),toggle(key,on){on?flags.add(key):flags.delete(key)}}};
+const wrapper={},notice={hidden:true,parentElement:wrapper,closest:()=>layout},status={hidden:false,textContent:'Jaque mate · ganan negras'},result={},undo={},coach={};
+const context={gameOver:false,analysisMode:false,document:{getElementById:id=>({'game-finish-notice':notice,'game-status':status,'game-finish-result':result,'undo-computer-move':undo,'toggle-coach':coach}[id]),addEventListener(_,fn){refresh=fn}},MutationObserver:class{observe(){}}};
+vm.runInNewContext(fs.readFileSync('games/static/games/game_finish.js','utf8'),context);
+assert.equal(notice.hidden,true);
+context.gameOver=true;refresh();assert.equal(notice.hidden,false);assert.equal(result.textContent,status.textContent);assert.equal(undo.disabled,true);assert.equal(coach.disabled,true);assert(flags.has('game-ended-visible'));
+context.analysisMode=true;refresh();assert.equal(notice.hidden,true);assert.equal(coach.disabled,false);
+context.analysisMode=false;context.gameOver=false;refresh();assert.equal(notice.hidden,true);assert(!flags.has('game-ended-visible'));
+console.log('Game finish states passed');

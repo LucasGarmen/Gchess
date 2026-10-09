@@ -238,6 +238,7 @@
     <section class="board-area">
         {% include "games/_blindfold_controls.html" %}
         <div class="board-wrapper">
+            {% include "games/_game_finish_notice.html" %}
             <div class="rank-labels">
                 <span>8</span><span>7</span><span>6</span><span>5</span>
                 <span>4</span><span>3</span><span>2</span><span>1</span>
@@ -408,6 +409,7 @@
 <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin defer></script>
 <script src="{% static 'games/react/game_detail_app.min.js' %}?v=2" defer></script>
 <script src="{% static 'games/board.min.js' %}?v=17" defer></script>
+<script src="{% static 'games/game_finish.js' %}?v=1" defer></script>
 <script src="{% static 'games/blindfold.js' %}?v=2" defer></script>
 
 {% endblock %}
