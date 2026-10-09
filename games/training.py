@@ -115,8 +115,9 @@ for language, modes in MODE_CONTENT.items():
 def training_navigation(request):
     from .i18n import current_language
     language = current_language(request)
+    from .openings import TEXTS as OPENING_TEXTS
     modes = [dict(route=route, title=row[0], goal=row[1], summary=row[2], rules=row[3], progress=row[4], account_required=route == 'daily_puzzle')
              for route, row in zip(MODE_ROUTES, MODE_CONTENT[language])]
     route = getattr(request.resolver_match, 'url_name', None)
     active = next((mode for mode in modes if mode['route'] == route), None)
-    return {'training_modes': modes, 'active_training_mode': active, 'is_training_page': bool(active or route in ('training','daily_training','weekly_challenge','weekly_play'))}
+    return {'opening_nav': OPENING_TEXTS[language], 'training_modes': modes, 'active_training_mode': active, 'is_training_page': bool(active or route in ('training','daily_training','weekly_challenge','weekly_play','openings','opening_play'))}

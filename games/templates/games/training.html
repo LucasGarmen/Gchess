@@ -13,6 +13,7 @@
         <a class="training-cta" href="{% url 'daily_training' %}">{% if today_training.completed_at %}{{ dt.done }}{% elif today_training %}{{ dt.continue }}{% else %}{{ dt.start }}{% endif %} →</a>
     </section>
     <section class="training-next"><div><h2>{{ weekly.title }}</h2><p>{{ weekly.intro }}</p></div><a class="training-cta" href="{% url 'weekly_challenge' %}">{{ weekly.start }} →</a></section>
+    <section class="training-next"><div><h2>{{ opening_nav.title }}</h2><p>{{ opening_nav.intro }}</p></div><a class="training-cta" href="{% url 'openings' %}">{{ opening_nav.choose }} →</a></section>
     <section aria-labelledby="training-modes-title">
         <h2 id="training-modes-title">{% tr 'training_modes' %}</h2>
         <div class="training-cards">
