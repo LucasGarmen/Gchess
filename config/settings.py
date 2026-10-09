@@ -125,6 +125,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'games.shop.context',
                 'games.i18n.language_context',
                 'games.training.training_navigation',
                 'games.social_texts.social_navigation',

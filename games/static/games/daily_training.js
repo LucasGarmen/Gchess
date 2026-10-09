@@ -18,7 +18,7 @@
    if(selected&&state.task.legal_moves.some(move=>move.slice(0,2)===selected&&move.slice(2,4)===square))button.classList.add('target');
    if(highlight.slice(0,2)===square||highlight.slice(2,4)===square)button.classList.add('last');
    button.disabled=busy||waiting;button.setAttribute('aria-label',square+(piece?' '+texts.piece_names[piece.toLowerCase()]+' '+(piece===piece.toUpperCase()?texts.white:texts.black):''));
-   if(piece){const img=document.createElement('img');img.src=app.dataset.pieces+types[piece.toLowerCase()]+'_'+(piece===piece.toUpperCase()?'white':'black')+'.png?v=2';img.alt='';button.append(img);}
+   if(piece){const img=document.createElement('img');const key=types[piece.toLowerCase()]+'_'+(piece===piece.toUpperCase()?'white':'black');img.src=window.GchessPieceUrl?window.GchessPieceUrl(key):app.dataset.pieces+key+'.png?v=2';img.alt='';button.append(img);}
    if(x===0){const label=document.createElement('small');label.className='rank';label.textContent=rank;button.append(label);}
    if(y===7){const label=document.createElement('small');label.textContent='abcdefgh'[file];button.append(label);}
    button.addEventListener('click',()=>choose(square));board.append(button);

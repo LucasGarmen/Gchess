@@ -25,10 +25,16 @@
     <script src="{% static 'games/navigation.js' %}?v=1" defer></script>
     <link rel="stylesheet" href="{% static 'games/tournaments.css' %}?v=4">
     <link rel="stylesheet" href="{% static 'games/ui_polish.css' %}?v=3">
+    <link rel="stylesheet" href="{% static 'games/shop.css' %}?v=7">
     <link rel="stylesheet" href="{% static 'games/blindfold.css' %}?v=1">
+    <link rel="stylesheet" href="{% static 'games/cosmetics.css' %}?v=5">
+    <script src="{% static 'games/cosmetics.js' %}?v=2"></script>
+    <link rel="stylesheet" href="{% static 'games/sound.css' %}?v=1">
+    <script src="{% static 'games/sound.js' %}?v=1" defer></script>
+    <script src="{% static 'games/coach_portraits.js' %}?v=1" defer></script>
 </head>
 
-<body>
+<body data-board="{{ cosmetics.board }}" data-pieces="{{ cosmetics.pieces }}">
 
     <button id="mobile-nav-toggle" class="mobile-nav-toggle" type="button" aria-controls="site-nav" aria-label="{% tr "menu" %}" aria-expanded="false">
         <span class="mobile-nav-arrow" aria-hidden="true">⌄</span>
@@ -71,11 +77,12 @@
         <div id="nav-tournaments-options" class="nav-submenu" hidden><a href="{% url 'tournaments' %}">{{ tournament_texts.mine }}</a><a href="{% url 'tournament_create' %}">{{ tournament_texts.create }}</a></div>
     </div>
     <a class="nav-link nav-main-row" href="{% url 'leaderboard' %}"{% if request.resolver_match.url_name == 'leaderboard' %} aria-current="page"{% endif %}>{% tr "nav_leaderboard" %}</a>
+    <a class="nav-link nav-main-row" href="{% url 'shop' %}"{% if request.resolver_match.url_name == 'shop' %} aria-current="page"{% endif %}>{{ shop_texts.title }}</a>
     {% if user.is_authenticated %}
         <a class="nav-link nav-main-row" href="{% url 'friends' %}"{% if request.resolver_match.url_name == 'friends' %} aria-current="page"{% endif %}>{{ social_nav_title }}{% if friend_request_count %} · {{ friend_request_count }}{% endif %}</a>
         <a class="nav-link nav-main-row" href="{% url 'learning' %}"{% if request.resolver_match.url_name == 'learning' %} aria-current="page"{% endif %}>{{ learning.nav }}</a>
         <div class="nav-group">
-            <div class="nav-main-row"><a class="nav-link nav-account" href="{% url 'profile_stats' %}"><strong>{{ user.username }}</strong>{% if user.player_profile %}<small>{% tr "nav_elo" %} {{ user.player_profile.elo }}</small>{% endif %}</a><button class="nav-disclosure" type="button" aria-expanded="false" aria-controls="nav-account-options" aria-label="{{ user.username }}">›</button></div>
+            <div class="nav-main-row"><a class="nav-link nav-account" href="{% url 'profile_stats' %}"><span class="nav-avatar">{% include 'games/_avatar.html' with avatar=cosmetics.avatar accessory=cosmetics.accessory clothing=cosmetics.clothing face=cosmetics.face hairstyle=cosmetics.hairstyle eyewear=cosmetics.eyewear earrings=cosmetics.earrings %}</span><strong>{{ user.username }}</strong>{% if user.player_profile %}<small>{% tr "nav_elo" %} {{ user.player_profile.elo }}</small>{% endif %}</a><button class="nav-disclosure" type="button" aria-expanded="false" aria-controls="nav-account-options" aria-label="{{ user.username }}">›</button></div>
             <div id="nav-account-options" class="nav-submenu" hidden>
                 <a href="{% url 'profile_stats' %}">{% tr "nav_stats" %}</a>
                 <a href="{% url 'profile_achievements' %}">{% tr "nav_achievements" %}</a>
@@ -92,6 +99,7 @@
         <a class="nav-link nav-main-row" href="{% url 'register' %}"{% if request.resolver_match.url_name == 'register' %} aria-current="page"{% endif %}>{% tr "nav_register" %}</a>
     {% endif %}
     {% block nav_extra %}{% endblock %}
+    <div class="nav-sound"><button class="sound-toggle" data-sound-toggle type="button" aria-pressed="true" aria-label="Sound"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4Z"/><g class="sound-on"><path d="M17 8q4 4 0 8M20 5q7 7 0 14"/></g><g class="sound-off"><path d="M17 9l5 6M22 9l-5 6"/></g></svg></button></div>
     <form class="language-form" method="POST" action="{% url 'set_language' %}">
         {% csrf_token %}<input type="hidden" name="next" value="{{ request.get_full_path }}">
         <label for="language-select">{% tr "language" %}</label>
@@ -352,7 +360,6 @@
             <div id="workspace-games"></div>
             <div class="workspace-actions"><button id="workspace-new-bot" type="button">+ {{ workspace_config.words.1 }}</button><a href="{% url 'game_create' %}">+ {{ workspace_config.words.2 }}</a></div>
             <p>{{ workspace_config.words.8 }}</p>
-            <p class="workspace-storage-notice">{{ workspace_config.storageNotice }}</p>
             <a href="{% url 'games_list' %}">{{ workspace_config.words.7 }} →</a>
         </section>
     </aside>

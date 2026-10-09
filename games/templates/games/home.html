@@ -1,6 +1,6 @@
 {% extends 'games/base.html' %}
 {% load static %}
-{% load game_i18n %}
+{% load game_i18n cosmetic_art %}
 
 {% block title %}
 {% tr "nav_home" %}
@@ -53,8 +53,6 @@
 <main id="home-computer-game" class="game-layout computer-game-layout home-computer-layout{% if request.GET.blindfold == 'exclusive' %} blindfold-active{% endif %}">
     <section class="board-area">
         {% include "games/_blindfold_controls.html" %}
-        <p class="entry-board-tip">{{ flow.board_help }}</p>
-        <p class="entry-board-tip">{{ workspace_config.storageNotice }}</p>
         <div class="board-wrapper">
             <div class="rank-labels">
                 <span>8</span><span>7</span><span>6</span><span>5</span>
@@ -71,7 +69,11 @@
                     <button id="toggle-analysis-mode" class="analysis-mode-button" type="button">{% tr "analysis_mode" %}</button>
                     <button id="flip-board" class="icon-button" type="button" title="{% tr "flip_board" %}" aria-label="{% tr "flip_board" %}">↻</button>
                 </div>
-                <div id="board" class="board" tabindex="-1" aria-label="{% tr 'game' %}"></div>
+                <div class="board-player-stage" data-board-orientation="white">
+                    <div id="board" class="board" tabindex="-1" aria-label="{% tr 'game' %}"></div>
+                    <span class="board-player game-player-avatar" data-coach-player data-player-color="black" title="Coach">{% coach_portraits %}</span>
+                    <span class="board-player game-player-avatar" data-human-player data-player-color="white" title="{{ request.user.username|default:shop_texts.your_avatar }}">{% player_avatar request.user request.user.username %}</span>
+                </div>
 
                 <div class="file-labels">
                     <span>a</span><span>b</span><span>c</span><span>d</span>
@@ -223,7 +225,7 @@
 
 <script src="{% static 'games/analysis_loading.min.js' %}?v=1"></script>
 <script src="{% static 'games/trainer_conversation.min.js' %}?v=5" defer></script>
-<script src="{% static 'games/board.min.js' %}?v=13" defer></script>
+<script src="{% static 'games/board.min.js' %}?v=17" defer></script>
 <script src="{% static 'games/blindfold.js' %}?v=1" defer></script>
 <script>
     window.GChessAnalysisLoading.bindForm('analyze-game-form', { navigate: true });

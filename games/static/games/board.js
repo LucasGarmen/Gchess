@@ -325,6 +325,7 @@ async function preloadSoundBuffer(url) {
 
 //Utiliza sonido precarregado
 function playBuffer(buffer, startOffset = 0, volume = 1) {
+    if (window.GchessSound && !window.GchessSound.isEnabled()) return true;
     const audioContext = getGameAudioContext();
 
     if (!buffer || !audioContext) {
@@ -341,16 +342,19 @@ function playBuffer(buffer, startOffset = 0, volume = 1) {
     gain.gain.value = volume;
     source.connect(gain);
     gain.connect(audioContext.destination);
+    if (window.GchessSound) window.GchessSound.trackBuffer(source);
     source.start(0, Math.min(startOffset, buffer.duration));
     return true;
 }
 
 //realiza som em caso de nao conseguir implementar o playBuffer
 function playAudio(audio, startOffset = 0) {
+    if (window.GchessSound && !window.GchessSound.isEnabled()) return Promise.resolve(true);
     if (!audio) {
         return Promise.resolve(false);
     }
 
+    if (window.GchessSound) window.GchessSound.trackAudio(audio);
     audio.currentTime = startOffset;
     return audio.play()
         .then(() => true)
@@ -558,6 +562,13 @@ function updateBoardOrientation() {
     document.querySelectorAll('.square').forEach(square => {
         square.style.order = boardOrderFor(square);
     });
+    document.querySelectorAll('.board-player-stage').forEach(stage => {
+        stage.dataset.boardOrientation = boardOrientation;
+        stage.querySelectorAll('[data-human-player]').forEach(portrait => {
+            portrait.dataset.playerColor = playerColor();
+        });
+    });
+    if(window.GchessCoachPortraits) window.GchessCoachPortraits.update();
     updateBoardLabels();
 }
 
@@ -1458,7 +1469,7 @@ function createPieceElement(position) {
     const pieceImage = document.createElement('img');
     const fileName = pieceFileNames[pieceKey] || `${pieceKey}.png?v=2`;
 
-    pieceImage.src = `/static/games/pieces-rustic/${fileName}?v=2`;
+    pieceImage.src = window.GchessPieceUrl ? window.GchessPieceUrl(pieceKey) : `/static/games/pieces-rustic/${fileName}?v=2`;
     pieceImage.alt = pieceKey;
     pieceImage.decoding = 'async';
     pieceImage.draggable = false;

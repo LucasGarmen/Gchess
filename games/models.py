@@ -397,3 +397,19 @@ class PlayerActivityDay(models.Model):
     class Meta:
         constraints = [models.UniqueConstraint(fields=['user', 'date'], name='player_activity_unique_day')]
         indexes = [models.Index(fields=['date'], name='player_activity_date_idx')]
+
+
+from .cosmetic_catalog import CHOICES
+
+class CosmeticLoadout(models.Model):
+    """Independent cosmetic slots; choices are validated by the server catalog."""
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='cosmetic_loadout')
+    avatar = models.CharField(max_length=20, default='explorer', choices=CHOICES['avatar'])
+    board = models.CharField(max_length=20, default='rustic', choices=CHOICES['board'])
+    accessory = models.CharField(max_length=20, default='none', choices=CHOICES['accessory'])
+    pieces = models.CharField(max_length=20, default='rustic', choices=CHOICES['pieces'])
+    clothing = models.CharField(max_length=20, default='club', choices=CHOICES['clothing'])
+    face = models.CharField(max_length=20, default='none', choices=CHOICES['face'])
+    hairstyle = models.CharField(max_length=20, default='none', choices=CHOICES['hairstyle'])
+    eyewear = models.CharField(max_length=20, default='none', choices=CHOICES['eyewear'])
+    earrings = models.CharField(max_length=20, default='none', choices=CHOICES['earrings'])

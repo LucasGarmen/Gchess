@@ -239,7 +239,7 @@
         const image = document.createElement('img');
         const pieceKey = `${piece.type}_${piece.color}`;
 
-        image.src = `${window.DAILY_PIECES_BASE_URL || '/static/games/pieces-rustic/'}${pieceKey}.png?v=2`;
+        image.src = window.GchessPieceUrl ? window.GchessPieceUrl(pieceKey) : `${window.DAILY_PIECES_BASE_URL || '/static/games/pieces-rustic/'}${pieceKey}.png?v=2`;
         image.alt = pieceKey;
         image.className = 'piece';
         image.decoding = 'async';

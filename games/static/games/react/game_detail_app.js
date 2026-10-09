@@ -76,7 +76,7 @@
         const fileName = pieceFileNames[pieceKey] || `${pieceKey}.png`;
 
         return React.createElement('img', {
-            src: `/static/games/pieces/${fileName}`,
+            src: window.GchessPieceUrl ? window.GchessPieceUrl(pieceKey) : `/static/games/pieces/${fileName}`,
             alt: pieceKey,
             draggable: false,
             className: 'piece',

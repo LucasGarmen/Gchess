@@ -1095,7 +1095,7 @@
     }
 
     function pieceImageUrl(piece) {
-        return `${window.PRACTICE_PIECES_BASE_URL || '/static/games/pieces-rustic/'}${piece.type}_${piece.color}.png?v=2`;
+        return window.GchessPieceUrl ? window.GchessPieceUrl(`${piece.type}_${piece.color}`) : `${window.PRACTICE_PIECES_BASE_URL || '/static/games/pieces-rustic/'}${piece.type}_${piece.color}.png?v=2`;
     }
 
     function preloadPieceImage(piece) {

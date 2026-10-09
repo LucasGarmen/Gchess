@@ -1,0 +1,97 @@
+/* Theme colors do not replace move-indicator backgrounds. */
+body[data-board="rustic"] .square-light{background-color:#ead7b5!important}
+body[data-board="rustic"] .square-dark{background-color:#6f8f4e!important}
+.shop-board.theme-rustic span{background:#ead7b5}.shop-board.theme-rustic>div:nth-child(odd) span:nth-child(even),.shop-board.theme-rustic>div:nth-child(even) span:nth-child(odd){background:#6f8f4e}
+body[data-board="walnut"] .square-light{background-color:#dac09d!important}
+body[data-board="walnut"] .square-dark{background-color:#76543a!important}
+.shop-board.theme-walnut span{background:#dac09d}.shop-board.theme-walnut>div:nth-child(odd) span:nth-child(even),.shop-board.theme-walnut>div:nth-child(even) span:nth-child(odd){background:#76543a}
+body[data-board="slate"] .square-light{background-color:#dbddd4!important}
+body[data-board="slate"] .square-dark{background-color:#626e72!important}
+.shop-board.theme-slate span{background:#dbddd4}.shop-board.theme-slate>div:nth-child(odd) span:nth-child(even),.shop-board.theme-slate>div:nth-child(even) span:nth-child(odd){background:#626e72}
+body[data-board="sand"] .square-light{background-color:#f1dfbb!important}
+body[data-board="sand"] .square-dark{background-color:#b39161!important}
+.shop-board.theme-sand span{background:#f1dfbb}.shop-board.theme-sand>div:nth-child(odd) span:nth-child(even),.shop-board.theme-sand>div:nth-child(even) span:nth-child(odd){background:#b39161}
+body[data-board="ocean"] .square-light{background-color:#d5e4dc!important}
+body[data-board="ocean"] .square-dark{background-color:#4d7e81!important}
+.shop-board.theme-ocean span{background:#d5e4dc}.shop-board.theme-ocean>div:nth-child(odd) span:nth-child(even),.shop-board.theme-ocean>div:nth-child(even) span:nth-child(odd){background:#4d7e81}
+body[data-board="wine"] .square-light{background-color:#eddbc4!important}
+body[data-board="wine"] .square-dark{background-color:#865453!important}
+.shop-board.theme-wine span{background:#eddbc4}.shop-board.theme-wine>div:nth-child(odd) span:nth-child(even),.shop-board.theme-wine>div:nth-child(even) span:nth-child(odd){background:#865453}
+body[data-board="gold"] .square-light{background-color:#f3dd91!important}
+body[data-board="gold"] .square-dark{background-color:#a47525!important}
+.shop-board.theme-gold span{background:#f3dd91}.shop-board.theme-gold>div:nth-child(odd) span:nth-child(even),.shop-board.theme-gold>div:nth-child(even) span:nth-child(odd){background:#a47525}
+body[data-board="lava"] .square-light{background-color:#d8af83!important}
+body[data-board="lava"] .square-dark{background-color:#562c27!important}
+.shop-board.theme-lava span{background:#d8af83}.shop-board.theme-lava>div:nth-child(odd) span:nth-child(even),.shop-board.theme-lava>div:nth-child(even) span:nth-child(odd){background:#562c27}
+body[data-board="emerald"] .square-light{background-color:#d9dfb1!important}
+body[data-board="emerald"] .square-dark{background-color:#27614b!important}
+.shop-board.theme-emerald span{background:#d9dfb1}.shop-board.theme-emerald>div:nth-child(odd) span:nth-child(even),.shop-board.theme-emerald>div:nth-child(even) span:nth-child(odd){background:#27614b}
+body[data-board="midnight"] .square-light{background-color:#bac8d5!important}
+body[data-board="midnight"] .square-dark{background-color:#303b52!important}
+.shop-board.theme-midnight span{background:#bac8d5}.shop-board.theme-midnight>div:nth-child(odd) span:nth-child(even),.shop-board.theme-midnight>div:nth-child(even) span:nth-child(odd){background:#303b52}
+body[data-board="ice"] .square-light{background-color:#e2f1f0!important}
+body[data-board="ice"] .square-dark{background-color:#83a9be!important}
+.shop-board.theme-ice span{background:#e2f1f0}.shop-board.theme-ice>div:nth-child(odd) span:nth-child(even),.shop-board.theme-ice>div:nth-child(even) span:nth-child(odd){background:#83a9be}
+body[data-board="copper"] .square-light{background-color:#e6c5a0!important}
+body[data-board="copper"] .square-dark{background-color:#a56a49!important}
+.shop-board.theme-copper span{background:#e6c5a0}.shop-board.theme-copper>div:nth-child(odd) span:nth-child(even),.shop-board.theme-copper>div:nth-child(even) span:nth-child(odd){background:#a56a49}
+body[data-board="amethyst"] .square-light{background-color:#e1d4ef!important}
+body[data-board="amethyst"] .square-dark{background-color:#77628d!important}
+.shop-board.theme-amethyst span{background:#e1d4ef}.shop-board.theme-amethyst>div:nth-child(odd) span:nth-child(even),.shop-board.theme-amethyst>div:nth-child(even) span:nth-child(odd){background:#77628d}
+body[data-board="rose"] .square-light{background-color:#f2d9d8!important}
+body[data-board="rose"] .square-dark{background-color:#b27d87!important}
+.shop-board.theme-rose span{background:#f2d9d8}.shop-board.theme-rose>div:nth-child(odd) span:nth-child(even),.shop-board.theme-rose>div:nth-child(even) span:nth-child(odd){background:#b27d87}
+body[data-board="olive"] .square-light{background-color:#dedac0!important}
+body[data-board="olive"] .square-dark{background-color:#78825a!important}
+.shop-board.theme-olive span{background:#dedac0}.shop-board.theme-olive>div:nth-child(odd) span:nth-child(even),.shop-board.theme-olive>div:nth-child(even) span:nth-child(odd){background:#78825a}
+body[data-board="marble"] .square-light{background-color:#e6e3d9!important}
+body[data-board="marble"] .square-dark{background-color:#8a9690!important}
+.shop-board.theme-marble span{background:#e6e3d9}.shop-board.theme-marble>div:nth-child(odd) span:nth-child(even),.shop-board.theme-marble>div:nth-child(even) span:nth-child(odd){background:#8a9690}
+body[data-board="coffee"] .square-light{background-color:#d9c7af!important}
+body[data-board="coffee"] .square-dark{background-color:#725c47!important}
+.shop-board.theme-coffee span{background:#d9c7af}.shop-board.theme-coffee>div:nth-child(odd) span:nth-child(even),.shop-board.theme-coffee>div:nth-child(even) span:nth-child(odd){background:#725c47}
+body[data-board="royal"] .square-light{background-color:#d7d8ee!important}
+body[data-board="royal"] .square-dark{background-color:#4b577f!important}
+.shop-board.theme-royal span{background:#d7d8ee}.shop-board.theme-royal>div:nth-child(odd) span:nth-child(even),.shop-board.theme-royal>div:nth-child(even) span:nth-child(odd){background:#4b577f}
+body[data-board="silver"] .square-light{background-color:#eee9de!important}
+body[data-board="silver"] .square-dark{background-color:#7f868c!important}
+.shop-board.theme-silver span{background:#eee9de}.shop-board.theme-silver>div:nth-child(odd) span:nth-child(even),.shop-board.theme-silver>div:nth-child(even) span:nth-child(odd){background:#7f868c}
+body[data-board="obsidian"] .square-light{background-color:#c6c4b7!important}
+body[data-board="obsidian"] .square-dark{background-color:#363c38!important}
+.shop-board.theme-obsidian span{background:#c6c4b7}.shop-board.theme-obsidian>div:nth-child(odd) span:nth-child(even),.shop-board.theme-obsidian>div:nth-child(even) span:nth-child(odd){background:#363c38}
+body[data-board="lava"] .square-dark:not(.selected):not(.possible-move):not([class*="last-move"]),.shop-board.theme-lava span{background-image:repeating-linear-gradient(31deg,transparent 0 16px,#c75f2833 17px 18px,transparent 19px 29px);background-size:58px 65px}
+body[data-board="gold"] .square-light,.shop-board.theme-gold span{box-shadow:inset 0 0 8px #fff6bd44}
+body[data-board="marble"] .square-light:not(.selected):not(.possible-move):not([class*="last-move"]),.shop-board.theme-marble span{background-image:repeating-linear-gradient(140deg,transparent 0 24px,#74857e22 25px 26px,transparent 27px 36px)}
+
+/* Participant portraits use their own collection, never the viewer's theme. */
+.game-player-identity{display:flex;align-items:center;gap:8px;min-width:0}
+.game-player-avatar{display:block;flex:0 0 42px;width:42px;height:42px;overflow:hidden;border-radius:50%}
+.game-player-avatar .gchess-avatar{display:block;width:100%;height:100%}
+.game-player-identity>span:last-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.coach-player-identity{margin:0 0 6px;color:#e3d1ad;font-size:13px}
+@media(max-width:650px){.game-player-avatar{flex-basis:36px;width:36px;height:36px}}
+
+/* Portraits stay upright, beside their player's back rank, as the board flips. */
+.board-player-stage{position:relative}
+.board-player-stage .board-player{position:absolute;right:-48px;bottom:3px;width:38px;height:38px;z-index:2;border:1px solid #a38b58;box-shadow:0 2px 6px #0008;background:#25312b}
+.board-player-stage[data-board-orientation="white"] [data-player-color="black"],
+.board-player-stage[data-board-orientation="black"] [data-player-color="white"]{top:3px;bottom:auto}
+.board-player-stage[data-board-orientation="black"] [data-player-color="black"]{top:auto;bottom:3px}
+body .home-computer-layout .board-wrapper:has(.board-player-stage),
+body.online-game-detail-page .board-wrapper:has(.board-player-stage){padding-right:58px!important}
+@media(min-width:1101px){
+ body .home-computer-layout:has(.board-player-stage),body.online-game-detail-page .online-game-layout:has(.board-player-stage){--square-size:min(120px,calc((100svh - 136px)/8),calc((100vw - 716px)/8))!important}
+}
+@media(max-width:900px){
+ body.mobile-bot-playing .home-computer-layout:has(.board-player-stage),body .online-game-layout:has(.board-player-stage){--mobile-board-size:calc(100vw - 108px)!important;--mobile-square-size:calc(var(--mobile-board-size)/8)!important;--mobile-board-chrome:76px!important}
+ .board-player-stage .board-player{width:32px;height:32px;right:-40px}
+ body .home-computer-layout .board-wrapper:has(.board-player-stage),body.online-game-detail-page .board-wrapper:has(.board-player-stage){padding-right:46px!important}
+}
+
+@media(max-width:900px){
+ body.mobile-bot-playing .home-computer-layout .board-player-stage{grid-column:2;grid-row:2;width:var(--mobile-board-size);min-width:0}
+ body.mobile-bot-playing .home-computer-layout .board-player-stage #board{width:var(--mobile-board-size);max-width:none}
+}
+
+[data-coach-level][hidden]{display:none!important}
+[data-coach-level]{display:block;width:100%;height:100%}

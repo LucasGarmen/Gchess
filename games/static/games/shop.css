@@ -1,0 +1,82 @@
+.shop-page{max-width:1050px;margin:32px auto;padding:0 24px 48px;color:#ecd3a3}.shop-page header p{line-height:1.6}.shop-current{display:flex;align-items:center;gap:24px;padding:24px;border:1px solid #665a41;border-radius:16px;background:#272820}.shop-current>div:first-child{flex:0 0 120px}.shop-current p{line-height:1.65}.gchess-avatar{display:block;width:100%;height:auto}.shop-tabs{display:flex;flex-wrap:wrap;gap:12px;margin:24px 0}.shop-page .shop-tabs a{padding:12px 18px;border:1px solid #8e7650;border-radius:8px;color:#ecd3a3}.shop-page section{scroll-margin-top:20px}.shop-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}.shop-card{padding:22px;border:1px solid #c9b899;border-radius:14px;background:#f8f1e4;color:#49311f;display:flex;flex-direction:column;align-items:stretch}.shop-card h3,.shop-card p{color:#49311f}.shop-card p{line-height:1.5}.shop-card form{margin-top:auto}.shop-card button{width:100%;min-height:44px;padding:10px 16px;border:1px solid #654329;border-radius:8px;background:#654329;color:#fff8eb;font-size:15px;cursor:pointer}.shop-card button:disabled{background:#e7dcc7;color:#65543d;cursor:default}.shop-page .shop-card button:hover:not(:disabled),.shop-page .shop-card button:focus-visible{background:#ead2a0;color:#29241a!important}.shop-card a{color:#654329!important;text-decoration:underline}.shop-equipped{border:2px solid #738555}.shop-preview{height:150px;display:flex;justify-content:center;align-items:center}.shop-preview .gchess-avatar{width:142px}.shop-board{width:144px;aspect-ratio:1;border:5px solid #453725;border-radius:5px;overflow:hidden}.shop-board>div{display:flex;height:12.5%}.shop-board span{width:12.5%;background:#ead7b5}.shop-board>div:nth-child(odd) span:nth-child(even),.shop-board>div:nth-child(even) span:nth-child(odd){background:#6f8f4e}.dark-wood span{background:#c9a47c}.dark-wood>div:nth-child(odd) span:nth-child(even),.dark-wood>div:nth-child(even) span:nth-child(odd){background:#664735}.shop-soon .shop-board{margin:auto}.shop-shirt{margin:auto;width:100px;height:135px;clip-path:polygon(25% 0,40% 0,45% 12%,55% 12%,60% 0,75% 0,100% 23%,82% 43%,74% 35%,74% 100%,26% 100%,26% 35%,18% 43%,0 23%);background:#6f805b;color:#f0ddb6;display:grid;place-items:center;font-size:40px}.shop-saved{padding:14px;border:1px solid #8c9c6f;border-radius:8px;color:#e5efcd}.nav-avatar{width:32px;height:32px;flex-shrink:0;display:inline-block;vertical-align:middle;margin-right:6px}.nav-account .nav-avatar{float:left}.profile-shop-avatar{display:flex;align-items:center;gap:16px;margin:18px 0;color:#ecd3a3}.profile-shop-avatar .gchess-avatar{width:72px}.profile-shop-avatar a{color:#ecd3a3}@media(max-width:650px){.shop-page{padding:0 14px 36px}.shop-current{padding:18px;gap:16px;align-items:flex-start}.shop-current>div:first-child{flex-basis:80px}.shop-grid{grid-template-columns:minmax(0,1fr)}.shop-tabs a{flex:1;text-align:center}.shop-current h2{font-size:22px}.shop-card{padding:20px}}
+.nav-account{position:relative;padding-left:46px!important}.nav-account .nav-avatar{position:absolute;left:8px;top:50%;transform:translateY(-50%);margin:0;float:none}
+
+.shop-loadout{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}.shop-loadout article{padding:20px;border:1px solid #756344;border-radius:16px;background:#252922;text-align:center}.shop-loadout h3{color:#ecd3a3;margin:14px 0 0}.loadout-art{height:145px;display:flex;align-items:center;justify-content:center}.loadout-art .gchess-avatar{width:142px}.shop-piece-set{display:grid;grid-template-columns:repeat(3,48px);gap:3px;background:#a7a88b;padding:6px;border-radius:8px}.shop-piece-set img{width:48px;height:48px;object-fit:contain}.shop-help{line-height:1.65;max-width:850px}.shop-category{margin:14px 0;border:1px solid #786544;border-radius:12px;background:#25251e}.shop-category summary{cursor:pointer;padding:18px 22px;min-height:48px;font-size:20px;color:#ecd3a3;font-weight:600}.shop-category summary span{float:right;font-size:14px;line-height:26px;opacity:.7}.shop-category summary:hover{background:#353a2c;color:#fff0cf}.shop-category summary:focus-visible{outline:2px solid #e4c47e;outline-offset:3px}.shop-category[open] summary{border-bottom:1px solid #786544}.shop-category .shop-grid{padding:20px}.shop-category .shop-card h3{margin-bottom:6px}.shop-category .shop-card p{margin-top:0}
+@media(max-width:650px){.shop-loadout{gap:8px}.shop-loadout article{padding:10px 4px;border-radius:10px}.loadout-art{height:auto;min-height:84px}.loadout-art .gchess-avatar{width:80px}.loadout-art .shop-board{width:80px;border-width:3px}.loadout-art .shop-piece-set{grid-template-columns:repeat(3,23px);gap:1px;padding:3px}.loadout-art .shop-piece-set img{width:23px;height:32px}.shop-loadout h3{font-size:14px;margin-top:8px}.shop-category summary{font-size:18px;padding:16px}.shop-category .shop-grid{padding:12px}}
+
+.shop-loadout p{margin:6px 0 0;color:#d0b888;font-size:14px}
+
+/* Object-first catalog: the entire tile is a native POST button. */
+.shop-category .shop-grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.shop-category .shop-card{padding:0;background:transparent;border:1px solid #4f5845;border-radius:14px;overflow:hidden;color:#ead7b5}
+.shop-category .shop-card form{height:100%;margin:0}
+.shop-category .shop-card .shop-item-button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;height:100%;width:100%;padding:18px 12px;border:0;border-radius:0;background:#252c24;color:#ead7b5!important;box-shadow:none;font:inherit;text-align:center;text-decoration:none;cursor:pointer;transition:background .15s ease}
+.shop-category .shop-card .shop-item-button:disabled{background:#2e392a;color:#ead7b5!important;cursor:default;opacity:1}
+.shop-category .shop-card .shop-item-button:hover:not(:disabled){background:#35412f;color:#fff0ce!important}
+.shop-category .shop-card .shop-item-button:focus-visible{outline:3px solid #d9b970;outline-offset:-4px;background:#35412f}
+.shop-category .shop-equipped{border:2px solid #a9b97d}
+.shop-item-label{font-size:15px;font-weight:600}.shop-item-state{font-size:12px;color:#c1b28f}
+.shop-preview{width:100%;height:132px}.shop-card-avatar .shop-preview{height:118px}.shop-card-avatar .shop-preview .gchess-avatar{width:108px}
+.shop-accessory-art{width:116px;max-height:106px;overflow:visible;filter:drop-shadow(0 3px 2px #10170f)}
+.shop-card-face .shop-preview,.shop-card-accessory .shop-preview{background:radial-gradient(ellipse at center,#394030 0,transparent 67%)}
+.shop-card-face .shop-accessory-art{width:102px}.shop-card-clothing .shop-accessory-art{width:124px}
+.shop-category .shop-board{width:122px}.shop-category .shop-piece-set{grid-template-columns:repeat(3,38px)}.shop-category .shop-piece-set img{width:38px;height:44px}
+@media(max-width:850px){.shop-category .shop-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:650px){.shop-category .shop-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.shop-category .shop-card .shop-item-button{padding:14px 8px}.shop-preview{height:120px}.shop-item-label{font-size:14px}.shop-item-state{font-size:11px}}
+
+.gchess-avatar{clip-path:circle(50%)}
+.shop-category .shop-card-avatar{border-color:transparent;background:transparent;overflow:visible}
+.shop-category .shop-card-avatar .shop-item-button,.shop-category .shop-card-avatar .shop-item-button:disabled{background:transparent}
+.shop-category .shop-card-avatar .shop-item-button:hover:not(:disabled){background:#2d3429;border-radius:50% 50% 12px 12px}
+.shop-card-avatar.shop-equipped .gchess-avatar{border-radius:50%;box-shadow:0 0 0 2px #a9b97d}
+
+/* Compact catalog with the real equipped collection always in view. */
+.shop-page{max-width:920px;margin:18px auto;padding:0 20px 32px}
+.shop-page header>p:first-child{display:none}.shop-page header h1{font-size:34px;margin:0 0 6px}.shop-page header>p{margin:0 0 14px;font-size:15px}
+.shop-equipped-panel{position:sticky;top:10px;z-index:6;background:#20251d;border:1px solid #6d6042;border-radius:12px;padding:12px 14px;box-shadow:0 6px 16px #1119}
+.shop-equipped-panel>h2{font-size:17px;margin:0 0 8px;color:#ecd3a3}
+.shop-equipped-panel .shop-loadout{gap:10px}
+.shop-equipped-panel .shop-loadout article{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:8px 10px;border:0;border-radius:8px;background:#2b3026;text-align:left}
+.shop-equipped-panel .loadout-art{height:78px;flex:0 0 78px}
+.shop-equipped-panel .loadout-art .gchess-avatar{width:72px}
+.shop-equipped-panel .loadout-art .shop-board{width:72px;border-width:3px}
+.shop-equipped-panel .loadout-art .shop-piece-set{grid-template-columns:repeat(3,23px);gap:1px;padding:3px}
+.shop-equipped-panel .loadout-art .shop-piece-set img{width:23px;height:32px}
+.shop-equipped-panel .shop-loadout h3{font-size:14px;margin:0;flex:1;min-width:64px}
+.shop-equipped-panel .shop-loadout p{display:none}
+.shop-feedback{font-size:12px;color:#ccdba5;margin:6px 0 0;min-height:16px;line-height:16px}
+.shop-feedback:empty{display:none}
+.shop-help{font-size:13px;margin:12px 0 6px;line-height:1.5}
+.shop-help+p{margin:6px 0;font-size:13px}
+.shop-category{margin:8px 0;scroll-margin-top:180px}
+.shop-category summary{min-height:44px;padding:12px 16px;font-size:17px;line-height:22px}
+.shop-category .shop-grid{padding:12px;gap:10px}
+.shop-category .shop-card .shop-item-button{padding:12px 8px;gap:6px}
+.shop-preview{height:100px}.shop-card-avatar .shop-preview{height:100px}
+.shop-card-avatar .shop-preview .gchess-avatar{width:94px}
+.shop-accessory-art{width:100px;max-height:90px}
+.shop-card-face .shop-accessory-art{width:92px}.shop-card-clothing .shop-accessory-art{width:108px}
+.shop-category .shop-board{width:96px}.shop-category .shop-piece-set{grid-template-columns:repeat(3,30px)}.shop-category .shop-piece-set img{width:30px;height:38px}
+.shop-page[aria-busy="true"] .shop-item-button{cursor:progress}
+@media(max-width:650px){
+ .shop-page{margin:12px auto;padding:0 12px 28px}.shop-page header h1{font-size:28px}
+ .shop-equipped-panel{top:6px;padding:8px; border-radius:10px}.shop-equipped-panel>h2{font-size:14px;margin-bottom:6px}
+ .shop-equipped-panel .shop-loadout{gap:5px}.shop-equipped-panel .shop-loadout article{display:block;padding:5px;text-align:center}
+ .shop-equipped-panel .loadout-art{height:52px;min-height:52px;justify-content:center}
+ .shop-equipped-panel .loadout-art .gchess-avatar{width:50px}.shop-equipped-panel .loadout-art .shop-board{width:48px;border-width:2px}
+ .shop-equipped-panel .loadout-art .shop-piece-set{grid-template-columns:repeat(3,16px);padding:2px}.shop-equipped-panel .loadout-art .shop-piece-set img{width:16px;height:22px}
+ .shop-equipped-panel .shop-loadout h3{font-size:12px;min-width:0;margin-top:4px}
+ .shop-category{scroll-margin-top:150px}.shop-category summary{font-size:16px;padding:11px 12px}
+ .shop-category .shop-grid{padding:10px}.shop-preview{height:100px}.shop-item-state{font-size:11px}
+}
+
+.shop-equipped-panel .shop-feedback:empty{display:block}
+body:has(.shop-page){overflow-x:clip;overflow-y:visible}
+
+.shop-subtitle{color:#d7bc87;margin:10px 14px 0;font-size:15px}.shop-category .shop-grid{grid-template-columns:repeat(5,minmax(0,1fr))}.shop-preview{height:88px}.shop-card-avatar .shop-preview{height:94px}.shop-item-label{font-size:13px}.shop-category .shop-card .shop-item-button{padding:10px 6px}.shop-item-state{font-size:11px}.shop-equipped-panel .gchess-avatar[data-framing="bust"]{clip-path:none;width:78px}.shop-card-hairstyle .shop-accessory-art{width:94px}.shop-card-earrings .shop-accessory-art{width:84px}
+@media(max-width:1000px){.shop-category .shop-grid{grid-template-columns:repeat(4,minmax(0,1fr))}}@media(max-width:750px){.shop-category .shop-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}@media(max-width:650px){.shop-category .shop-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.shop-equipped-panel .gchess-avatar[data-framing="bust"]{width:56px}}
+
+.shop-category .shop-card.shop-locked .shop-item-button:disabled{background:#1e231e;color:#9d988a!important;cursor:not-allowed}
+.shop-locked .shop-preview{filter:grayscale(.85) brightness(.48);opacity:.65}
+.shop-locked .shop-item-label,.shop-locked .shop-item-state{color:#8e8a7d}
+.shop-card-avatar.shop-locked .shop-item-button:disabled{background:transparent}

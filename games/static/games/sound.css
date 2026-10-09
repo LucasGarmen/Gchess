@@ -1,0 +1,7 @@
+/* Small, keyboard-accessible control shared by navigation and game toolbar. */
+body button.sound-toggle{display:inline-flex;align-items:center;justify-content:center;flex:0 0 32px;width:32px;height:32px;min-height:32px;padding:6px;border:1px solid #8b775240;border-radius:7px;background:transparent;color:#d5bd91;box-shadow:none;cursor:pointer}
+body button.sound-toggle:hover{background:#3c4432;color:#f0dbaf}
+body button.sound-toggle:focus-visible{outline:2px solid #d4b879;outline-offset:2px}
+.sound-toggle svg{display:block;width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;pointer-events:none}
+.sound-toggle .sound-off{display:none}.sound-toggle.sound-muted .sound-on{display:none}.sound-toggle.sound-muted .sound-off{display:block}
+.nav-sound{padding:4px 10px}.board-toolbar .sound-toggle{margin-left:auto}

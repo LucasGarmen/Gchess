@@ -1,0 +1,8 @@
+<span class="shop-preview">
+{% if card.kind == 'board' %}<span class="shop-board theme-{{ card.item }}">{% include 'games/_shop_board.html' %}</span>
+{% elif card.kind == 'pieces' %}{% include 'games/_shop_pieces.html' with piece_style=card.item %}
+{% elif card.kind == 'avatar' %}{% include 'games/_avatar.html' with avatar=card.item accessory='none' face='none' clothing='club' hairstyle='none' eyewear='none' earrings='none' %}
+{% else %}{% include 'games/_shop_accessory.html' %}{% endif %}
+</span>
+{% if card.kind != 'avatar' %}<span class="shop-item-label">{{ card.label }}</span>{% endif %}
+<span class="shop-item-state">{% if card.locked %}{{ shop_texts.unavailable }}{% elif card.selected %}✓ {{ shop_texts.equipped }}{% else %}{{ shop_texts.free }}{% endif %}</span>

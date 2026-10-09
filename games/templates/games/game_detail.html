@@ -1,6 +1,6 @@
 {% extends 'games/base.html' %}
 {% load static %}
-{% load game_i18n %}
+{% load game_i18n cosmetic_art %}
 
 {% block title %}
 {{ game.title|default:"Gchess" }}
@@ -223,11 +223,11 @@
     <aside class="card game-info-card">
         <div class="game-info-item">
             <strong>{% tr "white" %}:</strong>
-            <span>"{{ game.white_player }}"</span>
+            <span>{{ game.white_player }}</span>
         </div>
         <div class="game-info-item">
             <strong>{% tr "black" %}:</strong>
-            <span>"{{ game.black_player }}"</span>
+            <span>{{ game.black_player }}</span>
         </div>
         <div class="game-info-item">
             <strong>{% tr "created_at" %}</strong>
@@ -253,7 +253,11 @@
                     <button id="toggle-analysis-mode" class="analysis-mode-button" type="button">{% tr "analysis_mode" %}</button>
                     <button id="flip-board" class="icon-button" type="button" title="{% tr "flip_board" %}" aria-label="{% tr "flip_board" %}">↻</button>
                 </div>
-                <div id="board" class="board"></div>
+                <div class="board-player-stage" data-board-orientation="white">
+                    <div id="board" class="board"></div>
+                    <span class="board-player game-player-avatar" data-player-color="white" title="{{ game.white_player }}">{% player_avatar game.white_user game.white_player %}</span>
+                    <span class="board-player game-player-avatar" data-player-color="black" title="{{ game.black_player }}">{% player_avatar game.black_user game.black_player %}</span>
+                </div>
 
                 <div class="file-labels">
                     <span>a</span><span>b</span><span>c</span><span>d</span>
@@ -402,8 +406,8 @@
 
 <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin defer></script>
 <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin defer></script>
-<script src="{% static 'games/react/game_detail_app.min.js' %}?v=1" defer></script>
-<script src="{% static 'games/board.min.js' %}?v=13" defer></script>
+<script src="{% static 'games/react/game_detail_app.min.js' %}?v=2" defer></script>
+<script src="{% static 'games/board.min.js' %}?v=17" defer></script>
 <script src="{% static 'games/blindfold.js' %}?v=1" defer></script>
 
 {% endblock %}

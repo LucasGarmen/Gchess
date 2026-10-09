@@ -1,0 +1,5 @@
+<article class="shop-card shop-card-{{ card.kind }}{% if card.selected %} shop-equipped{% endif %}{% if card.locked %} shop-locked{% endif %}">
+{% if card.locked %}<button class="shop-item-button" type="button" disabled aria-label="{{ shop_texts.unavailable }}: {{ card.label }}">{% include 'games/_shop_card_content.html' %}</button>
+{% elif user.is_authenticated %}<form method="post" action="{% url 'shop_equip' %}">{% csrf_token %}<input type="hidden" name="kind" value="{{ card.kind }}"><input type="hidden" name="item" value="{{ card.item }}"><button class="shop-item-button" aria-label="{% if card.selected %}{{ shop_texts.equipped }}{% else %}{{ shop_texts.equip }}{% endif %}: {{ card.label }}"{% if card.selected %} disabled{% endif %}>{% include 'games/_shop_card_content.html' %}</button></form>
+{% else %}<a class="shop-item-button" href="{% url 'login' %}?next={% url 'shop' %}" aria-label="{{ shop_texts.account }}: {{ card.label }}">{% include 'games/_shop_card_content.html' %}</a>{% endif %}
+</article>
