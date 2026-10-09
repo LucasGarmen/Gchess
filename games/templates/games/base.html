@@ -33,6 +33,7 @@
     <script src="{% static 'games/sound.js' %}?v=1" defer></script>
     <script src="{% static 'games/coach_portraits.js' %}?v=1" defer></script>
 <link rel="stylesheet" href="{% static 'games/game_finish.css' %}?v=1">
+<style>.site-nav .nav-logout-last{margin:0;padding:0;border-top:1px solid #78654440}.site-nav .nav-logout-last button{display:block;width:100%;text-align:left;min-height:40px;padding:10px 12px;margin:0;background:transparent;border:0;border-radius:0;color:#cbbb9d;font-size:13px;cursor:pointer}.site-nav .nav-logout-last button:hover{background:#353a2c;color:#ead3a1}</style>
 </head>
 
 <body data-board="{{ cosmetics.board }}" data-pieces="{{ cosmetics.pieces }}">
@@ -47,6 +48,19 @@
         <img src="{% static 'games/gchess-emblem.png' %}?v=3" alt="" width="42" height="42" decoding="async">
         <span class="nav-wordmark nav-domain">gchess.app</span>
     </a>
+    {% if user.is_authenticated %}
+        <div class="nav-group">
+            <div class="nav-main-row"><a class="nav-link nav-account" href="{% url 'profile_stats' %}"><span class="nav-avatar">{% include 'games/_avatar.html' with avatar=cosmetics.avatar accessory=cosmetics.accessory clothing=cosmetics.clothing face=cosmetics.face hairstyle=cosmetics.hairstyle eyewear=cosmetics.eyewear earrings=cosmetics.earrings %}</span><strong>{{ user.username }}</strong>{% if user.player_profile %}<small>{% tr "nav_elo" %} {{ user.player_profile.elo }}</small>{% endif %}</a><button class="nav-disclosure" type="button" aria-expanded="false" aria-controls="nav-account-options" aria-label="{{ user.username }}">›</button></div>
+            <div id="nav-account-options" class="nav-submenu" hidden>
+                <a href="{% url 'profile_stats' %}">{% tr "nav_stats" %}</a>
+                <a href="{% url 'profile_achievements' %}">{% tr "nav_achievements" %}</a>
+                <a href="{% url 'password_change' %}">{% tr "nav_change_password" %}</a>
+            </div>
+        </div>
+    {% else %}
+        <a class="nav-link nav-main-row" href="{% url 'login' %}"{% if request.resolver_match.url_name == 'login' %} aria-current="page"{% endif %}>{% tr "nav_login" %}</a>
+        <a class="nav-link nav-main-row" href="{% url 'register' %}"{% if request.resolver_match.url_name == 'register' %} aria-current="page"{% endif %}>{% tr "nav_register" %}</a>
+    {% endif %}
     <a class="nav-link nav-main-row" href="{% url 'home' %}"{% if request.resolver_match.url_name == 'home' %} aria-current="page"{% endif %}>{% tr "nav_home" %}</a>
     <div class="nav-group">
         <div class="nav-main-row"><a class="nav-link" href="{% url 'games_list' %}"{% if request.resolver_match.url_name == 'games_list' or request.resolver_match.url_name == 'game_create' or request.resolver_match.url_name == 'game_detail' %} aria-current="page"{% endif %}>{% tr "nav_games" %}</a><button class="nav-disclosure" type="button" aria-expanded="false" aria-controls="nav-games-options" aria-label="{% tr 'nav_games' %}">›</button></div>
@@ -83,22 +97,10 @@
     {% if user.is_authenticated %}
         <a class="nav-link nav-main-row" href="{% url 'friends' %}"{% if request.resolver_match.url_name == 'friends' %} aria-current="page"{% endif %}>{{ social_nav_title }}{% if friend_request_count %} · {{ friend_request_count }}{% endif %}</a>
         <a class="nav-link nav-main-row" href="{% url 'learning' %}"{% if request.resolver_match.url_name == 'learning' %} aria-current="page"{% endif %}>{{ learning.nav }}</a>
-        <div class="nav-group">
-            <div class="nav-main-row"><a class="nav-link nav-account" href="{% url 'profile_stats' %}"><span class="nav-avatar">{% include 'games/_avatar.html' with avatar=cosmetics.avatar accessory=cosmetics.accessory clothing=cosmetics.clothing face=cosmetics.face hairstyle=cosmetics.hairstyle eyewear=cosmetics.eyewear earrings=cosmetics.earrings %}</span><strong>{{ user.username }}</strong>{% if user.player_profile %}<small>{% tr "nav_elo" %} {{ user.player_profile.elo }}</small>{% endif %}</a><button class="nav-disclosure" type="button" aria-expanded="false" aria-controls="nav-account-options" aria-label="{{ user.username }}">›</button></div>
-            <div id="nav-account-options" class="nav-submenu" hidden>
-                <a href="{% url 'profile_stats' %}">{% tr "nav_stats" %}</a>
-                <a href="{% url 'profile_achievements' %}">{% tr "nav_achievements" %}</a>
-                <a href="{% url 'password_change' %}">{% tr "nav_change_password" %}</a>
-                <form method="POST" action="{% url 'logout' %}" class="nav-logout">{% csrf_token %}<button type="submit">{% tr "nav_logout" %}</button></form>
-            </div>
-        </div>
         <div class="notification-area nav-main-row">
             <button id="notification-toggle" type="button" aria-controls="notification-panel" aria-expanded="false">{{ tournament_texts.notifications }} <span id="notification-count" hidden>0</span></button>
             <div id="notification-panel" class="notification-panel" hidden><p class="notification-empty">{% tr "nav_no_invitations" %}</p></div>
         </div>
-    {% else %}
-        <a class="nav-link nav-main-row" href="{% url 'login' %}"{% if request.resolver_match.url_name == 'login' %} aria-current="page"{% endif %}>{% tr "nav_login" %}</a>
-        <a class="nav-link nav-main-row" href="{% url 'register' %}"{% if request.resolver_match.url_name == 'register' %} aria-current="page"{% endif %}>{% tr "nav_register" %}</a>
     {% endif %}
     {% block nav_extra %}{% endblock %}
     <div class="nav-sound"><button class="sound-toggle" data-sound-toggle type="button" aria-pressed="true" aria-label="Sound"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4Z"/><g class="sound-on"><path d="M17 8q4 4 0 8M20 5q7 7 0 14"/></g><g class="sound-off"><path d="M17 9l5 6M22 9l-5 6"/></g></svg></button></div>
@@ -110,6 +112,9 @@
 
     {% block nav_mobile_extra %}
     {% endblock %}
+    {% if user.is_authenticated %}
+    <form method="POST" action="{% url 'logout' %}" class="nav-logout nav-main-row nav-logout-last">{% csrf_token %}<button type="submit">{% tr "nav_logout" %}</button></form>
+    {% endif %}
     </nav>
 
     <hr>
