@@ -85,3 +85,8 @@
  body.mobile-nav-open .mobile-nav-arrow i:nth-child(3){transform:translateY(-6px) rotate(-45deg)}
 }
 @media(prefers-reduced-motion:reduce){body .mobile-nav-arrow i{transition:none}}
+
+/* Home has a permanent landmark, independent of the active-page background. */
+#site-nav > a.nav-home-link{font-weight:700;letter-spacing:.02em;color:#efdbb4;gap:9px}
+#site-nav .nav-home-icon{flex:0 0 18px;display:block;color:#d1b57b}
+#site-nav > a.nav-home-link:hover,#site-nav > a.nav-home-link:focus-visible{font-weight:700;color:#fff0d0}

@@ -20,7 +20,7 @@
     <link rel="stylesheet" href="{% static 'games/chess_visuals.css' %}?v=1">
     <link rel="stylesheet" href="{% static 'games/workspace.css' %}?v=4">
     <script src="{% static 'games/workspace.js' %}?v=7" defer></script>
-    <link rel="stylesheet" href="{% static 'games/navigation.css' %}?v=3">
+    <link rel="stylesheet" href="{% static 'games/navigation.css' %}?v=4">
     <link rel="stylesheet" href="{% static 'games/notices.css' %}?v=1">
     <script src="{% static 'games/navigation.js' %}?v=1" defer></script>
     <link rel="stylesheet" href="{% static 'games/tournaments.css' %}?v=5">
@@ -63,7 +63,7 @@
         <a class="nav-link nav-main-row" href="{% url 'login' %}"{% if request.resolver_match.url_name == 'login' %} aria-current="page"{% endif %}>{% tr "nav_login" %}</a>
         <a class="nav-link nav-main-row" href="{% url 'register' %}"{% if request.resolver_match.url_name == 'register' %} aria-current="page"{% endif %}>{% tr "nav_register" %}</a>
     {% endif %}
-    <a class="nav-link nav-main-row" href="{% url 'home' %}"{% if request.resolver_match.url_name == 'home' %} aria-current="page"{% endif %}>{% tr "nav_home" %}</a>
+    <a class="nav-link nav-main-row nav-home-link" href="{% url 'home' %}"{% if request.resolver_match.url_name == 'home' %} aria-current="page"{% endif %}><svg class="nav-home-icon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false"><path d="M3 11L12 3l9 8M5 10v11h5v-7h4v7h5V10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg><span>{% tr "nav_home" %}</span></a>
     <div class="nav-group">
         <div class="nav-main-row"><a class="nav-link" href="{% url 'games_list' %}"{% if request.resolver_match.url_name == 'games_list' or request.resolver_match.url_name == 'game_create' or request.resolver_match.url_name == 'game_detail' %} aria-current="page"{% endif %}>{% tr "nav_games" %}</a><button class="nav-disclosure" type="button" aria-expanded="false" aria-controls="nav-games-options" aria-label="{% tr 'nav_games' %}">›</button></div>
         <div id="nav-games-options" class="nav-submenu" hidden>
