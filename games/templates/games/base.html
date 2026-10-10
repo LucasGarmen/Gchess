@@ -40,6 +40,8 @@
 <style>#site-nav .nav-logout-last{margin:8px 0 0;padding:4px 0 0;border-top:1px solid #9b825650;border-bottom:0}.site-nav .nav-logout-last button{display:block;width:100%;text-align:left;min-height:40px;padding:10px 12px;margin:0;background:transparent;border:0;border-radius:0;color:#cbbb9d;font-size:13px;cursor:pointer}.site-nav .nav-logout-last button:hover{background:#353a2c;color:#ead3a1}</style>
 <link rel="stylesheet" href="{% static 'games/scrollbars.css' %}?v=1">
 <link rel="stylesheet" href="{% static 'games/community_polish.css' %}?v=1">
+<link rel="stylesheet" href="{% static 'games/contact_links.css' %}?v=1">
+<script src="{% static 'games/contact_links.js' %}?v=1" defer></script>
 </head>
 
 <body data-board="{{ cosmetics.board }}" data-pieces="{{ cosmetics.pieces }}">
@@ -124,8 +126,8 @@
     <form method="POST" action="{% url 'logout' %}" class="nav-logout nav-main-row nav-logout-last">{% csrf_token %}<button type="submit">{% tr "nav_logout" %}</button></form>
     {% endif %}
     <div class="nav-contact-links">
-        <a href="https://www.instagram.com/ghcessapp/" target="_blank" rel="noopener noreferrer" aria-label="Instagram · @ghcessapp" title="Instagram · @ghcessapp"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r=".8" fill="currentColor" stroke="none"/></svg></a>
-        <a href="mailto:gchesssuport@gmail.com" aria-label="Email · gchesssuport@gmail.com" title="Email · gchesssuport@gmail.com"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 6 9 7 9-7"/></svg></a>
+        <details class="nav-contact-detail"><summary aria-label="Instagram" title="Instagram"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r=".8" fill="currentColor" stroke="none"/></svg></summary><div class="nav-contact-panel"><strong>Instagram</strong><span>@gchessapp</span><a href="https://www.instagram.com/gchessapp/" target="_blank" rel="noopener noreferrer">{% if current_language == "pt" %}Abrir Instagram{% elif current_language == "es" %}Abrir Instagram{% else %}Open Instagram{% endif %} →</a></div></details>
+        <details class="nav-contact-detail"><summary aria-label="Email" title="Email"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 6 9 7 9-7"/></svg></summary><div class="nav-contact-panel"><strong>Email</strong><span>gchesssuport@gmail.com</span><a href="mailto:gchesssuport@gmail.com">{% if current_language == "pt" %}Enviar email{% elif current_language == "es" %}Enviar correo{% else %}Send email{% endif %} →</a></div></details>
         <a href="{% url 'friends' %}" aria-label="Chat" title="Chat"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 11.5a8.5 8.5 0 0 1-8.5 8.5H4l-2 2V11.5A8.5 8.5 0 0 1 10.5 3h2a8.5 8.5 0 0 1 8.5 8.5Z"/><path d="M7 9h9M7 13h6"/></svg></a>
     </div>
     </nav>

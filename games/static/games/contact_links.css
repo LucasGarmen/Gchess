@@ -1,0 +1,12 @@
+#site-nav .nav-contact-links{position:relative}
+#site-nav .nav-contact-detail{position:static;margin:0}
+#site-nav .nav-contact-detail>summary{display:flex;align-items:center;justify-content:center;width:36px;height:36px;list-style:none;cursor:pointer;border:1px solid transparent;border-radius:8px;color:#bda77f;box-sizing:border-box}
+#site-nav .nav-contact-detail>summary::-webkit-details-marker{display:none}
+#site-nav .nav-contact-detail>summary:hover,#site-nav .nav-contact-detail[open]>summary{background:#353a2c;color:#efdbb4;border-color:#9b825650}
+#site-nav .nav-contact-detail>summary:focus-visible{outline:2px solid #dfc795;outline-offset:2px}
+#site-nav .nav-contact-panel{position:absolute;bottom:calc(100% + 8px);left:0;right:0;z-index:20;display:flex;flex-direction:column;gap:8px;padding:13px;background:#292e23;border:1px solid #a58b5970;border-radius:10px;box-shadow:0 6px 20px #0006;color:#e5cea1;font-size:13px}
+#site-nav .nav-contact-panel>span{font-size:12px;overflow-wrap:anywhere;color:#c7baa0}
+#site-nav .nav-contact-panel>a{width:auto;height:auto;min-height:40px;padding:9px 10px;background:#dfc795;color:#30291d;justify-content:center;font-size:12px;font-weight:600;text-decoration:none}
+#site-nav .nav-contact-panel>a:hover{background:#efdbb3;color:#30291d}
+@media(max-width:900px){#site-nav .nav-contact-detail>summary{width:44px;height:44px}}
+@media(max-width:900px){body #site-nav{flex-wrap:nowrap!important}#site-nav .nav-contact-links{width:100%;box-sizing:border-box}}
