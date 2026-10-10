@@ -28,7 +28,7 @@ def player_avatar(player,label='Avatar'):
     from games.cosmetic_catalog import DEFAULTS,usable_loadout
     selected=CosmeticLoadout.objects.filter(user=player).first() if player and getattr(player,'is_authenticated',False) else None
     values=usable_loadout(selected or DEFAULTS)
-    return draw_avatar(values['avatar'],values['accessory'],values['clothing'],values['face'],values['hairstyle'],values['eyewear'],values['earrings'],label=label)
+    return draw_avatar(values['avatar'],values['accessory'],values['clothing'],values['face'],values['hairstyle'],values['eyewear'],values['earrings'],framing='bust',label=label)
 
 @register.simple_tag
 def coach_portraits():
