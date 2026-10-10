@@ -24,6 +24,7 @@
         group.dataset.open = 'false';
         group.querySelector('.nav-submenu').hidden = true;
         group.querySelector('.nav-disclosure').setAttribute('aria-expanded', 'false');
+        group.querySelector('.nav-main-row .nav-link')?.setAttribute('aria-expanded', 'false');
     }
     function open(group) {
         clearTimeout(closeTimer);
@@ -31,14 +32,25 @@
         group.dataset.open = 'true';
         group.querySelector('.nav-submenu').hidden = false;
         group.querySelector('.nav-disclosure').setAttribute('aria-expanded', 'true');
+        group.querySelector('.nav-main-row .nav-link')?.setAttribute('aria-expanded', 'true');
         position(group);
     }
     groups.forEach(group => {
         const button = group.querySelector('.nav-disclosure');
+        const heading = group.querySelector('.nav-main-row .nav-link');
+        if (heading) {
+            heading.setAttribute('aria-controls', button.getAttribute('aria-controls'));
+            heading.setAttribute('aria-expanded', 'false');
+            heading.addEventListener('click', event => {
+                if (innerWidth > 900 || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
+                event.preventDefault();
+                group.dataset.open === 'true' ? close(group) : open(group);
+            });
+        }
         button.addEventListener('click', () => group.dataset.open === 'true' ? close(group) : open(group));
         group.addEventListener('pointerenter', event => { if (innerWidth > 900 && (event.pointerType === 'mouse' || hover())) open(group); });
         group.addEventListener('pointerleave', event => { if (innerWidth > 900 && (event.pointerType === 'mouse' || hover())) closeTimer = setTimeout(() => close(group), 180); });
-        group.addEventListener('focusin', event => { if (event.target !== button) open(group); });
+        group.addEventListener('focusin', event => { if (innerWidth > 900 && event.target !== button) open(group); });
         group.addEventListener('focusout', event => { if (!group.contains(event.relatedTarget)) close(group); });
         group.addEventListener('keydown', event => {
             if (event.key === 'Escape') { event.preventDefault(); close(group); button.focus(); }
