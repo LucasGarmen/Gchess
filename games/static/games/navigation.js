@@ -10,7 +10,7 @@
         const menu = group.querySelector('.nav-submenu');
         const rect = group.getBoundingClientRect();
         const side = desktopSidebar();
-        const width = Math.min(272, innerWidth - 24);
+        const width = Math.min(224, innerWidth - 24);
         menu.style.width = width + 'px';
         const height = menu.getBoundingClientRect().height;
         let left = side ? nav.getBoundingClientRect().right - 1 : rect.left;

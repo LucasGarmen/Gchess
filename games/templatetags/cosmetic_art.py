@@ -10,6 +10,12 @@ def draw_avatar(avatar,accessory='none',clothing='club',face='none',hairstyle='n
     framing='bust' if framing=='bust' else 'portrait'
     view='24 8 112 146' if framing=='bust' else '26 8 108 108'
     svg=avatar_art(avatar,accessory,clothing,face,hairstyle,eyewear,earrings,framing)
+    # Each inline portrait needs independent paint servers, including hidden coaches.
+    import re
+    from uuid import uuid4
+    suffix=uuid4().hex
+    for identifier in re.findall(r'id="([^"]+)"',svg):
+        svg=svg.replace(f'id="{identifier}"',f'id="{identifier}-{suffix}"').replace(f'url(#{identifier})',f'url(#{identifier}-{suffix})')
     return mark_safe(f'<svg class="gchess-avatar" viewBox="{view}" role="img" aria-label="{escape(label)}" xmlns="http://www.w3.org/2000/svg" data-avatar-rig="bust-v1" data-framing="{framing}">{svg}</svg>')
 
 @register.simple_tag
