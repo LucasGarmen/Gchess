@@ -17,3 +17,14 @@ body .focus-play .board-coach-bubble{position:static!important;max-width:var(--f
 .focus-play-toggle{font-size:21px!important;min-width:36px;padding:4px 8px!important}
 @media(max-width:900px){.focus-play{grid-template-columns:1fr;grid-template-rows:minmax(0,1fr) auto;gap:4px;padding:46px 8px 8px}.focus-play-chat{max-height:160px;width:100%}body .focus-play #game-chat-messages{max-height:65px}body .focus-play .coach-chat-dock{min-height:0!important}body .focus-play .coach-chat-dock [open]{max-height:90px;overflow:auto}.focus-play-board{gap:2px}body .focus-play .game-clock{display:flex;gap:14px;font-size:13px}.focus-play-exit{width:32px;height:32px;top:6px;right:8px}}
 body .focus-play #turn-indicator{display:block!important;margin:0!important;font-size:13px;color:#e6d4b0} body .focus-play .game-clock{display:flex!important;gap:12px;margin:0;padding:0;font-size:13px}
+
+/* Reparented boards retain the same square geometry and piece proportions. */
+body .focus-play #board{grid-template-columns:repeat(8,minmax(0,1fr))!important;grid-template-rows:repeat(8,minmax(0,1fr))!important}
+body .focus-play #board .square{width:100%!important;height:100%!important;min-width:0;min-height:0}
+body .focus-play #board .square>.piece{width:94%!important;height:94%!important;object-fit:contain!important}
+body .focus-play>.drag-piece,body .focus-play>.move-animation-piece{z-index:30;object-fit:contain;will-change:transform}
+/* Independent overlays stay readable even on textured board themes. */
+body .focus-play #board .square:is(.selected,.possible-move,.queued-move-origin,.queued-move-target)::after{content:"";position:absolute;inset:2px;border-radius:3px;pointer-events:none;z-index:3;box-sizing:border-box;border:2px solid #f6db83;box-shadow:0 0 0 1px #332914,inset 0 0 0 1px #332914}
+body .focus-play #board .square.selected::after{border-color:#8bd1ff;background:#2680c326}
+body .focus-play #board .square.possible-move::after{inset:36%;border-radius:50%;background:#f6db83cc}
+body .focus-play #board .square:is(.queued-move-origin,.queued-move-target)::after{inset:2px;border-radius:3px;border:3px solid #f6db83;background:#d5a43040}

@@ -1114,6 +1114,11 @@ function getSquareFromPoint(x, y) {
     return element ? element.closest('.square') : null;
 }
 
+function pieceMotionSurface(square) {
+    // Native fullscreen only paints descendants of its fullscreen element.
+    return square.closest('.focus-play') || document.fullscreenElement || document.body;
+}
+
 function createDragPiece(square, event) {
     const piece = square.firstElementChild;
 
@@ -1131,7 +1136,7 @@ function createDragPiece(square, event) {
     dragPiece.style.height = `${squareRect.height * DRAG_PIECE_SCALE}px`;
     dragPiece.draggable = false;
 
-    document.body.appendChild(dragPiece);
+    pieceMotionSurface(square).appendChild(dragPiece);
     square.classList.add('drag-origin');
 
     moveDragPiece(dragPiece, event);
@@ -1180,7 +1185,7 @@ function animateMove(fromSquare, toSquare) {
     movingPiece.style.width = `${pieceRect.width}px`;
     movingPiece.style.height = `${pieceRect.height}px`;
 
-    document.body.appendChild(movingPiece);
+    pieceMotionSurface(fromSquare).appendChild(movingPiece);
     fromSquare.classList.add('drag-origin');
 
     return movingPiece.animate(
@@ -1192,7 +1197,7 @@ function animateMove(fromSquare, toSquare) {
             duration: 180,
             easing: 'cubic-bezier(0.2, 0.8, 0.2, 1)'
         }
-    ).finished.finally(() => {
+    ).finished.catch(() => {}).finally(() => {
         fromSquare.classList.remove('drag-origin');
         movingPiece.remove();
     });
