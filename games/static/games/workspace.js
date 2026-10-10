@@ -192,6 +192,6 @@
     document.addEventListener('visibilitychange', () => { if (!document.hidden) refresh(); });
     const savedPosition = read('position', null);
     if (savedPosition && Number.isFinite(savedPosition.x) && Number.isFinite(savedPosition.y)) positionBubble(savedPosition.x, savedPosition.y);
-    setOpen(read('open', false)); render(); refresh();
+    setOpen(false); render(); refresh();
     setInterval(refresh, 15000);
 })();

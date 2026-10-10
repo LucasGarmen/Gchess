@@ -49,3 +49,8 @@
 .game-workspace #workspace-panel>p{flex-shrink:0;margin:0;padding:0 14px 8px;font-size:11px;line-height:1.4}
 .game-workspace #workspace-panel>a{flex-shrink:0;display:block;margin:0;padding:8px 14px 12px;font-size:12px;line-height:1.4}
 @media(max-width:900px){body .game-workspace #workspace-panel{padding:0;width:min(360px,calc(100vw - 20px))!important;max-height:calc(100dvh - 80px)!important}.game-workspace .workspace-game{min-height:62px}}
+
+/* Start away from the lower game actions; custom dragged positions still win. */
+@media(min-width:901px){.game-workspace{top:12px;bottom:auto;right:16px}}
+
+@media(min-width:1101px){.game-workspace{left:16px;right:auto;top:auto;bottom:16px}.game-workspace #workspace-toggle{font-size:13px;padding:9px 12px}}
