@@ -88,6 +88,10 @@ def password_reset(request):
                 .first()
             )
 
+            if not user:
+                form.add_error('email', t(language, 'reset_email_not_registered'))
+                return render(request, 'registration/password_reset_form.html', {'form': form})
+
             if user:
                 try:
                     send_password_reset_confirmation_email(request, user, language)
@@ -95,6 +99,7 @@ def password_reset(request):
                     form.add_error(None, t(language, 'email_send_error'))
                     return render(request, 'registration/password_reset_form.html', {'form': form})
 
+            request.session['password_reset_email_sent'] = True
             return redirect('password_reset_done')
     else:
         form = PasswordRecoveryForm()
@@ -103,6 +108,8 @@ def password_reset(request):
 
 
 def password_reset_done(request):
+    if not request.session.get('password_reset_email_sent'):
+        return redirect('password_reset')
     return render(request, 'registration/password_reset_done.html')
 
 
