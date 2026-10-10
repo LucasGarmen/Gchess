@@ -90,3 +90,6 @@
 #site-nav > a.nav-home-link{font-weight:700;letter-spacing:.02em;color:#efdbb4;gap:9px}
 #site-nav .nav-home-icon{flex:0 0 18px;display:block;color:#d1b57b}
 #site-nav > a.nav-home-link:hover,#site-nav > a.nav-home-link:focus-visible{font-weight:700;color:#fff0d0}
+
+@media(min-width:1101px){body #site-nav{padding-bottom:28px;box-sizing:border-box}}
+@media(max-width:900px){body #site-nav{padding-bottom:28px!important}}

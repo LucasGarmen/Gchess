@@ -7,3 +7,13 @@ body button.sound-toggle:focus-visible{outline:2px solid #d4b879;outline-offset:
 .nav-sound{padding:4px 10px}.board-toolbar .sound-toggle{margin-left:auto}
 
 .sound-volume{width:64px!important;min-width:0;min-height:24px!important;height:24px!important;padding:0!important;margin:0 4px!important;accent-color:#c3a76e;vertical-align:middle;cursor:pointer}.nav-sound{display:flex;align-items:center;gap:4px}.board-toolbar .sound-volume{flex:0 0 64px}@media(max-width:900px){.sound-volume{min-height:36px!important}}
+
+/* Desktop volume uses a short track rather than the native input surface. */
+@media(min-width:901px){
+ body .sound-volume{appearance:none;-webkit-appearance:none;width:48px!important;flex:0 0 48px!important;height:20px!important;min-height:20px!important;max-width:48px!important;background:transparent!important;border:0!important;border-radius:0!important;box-shadow:none!important;margin:0 3px!important}
+ .sound-volume::-webkit-slider-runnable-track{height:3px;background:#89754f;border-radius:3px}
+ .sound-volume::-webkit-slider-thumb{appearance:none;-webkit-appearance:none;width:10px;height:10px;background:#d2b780;border:0;border-radius:50%;margin-top:-3.5px}
+ .sound-volume::-moz-range-track{height:3px;background:#89754f;border-radius:3px}
+ .sound-volume::-moz-range-thumb{width:10px;height:10px;background:#d2b780;border:0;border-radius:50%}
+ body .sound-volume:focus-visible{outline:2px solid #d2b780;outline-offset:2px}
+}
