@@ -1,0 +1,21 @@
+/* Keep mobile play focused on a full-width, square board. */
+@media(max-width:900px){
+ html,body,body *{scrollbar-width:thin;scrollbar-color:#b9a27c55 transparent}
+ ::-webkit-scrollbar{width:3px;height:3px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:#b9a27c55;border-radius:8px}
+ body.mobile-bot-playing,body.online-game-detail-page,body.mobile-analyzer-playing{padding-left:4px!important;padding-right:4px!important}
+ body.mobile-bot-playing .home-computer-layout,body.online-game-detail-page .online-game-layout,body.mobile-analyzer-playing .analyzer-game-layout,
+ body.mobile-bot-playing .home-computer-layout:has(.board-player-stage),body.online-game-detail-page .online-game-layout:has(.board-player-stage){--mobile-board-size:min(calc(100vw - 42px),calc(100svh - 220px))!important;--mobile-square-size:calc(var(--mobile-board-size)/8)!important;--mobile-board-chrome:24px!important;gap:8px}
+ body.mobile-bot-playing .home-computer-layout .board-wrapper:has(.board-player-stage),body.online-game-detail-page .board-wrapper:has(.board-player-stage){padding:50px 4px 50px!important;overflow:visible}
+ body .board-player-stage .board-player{right:4px;bottom:-48px;width:40px;height:40px}
+ body .board-player-stage[data-board-orientation="white"] [data-player-color="black"],body .board-player-stage[data-board-orientation="black"] [data-player-color="white"]{top:-48px;bottom:auto}
+ body .board-player-stage[data-board-orientation="black"] [data-player-color="black"]{top:auto;bottom:-48px}
+ body.mobile-bot-playing .home-computer-layout .computer-side{padding:10px;height:auto;min-height:0;gap:8px}
+ body.mobile-bot-playing .home-computer-layout .home-hub-panel{display:none}
+ .mobile-coach-chat{border:1px solid #e5cea130;border-radius:8px;padding:0 10px}
+ .mobile-coach-chat>summary{cursor:pointer;color:#e5cea1;min-height:44px;line-height:44px;font-weight:600}
+ .mobile-coach-chat .trainer-chat>h2{display:none}.mobile-coach-chat .trainer-chat{padding:0 0 10px;margin:0}
+ .mobile-coach-chat .trainer-chat-log{max-height:220px}
+}
+@media(min-width:901px){.mobile-coach-chat>summary{display:none}}
+
+@media(max-width:900px){body.mobile-bot-playing .home-computer-layout .board-wrapper:has(.board-player-stage) .board-toolbar,body.online-game-detail-page .board-wrapper:has(.board-player-stage) .board-toolbar{margin-bottom:48px!important}}
