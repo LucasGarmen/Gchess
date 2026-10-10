@@ -42,7 +42,7 @@
 <link rel="stylesheet" href="{% static 'games/community_polish.css' %}?v=1">
 <link rel="stylesheet" href="{% static 'games/contact_links.css' %}?v=1">
 <script src="{% static 'games/contact_links.js' %}?v=1" defer></script>
-<link rel="stylesheet" href="{% static 'games/navigation.css' %}?v=8">
+<link rel="stylesheet" href="{% static 'games/navigation.css' %}?v=9">
 </head>
 
 <body data-board="{{ cosmetics.board }}" data-pieces="{{ cosmetics.pieces }}">
@@ -76,6 +76,7 @@
     <div class="nav-group">
         <div class="nav-main-row"><a class="nav-link" href="{% url 'games_list' %}"{% if request.resolver_match.url_name == 'games_list' or request.resolver_match.url_name == 'game_create' or request.resolver_match.url_name == 'game_detail' %} aria-current="page"{% endif %}>{% tr "nav_games" %}</a><button class="nav-disclosure" type="button" aria-expanded="false" aria-controls="nav-games-options" aria-label="{% tr 'nav_games' %}">›</button></div>
         <div id="nav-games-options" class="nav-submenu" hidden>
+{% if user.is_authenticated %}        <a class="nav-link" href="{% url 'friends' %}"{% if request.resolver_match.url_name == 'friends' %} aria-current="page"{% endif %}>{{ social_nav_title }}{% if friend_request_count %} · {{ friend_request_count }}{% endif %}</a>{% endif %}
             <a href="{% url 'home' %}?bot=main">{% tr "play_bot" %}</a>
             <a href="{% url 'game_create' %}">{% tr "nav_new_game" %}</a>
             <a href="{% url 'blindfold' %}">{{ blindfold.title }}</a>
@@ -93,6 +94,7 @@
     <div class="nav-group">
         <div class="nav-main-row"><a class="nav-link" href="{% url 'training' %}"{% if is_training_page %} aria-current="page"{% endif %}>{% tr "nav_training" %}</a><button class="nav-disclosure" type="button" aria-expanded="false" aria-controls="nav-training-options" aria-label="{% tr 'nav_training' %}">›</button></div>
         <div id="nav-training-options" class="nav-submenu" hidden>
+{% if user.is_authenticated %}        <a class="nav-link" href="{% url 'learning' %}"{% if request.resolver_match.url_name == 'learning' %} aria-current="page"{% endif %}>{{ learning.nav }}</a>{% endif %}
             <a href="{% url 'openings' %}"><strong>{{ opening_nav.title }}</strong></a>
             <a href="{% url 'weekly_challenge' %}"><strong>{{ weekly.title }}</strong></a>
             <a href="{% url 'daily_training' %}"><strong>{{ dt.title }}</strong></a>
@@ -105,16 +107,19 @@
     </div>
     <a class="nav-link nav-main-row" href="{% url 'leaderboard' %}"{% if request.resolver_match.url_name == 'leaderboard' %} aria-current="page"{% endif %}>{% tr "nav_leaderboard" %}</a>
     <a class="nav-link nav-main-row" href="{% url 'shop' %}"{% if request.resolver_match.url_name == 'shop' %} aria-current="page"{% endif %}>{{ shop_texts.title }}</a>
+
+    {% block nav_extra %}{% endblock %}
+    <div class="nav-tools">
     {% if user.is_authenticated %}
-        <a class="nav-link nav-main-row" href="{% url 'friends' %}"{% if request.resolver_match.url_name == 'friends' %} aria-current="page"{% endif %}>{{ social_nav_title }}{% if friend_request_count %} · {{ friend_request_count }}{% endif %}</a>
-        <a class="nav-link nav-main-row" href="{% url 'learning' %}"{% if request.resolver_match.url_name == 'learning' %} aria-current="page"{% endif %}>{{ learning.nav }}</a>
+
+
         <div class="notification-area nav-main-row">
             <button id="notification-toggle" type="button" aria-controls="notification-panel" aria-expanded="false">{{ tournament_texts.notifications }} <span id="notification-count" hidden>0</span></button>
             <div id="notification-panel" class="notification-panel" hidden><p class="notification-empty">{% tr "nav_no_invitations" %}</p></div>
         </div>
     {% endif %}
-    {% block nav_extra %}{% endblock %}
     <div class="nav-sound"><button class="sound-toggle" data-sound-toggle type="button" aria-pressed="true" aria-label="Sound"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4Z"/><g class="sound-on"><path d="M17 8q4 4 0 8M20 5q7 7 0 14"/></g><g class="sound-off"><path d="M17 9l5 6M22 9l-5 6"/></g></svg></button></div>
+    </div>
     <form class="language-form" method="POST" action="{% url 'set_language' %}">
         {% csrf_token %}<input type="hidden" name="next" value="{{ request.get_full_path }}">
         <label for="language-select">{% tr "language" %}</label>
