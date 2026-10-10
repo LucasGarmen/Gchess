@@ -106,9 +106,11 @@
     }
     document.getElementById('mobile-nav-toggle')?.addEventListener('click', () => { if (window.innerWidth <= 900) setOpen(false); });
     function section(label) { const heading = document.createElement('p'); heading.className = 'workspace-group'; heading.textContent = label; list.append(heading); }
-    function card(url, title, subtitle, current, yourTurn) {
+    function card(url, title, subtitle, current, yourTurn, kind = 'human') {
         const link = document.createElement('a'); link.href = url; link.className = 'workspace-game' + (yourTurn ? ' your-turn' : '');
         if (current) link.setAttribute('aria-current', 'page');
+        const icon = document.createElement('span'); icon.className = 'workspace-game-icon'; icon.textContent = kind === 'coach' ? '♞' : '♟'; icon.setAttribute('aria-hidden', 'true');
+        const content = document.createElement('span'); content.className = 'workspace-game-copy';
         const name = document.createElement('strong'); name.textContent = title;
         const detail = document.createElement('small'); detail.textContent = subtitle;
         link.addEventListener('click', event => {
@@ -116,14 +118,16 @@
             // Arrive at the selected board with the selector out of the way.
             setOpen(false);
         });
-        link.append(name, detail); list.append(link);
+        content.append(name, detail);
+        const marker = document.createElement('span'); marker.className = 'workspace-game-marker'; marker.textContent = current ? '●' : '›'; marker.setAttribute('aria-hidden','true');
+        link.append(icon, content, marker); list.append(link);
     }
     function render() {
         list.replaceChildren();
         document.getElementById('workspace-count').textContent = String(humans.length + bots.length);
         if (bots.length) {
             section(words[12]);
-            bots.forEach(bot => card(config.home + '?bot=' + encodeURIComponent(bot.id), 'Coach ' + bot.number + (bot.elo ? ' · ' + bot.elo : '') + (bot.blindfold ? ' · '+config.blindfoldLabel : ''), bot.finished ? words[6] : (onHome && bot.id === botId ? (bot.yourTurn === false ? words[4] : words[3]) : words[5]), onHome && bot.id === botId, onHome && bot.id === botId && bot.yourTurn));
+            bots.forEach(bot => card(config.home + '?bot=' + encodeURIComponent(bot.id), 'Coach ' + bot.number + (bot.elo ? ' · ' + bot.elo : '') + (bot.blindfold ? ' · '+config.blindfoldLabel : ''), bot.finished ? words[6] : (onHome && bot.id === botId ? (bot.yourTurn === false ? words[4] : words[3]) : words[5]), onHome && bot.id === botId, onHome && bot.id === botId && bot.yourTurn, 'coach'));
         }
         section(words[11]);
         humans.forEach(game => card(game.url, game.opponent || '—', words[game.yourTurn ? 3 : 4] + (game.blindfoldOnly ? ' · '+config.blindfoldLabel : '') + (game.title ? ' · ' + game.title : ''), location.pathname === game.url, game.yourTurn));
