@@ -9,9 +9,8 @@
         {{ game.white_player }} vs {{ game.black_player }}
     {% endif %}
     </h2>
-    <p>{% tr "white" %}: {{ game.white_player }}</p>
-    <p>{% tr "black" %}: {{ game.black_player }}</p>
-    <p>{% tr "created_at" %} {{ game.created_at|date:"d/m/Y h:i A" }}</p>
+    {% if game.title %}<p class="game-card-players">{{ game.white_player }} <span>vs</span> {{ game.black_player }}</p>{% endif %}
+    <time class="game-card-date" datetime="{{ game.created_at|date:'c' }}">{{ game.created_at|date:"d/m/Y · H:i" }}</time>
 
     <a href="{% url 'game_detail' game.id %}">
         {% if card.is_finished %}

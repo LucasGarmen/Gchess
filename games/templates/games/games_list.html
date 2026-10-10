@@ -1,5 +1,5 @@
 {% extends 'games/base.html' %}
-{% load game_i18n %}
+{% load game_i18n static %}
 
 {% block title %}
 {% tr "nav_games" %}
@@ -7,16 +7,17 @@
 
 {% block content %}
 
-<h1>{% tr "my_games" %}</h1>
+<link rel="stylesheet" href="{% static 'games/games_directory.css' %}?v=1">
+<main class="games-directory">
+<header class="games-directory-heading"><div><h1>{% tr "my_games" %}</h1><p>{% tr "saved_games_help" %}</p></div><a class="button" href="{% url 'game_create' %}">{% tr "new_game" %} →</a></header>
 
-<p>{% tr "saved_games_help" %}</p>
-<p><a class="button" href="{% url 'game_create' %}">{% tr "new_game" %} →</a></p>
+
 {% if pending_search %}<p><a href="{% url 'game_invitation_wait' pending_search.pk %}">{% tr "resume_search" %} →</a></p>{% endif %}
 
 {% if game_cards %}
 <div class="games-columns">
     <section class="games-column">
-        <h2>{% tr "games_in_progress" %}</h2>
+        <h2>{% tr "games_in_progress" %} <small>{{ in_progress_cards|length }}</small></h2>
 
         {% for card in in_progress_cards %}
             {% include 'games/_game_card.html' %}
@@ -26,7 +27,7 @@
     </section>
 
     <section class="games-column">
-        <h2>{% tr "finished_games" %}</h2>
+        <h2>{% tr "finished_games" %} <small>{{ finished_cards|length }}</small></h2>
 
         {% for card in finished_cards %}
             {% include 'games/_game_card.html' %}
@@ -39,4 +40,5 @@
 <p>{% tr "no_games" %}</p>
 {% endif %}
 
+</main>
 {% endblock %}
