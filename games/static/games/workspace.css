@@ -12,3 +12,16 @@
 .coach-exit-actions button{min-height:44px;padding:10px 14px}
 #coach-exit-confirm{background:transparent;border:1px solid #86704c;color:#ead5aa}
 @media(max-width:480px){#coach-exit-dialog{padding:20px}.coach-exit-actions{flex-direction:column}.coach-exit-actions button{width:100%}}
+
+/* A clear mobile header reserves its own space, above page titles and boards. */
+@media(max-width:900px){
+ body{padding-top:64px!important;box-sizing:border-box}
+ body::before{content:"";position:fixed;top:0;left:0;right:0;height:60px;background:#22271fee;border-bottom:1px solid #8a744b55;z-index:1200;pointer-events:none}
+ body .game-workspace{position:fixed!important;left:auto!important;right:12px!important;top:10px!important;bottom:auto!important;z-index:1300;width:max-content}
+ body .game-workspace #workspace-toggle{min-height:44px;padding:8px 12px;border-radius:9px;font-size:13px;box-shadow:none;cursor:pointer;touch-action:manipulation}
+ body .game-workspace #workspace-panel{top:62px!important;bottom:auto!important;right:10px!important;left:auto!important;width:min(345px,calc(100vw - 20px))!important;max-height:calc(100dvh - 80px)!important;border-radius:0 0 12px 12px;padding:14px;transform-origin:top;animation:workspace-drop-in .22s ease-out}
+ body .mobile-home-menu{padding-top:0!important}
+ body.mobile-nav-open .game-workspace{visibility:hidden}
+}
+@keyframes workspace-drop-in{from{opacity:0;transform:translateY(-12px)}to{opacity:1;transform:translateY(0)}}
+@media(prefers-reduced-motion:reduce){body .game-workspace #workspace-panel{animation:none}}

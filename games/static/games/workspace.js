@@ -26,6 +26,7 @@
     let drag = null;
     let suppressClick = false;
     function positionBubble(x, y) {
+        if (window.innerWidth <= 900) { positionPanel(); return {x:0, y:0}; }
         const box = toggle.getBoundingClientRect();
         x = Math.max(8, Math.min(x, window.innerWidth - box.width - 8));
         const minimumY = window.innerWidth <= 900 ? Math.min(112, window.innerHeight - box.height - 8) : 8;
@@ -40,7 +41,7 @@
         const width = Math.min(345, window.innerWidth - 24);
         const below = window.innerHeight - box.bottom - 16;
         const above = box.top - 16;
-        const opensBelow = below > above;
+        const opensBelow = window.innerWidth <= 900 || below > above;
         panel.style.maxHeight = Math.max(80, opensBelow ? below : above) + 'px';
         panel.style.width = width + 'px';
         panel.style.left = Math.max(12, Math.min(box.right - width, window.innerWidth - width - 12)) + 'px';
@@ -49,7 +50,7 @@
         panel.style.bottom = opensBelow ? 'auto' : (window.innerHeight - box.top + 8) + 'px';
     }
     toggle.addEventListener('pointerdown', event => {
-        if (event.button !== 0 || !event.isPrimary) return;
+        if (window.innerWidth <= 900 || event.button !== 0 || !event.isPrimary) return;
         const rect = toggle.getBoundingClientRect();
         drag = {id:event.pointerId, x:event.clientX, y:event.clientY, left:rect.left, top:rect.top, moved:false};
         suppressClick = false;
@@ -97,11 +98,13 @@
         registerBot();
     }
     function setOpen(open) {
+        if (open && window.innerWidth <= 900 && document.body.classList.contains('mobile-nav-open')) document.getElementById('mobile-nav-toggle')?.click();
         panel.hidden = !open;
         toggle.setAttribute('aria-expanded', String(open));
         write('open', open);
         positionPanel();
     }
+    document.getElementById('mobile-nav-toggle')?.addEventListener('click', () => { if (window.innerWidth <= 900) setOpen(false); });
     function section(label) { const heading = document.createElement('p'); heading.className = 'workspace-group'; heading.textContent = label; list.append(heading); }
     function card(url, title, subtitle, current, yourTurn) {
         const link = document.createElement('a'); link.href = url; link.className = 'workspace-game' + (yourTurn ? ' your-turn' : '');
