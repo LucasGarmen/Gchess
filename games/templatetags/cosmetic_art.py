@@ -73,3 +73,13 @@ def quick_play_words(lang):
         'pt':('Partida rápida','Buscamos um adversário disponível com Elo próximo. 5 min · sem alterar seu Elo. Visitantes: nível inicial 800.','Jogar agora','Entre para encontrar um adversário'),
         'en':('Quick match','Find an available opponent with a nearby Elo. 5 min · unrated. Guests start at level 800.','Play now','Sign in to find an opponent')}
     return dict(zip(('title','help','play','login'),words.get(lang,words['en'])))
+
+
+@register.simple_tag
+def home_hero_words(lang):
+    words={
+        'es':('Entrená con nuestro coach','Jugá ajedrez. Entendé cada jugada.','Elegí tu nivel, jugá y preguntale al coach cómo mejorar.','Entrenar con el coach','A tu ritmo · Desde principiante','Jugar una partida rápida','Con un rival disponible · 5 minutos','Jugá con amigos','Compartí una invitación y desafialos.','Practicá una posición','Puzzles, aperturas y ejercicios para mejorar.'),
+        'pt':('Treine com nosso coach','Jogue xadrez. Entenda cada lance.','Escolha seu nível, jogue e pergunte ao coach como melhorar.','Treinar com o coach','No seu ritmo · Desde iniciante','Jogar uma partida rápida','Com um adversário disponível · 5 minutos','Jogue com amigos','Compartilhe um convite e desafie seus amigos.','Pratique uma posição','Puzzles, aberturas e exercícios para melhorar.'),
+        'en':('Train with our coach','Play chess. Understand every move.','Choose your level, play and ask the coach how to improve.','Train with the coach','At your pace · Beginners welcome','Play a quick match','With an available opponent · 5 minutes','Play with friends','Share an invitation and challenge your friends.','Practice a position','Puzzles, openings and exercises to improve.')}
+    keys=('title','eyebrow','intro','coach','coach_hint','quick','quick_hint','friends','friends_help','practice','practice_help')
+    return dict(zip(keys,words.get(lang,words['en'])))

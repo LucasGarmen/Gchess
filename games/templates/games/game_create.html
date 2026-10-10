@@ -2,9 +2,9 @@
 {% load game_i18n static %}
 {% block title %}{% tr "new_game" %}{% endblock %}
 {% block content %}
-<link rel="stylesheet" href="{% static 'games/game_create.css' %}?v=2">
+<link rel="stylesheet" href="{% static 'games/game_create.css' %}?v=3">
 <main class="game-create-page create-refresh">
-    <header class="create-heading"><p>Gchess</p><h1>{% tr "new_game" %}</h1><p>{{ create_texts.intro }}</p></header>
+    <header class="create-heading"><h1>{% tr "create_game" %}</h1></header>
     <form method="POST" class="game-create-form create-layout" novalidate id="create-game-form">
         {% csrf_token %}
         <div class="create-options">
@@ -46,13 +46,9 @@
             </fieldset>
             <fieldset class="create-section"><legend>05 · {{ blindfold.mode }}</legend><label class="create-choice">{{ form.blindfold_only }}<span><strong>{{ blindfold.exclusive }}</strong><small>{{ blindfold.exclusive_help }}</small></span></label><p class="create-help">{{ blindfold.fair_help }}</p></fieldset>
         </div>
-        <aside class="create-summary" aria-label="{{ create_texts.summary }}">
-            <h2>{{ create_texts.summary }}</h2><p>{{ create_texts.ready }}</p>
-            <dl><dt>{% tr "opponent" %}</dt><dd id="create-summary-opponent">—</dd><dt>{% tr "game_type" %}</dt><dd id="create-summary-type">—</dd><dt>{% tr "piece_color" %}</dt><dd id="create-summary-color">—</dd><dt>{{ blindfold.mode }}</dt><dd id="create-summary-mode" data-normal="{{ blindfold.normal }}" data-blind="{{ blindfold.exclusive }}">{% if form.blindfold_only.value %}{{ blindfold.exclusive }}{% else %}{{ blindfold.normal }}{% endif %}</dd><dt>{{ create_texts.time }}</dt><dd id="create-summary-time">{{ create_texts.no_clock }}</dd></dl>
-            <button type="submit">{% tr "create_game" %} →</button>
-        </aside>
+        <div class="create-submit"><button type="submit">{% tr "create_game" %} →</button></div>
     </form>
 </main>
 {{ create_texts|json_script:"create-game-texts" }}
-<script src="{% static 'games/game_create.js' %}?v=2" defer></script>
+<script src="{% static 'games/game_create.js' %}?v=3" defer></script>
 {% endblock %}
