@@ -65,3 +65,11 @@ def entry_board(kind):
                 art=f'<img src="{escape(src)}" alt="" loading="lazy" draggable="false">'
             cells.append(f'<span class="entry-square {"entry-light" if (rank+file)%2 else "entry-dark"}">{art}</span>')
     return mark_safe('<div class="entry-mini-board" aria-hidden="true">'+''.join(cells)+'</div>')
+
+@register.simple_tag
+def quick_play_words(lang):
+    words={
+        'es':('Partida rápida','Buscamos un rival disponible con Elo cercano. 5 min · sin cambiar tu Elo.','Jugar ahora','Entrá para buscar rival'),
+        'pt':('Partida rápida','Buscamos um adversário disponível com Elo próximo. 5 min · sem alterar seu Elo.','Jogar agora','Entre para encontrar um adversário'),
+        'en':('Quick match','Find an available opponent with a nearby Elo. 5 min · unrated.','Play now','Sign in to find an opponent')}
+    return dict(zip(('title','help','play','login'),words.get(lang,words['en'])))

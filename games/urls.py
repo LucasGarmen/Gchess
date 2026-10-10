@@ -4,6 +4,7 @@ from . import openings, shop, matchmaking, blindfold, views, social, learning, w
 
 
 urlpatterns = [
+    path('play/quick/', matchmaking.quick_play, name='quick_play'),
     path('training/openings/', openings.catalog, name='openings'),
     path('training/openings/<slug:slug>/', openings.play, name='opening_play'),
     path('training/openings/<slug:slug>/step/', openings.step, name='opening_step'),

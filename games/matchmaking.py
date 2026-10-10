@@ -3,6 +3,8 @@ from datetime import timedelta
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
+from django.db.models import F, Value
+from django.db.models.functions import Abs, Coalesce
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
@@ -37,7 +39,9 @@ def match_search(user, invitation_id):
         peers = GameInvitation.objects.select_for_update().filter(pk__lt=own.pk, status='pending', opponent_mode='random', opponent__isnull=True, creator__isnull=False, creator__is_active=True, search_seen_at__gte=now-timedelta(seconds=LIVE_SECONDS), is_rated=own.is_rated, blindfold_only=own.blindfold_only, time_control_minutes=own.time_control_minutes).exclude(creator=user)
         if own.creator_color != 'random':
             peers = peers.filter(creator_color__in=['random', 'black' if own.creator_color == 'white' else 'white'])
-        peer = peers.order_by('pk').first()
+        from accounts.models import PlayerProfile
+        rating = PlayerProfile.objects.filter(user=user).values_list('elo', flat=True).first() or 1200
+        peer = peers.annotate(rating_gap=Abs(Coalesce(F('creator__player_profile__elo'), Value(1200)) - Value(rating))).order_by('rating_gap', 'pk').first()
         if peer is None:
             return own
         # A random preference must respect the other player's explicit color.
@@ -65,3 +69,14 @@ def search_tick(request, invitation_id):
     response = JsonResponse({'status':invitation.status, 'game_url':reverse('game_detail',args=[invitation.game_id]) if invitation.game_id else None})
     response['Cache-Control'] = 'private, no-store'
     return response
+
+@login_required
+@require_POST
+@rate_limit(10, 60, "quick-play")
+def quick_play(request):
+    from django.shortcuts import redirect
+    invitation = start_search(request.user, color='random', rated=False, blindfold=False, minutes=5)
+    invitation = match_search(request.user, invitation.pk)
+    if invitation.game_id:
+        return redirect('game_detail', game_id=invitation.game_id)
+    return redirect('game_invitation_wait', invitation_id=invitation.pk)

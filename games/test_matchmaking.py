@@ -103,3 +103,23 @@ class MatchmakingTests(TestCase):
         protected=Client(enforce_csrf_checks=True)
         protected.force_login(self.a)
         self.assertEqual(protected.post(reverse('search_tick',args=[first.pk])).status_code,403)
+
+    def test_closest_rating_is_chosen_before_older_search(self):
+        from accounts.models import PlayerProfile
+        near=User.objects.create_user('queue_near')
+        PlayerProfile.objects.update_or_create(user=self.a,defaults={'elo':1800})
+        PlayerProfile.objects.update_or_create(user=self.b,defaults={'elo':1000})
+        PlayerProfile.objects.update_or_create(user=near,defaults={'elo':1750})
+        self.search(self.b)
+        self.search(near)
+        own=self.search(self.a)
+        matched=match_search(self.a,own.pk)
+        self.assertEqual(matched.opponent,near)
+
+    def test_quick_play_starts_unrated_five_minute_search(self):
+        response=self.client.post(reverse('quick_play'))
+        invitation=GameInvitation.objects.get(creator=self.a,status='pending')
+        self.assertEqual(invitation.time_control_minutes,5)
+        self.assertFalse(invitation.is_rated)
+        self.assertRedirects(response,reverse('game_invitation_wait',args=[invitation.pk]),fetch_redirect_response=False)
+        self.assertEqual(self.client.get(reverse('quick_play')).status_code,405)
