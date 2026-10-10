@@ -1,0 +1,19 @@
+
+body.focus-playing{overflow:hidden!important}
+body.focus-playing>#site-nav,body.focus-playing>#mobile-nav-toggle,body.focus-playing>.game-workspace{visibility:hidden!important}
+.focus-play{position:fixed;inset:0;z-index:5000;background:#191c16;color:#ead7b5;display:grid;grid-template-columns:minmax(0,1fr) 290px;gap:20px;align-items:center;padding:60px 16px 20px;box-sizing:border-box;overflow:hidden}
+.focus-play-exit{position:absolute;right:12px;top:10px;width:40px;height:40px;margin:0;padding:0;font-size:28px;background:#30382a;color:#ecd9ad;border:1px solid #8b7650;border-radius:8px;cursor:pointer}
+.focus-play-board{display:flex;flex-direction:column;align-items:center;gap:8px;min-width:0}
+body .focus-play #board{width:var(--focus-board-size)!important;height:var(--focus-board-size)!important;max-width:none!important;margin:0!important;padding:0!important;box-sizing:content-box;border:0!important}
+body .focus-play .board-player-stage{width:var(--focus-board-size)!important;margin:44px 0!important;position:relative}
+body .focus-play .board-player-stage .board-player{right:0!important;bottom:-42px!important;width:38px!important;height:38px!important;top:auto!important}
+body .focus-play .board-player-stage[data-board-orientation="white"] [data-player-color="black"],body .focus-play .board-player-stage[data-board-orientation="black"] [data-player-color="white"]{top:-42px!important;bottom:auto!important}
+.focus-play-chat{min-width:0;max-height:calc(100dvh - 90px);overflow:auto}
+body .focus-play .coach-chat-dock,body .focus-play #game-chat-panel{position:static!important;display:block!important;transform:none!important;width:100%!important;max-width:none!important;max-height:none!important;margin:0!important;box-sizing:border-box}
+body .focus-play #game-chat-close{display:none}
+body .focus-play #game-chat-messages{max-height:45dvh;overflow:auto}
+body .focus-play .coach-chat-dock header{cursor:default}
+body .focus-play .board-coach-bubble{position:static!important;max-width:var(--focus-board-size)!important;margin:4px 0!important}
+.focus-play-toggle{font-size:21px!important;min-width:36px;padding:4px 8px!important}
+@media(max-width:900px){.focus-play{grid-template-columns:1fr;grid-template-rows:minmax(0,1fr) auto;gap:4px;padding:46px 8px 8px}.focus-play-chat{max-height:160px;width:100%}body .focus-play #game-chat-messages{max-height:65px}body .focus-play .coach-chat-dock{min-height:0!important}body .focus-play .coach-chat-dock [open]{max-height:90px;overflow:auto}.focus-play-board{gap:2px}body .focus-play .game-clock{display:flex;gap:14px;font-size:13px}.focus-play-exit{width:32px;height:32px;top:6px;right:8px}}
+body .focus-play #turn-indicator{display:block!important;margin:0!important;font-size:13px;color:#e6d4b0} body .focus-play .game-clock{display:flex!important;gap:12px;margin:0;padding:0;font-size:13px}

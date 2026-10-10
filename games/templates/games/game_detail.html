@@ -254,7 +254,7 @@
                     <button id="toggle-analysis-mode" class="analysis-mode-button" type="button">{% tr "analysis_mode" %}</button>
                     <button id="flip-board" class="icon-button" type="button" title="{% tr "flip_board" %}" aria-label="{% tr "flip_board" %}">↻</button>
                 </div>
-                <div class="board-player-stage" data-board-orientation="white">
+                <div class="board-player-stage" data-board-orientation="white" data-viewer-color="{{ player_color|default:'' }}">
                     <div id="board" class="board"></div>
                     <span class="board-player game-player-avatar" data-player-color="white" title="{{ game.white_player }}">{% player_avatar game.white_user game.white_player %}</span>
                     <span class="board-player game-player-avatar" data-player-color="black" title="{{ game.black_player }}">{% player_avatar game.black_user game.black_player %}</span>

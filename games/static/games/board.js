@@ -1973,7 +1973,7 @@ function appendGameChatMessage(message) {
     }
 
     const item = document.createElement('div');
-    const mine = message.mine || message.sender_id === currentUserId();
+    const mine = typeof message.mine === 'boolean' ? message.mine : (currentUserId() !== null && message.sender_id === currentUserId());
     item.className = mine ? 'game-chat-message game-chat-message-mine' : 'game-chat-message';
     item.dataset.messageId = message.id;
 
