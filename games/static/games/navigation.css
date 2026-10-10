@@ -109,3 +109,11 @@
  #site-nav .nav-submenu a,#site-nav .nav-submenu .nav-logout button{padding:7px 9px;min-height:32px;line-height:1.3}
  #site-nav .nav-submenu small{margin-top:2px;font-size:11px;line-height:1.3}
 }
+
+/* The signed-in account must occupy one row, just like the guest links. */
+#site-nav .nav-main-row .nav-account{display:grid;grid-template-columns:40px minmax(0,1fr);grid-template-rows:auto auto;column-gap:9px;row-gap:2px;align-items:center;padding:7px 10px}
+#site-nav .nav-account .nav-avatar{grid-row:1/3;width:40px;height:44px;display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0}
+#site-nav .nav-account .nav-avatar .gchess-avatar{display:block;width:40px;height:44px;max-width:100%}
+#site-nav .nav-account strong,#site-nav .nav-account small{grid-column:2;min-width:0;margin:0;line-height:1.25}
+#site-nav .nav-contact-links{min-height:44px}
+@media(min-width:1101px){#site-nav{background:#211f1b;height:100dvh;max-height:100dvh;box-sizing:border-box}#site-nav .nav-logout-last{flex-shrink:0;margin-top:8px}#site-nav .nav-sound{flex-shrink:0}}
