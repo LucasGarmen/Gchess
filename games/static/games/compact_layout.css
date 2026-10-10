@@ -1,0 +1,42 @@
+/* Keep secondary explanations optional without clipping page content. */
+.training-metrics > summary, .tournament-rules > summary {cursor:pointer;font-weight:600;min-height:44px;display:list-item;line-height:44px;color:var(--accent)}
+.training-metrics > summary:focus-visible,.tournament-rules > summary:focus-visible{outline:2px solid var(--accent);outline-offset:4px}
+.training-quick-grid{display:grid;gap:12px;margin:16px 0}
+.training-quick-grid .training-next{margin:0}
+@media(min-width:901px){
+ .training-page{margin:18px auto;max-width:1120px;padding:0 16px 24px}
+ .training-page .training-header{margin-bottom:16px;max-width:none}
+ .training-page .training-header h1{font-size:32px;margin:6px 0}
+ .training-page p{line-height:1.45}
+ .training-quick-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+ .training-quick-grid .training-next{flex-direction:column;align-items:stretch;gap:12px;padding:16px}
+ .training-quick-grid .training-next h2{font-size:19px}
+ .training-quick-grid .training-cta{margin-top:auto;text-align:center;min-height:44px;box-sizing:border-box}
+ .training-page .training-cards{grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+ .training-page .training-card{padding:16px}
+ .training-page .training-card h3{font-size:22px;margin-top:8px}
+ .training-page .training-card p{margin:8px 0}
+ .training-page .training-card details{margin-bottom:8px}
+ .training-page .training-progress,.training-page .training-guest,.training-page .training-metrics{padding:16px;margin:14px 0}
+ .training-page .training-records{margin-bottom:12px;gap:12px}
+ .training-page .training-next-goal{padding-top:10px}
+ .training-page h2{font-size:23px;margin-bottom:12px}
+ .learning-page{margin:18px auto;padding:0 18px 28px}
+ .learning-page>header h1{font-size:32px;margin:6px 0}
+ .learning-page>header p{margin:6px 0;line-height:1.45}
+ .learning-page .learning-panel{padding:16px;margin:12px 0}
+ .learning-page .learning-panel h2{margin:0 0 10px;font-size:23px}
+ .learning-page .learning-panel p{line-height:1.45;margin:8px 0}
+ .learning-page .learning-history-row{padding:10px 0;gap:12px}
+ .learning-page .learning-links{margin-top:10px;gap:12px}
+ .tournament-page .tournament-card{padding:16px;margin-top:12px;margin-bottom:12px}
+ .tournament-page .tournament-heading{margin-bottom:12px}
+ .tournament-page .tournament-card p{margin:8px 0;line-height:1.45}
+ .game-create-page.create-refresh{margin-top:18px}
+ .create-refresh .create-heading h1{margin:6px 0;font-size:32px}
+ .create-refresh .create-heading p{margin:6px 0}
+ .create-refresh .create-section{padding:12px 14px;margin-bottom:10px}
+ .create-refresh .create-help{margin:6px 0;line-height:1.4}
+}
+@media(min-width:901px) and (max-width:1150px){.training-page .training-cards{grid-template-columns:repeat(2,minmax(0,1fr))}.training-quick-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.training-quick-grid>.training-next:last-child{grid-column:1/-1}}
+@media(max-width:900px){.training-quick-grid{gap:10px}.training-quick-grid .training-next{padding:16px}.training-metrics{padding:16px}}
