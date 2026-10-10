@@ -58,6 +58,7 @@
             <div class="nav-main-row"><a class="nav-link nav-account" href="{% url 'profile_stats' %}"><span class="nav-avatar">{% include 'games/_avatar.html' with avatar=cosmetics.avatar accessory=cosmetics.accessory clothing=cosmetics.clothing face=cosmetics.face hairstyle=cosmetics.hairstyle eyewear=cosmetics.eyewear earrings=cosmetics.earrings %}</span><strong>{{ user.username }}</strong>{% if user.player_profile %}<small>{% tr "nav_elo" %} {{ user.player_profile.elo }}</small>{% endif %}</a><button class="nav-disclosure" type="button" aria-expanded="false" aria-controls="nav-account-options" aria-label="{{ user.username }}">›</button></div>
             <div id="nav-account-options" class="nav-submenu" hidden>
                 <a href="{% url 'profile_stats' %}">{% tr "nav_stats" %}</a>
+                <a href="{% url 'edit_profile' %}">{% tr "profile_edit" %}</a>
                 <a href="{% url 'profile_achievements' %}">{% tr "nav_achievements" %}</a>
                 <a href="{% url 'password_change' %}">{% tr "nav_change_password" %}</a>
             </div>

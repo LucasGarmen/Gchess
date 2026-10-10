@@ -155,3 +155,49 @@ def register(request):
     response = render(request, 'registration/register.html', {'form': form})
     response['Cache-Control'] = 'no-store'
     return response
+
+
+from datetime import timedelta
+from django.contrib.auth.decorators import login_required
+from django.db import transaction, IntegrityError
+from django.utils import timezone
+from .forms import ProfileNameForm
+from .profile_texts import TEXTS as PROFILE_TEXTS
+
+
+@login_required
+def edit_profile(request):
+    texts = PROFILE_TEXTS.get(current_language(request), PROFILE_TEXTS['pt'])
+    profile, _ = PlayerProfile.objects.get_or_create(user=request.user)
+    available_at = profile.username_changed_at + timedelta(days=30) if profile.username_changed_at else None
+    saved = request.GET.get('saved') == '1'
+    form = ProfileNameForm(request.POST if request.method == 'POST' else None,
+                           initial={'username': request.user.username}, user=request.user, texts=texts)
+    if request.method == 'POST' and form.is_valid():
+        try:
+            with transaction.atomic():
+                user = User.objects.select_for_update().get(pk=request.user.pk)
+                profile = PlayerProfile.objects.select_for_update().get(user=user)
+                available_at = profile.username_changed_at + timedelta(days=30) if profile.username_changed_at else None
+                name = form.cleaned_data['username']
+                if not user.check_password(form.cleaned_data['current_password']):
+                    form.add_error('current_password', texts['wrong'])
+                elif name != user.username and available_at and timezone.now() < available_at:
+                    form.add_error('username', texts['wait'].format(date=timezone.localtime(available_at).strftime('%d/%m/%Y %H:%M')))
+                elif User.objects.filter(username__iexact=name).exclude(pk=user.pk).exists():
+                    form.add_error('username', texts['duplicate'])
+                else:
+                    if name != user.username:
+                        user.username = name
+                        user.save(update_fields=['username'])
+                        profile.username_changed_at = timezone.now()
+                        profile.save(update_fields=['username_changed_at'])
+                    return redirect(reverse('edit_profile') + '?saved=1')
+        except IntegrityError:
+            form.add_error('username', texts['duplicate'])
+    response = render(request, 'registration/edit_profile.html', {
+        'form': form, 'profile_texts': texts, 'available_at': available_at,
+        'name_locked': bool(available_at and timezone.now() < available_at), 'saved': saved,
+    })
+    response['Cache-Control'] = 'no-store'
+    return response

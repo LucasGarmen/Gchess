@@ -43,6 +43,7 @@ ACHIEVEMENT_METRIC_CHOICES = (
 class PlayerProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='player_profile')
     elo = models.IntegerField(default=1200)
+    username_changed_at = models.DateTimeField(blank=True, null=True)
 
     def __str__(self):
         return f"{self.user.username} ({self.elo})"

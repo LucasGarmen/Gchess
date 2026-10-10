@@ -75,3 +75,28 @@ class RegisterForm(forms.Form):
             user.save()
 
         return user
+
+
+class ProfileNameForm(forms.Form):
+    from django.contrib.auth.validators import UnicodeUsernameValidator
+    username = forms.CharField(max_length=150, validators=[UnicodeUsernameValidator()], widget=forms.TextInput(attrs={'autocomplete': 'username'}))
+    current_password = forms.CharField(widget=forms.PasswordInput(attrs={'autocomplete': 'current-password'}))
+
+    def __init__(self, *args, user, texts, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.user = user
+        self.texts = texts
+        self.fields['username'].label = texts['name']
+        self.fields['current_password'].label = texts['password']
+
+    def clean_username(self):
+        name = self.cleaned_data['username'].strip()
+        if User.objects.filter(username__iexact=name).exclude(pk=self.user.pk).exists():
+            raise forms.ValidationError(self.texts['duplicate'])
+        return name
+
+    def clean_current_password(self):
+        value = self.cleaned_data['current_password']
+        if not self.user.check_password(value):
+            raise forms.ValidationError(self.texts['wrong'])
+        return value
