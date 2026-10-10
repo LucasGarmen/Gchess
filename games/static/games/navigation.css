@@ -51,3 +51,23 @@
 #site-nav .nav-main-row .nav-account{display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:3px}#site-nav .nav-account strong{max-width:100%}
 
 @media(max-width:900px){body:not(.mobile-nav-open) #site-nav > :not(.nav-brand){display:none!important}}
+
+#mobile-nav-backdrop{display:none}
+@media(max-width:900px){
+ body #site-nav{display:flex!important;position:fixed!important;inset:0 auto 0 0!important;width:min(300px,82vw)!important;height:100dvh!important;max-height:100dvh!important;box-sizing:border-box;padding:62px 14px 16px!important;overflow-y:auto!important;overflow-x:hidden!important;z-index:1500;background:#24251e;transform:translateX(-105%);visibility:hidden;transition:transform .24s ease,visibility .24s;box-shadow:8px 0 24px #0005;gap:0!important;margin:0!important}
+ body.mobile-nav-open #site-nav{transform:translateX(0);visibility:visible}
+ body:not(.mobile-nav-open) #site-nav > :not(.nav-brand){display:block!important}
+ body #site-nav>.nav-main-row,body #site-nav>.nav-group{width:100%!important;flex-shrink:0}
+ body #site-nav .nav-brand{justify-content:flex-start;width:100%;margin:0 0 8px;grid-column:auto}
+ body #site-nav .language-form{margin-top:12px;padding-top:10px}
+ body #site-nav .nav-submenu{position:static!important;width:100%!important;max-height:none;box-shadow:none;box-sizing:border-box}
+ body .mobile-nav-toggle,body .board-toolbar .mobile-nav-toggle{position:fixed!important;top:10px!important;left:12px!important;z-index:1600!important;display:inline-flex!important;align-items:center;gap:6px;min-width:44px;min-height:44px;width:auto!important;height:44px!important;margin:0!important;padding:6px 12px!important;border:1px solid #88734c!important;border-radius:22px!important;background:#292e23!important;color:#ecd7af!important;box-shadow:0 2px 8px #0004}
+ body .mobile-nav-arrow{font:28px/1 Georgia,serif;transform:none!important;transition:transform .24s ease}
+ body.mobile-nav-open .mobile-nav-arrow{transform:rotate(180deg)!important}
+ body .mobile-nav-label{font-size:12px}
+ body #mobile-nav-backdrop:not([hidden]){display:block;position:fixed;inset:0;width:100%;height:100dvh;margin:0;padding:0;border:0;border-radius:0;background:#0006;z-index:1400;animation:nav-backdrop-in .24s ease}
+ body.mobile-nav-open{overflow:hidden!important}
+ .mobile-home-menu{padding-top:44px;box-sizing:border-box}
+}
+@keyframes nav-backdrop-in{from{opacity:0}to{opacity:1}}
+@media(prefers-reduced-motion:reduce){body #site-nav,body .mobile-nav-arrow{transition:none}body #mobile-nav-backdrop{animation:none!important}}
