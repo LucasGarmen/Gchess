@@ -1704,7 +1704,10 @@ def profile_stats(request):
 
     finished_games = ChessGame.objects.filter(
         Q(white_user=request.user) | Q(black_user=request.user),
+        Q(white_user__isnull=False) | ~Q(white_guest_id=''),
+        Q(black_user__isnull=False) | ~Q(black_guest_id=''),
         status='finished', result__in=['white', 'black', 'draw'],
+        category__in=['casual', 'ranked'],
     )
     game_total = finished_games.count()
     game_wins = finished_games.filter(

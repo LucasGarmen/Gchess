@@ -12,6 +12,8 @@ class ProfileLayoutTests(TestCase):
             ChessGame.objects.create(white_user=user, black_user=rival, white_player="Player", black_player="Rival", status="finished", result=result)
         ChessGame.objects.create(owner=user, white_player="Imported", black_player="Game", status="finished", result="white")
         ChessGame.objects.create(white_user=user, black_user=rival, white_player="Player", black_player="Rival", status="draft")
+        ChessGame.objects.create(white_user=user, white_player="Player", black_player="Coach", status="finished", result="black", category="training")
+        ChessGame.objects.create(white_user=user, white_player="Player", black_player="Coach", status="finished", result="black", category="casual")
         self.client.force_login(user)
         response = self.client.get(reverse("profile_stats"))
         self.assertEqual(response.status_code, 200)

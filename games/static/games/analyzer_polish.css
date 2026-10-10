@@ -92,3 +92,5 @@ body.mobile-analyzer-playing .analyzer-game-layout .analyzer-review-controls but
 
 
 @media(min-width:901px){.analyzer-create-page{margin:12px auto!important}.analyzer-create-page .analyzer-steps{margin:10px 0}.analyzer-create-page .form-card{padding:14px 18px}.analyzer-create-page #pgn{height:clamp(110px,calc(100vh - 460px),180px)!important;min-height:110px!important}.analyzer-create-page .analyzer-color-field{margin-bottom:10px}.analyzer-create-page .analyzer-input-help{margin:6px 0}}
+
+.analyzer-intro h1 .analyzer-format-label{display:inline-block;font-family:inherit;font-size:12px;font-weight:400;letter-spacing:.04em;vertical-align:middle;color:#bdb5a3;border:1px solid #e5cea12b;border-radius:5px;padding:3px 6px;margin-left:6px}
