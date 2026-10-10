@@ -1,69 +1,17 @@
-{% extends 'games/base.html' %}
-{% load game_i18n %}
+{% extends 'games/base.html' %}{% load static game_i18n %}
 {% block title %}{% tr 'nav_training' %} · Gchess{% endblock %}
 {% block content %}
-<main class="training-page">
-    <header class="training-header">
-        <span class="stats-eyebrow brand-label">Gchess</span>
-        <h1>{% tr 'training_title' %}</h1>
-        <p>{% tr 'training_intro' %}</p>
-    </header>
-    <div class="training-quick-grid">
-    <section class="training-next" aria-labelledby="training-next-title">
-        <div><h2 id="training-next-title">{{ dt.title }}</h2><p>{{ dt.intro }}</p>{% if today_training.completed_at %}<strong>{{ dt.done }}</strong>{% endif %}</div>
-        <a class="training-cta" href="{% url 'daily_training' %}">{% if today_training.completed_at %}{{ dt.done }}{% elif today_training %}{{ dt.continue }}{% else %}{{ dt.start }}{% endif %} →</a>
-    </section>
-    <section class="training-next"><div><h2>{{ weekly.title }}</h2><p>{{ weekly.intro }}</p></div><a class="training-cta" href="{% url 'weekly_challenge' %}">{{ weekly.start }} →</a></section>
-    <section class="training-next"><div><h2>{{ opening_nav.title }}</h2><p>{{ opening_nav.intro }}</p></div><a class="training-cta" href="{% url 'openings' %}">{{ opening_nav.choose }} →</a></section>
-    </div>
-    <section aria-labelledby="training-modes-title">
-        <h2 id="training-modes-title">{% tr 'training_modes' %}</h2>
-        <div class="training-cards">
-            {% for mode in training_modes %}
-            <article class="training-card training-card-{{ mode.route }}">
-                <span class="training-goal">{{ mode.goal }}</span>
-                <h3>{{ mode.title }}</h3>
-                <p>{{ mode.summary }}</p>
-                <details><summary>{% tr 'training_rules' %}</summary><p class="training-card-rules">{{ mode.rules }}</p><p>{{ mode.progress }}</p></details>
-                {% if mode.account_required and not user.is_authenticated %}
-                    <span class="training-account">{% tr 'training_account' %}</span>
-                    <a class="training-card-link" href="{% url 'login' %}?next={% url mode.route %}">{% tr 'nav_login' %} →</a>
-                {% else %}
-                    <a class="training-card-link" href="{% url mode.route %}">{% if mode.route == 'daily_puzzle' and daily_completed %}{% tr 'training_daily_result' %}{% elif mode.route == 'daily_puzzle' and daily_in_progress %}{% tr 'training_continue' %}{% else %}{% tr 'training_start' %}{% endif %} →</a>
-                {% endif %}
-            </article>
-            {% endfor %}
-        </div>
-    </section>
-    {% if user.is_authenticated %}
-    <section class="training-progress" aria-labelledby="training-progress-title">
-        <h2 id="training-progress-title">{% tr 'training_progress' %}</h2>
-        <dl class="training-records">
-            <div><dt>{% tr 'xp_level' %}</dt><dd>{{ training_stats.nivel }} <small>· {{ training_stats.xp_total }} XP</small></dd></div>
-            <div><dt>{% tr 'stats_puzzle_rating' %}</dt><dd>{{ training_stats.puzzle_rating }}</dd></div>
-            <div><dt>{% tr 'training_record_blitz' %}</dt><dd>{{ training_blitz.score|default:0 }}</dd></div>
-            <div><dt>{% tr 'training_record_streak' %}</dt><dd>{{ training_streak.mejor_racha|default:0 }}</dd></div>
-        </dl>
-        <div class="training-next-goal">
-            <h3>{% tr 'training_goal' %}</h3>
-            {% if training_goal %}
-                <p>{% tr 'training_goal_help' %} <strong>{{ training_stats.puzzles_correctos }} / {{ training_goal }}</strong></p>
-                <progress value="{{ training_stats.puzzles_correctos }}" max="{{ training_goal }}">{{ training_stats.puzzles_correctos }} / {{ training_goal }}</progress>
-            {% else %}<p>{% tr 'training_goal_done' %}</p>{% endif %}
-            <a href="{% url 'profile_achievements' %}">{% tr 'nav_achievements' %} →</a>
-            <a href="{% url 'profile_stats' %}">{% tr 'nav_stats' %} →</a>
-        </div>
-    </section>
-    {% else %}<section class="training-guest"><p>{% tr 'training_guest' %}</p><a href="{% url 'register' %}">{% tr 'nav_register' %} →</a></section>{% endif %}
-    <details class="training-metrics" id="training-metrics">
-        <summary>{% tr 'training_metrics' %}</summary>
-        <dl>
-            <div><dt>XP · {% tr 'xp_level' %}</dt><dd>{% tr 'training_xp_help' %}</dd></div>
-            <div><dt>{% tr 'stats_puzzle_rating' %}</dt><dd>{% tr 'training_rating_help' %}</dd></div>
-            <div><dt>Blitz · {% tr 'streak_title' %}</dt><dd>{% tr 'training_records_help' %}</dd></div>
-            <div><dt>{% tr 'home_hub_streak' %}</dt><dd>{% tr 'training_sequence_help' %}</dd></div>
-        </dl>
-        <a href="{% url 'leaderboard' %}">{% tr 'nav_leaderboard' %} →</a>
-    </details>
-</main>
-{% endblock %}
+<link rel="stylesheet" href="{% static 'games/training_hub.css' %}?v=2">
+<main class="training-hub">
+<header><h1>{{ training_hub.title }}</h1><p>{{ training_hub.intro }}</p></header>
+<section class="training-hub-recommended"><div><small>{{ training_hub.recommended }}</small><h2>{{ dt.title }}</h2><p>{{ dt.intro }}</p></div><a href="{% url 'daily_training' %}">{% if today_training.completed_at %}{{ dt.done }}{% elif today_training %}{{ dt.continue }}{% else %}{{ dt.start }}{% endif %} →</a></section>
+<div class="training-hub-choices">
+<a href="{% url 'practice' %}"><span aria-hidden="true">♞</span><div><h2>{{ training_hub.practice }}</h2><p>{{ training_hub.practice_help }}</p></div><b aria-hidden="true">→</b></a>
+<a href="{% url 'openings' %}"><span aria-hidden="true">♟</span><div><h2>{{ training_hub.openings }}</h2><p>{{ training_hub.openings_help }}</p></div><b aria-hidden="true">→</b></a>
+</div>
+<details class="training-hub-more" id="training-more"><summary>{{ training_hub.more }}</summary><div class="training-hub-challenges">
+<a href="{% url 'weekly_challenge' %}"><strong>{{ weekly.title }}</strong><span>{{ weekly.intro }}</span><b>→</b></a>
+{% for mode in training_modes %}{% if mode.route != 'practice' %}<a href="{% url mode.route %}"><strong>{{ mode.title }}</strong><span>{{ mode.summary }}</span><b>→</b></a>{% endif %}{% endfor %}
+</div></details>
+{% if user.is_authenticated %}<a class="training-hub-progress" href="{% url 'learning' %}">{{ training_hub.progress }} →</a>{% else %}<p class="training-hub-guest">{% tr 'training_guest' %} <a href="{% url 'register' %}">{% tr 'nav_register' %} →</a></p>{% endif %}
+</main><script>(()=>{const reveal=()=>{if(location.hash==="#training-more")document.getElementById("training-more").open=true;};reveal();window.addEventListener("hashchange",reveal);})();</script>{% endblock %}
