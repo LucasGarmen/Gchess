@@ -8,6 +8,17 @@
     }
     openSelectedCategory();
     window.addEventListener('hashchange', openSelectedCategory);
+    document.addEventListener('click', function (event) {
+        var link = event.target.closest('.shop-loadout-link');
+        if (!link) return;
+        var category = document.getElementById(link.hash.slice(1));
+        if (!category) return;
+        event.preventDefault();
+        category.open = true;
+        window.history.replaceState(null, '', link.hash);
+        category.scrollIntoView({behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start'});
+        category.querySelector('summary').focus({preventScroll: true});
+    });
     // Native POST remains the fallback. Enhanced saves refresh server-rendered previews
     // without navigating away from the catalog or losing the open categories.
     document.addEventListener('submit', async function (event) {

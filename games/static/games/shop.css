@@ -80,3 +80,5 @@ body:has(.shop-page){overflow-x:clip;overflow-y:visible}
 .shop-locked .shop-preview{filter:grayscale(.85) brightness(.48);opacity:.65}
 .shop-locked .shop-item-label,.shop-locked .shop-item-state{color:#8e8a7d}
 .shop-card-avatar.shop-locked .shop-item-button:disabled{background:transparent}
+
+.shop-equipped-panel .shop-loadout-link{display:inline-flex;align-items:center;gap:6px;min-height:44px;color:#ecd3a3;text-decoration:none;border-radius:4px}.shop-loadout-link:hover{color:#fff0c9;text-decoration:underline;text-underline-offset:4px}.shop-loadout-link:focus-visible{outline:2px solid #d9b970;outline-offset:3px}.shop-loadout-link>span{color:#bca16f;font-size:14px}

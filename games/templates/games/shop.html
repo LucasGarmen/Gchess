@@ -4,12 +4,13 @@
 <main class="shop-page" data-save-error="{{ shop_texts.save_error }}" data-saving="{{ shop_texts.saving }}"><header><p>Gchess</p><h1>{{ shop_texts.title }}</h1><p>{{ shop_texts.intro }}</p></header>
 <div class="shop-equipped-panel"><h2>{{ shop_texts.collection }}</h2>
 <section class="shop-loadout" aria-label="{{ shop_texts.collection }}">
-<article><div class="loadout-art">{% include 'games/_avatar.html' with avatar=cosmetics.avatar accessory=cosmetics.accessory clothing=cosmetics.clothing face=cosmetics.face hairstyle=cosmetics.hairstyle eyewear=cosmetics.eyewear earrings=cosmetics.earrings framing="bust" %}</div><h3>{{ shop_texts.your_avatar }}</h3></article>
-<article><div class="loadout-art"><div class="shop-board theme-{{ cosmetics.board }}">{% include 'games/_shop_board.html' %}</div></div><h3>{{ shop_texts.your_board }}</h3><p>{{ cosmetic_names.board }}</p></article>
-<article><div class="loadout-art">{% include 'games/_shop_pieces.html' with piece_style=cosmetics.pieces %}</div><h3>{{ shop_texts.your_pieces }}</h3><p>{{ cosmetic_names.pieces }}</p></article>
+<article><div class="loadout-art">{% include 'games/_avatar.html' with avatar=cosmetics.avatar accessory=cosmetics.accessory clothing=cosmetics.clothing face=cosmetics.face hairstyle=cosmetics.hairstyle eyewear=cosmetics.eyewear earrings=cosmetics.earrings framing="bust" %}</div><h3><a class="shop-loadout-link" href="#shop-avatar">{{ shop_texts.your_avatar }} <span aria-hidden="true">↓</span></a></h3></article>
+<article><div class="loadout-art"><div class="shop-board theme-{{ cosmetics.board }}">{% include 'games/_shop_board.html' %}</div></div><h3><a class="shop-loadout-link" href="#shop-board">{{ shop_texts.your_board }} <span aria-hidden="true">↓</span></a></h3><p>{{ cosmetic_names.board }}</p></article>
+<article><div class="loadout-art">{% include 'games/_shop_pieces.html' with piece_style=cosmetics.pieces %}</div><h3><a class="shop-loadout-link" href="#shop-pieces">{{ shop_texts.your_pieces }} <span aria-hidden="true">↓</span></a></h3><p>{{ cosmetic_names.pieces }}</p></article>
 </section>
 <p class="shop-feedback" role="status" aria-live="polite">{% if just_saved %}✓ {{ shop_texts.saved }}{% endif %}</p></div>
 {% for group in shop_groups %}<details class="shop-category" id="shop-{{ group.kind }}"><summary>{{ group.label }} <span>{{ group.cards|length }}</span></summary>{% if group.sections %}{% for section in group.sections %}<h3 class="shop-subtitle">{{ section.label }}</h3><div class="shop-grid">{% for card in section.cards %}{% include 'games/_shop_card.html' %}{% endfor %}</div>{% endfor %}{% else %}<div class="shop-grid">{% for card in group.cards %}{% include 'games/_shop_card.html' %}{% endfor %}</div>{% endif %}</details>{% endfor %}
 </main>
-<script src="{% static 'games/shop.js' %}?v=4" defer></script>
+<script src="{% static 'games/shop.js' %}?v=5" defer></script>
 {% endblock %}
+
