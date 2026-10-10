@@ -106,3 +106,8 @@ body .home-computer-layout .board-wrapper:has(.board-player-stage),body.online-g
  body .home-computer-layout .board-wrapper:has(.board-player-stage),body.online-game-detail-page .board-wrapper:has(.board-player-stage){padding-right:60px!important}
  body.mobile-bot-playing .home-computer-layout:has(.board-player-stage),body .online-game-layout:has(.board-player-stage){--mobile-board-size:calc(100vw - 122px)!important;--mobile-square-size:calc(var(--mobile-board-size)/8)!important;--mobile-board-chrome:90px!important}
 }
+
+/* Medium circular player badges, with no second halo inside the artwork. */
+.board-player-stage .board-player{width:60px;height:60px;right:-72px;border-radius:50%;padding:2px;background:#2b3427}
+.board-player-stage .board-player .gchess-avatar[data-framing="bust"]{clip-path:none;object-fit:contain}
+@media(max-width:900px){.board-player-stage .board-player{width:44px;height:44px;right:-52px;border-radius:50%;padding:1px}}

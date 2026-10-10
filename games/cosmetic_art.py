@@ -177,7 +177,7 @@ def avatar_art(avatar,hat,cloth,face,hairstyle,lenses,ears,framing):
     # Species use a common eye/jaw rig. Wider heads receive their own headwear scale.
     scale=1.07 if avatar in ('alien','robot','dinosaur','crocodile','elephant','hippo','gorilla','croc_safari') else 1
     hat_transform=f'translate(80 40) scale({scale}) translate(-80 -40)'
-    silhouette=circle(80,66,52,'#25312b','#988052',1)
+    silhouette=''  # The surrounding UI supplies the avatar background.
     silhouette+=f'<g data-slot="clothing">{clothing(cloth)}</g>'+path('M66 97V114Q80 126 94 114V97Z',SPECIES.get(avatar,'#c79169'),'none')
     silhouette+=f'<g data-slot="head">{head(avatar)}</g>'
     silhouette+=f'<g data-slot="hair-front">{default_hair(avatar) if hairstyle=="none" else hair(hairstyle)}</g>'
