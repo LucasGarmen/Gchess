@@ -413,3 +413,12 @@ class CosmeticLoadout(models.Model):
     hairstyle = models.CharField(max_length=20, default='none', choices=CHOICES['hairstyle'])
     eyewear = models.CharField(max_length=20, default='none', choices=CHOICES['eyewear'])
     earrings = models.CharField(max_length=20, default='none', choices=CHOICES['earrings'])
+
+
+class DailyCheckin(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='daily_checkins')
+    date = models.DateField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        constraints = [models.UniqueConstraint(fields=['user', 'date'], name='daily_checkin_user_date')]

@@ -1,6 +1,7 @@
 {% extends 'games/base.html' %}{% load static %}
 {% block title %}{{ shop_texts.title }} · Gchess{% endblock %}
 {% block content %}
+{% include "games/_daily_checkin.html" with checkin_destination="shop" %}
 <main class="shop-page" data-save-error="{{ shop_texts.save_error }}" data-saving="{{ shop_texts.saving }}"><header><p>Gchess</p><h1>{{ shop_texts.title }}</h1><p>{{ shop_texts.intro }}</p></header>
 <div class="shop-equipped-panel"><h2>{{ shop_texts.collection }}</h2>
 <section class="shop-loadout" aria-label="{{ shop_texts.collection }}">

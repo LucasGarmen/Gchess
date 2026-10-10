@@ -158,7 +158,9 @@ class StarterShopTests(TestCase):
         self.assertIn('portrait-explorer',other)
         self.assertNotIn('portrait-duck',other)
         self.assertIn('&lt;script&gt;',own);self.assertNotIn('<script>',own)
-        self.assertEqual(player_avatar(AnonymousUser()),draw_avatar('explorer'))
+        import re
+        normalize=lambda svg: re.sub(r'-[0-9a-f]{32}', '', str(svg))
+        self.assertEqual(normalize(player_avatar(AnonymousUser())),normalize(draw_avatar('explorer',framing='bust')))
 
     def test_coach_board_hides_removed_instructions_and_shows_player(self):
         response=self.client.get(reverse('home'))

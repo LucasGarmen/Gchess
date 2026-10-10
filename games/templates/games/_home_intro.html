@@ -22,4 +22,5 @@
         <a href="{% url 'training' %}">{% entry_board "train" %}<span><strong>{{ hero.practice }}</strong><small>{{ hero.practice_help }}</small></span><span class="home-path-arrow" aria-hidden="true">→</span></a>
     </div>
 </section>
+{% include "games/_daily_checkin.html" %}
 {% include "games/_home_elo.html" %}

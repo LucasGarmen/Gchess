@@ -1,0 +1,6 @@
+{% if user.is_authenticated %}
+<section class="daily-checkin" aria-label="{{ checkin_words.claim }}">
+<strong>{{ checkin_balance }} {{ checkin_words.points }}</strong>
+{% if checkin_claimed %}<span role="status">✓ {{ checkin_words.claimed }}</span>{% else %}
+<form method="post" action="{% url 'daily_checkin' %}">{% csrf_token %}<input type="hidden" name="destination" value="{{ checkin_destination|default:'home' }}"><button type="submit" title="{{ checkin_words.reset }}">{{ checkin_words.claim }}</button></form>
+{% endif %}</section>{% endif %}

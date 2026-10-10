@@ -1,9 +1,10 @@
 from django.urls import path
 from .views import home, games_list, game_detail, game_create,save_move
-from . import openings, shop, matchmaking, blindfold, views, social, learning, workspace, tournaments, daily_training, weekly, review_practice, notices
+from . import checkin, openings, shop, matchmaking, blindfold, views, social, learning, workspace, tournaments, daily_training, weekly, review_practice, notices
 
 
 urlpatterns = [
+    path('rewards/checkin/', checkin.claim, name='daily_checkin'),
     path('play/quick/', matchmaking.quick_play, name='quick_play'),
     path('training/openings/', openings.catalog, name='openings'),
     path('training/openings/<slug:slug>/', openings.play, name='opening_play'),
