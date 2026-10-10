@@ -60,3 +60,33 @@ body.mobile-analyzer-playing .analyzer-game-layout .analyzer-review-controls{dis
 body.mobile-analyzer-playing .analyzer-game-layout .analyzer-review-controls button{width:44px;min-height:42px;font-size:20px;padding:4px;flex:none}
 #analyzer-position-counter{text-align:center;font-size:13px;color:#dfc899;font-variant-numeric:tabular-nums}
 @media(min-width:901px){body.mobile-analyzer-playing .analyzer-game-layout{--analyzer-board-size:min(560px,calc(100svh - 210px),calc(100vw - 620px));grid-template-columns:calc(var(--analyzer-board-size) + 40px) 300px;max-width:max-content;gap:16px;margin:16px auto}.analyzer-review-header{max-width:916px;margin:18px auto 0}}
+
+/* PGN entry scales with the viewport; long review content stays accessible. */
+@media(min-width:901px){
+ .analyzer-create-page{margin:16px auto!important;max-width:850px!important;box-sizing:border-box}
+ .analyzer-create-page .analyzer-intro h1{font-size:30px;margin:6px 0 8px}
+ .analyzer-create-page .analyzer-intro p{line-height:1.45}
+ .analyzer-create-page .analyzer-steps{margin:14px 0}
+ .analyzer-create-page .form-card{padding:18px 20px}
+ .analyzer-create-page .analyzer-color-field{margin-bottom:14px}
+ .analyzer-create-page #pgn{min-height:120px;height:clamp(120px,calc(100svh - 410px),300px);padding:12px;line-height:1.5}
+ .analyzer-create-page .form-card>button{margin-top:12px}
+ body.mobile-analyzer-playing .analyzer-game-layout .analyzer-side{min-width:0;max-height:calc(100svh - 110px);overflow-y:auto;scrollbar-width:thin;overscroll-behavior:contain;padding-right:4px}
+ body.mobile-analyzer-playing .analyzer-game-layout .trainer-chat-log{height:clamp(80px,calc(100svh - 540px),150px);min-height:80px}
+ body.mobile-analyzer-playing .analyzer-game-layout .trainer-chat label{margin:6px 0}
+ body.mobile-analyzer-playing .analyzer-game-layout .trainer-suggestions{gap:6px;margin-bottom:8px}
+}
+
+@media(min-width:901px){
+ .analyzer-create-page #pgn{height:clamp(140px,22vh,220px)!important;min-height:140px!important;margin:0}
+ .analyzer-create-page .analyzer-color-field label,.analyzer-create-page .analyzer-input-heading label{padding:0;line-height:1.4}
+ .analyzer-create-page .analyzer-color-field select{min-height:40px;padding:8px 12px;margin:0}
+ .analyzer-create-page .analyzer-color-field{gap:6px 16px}
+ .analyzer-create-page .analyzer-input-heading .analyzer-file-button{padding:8px 12px}
+}
+
+@media(min-width:901px){
+ body.mobile-analyzer-playing .analyzer-game-layout{--analyzer-board-size:min(560px,calc(100vh - 300px),calc(100vw - 620px));margin-top:12px;margin-bottom:12px}
+ body.mobile-analyzer-playing .analyzer-game-layout .analyzer-side{max-height:calc(100vh - 160px)}
+}
+

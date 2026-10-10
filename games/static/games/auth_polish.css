@@ -7,3 +7,25 @@
 .auth-modern .auth-secondary-link{margin:6px 0 16px;font-size:13px}.auth-modern a{color:#e2c590;text-decoration:underline;text-underline-offset:3px}.auth-modern a:hover{color:#f4dfb5}.auth-modern .auth-card>button[type=submit]{width:100%;min-height:46px;margin:12px 0 0;border:1px solid #e4cda0;border-radius:8px;background:#dcc18c;color:#30291d;font-weight:600;font-size:15px}.auth-modern .auth-card>button[type=submit]:hover{background:#efdbb3;color:#30291d}
 .auth-modern .auth-switch{border-top:1px solid #8a744c50;padding-top:16px;margin:18px 0 0;text-align:center;font-size:13px;line-height:1.7;color:#c7baa0}.auth-modern .field-help{font-size:12px;line-height:1.5;color:#c2b498;margin:7px 0 0}.auth-modern .field-error,.auth-modern .form-errors{color:#f2c0a6;font-size:13px;line-height:1.5;overflow-wrap:anywhere}.auth-modern .form-errors{background:#49342a;border:1px solid #a96f5255;border-radius:8px;padding:10px 12px;margin:0 0 16px}.auth-modern .errorlist{margin:0;padding-left:18px}.auth-modern .field-error{margin:6px 0 0}
 @media(max-width:650px){.auth-modern.auth-page{margin:18px auto 80px;padding:0 8px}.auth-modern .auth-card.form-card{padding:20px}.auth-modern .auth-heading h1{font-size:28px}.auth-modern .auth-emblem{width:48px;height:48px}}
+
+/* Desktop account screens use width before asking for extra height. */
+@media(min-width:901px){
+ .auth-modern.auth-page{margin:18px auto 20px}
+ .auth-modern .auth-card.form-card{padding:20px 24px}
+ .auth-modern .auth-heading{margin-bottom:16px}
+ .auth-modern .auth-heading h1{font-size:28px;margin:6px 0}
+ .auth-modern .auth-emblem{width:42px;height:42px;margin-bottom:4px}
+ .auth-modern .form-field{margin-bottom:12px}
+ .auth-modern .auth-switch{padding-top:12px;margin-top:14px}
+ .auth-modern.auth-registration{max-width:680px}
+ .auth-registration .auth-card{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 20px}
+ .auth-registration .auth-heading,.auth-registration .form-errors,.auth-registration .password-toggle,.auth-registration button[type=submit],.auth-registration .auth-switch{grid-column:1/-1}
+ .auth-registration .form-field{min-width:0}
+ .auth-registration .field-help{line-height:1.4}
+}
+@media(min-width:901px) and (max-height:720px){
+ .auth-modern.auth-page{margin:12px auto}
+ .auth-modern .auth-heading{margin-bottom:12px}
+ .auth-modern .auth-secondary-link{margin-bottom:8px}
+ .auth-modern .auth-card>button[type=submit]{margin-top:6px}
+}
