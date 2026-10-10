@@ -1,9 +1,9 @@
 {% extends 'games/base.html' %}
 {% load static %}
 {% block title %}{{ s.title }} · Gchess{% endblock %}
-{% block content %}
+{% block content %}{% load interface_icons %}
 <main class="social-page friends-page">
-<header><p class="eyebrow">Gchess · {{ s.title }}</p><h1>{{ s.title }}</h1><p>{{ s.intro }}</p></header>
+<header><p class="eyebrow">Gchess · {{ s.title }}</p><h1>{% ui_icon 'friends' %}{{ s.title }}</h1><p>{{ s.intro }}</p></header>
 
 {% if feedback %}<p class="social-feedback" role="status">{{ feedback }}</p>{% endif %}
 <section class="social-panel friends-search"><h2>{{ s.search }}</h2>

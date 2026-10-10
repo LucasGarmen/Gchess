@@ -1,0 +1,26 @@
+/* One restrained visual vocabulary, with readable text and compact spacing. */
+.ui-icon{display:inline-block;width:20px;height:20px;flex:0 0 20px;vertical-align:-4px;fill:none;stroke:currentColor;stroke-width:1.65;stroke-linecap:round;stroke-linejoin:round;pointer-events:none}
+#site-nav .nav-link:not(.nav-account){display:flex!important;align-items:center;gap:9px;font-size:13px;line-height:1.25;font-weight:550}
+#site-nav .nav-link .ui-icon{width:18px;height:18px;flex-basis:18px;color:#c7aa73}
+#site-nav .ui-link-label{min-width:0;overflow-wrap:break-word}
+#site-nav .nav-submenu a{display:flex;align-items:center;gap:9px;font-size:13px}
+#site-nav .nav-submenu .ui-icon{width:17px;height:17px;flex-basis:17px;color:#bfa575}
+#site-nav .nav-link:hover,#site-nav .nav-link:focus-visible,#site-nav .nav-submenu a:hover,#site-nav .nav-submenu a:focus-visible{color:#f1deba;background:#353b2c}
+#site-nav .nav-link[aria-current="page"]{color:#f5e2b9;background:#343a2b;box-shadow:inset 3px 0 #c5a76a}
+#site-nav .nav-link[aria-current="page"] .ui-icon{color:#eed49a}
+#site-nav .nav-home-link{font-weight:750!important}
+body #site-nav .nav-logout-last button{display:flex;align-items:center;gap:9px}
+#site-nav .nav-logout-last .ui-icon{width:15px;height:15px;flex-basis:15px}
+main h1>.ui-icon{width:27px;height:27px;vertical-align:-3px;margin-right:10px;color:#cbae76}
+.training-hub .ui-feature-icon{display:flex;align-items:center;justify-content:center;flex:0 0 48px;width:48px;height:48px;border:1px solid #a58b5955;border-radius:12px;background:#353e2e;color:#d8bd83}
+.training-hub .ui-feature-icon .ui-icon{width:29px;height:29px;flex-basis:29px}
+.training-hub .training-hub-recommended{gap:14px;padding:16px}
+.training-hub .training-hub-recommended>div{flex:1}
+.training-hub .training-hub-choices>a{gap:12px;padding:15px}
+.training-hub .training-hub-choices h2{font-size:21px;margin:2px 0 5px}
+.training-hub .training-hub-progress{display:inline-flex;align-items:center;gap:8px;font-size:14px}
+.home-welcome .home-hero-actions .ui-icon{width:22px;height:22px;flex-basis:22px}
+.training-hub header p,.games-directory-heading p{max-width:58ch}
+@media(min-width:1101px){#site-nav>.nav-main-row,#site-nav .nav-main-row .nav-link,#site-nav .nav-disclosure{min-height:36px}#site-nav>.nav-main-row,#site-nav .nav-main-row .nav-link:not(.nav-account){padding:8px 9px}#site-nav .nav-submenu a{min-height:34px;padding:7px 8px}}
+@media(max-width:900px){#site-nav .nav-link:not(.nav-account){font-size:14px;min-height:44px}#site-nav .nav-submenu a{min-height:44px;font-size:14px}.training-hub .training-hub-recommended{display:grid;grid-template-columns:48px minmax(0,1fr);gap:12px}.training-hub .training-hub-recommended>a{grid-column:1/-1}.training-hub .training-hub-recommended>div{width:auto}.training-hub .training-hub-choices h2{font-size:20px}.training-hub .ui-feature-icon{width:44px;height:44px;flex-basis:44px}}
+@media(min-width:1101px) and (max-height:680px){#site-nav .nav-link:not(.nav-account){font-size:12.5px}#site-nav>.nav-main-row,#site-nav .nav-main-row .nav-link,#site-nav .nav-disclosure{min-height:32px}#site-nav>.nav-main-row,#site-nav .nav-main-row .nav-link:not(.nav-account){padding:6px 9px}}

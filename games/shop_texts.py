@@ -10,6 +10,12 @@ for labels in NAMES.values():labels['avatar'].insert(3,labels['avatar'].pop(8))
 for lang,labels in {'es':('Toro','Cuervo'),'pt':('Touro','Corvo'),'en':('Bull','Raven')}.items():
     for item,label in zip(('bull','raven'),labels):
         NAMES[lang]['avatar'].insert(FREE_ITEMS['avatar'].index(item),label)
+# Collection keys remain stable so existing equipment keeps working.
+for lang,labels in {
+ 'es':['Rústicas','Talladas','Minimalistas','Imperiales','Armaduras','Robots','Mecanismos','Esqueletos','Porcelana','Bambú','Dragones','Abisales','Hechiceros','Volcánicas','Cristales','Jardín','Gladiadores','Fantasmas','Piratas','Desierto'],
+ 'pt':['Rústicas','Entalhadas','Minimalistas','Imperiais','Armaduras','Robôs','Mecanismos','Esqueletos','Porcelana','Bambu','Dragões','Abissais','Feiticeiros','Vulcânicas','Cristais','Jardim','Gladiadores','Fantasmas','Piratas','Deserto'],
+ 'en':['Rustic','Carved','Minimal','Imperial','Armored','Robots','Clockwork','Skeletons','Porcelain','Bamboo','Dragons','Deep sea','Wizards','Volcanic','Crystals','Garden','Gladiators','Ghosts','Pirates','Desert'],
+}.items():NAMES[lang]['pieces']=labels
 WORDS={
 'es':('Tienda','Tu colección inicial es gratis.','Gratis','Equipado','Equipar','Entrá para guardar tu elección','Tu elección quedó guardada.','Tu avatar','Tu colección equipada','Tu tablero','Tus fichas','Guardando…','No se pudo guardar. Volvé a intentar.'),
 'pt':('Loja','Sua coleção inicial é grátis.','Grátis','Equipado','Equipar','Entre para salvar sua escolha','Sua escolha foi salva.','Seu avatar','Sua coleção equipada','Seu tabuleiro','Suas peças','Salvando…','Não foi possível salvar. Tente novamente.'),

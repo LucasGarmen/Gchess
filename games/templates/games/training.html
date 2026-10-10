@@ -1,17 +1,17 @@
-{% extends 'games/base.html' %}{% load static game_i18n %}
+{% extends 'games/base.html' %}{% load static game_i18n interface_icons %}
 {% block title %}{% tr 'nav_training' %} · Gchess{% endblock %}
-{% block content %}
+{% block content %}{% load interface_icons %}
 <link rel="stylesheet" href="{% static 'games/training_hub.css' %}?v=2">
 <main class="training-hub">
-<header><h1>{{ training_hub.title }}</h1><p>{{ training_hub.intro }}</p></header>
-<section class="training-hub-recommended"><div><small>{{ training_hub.recommended }}</small><h2>{{ dt.title }}</h2><p>{{ dt.intro }}</p></div><a href="{% url 'daily_training' %}">{% if today_training.completed_at %}{{ dt.done }}{% elif today_training %}{{ dt.continue }}{% else %}{{ dt.start }}{% endif %} →</a></section>
+<header><h1>{% ui_icon 'training' %}{{ training_hub.title }}</h1><p>{{ training_hub.intro }}</p></header>
+<section class="training-hub-recommended"><span class="ui-feature-icon">{% ui_icon 'daily' %}</span><div><small>{{ training_hub.recommended }}</small><h2>{{ dt.title }}</h2><p>{{ dt.intro }}</p></div><a href="{% url 'daily_training' %}">{% if today_training.completed_at %}{{ dt.done }}{% elif today_training %}{{ dt.continue }}{% else %}{{ dt.start }}{% endif %} →</a></section>
 <div class="training-hub-choices">
-<a href="{% url 'practice' %}"><span aria-hidden="true">♞</span><div><h2>{{ training_hub.practice }}</h2><p>{{ training_hub.practice_help }}</p></div><b aria-hidden="true">→</b></a>
-<a href="{% url 'openings' %}"><span aria-hidden="true">♟</span><div><h2>{{ training_hub.openings }}</h2><p>{{ training_hub.openings_help }}</p></div><b aria-hidden="true">→</b></a>
+<a href="{% url 'practice' %}"><span class="ui-feature-icon">{% ui_icon 'practice' %}</span><div><h2>{{ training_hub.practice }}</h2><p>{{ training_hub.practice_help }}</p></div><b aria-hidden="true">→</b></a>
+<a href="{% url 'openings' %}"><span class="ui-feature-icon">{% ui_icon 'openings' %}</span><div><h2>{{ training_hub.openings }}</h2><p>{{ training_hub.openings_help }}</p></div><b aria-hidden="true">→</b></a>
 </div>
 <details class="training-hub-more" id="training-more"><summary>{{ training_hub.more }}</summary><div class="training-hub-challenges">
 <a href="{% url 'weekly_challenge' %}"><strong>{{ weekly.title }}</strong><span>{{ weekly.intro }}</span><b>→</b></a>
 {% for mode in training_modes %}{% if mode.route != 'practice' %}<a href="{% url mode.route %}"><strong>{{ mode.title }}</strong><span>{{ mode.summary }}</span><b>→</b></a>{% endif %}{% endfor %}
 </div></details>
-{% if user.is_authenticated %}<a class="training-hub-progress" href="{% url 'learning' %}">{{ training_hub.progress }} →</a>{% else %}<p class="training-hub-guest">{% tr 'training_guest' %} <a href="{% url 'register' %}">{% tr 'nav_register' %} →</a></p>{% endif %}
+{% if user.is_authenticated %}<a class="training-hub-progress" href="{% url 'learning' %}">{% ui_icon 'progress' %}{{ training_hub.progress }} →</a>{% else %}<p class="training-hub-guest">{% tr 'training_guest' %} <a href="{% url 'register' %}">{% tr 'nav_register' %} →</a></p>{% endif %}
 </main><script>(()=>{const reveal=()=>{if(location.hash==="#training-more")document.getElementById("training-more").open=true;};reveal();window.addEventListener("hashchange",reveal);})();</script>{% endblock %}

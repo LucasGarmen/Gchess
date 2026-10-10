@@ -5,11 +5,11 @@
 {% tr "nav_games" %}
 {% endblock %}
 
-{% block content %}
+{% block content %}{% load interface_icons %}
 
 <link rel="stylesheet" href="{% static 'games/games_directory.css' %}?v=1">
 <main class="games-directory">
-<header class="games-directory-heading"><div><h1>{% tr "my_games" %}</h1><p>{% tr "saved_games_help" %}</p></div><a class="button" href="{% url 'game_create' %}">{% tr "new_game" %} →</a></header>
+<header class="games-directory-heading"><div><h1>{% ui_icon 'games' %}{% tr "my_games" %}</h1><p>{% tr "saved_games_help" %}</p></div><a class="button" href="{% url 'game_create' %}">{% tr "new_game" %} →</a></header>
 
 
 {% if pending_search %}<p><a href="{% url 'game_invitation_wait' pending_search.pk %}">{% tr "resume_search" %} →</a></p>{% endif %}

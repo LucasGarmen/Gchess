@@ -1,4 +1,4 @@
-{% load game_i18n cosmetic_art %}
+{% load game_i18n cosmetic_art interface_icons %}
 {% home_hero_words current_language as hero %}
 <section class="home-intro home-intro-mobile home-welcome">
     <div class="home-hero">
@@ -10,10 +10,10 @@
             <h1>{{ hero.title }}</h1>
             <p class="entry-summary">{{ hero.intro }}</p>
             <div class="home-hero-actions">
-                <button id="home-open-bot" class="home-play-button" type="button" aria-expanded="false" aria-controls="mobile-bot-setup">{{ hero.coach }} <span aria-hidden="true">→</span></button>
+                <button id="home-open-bot" class="home-play-button" type="button" aria-expanded="false" aria-controls="mobile-bot-setup">{% ui_icon 'coach' %}{{ hero.coach }} <span aria-hidden="true">→</span></button>
                 <small>{{ hero.coach_hint }}</small>
                 <button id="home-resume-bot" type="button" hidden>{{ flow.resume }} →</button>
-                <a href="{% url 'game_create' %}" class="home-quick-button">{{ hero.quick }} <span aria-hidden="true">→</span></a>
+                <a href="{% url 'game_create' %}" class="home-quick-button">{% ui_icon 'play' %}{{ hero.quick }} <span aria-hidden="true">→</span></a>
             </div>
         </div>
     </div>

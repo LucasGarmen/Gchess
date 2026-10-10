@@ -82,3 +82,10 @@ body:has(.shop-page){overflow-x:clip;overflow-y:visible}
 .shop-card-avatar.shop-locked .shop-item-button:disabled{background:transparent}
 
 .shop-equipped-panel .shop-loadout-link{display:inline-flex;align-items:center;gap:6px;min-height:44px;color:#ecd3a3;text-decoration:none;border-radius:4px}.shop-loadout-link:hover{color:#fff0c9;text-decoration:underline;text-underline-offset:4px}.shop-loadout-link:focus-visible{outline:2px solid #d9b970;outline-offset:3px}.shop-loadout-link>span{color:#bca16f;font-size:14px}
+
+/* Complete sets: one rank per color, with all six roles visible. */
+.shop-category .shop-piece-set{grid-template-columns:repeat(6,minmax(0,1fr));width:100%;max-width:174px;gap:0;padding:4px;box-sizing:border-box}
+.shop-category .shop-piece-set img{width:100%;height:auto;aspect-ratio:1;min-width:0}
+.shop-equipped-panel .loadout-art .shop-piece-set{grid-template-columns:repeat(6,14px);gap:0;padding:2px}
+.shop-equipped-panel .loadout-art .shop-piece-set img{width:14px;height:20px}
+@media(max-width:650px){.shop-equipped-panel .loadout-art .shop-piece-set{grid-template-columns:repeat(6,10px)}.shop-equipped-panel .loadout-art .shop-piece-set img{width:10px;height:18px}}

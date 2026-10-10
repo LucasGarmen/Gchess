@@ -94,3 +94,7 @@ def home_hero_words(lang):
         'en':('Train with our coach','Play chess. Understand every move.','Choose your level, play and ask the coach how to improve.','Train with the coach','At your pace · Beginners welcome','Play a quick match','With an available opponent · 5 minutes','Play with friends','Share an invitation and challenge your friends.','Practice a position','Puzzles, openings and exercises to improve.')}
     keys=('title','eyebrow','intro','coach','coach_hint','quick','quick_hint','friends','friends_help','practice','practice_help')
     return dict(zip(keys,words.get(lang,words['en'])))
+
+@register.simple_tag
+def piece_preview_name(key):
+    return {'k':'king','q':'queen','r':'rook','b':'bishop','n':'horse','p':'pawn'}.get(key,'pawn')

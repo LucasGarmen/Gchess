@@ -8,7 +8,7 @@
 
 
 
-{% block content %}
+{% block content %}{% load interface_icons %}
 {% analyzer_words current_language as analyzer_ui %}
 
 <link rel="stylesheet" href="{% static 'games/analyzer_layout.min.css' %}?v=3">
@@ -17,7 +17,7 @@
 
 {% if not moves %}
     <section class="analyzer-create-page">
-    <header class="analyzer-intro"><span class="analyzer-eyebrow">{{ analyzer_ui.eyebrow }}</span><h1>{% tr "analyze_pgn" %} <small class="analyzer-format-label">PGN</small></h1><p>{{ analyzer_ui.intro }}</p></header>
+    <header class="analyzer-intro"><span class="analyzer-eyebrow">{{ analyzer_ui.eyebrow }}</span><h1>{% ui_icon 'analysis' %}{% tr "analyze_pgn" %} <small class="analyzer-format-label">PGN</small></h1><p>{{ analyzer_ui.intro }}</p></header>
     <ol class="analyzer-steps"><li><span>1</span>{{ analyzer_ui.load }}</li><li><span>2</span>{{ analyzer_ui.review }}</li><li><span>3</span>{{ analyzer_ui.coach }}</li></ol>
 
     <form id="pgn-analysis-form" method="POST" class="form-card">
