@@ -20,7 +20,7 @@
     <link rel="stylesheet" href="{% static 'games/chess_visuals.css' %}?v=1">
     <link rel="stylesheet" href="{% static 'games/workspace.css' %}?v=4">
     <script src="{% static 'games/workspace.js' %}?v=7" defer></script>
-    <link rel="stylesheet" href="{% static 'games/navigation.css' %}?v=2">
+    <link rel="stylesheet" href="{% static 'games/navigation.css' %}?v=3">
     <link rel="stylesheet" href="{% static 'games/notices.css' %}?v=1">
     <script src="{% static 'games/navigation.js' %}?v=1" defer></script>
     <link rel="stylesheet" href="{% static 'games/tournaments.css' %}?v=5">
@@ -40,7 +40,7 @@
 <body data-board="{{ cosmetics.board }}" data-pieces="{{ cosmetics.pieces }}">
 
     <button id="mobile-nav-toggle" class="mobile-nav-toggle" type="button" aria-controls="site-nav" aria-label="{% tr "menu" %}" aria-expanded="false">
-        <span class="mobile-nav-arrow" aria-hidden="true">›</span>
+        <span class="mobile-nav-arrow" aria-hidden="true"><i></i><i></i><i></i></span>
         <span class="mobile-nav-label">{% tr "menu" %}</span>
     </button>
 

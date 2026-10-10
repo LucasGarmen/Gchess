@@ -71,3 +71,17 @@
 }
 @keyframes nav-backdrop-in{from{opacity:0}to{opacity:1}}
 @media(prefers-reduced-motion:reduce){body #site-nav,body .mobile-nav-arrow{transition:none}body #mobile-nav-backdrop{animation:none!important}}
+
+/* Familiar hamburger control; keep a generous touch target inside a quiet shape. */
+@media(max-width:900px){
+ body #site-nav{width:min(264px,76vw)!important;padding-left:12px!important;padding-right:12px!important}
+ body .mobile-nav-toggle,body .board-toolbar .mobile-nav-toggle{width:44px!important;min-width:44px;height:44px!important;padding:11px!important;border-radius:9px!important;border-color:#78694c60!important;background:#24291ee8!important;box-shadow:none!important;justify-content:center}
+ body .mobile-nav-label{display:none}
+ body .mobile-nav-arrow{display:flex;flex-direction:column;justify-content:center;gap:4px;width:20px;height:20px;transform:none!important}
+ body .mobile-nav-arrow i{display:block;width:20px;height:2px;background:currentColor;border-radius:2px;transition:transform .2s ease,opacity .2s ease}
+ body.mobile-nav-open .mobile-nav-arrow{transform:none!important}
+ body.mobile-nav-open .mobile-nav-arrow i:nth-child(1){transform:translateY(6px) rotate(45deg)}
+ body.mobile-nav-open .mobile-nav-arrow i:nth-child(2){opacity:0}
+ body.mobile-nav-open .mobile-nav-arrow i:nth-child(3){transform:translateY(-6px) rotate(-45deg)}
+}
+@media(prefers-reduced-motion:reduce){body .mobile-nav-arrow i{transition:none}}
