@@ -6,20 +6,7 @@
 {% tr "analyze_pgn" %}
 {% endblock %}
 
-{% block nav_extra %}
-{% if moves %}
-<div id="captured-material" class="captured-material board-captured-material computer-captured-material nav-captured-material">
-    <div class="captured-row captured-row-black">
-        <div id="captured-black" class="captured-pieces captured-black"></div>
-        <span id="white-material-advantage" class="material-advantage"></span>
-    </div>
-    <div class="captured-row captured-row-white">
-        <div id="captured-white" class="captured-pieces captured-white"></div>
-        <span id="black-material-advantage" class="material-advantage"></span>
-    </div>
-</div>
-{% endif %}
-{% endblock %}
+
 
 {% block content %}
 {% analyzer_words current_language as analyzer_ui %}
@@ -83,7 +70,21 @@
                 <span id="analyzer-position-counter" role="status" aria-live="polite">0 / {{ moves|length }}</span>
                 <button id="next-move" type="button" title="{% tr 'next' %}" aria-label="{% tr 'next' %}">→</button>
             </div>
-        <div class="board-wrapper">
+
+{% if moves %}
+<div id="captured-material" class="captured-material board-captured-material computer-captured-material">
+    <div class="captured-row captured-row-black">
+        <div id="captured-black" class="captured-pieces captured-black"></div>
+        <span id="white-material-advantage" class="material-advantage"></span>
+    </div>
+    <div class="captured-row captured-row-white">
+        <div id="captured-white" class="captured-pieces captured-white"></div>
+        <span id="black-material-advantage" class="material-advantage"></span>
+    </div>
+</div>
+{% endif %}
+
+<div class="board-wrapper">
             <div class="rank-labels">
                 <span>8</span><span>7</span><span>6</span><span>5</span>
                 <span>4</span><span>3</span><span>2</span><span>1</span>

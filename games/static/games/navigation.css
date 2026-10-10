@@ -126,3 +126,8 @@
 #site-nav .nav-logout-last{margin:3px 0 0;padding:0;border:0;min-height:28px}
 body #site-nav .nav-logout-last button{min-height:28px;padding:5px 10px;font-size:11px;font-weight:400;color:#b9ac93}
 #site-nav .nav-account{max-height:58px}
+
+/* Captured material belongs to the game, never the site navigation. */
+body:not(.mobile-bot-playing) .home-computer-layout .computer-captured-material{display:none!important}
+.home-computer-layout .board-area>.computer-captured-material,.analyzer-game-layout .board-area>.computer-captured-material{width:100%;max-width:100%;box-sizing:border-box;margin:0 0 8px;padding:6px 10px;min-height:0}
+@media(min-width:901px){.home-computer-layout .board-area>.computer-captured-material .captured-piece,.analyzer-game-layout .board-area>.computer-captured-material .captured-piece{width:18px;height:22px}}

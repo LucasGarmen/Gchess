@@ -6,18 +6,7 @@
 {% tr "nav_home" %}
 {% endblock %}
 
-{% block nav_extra %}
-<div id="captured-material" class="captured-material board-captured-material computer-captured-material nav-captured-material">
-    <div class="captured-row captured-row-black">
-        <div id="captured-black" class="captured-pieces captured-black"></div>
-        <span id="white-material-advantage" class="material-advantage"></span>
-    </div>
-    <div class="captured-row captured-row-white">
-        <div id="captured-white" class="captured-pieces captured-white"></div>
-        <span id="black-material-advantage" class="material-advantage"></span>
-    </div>
-</div>
-{% endblock %}
+
 
 {% block nav_mobile_extra %}
 <button id="mobile-bot-nav-button" class="mobile-nav-action" type="button">{% tr "play_bot" %}</button>
@@ -60,7 +49,19 @@
 <main id="home-computer-game" class="game-layout computer-game-layout home-computer-layout{% if request.GET.blindfold == 'exclusive' %} blindfold-active{% endif %}">
     <section class="board-area">
         {% include "games/_blindfold_controls.html" %}
-        <div class="board-wrapper">
+
+<div id="captured-material" class="captured-material board-captured-material computer-captured-material">
+    <div class="captured-row captured-row-black">
+        <div id="captured-black" class="captured-pieces captured-black"></div>
+        <span id="white-material-advantage" class="material-advantage"></span>
+    </div>
+    <div class="captured-row captured-row-white">
+        <div id="captured-white" class="captured-pieces captured-white"></div>
+        <span id="black-material-advantage" class="material-advantage"></span>
+    </div>
+</div>
+
+<div class="board-wrapper">
             {% include "games/_game_finish_notice.html" %}
             <div class="rank-labels">
                 <span>8</span><span>7</span><span>6</span><span>5</span>
