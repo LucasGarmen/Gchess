@@ -17,6 +17,11 @@
     if (!Array.isArray(bots)) bots = [];
     bots = bots.filter(bot => bot && validId(bot.id));
     let humans = [];
+    let hiddenHumans = read('hidden-humans', []);
+    if (!Array.isArray(hiddenHumans)) hiddenHumans = [];
+    let removedCurrentBot = false;
+    const language = document.documentElement.lang.slice(0, 2);
+    const removeWords = {es:['Eliminar partida', '¿Eliminar esta partida con el coach? Se perderán sus jugadas y conversación.', '¿Quitar esta partida de Mis partidas? Seguirá activa y el reloj seguirá corriendo. Podés encontrarla en Ver todas.'], pt:['Excluir partida', 'Excluir esta partida com o coach? As jogadas e a conversa serão apagadas.', 'Remover esta partida de Minhas partidas? Ela continuará ativa e o relógio continuará correndo. Você pode encontrá-la em Ver todas.'], en:['Remove game', 'Delete this coach game? Its moves and conversation will be lost.', 'Remove this game from My games? It will remain active and its clock will keep running. Find it in View all.']}[language] || ['Remove game', 'Delete this coach game? Its moves and conversation will be lost.', 'Remove this game from My games? It remains active, including its clock. Find it in View all.'];
     let failed = false;
     let refreshing = false;
     const panel = document.getElementById('workspace-panel');
@@ -79,6 +84,7 @@
         else positionPanel();
     });
     function registerBot(meta = {}) {
+        if (removedCurrentBot) return;
         let entry = bots.find(bot => bot.id === botId);
         if (!entry) { entry = {id:botId, number:Math.max(0, ...bots.map(bot => Number(bot.number) || 0)) + 1}; bots.push(entry); }
         Object.assign(entry, meta);
@@ -106,7 +112,7 @@
     }
     document.getElementById('mobile-nav-toggle')?.addEventListener('click', () => { if (window.innerWidth <= 900) setOpen(false); });
     function section(label) { const heading = document.createElement('p'); heading.className = 'workspace-group'; heading.textContent = label; list.append(heading); }
-    function card(url, title, subtitle, current, yourTurn, kind = 'human') {
+    function card(url, title, subtitle, current, yourTurn, kind = 'human', id) {
         const link = document.createElement('a'); link.href = url; link.className = 'workspace-game' + (yourTurn ? ' your-turn' : '');
         if (current) link.setAttribute('aria-current', 'page');
         const icon = document.createElement('span'); icon.className = 'workspace-game-icon'; icon.textContent = kind === 'coach' ? '♞' : '♟'; icon.setAttribute('aria-hidden', 'true');
@@ -120,17 +126,40 @@
         });
         content.append(name, detail);
         const marker = document.createElement('span'); marker.className = 'workspace-game-marker'; marker.textContent = current ? '●' : '›'; marker.setAttribute('aria-hidden','true');
-        link.append(icon, content, marker); list.append(link);
+        link.append(icon, content, marker);
+        const row = document.createElement('div'); row.className = 'workspace-game-row';
+        const remove = document.createElement('button'); remove.type = 'button'; remove.className = 'workspace-remove';
+        remove.title = removeWords[0]; remove.setAttribute('aria-label', removeWords[0] + ': ' + title);
+        remove.innerHTML = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M3 6h18M9 6V3h6v3M5 6l1 15h12l1-15M10 10v7M14 10v7"/></svg>';
+        remove.addEventListener('click', () => {
+            if (!window.confirm(removeWords[kind === 'coach' ? 1 : 2])) return;
+            if (kind === 'coach') {
+                bots = bots.filter(bot => bot.id !== id);
+                write('bots', bots);
+                try { storage.removeItem(prefix + 'bot:' + id); } catch (_) {}
+                if (current) {
+                    removedCurrentBot = true;
+                    window.GChessWorkspace.botDeleted = true;
+                    setOpen(false);
+                    location.assign(bots.length ? config.home + '?bot=' + encodeURIComponent(bots[0].id) : config.newHuman);
+                }
+            } else {
+                hiddenHumans.push(id); write('hidden-humans', hiddenHumans);
+                humans = humans.filter(game => game.id !== id);
+            }
+            render();
+        });
+        row.append(link, remove); list.append(row);
     }
     function render() {
         list.replaceChildren();
         document.getElementById('workspace-count').textContent = String(humans.length + bots.length);
         if (bots.length) {
             section(words[12]);
-            bots.forEach(bot => card(config.home + '?bot=' + encodeURIComponent(bot.id), 'Coach ' + bot.number + (bot.elo ? ' · ' + bot.elo : '') + (bot.blindfold ? ' · '+config.blindfoldLabel : ''), bot.finished ? words[6] : (onHome && bot.id === botId ? (bot.yourTurn === false ? words[4] : words[3]) : words[5]), onHome && bot.id === botId, onHome && bot.id === botId && bot.yourTurn, 'coach'));
+            bots.forEach(bot => card(config.home + '?bot=' + encodeURIComponent(bot.id), 'Coach ' + bot.number + (bot.elo ? ' · ' + bot.elo : '') + (bot.blindfold ? ' · '+config.blindfoldLabel : ''), bot.finished ? words[6] : (onHome && bot.id === botId ? (bot.yourTurn === false ? words[4] : words[3]) : words[5]), onHome && bot.id === botId, onHome && bot.id === botId && bot.yourTurn, 'coach', bot.id));
         }
         section(words[11]);
-        humans.forEach(game => card(game.url, game.opponent || '—', words[game.yourTurn ? 3 : 4] + (game.blindfoldOnly ? ' · '+config.blindfoldLabel : '') + (game.title ? ' · ' + game.title : ''), location.pathname === game.url, game.yourTurn));
+        humans.forEach(game => card(game.url, game.opponent || '—', words[game.yourTurn ? 3 : 4] + (game.blindfoldOnly ? ' · '+config.blindfoldLabel : '') + (game.title ? ' · ' + game.title : ''), location.pathname === game.url, game.yourTurn, 'human', game.id));
         if (!humans.length || failed) { const empty = document.createElement('p'); empty.textContent = failed ? words[9] : words[13]; list.append(empty); }
     }
     async function refresh() {
@@ -141,7 +170,7 @@
             if (!response.ok) throw new Error('unavailable');
             const data = await response.json();
             if (data.actor !== config.actor || !Array.isArray(data.games)) throw new Error('identity changed');
-            humans = data.games; failed = false;
+            humans = data.games.filter(game => !hiddenHumans.includes(game.id)); failed = false;
         } catch (_) { failed = true; }
         finally { refreshing = false; render(); }
     }

@@ -3932,7 +3932,7 @@ function restoreTrainerChatLog(messages) {
 }
 
 function saveComputerGameState() {
-    if (!isHomeComputerGame() || typeof window.sessionStorage === 'undefined') {
+    if (window.GChessWorkspace?.botDeleted || !isHomeComputerGame() || typeof window.sessionStorage === 'undefined') {
         return;
     }
 
@@ -3958,7 +3958,7 @@ function saveComputerGameState() {
 }
 
 function restoreComputerGameState() {
-    if (!isHomeComputerGame() || typeof window.sessionStorage === 'undefined') {
+    if (window.GChessWorkspace?.botDeleted || !isHomeComputerGame() || typeof window.sessionStorage === 'undefined') {
         return;
     }
 

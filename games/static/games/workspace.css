@@ -54,3 +54,9 @@
 @media(min-width:901px){.game-workspace{top:12px;bottom:auto;right:16px}}
 
 @media(min-width:1101px){.game-workspace{left:16px;right:auto;top:auto;bottom:16px}.game-workspace #workspace-toggle{font-size:13px;padding:9px 12px}}
+
+/* Keep deletion separate from the link so tapping it never opens the game. */
+.game-workspace .workspace-game-row{display:flex;align-items:stretch;gap:4px;margin-bottom:6px}
+.game-workspace .workspace-game-row .workspace-game{flex:1;min-width:0;margin:0}
+.game-workspace .workspace-remove{display:grid;place-items:center;flex:0 0 34px;padding:0;border:1px solid #82704855;border-radius:8px;background:#282b22;color:#baaa87;cursor:pointer;min-height:44px}
+.game-workspace .workspace-remove:hover{background:#453329;color:#f0c6ac;border-color:#a78064}
