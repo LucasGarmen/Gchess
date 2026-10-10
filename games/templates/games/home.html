@@ -50,16 +50,6 @@
     <section class="board-area">
         {% include "games/_blindfold_controls.html" %}
 
-<div id="captured-material" class="captured-material board-captured-material computer-captured-material">
-    <div class="captured-row captured-row-black">
-        <div id="captured-black" class="captured-pieces captured-black"></div>
-        <span id="white-material-advantage" class="material-advantage"></span>
-    </div>
-    <div class="captured-row captured-row-white">
-        <div id="captured-white" class="captured-pieces captured-white"></div>
-        <span id="black-material-advantage" class="material-advantage"></span>
-    </div>
-</div>
 
 <div class="board-wrapper">
             {% include "games/_game_finish_notice.html" %}
@@ -90,6 +80,16 @@
                 </div>
             </div>
         </div>
+<div id="captured-material" class="captured-material board-captured-material computer-captured-material">
+    <div class="captured-row captured-row-black">
+        <div id="captured-black" class="captured-pieces captured-black"></div>
+        <span id="white-material-advantage" class="material-advantage"></span>
+    </div>
+    <div class="captured-row captured-row-white">
+        <div id="captured-white" class="captured-pieces captured-white"></div>
+        <span id="black-material-advantage" class="material-advantage"></span>
+    </div>
+</div>
     </section>
 
     <aside class="computer-side computer-play-panel">
