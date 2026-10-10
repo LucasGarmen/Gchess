@@ -14,7 +14,7 @@
         <p>{% tr "stats_intro" %}</p>
     </header>
     <div class="profile-shop-avatar">{% include 'games/_avatar.html' with avatar=cosmetics.avatar accessory=cosmetics.accessory clothing=cosmetics.clothing face=cosmetics.face hairstyle=cosmetics.hairstyle eyewear=cosmetics.eyewear earrings=cosmetics.earrings %}<a href="{% url 'shop' %}">{{ shop_texts.title }} · {{ shop_texts.your_avatar }} →</a></div>
-    <p class="training-stat-note">{% tr 'training_sequence_help' %} <a href="{% url 'training' %}#training-metrics-title">{% tr 'training_metrics' %} →</a></p>
+
 
     <p class="training-stat-note"><a href="{% url 'learning' %}">{{ learning.title }} →</a></p>
     <section class="profile-power-panel" aria-label="{% tr "stats_training_summary" %}">
@@ -61,8 +61,9 @@
         {% endfor %}
     </section>
 
-    <section class="pgn-panel stats-detail-panel">
-        <h2>{% tr "stats_training_summary" %}</h2>
+    <details class="pgn-panel stats-detail-panel">
+        <summary>{% tr "stats_training_summary" %}</summary>
+    <p class="training-stat-note">{% tr 'training_sequence_help' %} <a href="{% url 'training' %}#training-metrics">{% tr 'training_metrics' %} →</a></p>
 
         {% if stats.fecha_ultimo_entrenamiento %}
             <dl class="stats-detail-list">
@@ -85,7 +86,7 @@
         {% else %}
             <p class="stats-empty">{% tr "stats_no_training" %}</p>
         {% endif %}
-    </section>
+    </details>
 </main>
 
 {% endblock %}

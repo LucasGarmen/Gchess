@@ -2,7 +2,7 @@
 {% load game_i18n static %}
 {% block title %}{% tr "new_game" %}{% endblock %}
 {% block content %}
-<link rel="stylesheet" href="{% static 'games/game_create.css' %}?v=1">
+<link rel="stylesheet" href="{% static 'games/game_create.css' %}?v=2">
 <main class="game-create-page create-refresh">
     <header class="create-heading"><p>Gchess</p><h1>{% tr "new_game" %}</h1><p>{{ create_texts.intro }}</p></header>
     <form method="POST" class="game-create-form create-layout" novalidate id="create-game-form">

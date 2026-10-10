@@ -13,3 +13,19 @@
 .create-time-presets{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}.create-time-presets button{background:#292a20;color:#e3d2b1;border:1px solid #62553d;min-height:44px;padding:10px 14px}.create-time-presets button[aria-pressed=true]{background:#d6bd88;color:#26251d;border-color:#d6bd88}.create-section .time-control-input{width:180px;max-width:100%;box-sizing:border-box;min-height:44px}
 .create-summary{position:sticky;top:24px;min-width:0;padding:22px;background:#303023;border:1px solid #806b47;border-radius:12px;box-sizing:border-box}.create-summary h2{margin:0 0 10px;font-size:24px;color:#ebd5ab}.create-summary p{font-size:13px;line-height:1.6;color:#c5b99e}.create-summary dl{display:grid;gap:6px;margin:22px 0}.create-summary dt{font-size:11px;color:#b9ad94}.create-summary dd{margin:0 0 12px;font-size:14px;color:#f1e4ca;overflow-wrap:anywhere}.create-summary button{width:100%;min-height:48px}
 @media(max-width:760px){.game-create-form.create-layout{grid-template-columns:1fr;gap:20px}.create-summary{position:static}.game-create-page.create-refresh{padding:20px 0 30px}.create-section{padding:16px}.create-choice-grid{grid-template-columns:1fr}.create-colors{gap:6px}.create-refresh .create-color{padding:12px 4px}.create-piece-pair img{max-width:32px}.create-summary{padding:20px}.create-choice{min-height:64px}}
+
+@media(min-width:901px){
+ .game-create-page.create-refresh{padding:14px 12px 20px;max-width:1100px}
+ .create-refresh .create-heading{margin-bottom:14px}.create-refresh .create-heading h1{font-size:30px;margin:6px 0}
+ .create-refresh .create-layout{grid-template-columns:minmax(0,1fr) 240px;gap:14px}
+ .create-refresh .create-options{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+ .create-refresh .create-section{padding:12px;margin:0}.create-refresh .create-section:first-child{grid-column:1/-1}
+ .create-refresh .create-choice{padding:10px;min-height:60px}.create-refresh .create-choice small{margin-top:4px;line-height:1.4}
+ .create-refresh .create-choice-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.create-refresh .create-section:first-child .create-choice-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+ .create-refresh .create-color{min-height:88px;padding:10px 6px}
+ .create-refresh .create-help{margin:6px 0;font-size:12px;line-height:1.4}
+ .create-refresh .create-summary{padding:16px;top:14px}.create-refresh .create-summary dl{margin:12px 0}.create-refresh .create-summary dd{margin-bottom:8px}
+ .create-refresh .create-time-presets{gap:6px;margin-bottom:8px}.create-refresh .create-time-presets button{padding:8px 10px}
+}
+
+@media(min-width:901px) and (max-height:800px){.game-create-page.create-refresh{padding-top:8px;padding-bottom:12px}.create-refresh .create-heading{margin-bottom:8px}.create-refresh .create-options{gap:8px}.create-refresh .create-section{padding:8px 12px}.create-refresh .create-color{min-height:78px}.create-refresh .create-help{margin:4px 0}.create-refresh .create-time-presets{margin-bottom:4px}}

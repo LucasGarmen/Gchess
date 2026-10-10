@@ -55,7 +55,7 @@
         </div>
     </section>
     {% else %}<section class="training-guest"><p>{% tr 'training_guest' %}</p><a href="{% url 'register' %}">{% tr 'nav_register' %} →</a></section>{% endif %}
-    <details class="training-metrics">
+    <details class="training-metrics" id="training-metrics">
         <summary>{% tr 'training_metrics' %}</summary>
         <dl>
             <div><dt>XP · {% tr 'xp_level' %}</dt><dd>{% tr 'training_xp_help' %}</dd></div>

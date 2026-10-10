@@ -40,3 +40,46 @@
 }
 @media(min-width:901px) and (max-width:1150px){.training-page .training-cards{grid-template-columns:repeat(2,minmax(0,1fr))}.training-quick-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.training-quick-grid>.training-next:last-child{grid-column:1/-1}}
 @media(max-width:900px){.training-quick-grid{gap:10px}.training-quick-grid .training-next{padding:16px}.training-metrics{padding:16px}}
+
+/* Page-specific structure: readable summaries first, optional reference below. */
+.stats-detail-panel>summary,.tournament-form-rules>summary{cursor:pointer;min-height:44px;line-height:44px;color:#e5cea1;font-weight:600}
+.stats-page .stats-detail-panel{height:auto;min-height:0}
+.auth-password-change .field-help summary{cursor:pointer;min-height:36px;line-height:1.5;padding:6px 0}
+@media(min-width:901px){
+ .stats-page{width:100%;max-width:1000px;margin:16px auto;padding:0 16px 20px;box-sizing:border-box}
+ .stats-page .stats-header{margin-bottom:10px}.stats-page .stats-header h1{font-size:30px;margin:6px 0}.stats-page .stats-header p{margin:6px 0}
+ .stats-page .profile-shop-avatar{margin:8px 0;gap:12px}.stats-page .profile-shop-avatar .gchess-avatar{width:48px}
+ .stats-page .training-stat-note{margin:6px 0;font-size:13px;line-height:1.4}
+ .stats-page .profile-power-panel{margin:12px 0;padding:14px;gap:12px;grid-template-columns:repeat(4,minmax(0,1fr))}
+ .stats-page .profile-power-panel strong{font-size:26px}.stats-page .profile-power-panel div{padding:0;min-height:0}
+ .stats-page .profile-xp-panel{margin:10px 0;padding:12px 16px}
+ .stats-page .stats-grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:12px 0}
+ .stats-page .stat-card{padding:12px;min-height:78px;gap:6px}.stats-page .stat-card strong{font-size:25px}
+ .stats-page .stats-detail-panel{padding:10px 16px;margin:12px 0}
+ .blindfold-landing{margin:16px auto 24px;max-width:960px;padding:0 16px;box-sizing:border-box}
+ .blindfold-landing h1{font-size:32px;margin:6px 0}.blindfold-landing>p{margin:8px 0;line-height:1.5}
+ .blindfold-landing .blindfold-choices{margin:16px 0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+ .blindfold-landing .blindfold-card{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px;padding:18px;margin:12px 0}
+ .blindfold-landing .blindfold-card h2{font-size:20px;margin:0 0 10px}.blindfold-landing .blindfold-card p{font-size:14px;line-height:1.5;margin:8px 0}
+ .tournament-create-page .tournament-form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px 18px;max-width:800px;margin:12px auto;padding:18px}
+ .tournament-create-page .tournament-field{margin:0;min-width:0}.tournament-create-page .tournament-field-name{grid-column:1/-1}
+ .tournament-create-page .tournament-form>button,.tournament-create-page .tournament-form-rules,.tournament-create-page .tournament-form>.errorlist{grid-column:1/-1}
+ .tournament-create-page .tournament-field input,.tournament-create-page .tournament-field select{width:100%;box-sizing:border-box;min-height:44px;margin:6px 0 0}
+ .tournament-create-page .tournament-field .helptext{font-size:12px;line-height:1.4;margin:6px 0}
+ .tournament-create-page h1{font-size:30px;margin:8px 0}
+ .tournament-directory{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;align-items:start;margin-bottom:24px}
+ .tournament-directory>.tournament-heading,.tournament-directory>.tournament-rules{grid-column:1/-1}
+ .tournament-directory>section{margin:0;padding:14px;min-width:0}
+ .tournament-directory .tournament-grid{grid-template-columns:1fr}.tournament-directory .tournament-filters{gap:6px}
+ .tournament-directory .tournament-filters a{padding:8px;font-size:12px}
+}
+@media(max-width:900px){
+ .stats-page{width:100%;padding:0 12px;box-sizing:border-box}.stats-page .stats-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.stats-page .stat-card{padding:14px;min-width:0}
+ .blindfold-landing{margin:18px auto 28px;padding:0 12px;box-sizing:border-box}.blindfold-landing .blindfold-card{padding:16px}.blindfold-landing .blindfold-card>div+div{margin-top:20px}
+ .tournament-create-page .tournament-field input,.tournament-create-page .tournament-field select{width:100%;box-sizing:border-box;min-height:44px;font-size:16px}
+ .tournament-directory .tournament-heading{flex-wrap:wrap}.tournament-create-page .tournament-form{width:100%;box-sizing:border-box}
+}
+
+@media(min-width:901px){.stats-page{display:block}.stats-page .stats-header{max-width:none}.stats-page .stats-grid{grid-template-columns:repeat(5,minmax(0,1fr))}.stats-page .stat-card{box-sizing:border-box;min-height:82px}.stats-page .stats-detail-panel{box-sizing:border-box;min-height:0}.stats-page .profile-xp-panel{gap:8px}.stats-page .stats-header h1{line-height:1.2}.stats-page .stats-header p{line-height:1.4}}
+
+@media(min-width:901px){.stats-page .stat-card{min-height:72px;padding:10px}.stats-page .profile-power-panel{margin:8px 0;padding:10px 14px}.stats-page .profile-xp-panel{margin:8px 0;padding:10px 14px}.stats-page .stats-detail-panel{margin:8px 0;padding:4px 14px}}
