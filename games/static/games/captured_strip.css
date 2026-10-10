@@ -8,3 +8,10 @@ body .home-computer-layout .computer-captured-material .material-advantage{font-
 @media(min-width:901px){body .home-computer-layout{--square-size:min(100px,calc((100svh - 210px)/8),calc((100vw - 664px)/8))}body .home-computer-layout .board-area{display:flex;flex-direction:column;justify-content:flex-start;align-items:center;height:auto;min-height:0;overflow:visible;gap:0}body .home-computer-layout .board-wrapper{flex-shrink:0;margin:0}body.mobile-bot-playing .home-computer-layout{align-items:start;margin-top:12px;height:auto;max-height:none;overflow:visible}body.mobile-bot-playing{overflow-y:auto}}
 body:not(.mobile-bot-playing) .home-computer-layout .computer-captured-material{display:none!important}
 @media(min-width:901px){body.mobile-bot-playing .home-computer-layout{--square-size:min(100px,calc((100svh - 250px)/8),calc((100vw - 664px)/8))!important}}
+/* Fit the actual available viewport, keeping captures to a single short strip. */
+body .home-computer-layout .board-area>.computer-captured-material{min-height:24px;margin-top:4px;padding:2px 8px;gap:8px}
+body .home-computer-layout .computer-captured-material .captured-row{min-height:18px}
+body .home-computer-layout .computer-captured-material .captured-pieces{min-height:18px;flex-wrap:nowrap;overflow:hidden}
+body .home-computer-layout .computer-captured-material .captured-piece{width:15px;height:18px}
+@media(min-width:901px){body.mobile-bot-playing .home-computer-layout{grid-template-columns:minmax(0,1fr) 320px;gap:12px;margin-top:8px}body .home-computer-layout .board-wrapper{padding-top:6px;padding-bottom:6px}body .home-computer-layout .board-toolbar{margin-top:0;margin-bottom:6px}}
+@media(max-width:900px){body.mobile-bot-playing .home-computer-layout .board-wrapper:has(.board-player-stage){padding-top:0!important;padding-bottom:46px!important}body.mobile-bot-playing .home-computer-layout .board-wrapper:has(.board-player-stage) .board-toolbar{margin-bottom:10px!important}body.mobile-bot-playing .home-computer-layout .board-area{gap:3px}.home-computer-layout .board-wrapper{box-sizing:border-box}}
