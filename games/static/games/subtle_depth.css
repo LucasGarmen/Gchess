@@ -1,0 +1,23 @@
+/* Subtle depth: preserve the flat board geometry and original piece silhouettes. */
+body .board .square>.piece,body .daily-board .square>.piece,
+body .daily-training-board img,body #opening-board img,
+body .entry-square img,body .shop-piece-set img,
+body .drag-piece,body .move-animation-piece{
+ filter:drop-shadow(-.5px -1px .35px #fff1c655) drop-shadow(1px 3px 1.2px #17130c70)!important;
+}
+body .board-wrapper,body .entry-mini-board,body .shop-board{
+ box-shadow:inset 0 1px 0 #ffe5af30,inset 0 -2px 0 #0005,0 5px 12px #0004;
+}
+body :is(.training-hub-recommended,.training-hub-choices>a,.training-hub-more,.daily-checkin,.shop-loadout article,.shop-category,.auth-card,.analyzer-create-page .form-card,.analysis-move-panel,.computer-tab-panel,.home-secondary-paths>a){
+ box-shadow:inset 0 1px 0 #ffe5af18,inset 0 -1px 0 #0003,0 3px 8px #0002;
+}
+body :is(.home-play-button,.home-quick-button,.training-hub-recommended>a,.daily-checkin button,.training-cta,.trainer-chat-form button,.board-toolbar button,.history-controls button,.auth-card>button,.analyzer-create-page .form-card>button){
+ box-shadow:inset 0 1px 0 #fff4d445,inset 0 -2px 0 #0003,0 2px 3px #0003;
+ transition:box-shadow .12s ease;
+}
+body :is(.home-play-button,.home-quick-button,.training-hub-recommended>a,.daily-checkin button,.training-cta,.trainer-chat-form button,.board-toolbar button,.history-controls button,.auth-card>button,.analyzer-create-page .form-card>button):active{
+ box-shadow:inset 0 2px 3px #0003,0 1px 1px #0002;
+}
+body #site-nav{box-shadow:inset -1px 0 0 #ffe5af12,3px 0 9px #0002}
+@media(max-width:900px){body .board .square>.piece,body .daily-training-board img,body .entry-square img{filter:drop-shadow(-.5px -.5px .3px #fff1c640) drop-shadow(.7px 2px .8px #17130c66)!important}}
+@media(prefers-reduced-motion:reduce){body button,body .home-quick-button,body .training-hub-recommended>a{transition:none}}
