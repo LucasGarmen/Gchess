@@ -35,3 +35,6 @@ for language,intro in {'es':'Encontrá un torneo público o creá una copa priva
 
 for language,text in {'es':'Elegí la visibilidad, los cupos y el tiempo. El organizador inicia cuando los jugadores estén listos.','pt':'Escolha a visibilidade, as vagas e o tempo. O organizador inicia quando os jogadores estiverem prontos.','en':'Choose visibility, capacity and time. The host starts when players are ready.'}.items():
  TEXTS[language]['create_help']=text
+
+for language, label in {'es':'Entrá o creá una cuenta para participar','pt':'Entre ou crie uma conta para participar','en':'Sign in or create an account to join'}.items():
+ TEXTS[language]['login_to_join']=label

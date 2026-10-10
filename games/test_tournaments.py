@@ -198,3 +198,28 @@ class TournamentNoticeTests(TournamentTests):
         self.enroll(2);self.start()
         self.client.force_login(self.players[3])
         self.assertEqual(self.client.get(reverse('game_notifications')).json()['tournament_notices'],[])
+
+
+class PublicTournamentBrowsingTests(TestCase):
+    def setUp(self):
+        self.host=User.objects.create_user(username='public_host')
+        self.public=Tournament.objects.create(creator=self.host,name='Public visitor cup',visibility='public')
+        self.private=Tournament.objects.create(creator=self.host,name='Private hidden cup',visibility='private')
+        TournamentEntry.objects.create(tournament=self.public,user=self.host)
+
+    def test_guest_can_browse_public_list_and_detail(self):
+        listing=self.client.get(reverse('tournaments'))
+        self.assertContains(listing,self.public.name)
+        self.assertNotContains(listing,self.private.name)
+        detail=self.client.get(reverse('tournament_detail',args=[self.public.token]))
+        self.assertContains(detail,self.public.name)
+        self.assertFalse(detail.context['member'])
+        self.assertIsNone(detail.context['own_match'])
+        self.assertContains(detail,'next=')
+
+    def test_private_details_and_participation_require_login(self):
+        self.assertEqual(self.client.get(reverse('tournament_detail',args=[self.private.token])).status_code,302)
+        response=self.client.post(reverse('tournament_action',args=[self.public.token]),{'action':'join'})
+        self.assertEqual(response.status_code,302)
+        self.assertEqual(self.public.entries.count(),1)
+        self.assertEqual(self.client.get(reverse('tournament_create')).status_code,302)

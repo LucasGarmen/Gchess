@@ -2,6 +2,7 @@
 from collections import defaultdict
 from django import forms
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.views import redirect_to_login
 from django.db import transaction
 from django.http import HttpResponseBadRequest, HttpResponseForbidden, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
@@ -126,11 +127,10 @@ def revision(tournament):
     return [tournament.status,tournament.current_round,tournament.entries.count(),list(tournament.matches.filter(round_number__lte=tournament.current_round).values_list('pk','game__status','game__result'))]
 
 
-@login_required
 @never_cache
 def tournament_list(request):
     # Count every player, not just the current account's matching join row.
-    mine_ids=TournamentEntry.objects.filter(user=request.user).values_list('tournament_id',flat=True)
+    mine_ids=TournamentEntry.objects.filter(user=request.user).values_list('tournament_id',flat=True) if request.user.is_authenticated else []
     tournaments=Tournament.objects.filter(pk__in=mine_ids).select_related('creator').annotate(player_count=Count('entries')).order_by('-created_at','-pk')
     status=request.GET.get('status','lobby')
     if status not in ('lobby','active','finished'):status='lobby'
@@ -152,12 +152,13 @@ def tournament_create(request):
     return render(request,'games/tournament_create.html',{'form':form,'t':texts})
 
 
-@login_required
 @never_cache
 def tournament_detail(request, token):
     tournament=get_object_or_404(Tournament.objects.select_related('creator'),token=token)
     texts=TEXTS[current_language(request)]
-    member=tournament.entries.filter(user=request.user).exists()
+    if not request.user.is_authenticated and tournament.visibility != 'public':
+        return redirect_to_login(request.get_full_path())
+    member=request.user.is_authenticated and tournament.entries.filter(user=request.user).exists()
     if tournament.visibility=='private' and not member and tournament.creator_id!=request.user.pk:
         return render(request,'games/tournament_locked.html',dict(tournament=tournament,t=texts,player_count=tournament.entries.count(),notice=texts.get(request.GET.get('notice'),'')))
     entries=list(tournament.entries.select_related('user'))
@@ -169,12 +170,13 @@ def tournament_detail(request, token):
             friend=pair.high_user if pair.low_user_id==request.user.pk else pair.low_user
             if friend.pk not in joined:friends.append(dict(user=friend,invited=friend.pk in invited))
         friends.sort(key=lambda row:row['user'].username.casefold())
-    TournamentNotice.objects.filter(tournament=tournament,user=request.user,kind='round',round_number__lte=tournament.current_round).update(read=True)
+    if request.user.is_authenticated:
+        TournamentNotice.objects.filter(tournament=tournament,user=request.user,kind='round',round_number__lte=tournament.current_round).update(read=True)
     if any(entry.user_id==request.user.pk for entry in entries):
         TournamentNotice.objects.filter(tournament=tournament,user=request.user,kind='invite').update(read=True)
     member=any(entry.user_id==request.user.pk for entry in entries)
     matches=list(tournament.matches.select_related('white','black','game')) if member or tournament.visibility=='public' else []
-    own_match=next((match for match in matches if match.round_number==tournament.current_round and request.user.pk in (match.white_id,match.black_id)),None)
+    own_match=next((match for match in matches if request.user.is_authenticated and match.round_number==tournament.current_round and request.user.pk in (match.white_id,match.black_id)),None)
     rounds=defaultdict(list)
     for match in matches: rounds[match.round_number].append(match)
     return render(request,'games/tournament_detail.html',dict(tournament=tournament,t=TEXTS[current_language(request)],
