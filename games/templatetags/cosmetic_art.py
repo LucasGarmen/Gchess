@@ -44,3 +44,24 @@ def analyzer_words(lang):
     'pt':('Sua partida, passo a passo','Carregue uma partida e percorra as jogadas. Consulte o coach sobre a posição que está vendo.','Carregue seu PGN','Revise as jogadas','Converse com o coach','Abrir arquivo PGN','Cole o PGN ou abra um arquivo .pgn ou .txt.','Não foi possível abrir. Escolha um arquivo .pgn ou .txt de até 80 KB.','Arquivo carregado: ','Escolha a cor com que jogou para orientar a análise.','Outra partida','A jogada que você está revisando'),
     'en':('Your game, move by move','Load a game and explore its moves. Ask the coach about the position you are viewing.','Load your PGN','Review the moves','Talk with the coach','Open PGN file','Paste the PGN or open a .pgn or .txt file.','Could not open. Choose a .pgn or .txt file up to 80 KB.','File loaded: ','Choose the color you played to guide the analysis.','Another game','The move you are reviewing')}
     return dict(zip(keys,words.get(lang,words['en'])))
+
+@register.simple_tag
+def entry_board(kind):
+    """Small decorative legal positions; the actual game remains interactive."""
+    import chess
+    from django.templatetags.static import static
+    board=chess.Board()
+    lines={'coach':['e4','e5','Nf3','Nc6'], 'friends':['d4','d5','c4','e6'], 'train':['e4','e5','Nf3','Nc6','Bc4','Nf6','Ng5']}
+    for move in lines.get(kind,[]):
+        board.push_san(move)
+    names={chess.PAWN:'pawn',chess.KNIGHT:'horse',chess.BISHOP:'bishop',chess.ROOK:'rook',chess.QUEEN:'queen',chess.KING:'king'}
+    cells=[]
+    for rank in range(7,-1,-1):
+        for file in range(8):
+            piece=board.piece_at(chess.square(file,rank))
+            art=''
+            if piece:
+                src=static('games/pieces-rustic/'+names[piece.piece_type]+'_'+('white' if piece.color else 'black')+'.svg')
+                art=f'<img src="{escape(src)}" alt="" loading="lazy" draggable="false">'
+            cells.append(f'<span class="entry-square {"entry-light" if (rank+file)%2 else "entry-dark"}">{art}</span>')
+    return mark_safe('<div class="entry-mini-board" aria-hidden="true">'+''.join(cells)+'</div>')
