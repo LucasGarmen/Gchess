@@ -1,0 +1,5 @@
+{% load game_i18n %}
+<section class="home-elo-ranking" aria-label="{% tr 'home_elo_title' %}">
+<header><h2>{% tr "home_elo_title" %}</h2><p>{% tr "home_elo_help" %}</p></header>
+<ol>{% for profile in elo_leaders %}<li{% if profile.user_id == user.id %} class="home-elo-self"{% endif %}><span class="home-elo-position">{{ forloop.counter }}</span><strong class="home-elo-name">{{ profile.user.username }}</strong><span class="home-elo-score">{{ profile.elo }} <small>Elo</small></span></li>{% empty %}<li class="home-elo-empty">{% tr "home_elo_empty" %}</li>{% endfor %}</ol>
+</section>

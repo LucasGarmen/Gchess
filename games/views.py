@@ -2,7 +2,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.models import User
 from django.core.cache import cache
 from django.db import connection, transaction
-from django.db.models import Prefetch, Q
+from django.db.models import Prefetch, Q, Exists, OuterRef
 from django.utils import timezone
 from .forms import ChessGameForm
 from django.contrib.auth.decorators import login_required
@@ -556,7 +556,15 @@ def home(request):
             'xp_percent': stats.porcentaje_xp_nivel,
         }
 
+    rated_games = ChessGame.objects.filter(
+        Q(white_user_id=OuterRef('user_id')) | Q(black_user_id=OuterRef('user_id')),
+        status='finished', is_rated=True, rating_applied=True,
+    )
+    elo_leaders = PlayerProfile.objects.filter(user__is_active=True).annotate(
+        has_rated_games=Exists(rated_games),
+    ).filter(has_rated_games=True).select_related('user').order_by('-elo', 'user__username', 'user_id')[:5]
     return render(request, 'games/home.html', {
+        'elo_leaders': elo_leaders,
         'home_progress': home_progress,
     })
 

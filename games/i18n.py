@@ -177,6 +177,10 @@ TRANSLATIONS = {
         'practice_payload_too_large': 'A solicita\u00e7\u00e3o \u00e9 grande demais.',
         'practice_invalid_json': 'N\u00e3o foi poss\u00edvel ler os dados enviados.',
         'stats_title': 'Meu perfil',
+        'home_elo_title': 'Ranking de Elo',
+        'home_elo_help': 'Melhores jogadores em partidas valendo Elo.',
+        'home_elo_empty': 'O ranking aparecerá após as primeiras partidas valendo Elo.',
+
         'profile_edit': 'Editar perfil',
         'profile_games': 'Partidas',
         'profile_learning': 'Aprendizado',
@@ -535,6 +539,10 @@ TRANSLATIONS = {
         'practice_payload_too_large': 'La solicitud es demasiado grande.',
         'practice_invalid_json': 'No se pudieron leer los datos enviados.',
         'stats_title': 'Mi perfil',
+        'home_elo_title': 'Ranking de Elo',
+        'home_elo_help': 'Los mejores jugadores en partidas con Elo.',
+        'home_elo_empty': 'El ranking aparecerá después de las primeras partidas con Elo.',
+
         'profile_edit': 'Editar perfil',
         'profile_games': 'Partidas',
         'profile_learning': 'Aprendizaje',
@@ -893,6 +901,10 @@ TRANSLATIONS = {
         'practice_payload_too_large': 'The request is too large.',
         'practice_invalid_json': 'The submitted data could not be read.',
         'stats_title': 'My profile',
+        'home_elo_title': 'Elo leaderboard',
+        'home_elo_help': 'Top players in rated games.',
+        'home_elo_empty': 'The leaderboard will appear after the first rated games.',
+
         'profile_edit': 'Edit profile',
         'profile_games': 'Games',
         'profile_learning': 'Learning',
