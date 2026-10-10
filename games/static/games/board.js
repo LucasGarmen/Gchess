@@ -138,15 +138,15 @@ function mountMobileNavToggleInBoardToolbar() {
     }
 }
 
-//Funcçao para redireccionar usuario que nao está logueado
+//FuncÃ§ao para redireccionar usuario que nao estÃ¡ logueado
 function shouldStopPollingForAuth(response) {
     return response.redirected ||
         response.status === 401 ||
-        response.status === 403 ||  //Caso nao esteja logueado ou receba erro, ele é redireccionado para /login
+        response.status === 403 ||  //Caso nao esteja logueado ou receba erro, ele Ã© redireccionado para /login
         response.url.includes('/accounts/login/');
 }
 
-//Funções para freiar auto polling
+//FunÃ§Ãµes para freiar auto polling
 function stopGameStatePolling(reason) {
     if (gameStatePollingId) {
         clearInterval(gameStatePollingId);
@@ -173,7 +173,7 @@ function stopGameChatPolling(reason) {
     }
 }
 
-//Função para tradução de palavras individuais
+//FunÃ§Ã£o para traduÃ§Ã£o de palavras individuais
 function uiText(key, fallback) {
     if (typeof UI_TEXTS !== 'undefined' && UI_TEXTS[key]) {
         return UI_TEXTS[key];
@@ -192,7 +192,7 @@ function formatUiText(key, fallback, values) {
     return text;
 }
 
-//Variável usada para verificar se ainda o enroque é possivel
+//VariÃ¡vel usada para verificar se ainda o enroque Ã© possivel
 let castlingRights = {
     white: {
         kingMoved: false,
@@ -278,7 +278,7 @@ const initialPosition = {
     h1: { type: 'rook', color: 'white' },
 };
 
-//função para implementar sonido nos movimentos
+//funÃ§Ã£o para implementar sonido nos movimentos
 function buildSound(url, volume = 1) {
     if (!url || typeof Audio === 'undefined') {  //en caso de erro ou falta de som, nao retorna som
         return null;
@@ -290,7 +290,7 @@ function buildSound(url, volume = 1) {
     audio.load();
     return audio;
 }
-//função especifica de audio
+//funÃ§Ã£o especifica de audio
 function getGameAudioContext() {
     const AudioContextClass = window.AudioContext || window.webkitAudioContext;
 
@@ -305,7 +305,7 @@ function getGameAudioContext() {
     return gameAudioContext;
 }
 
-//função para ter o som preparado para uso (precarregado)
+//funÃ§Ã£o para ter o som preparado para uso (precarregado)
 async function preloadSoundBuffer(url) {
     const audioContext = getGameAudioContext();
 
@@ -342,7 +342,7 @@ function playBuffer(buffer, startOffset = 0, volume = 1) {
     gain.gain.value = volume;
     source.connect(gain);
     gain.connect(audioContext.destination);
-    if (window.GchessSound) window.GchessSound.trackBuffer(source);
+    if (window.GchessSound) window.GchessSound.trackBuffer(source, gain);
     source.start(0, Math.min(startOffset, buffer.duration));
     return true;
 }
@@ -380,7 +380,7 @@ function unlockStartSoundOnFirstInteraction() {
     window.addEventListener('keydown', retryStartSound, { once: true });
 }
 
-//som do começo de partida
+//som do comeÃ§o de partida
 function playStartSound() {
     const playedFromBuffer = playBuffer(startSoundBuffer);
 
@@ -396,7 +396,7 @@ function playStartSound() {
     });
 }
 
-//função de movimento de peças
+//funÃ§Ã£o de movimento de peÃ§as
 function playMoveSound() {
     if (!playBuffer(moveSoundBuffer, MOVE_SOUND_START_OFFSET)) {
         playAudio(moveSound, MOVE_SOUND_START_OFFSET);
@@ -405,10 +405,10 @@ function playMoveSound() {
 
 const letters = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
 
-//Peças faltantes
+//PeÃ§as faltantes
 const pieceFallbacks = {
-    queen_white: '♕',
-    queen_black: '♛',
+    queen_white: 'â™•',
+    queen_black: 'â™›',
 };
 
 const pieceFileNames = {
@@ -497,7 +497,7 @@ function canQueueMoveFrom(square) {
 //atualizador de estado do card
 function updateTurnIndicator() {
     if (analysisMode) {
-        turnIndicator.innerText = uiText('analysis_mode_testing', 'Modo análisis: pruebas temporarias');
+        turnIndicator.innerText = uiText('analysis_mode_testing', 'Modo anÃ¡lisis: pruebas temporarias');
         return;
     }
 
@@ -793,8 +793,8 @@ function updateHistoryControls() {
     const analysisModeButton = document.getElementById('toggle-analysis-mode');
     if (analysisModeButton) {
         analysisModeButton.innerText = analysisMode
-            ? uiText('exit_analysis_mode', 'Salir análisis')
-            : uiText('analysis_mode', 'Modo análisis');
+            ? uiText('exit_analysis_mode', 'Salir anÃ¡lisis')
+            : uiText('analysis_mode', 'Modo anÃ¡lisis');
         analysisModeButton.classList.toggle('active', analysisMode);
     }
 
@@ -1245,7 +1245,7 @@ async function playMove(fromSquare, toSquare, shouldAnimate = true, forcedPromot
 
     let promotedType = null;
 
-    // promoção de peão
+    // promoÃ§Ã£o de peÃ£o
     if (isPromotionMove(movingType, movingColor, to)) {
         promotedType = forcedPromotion || await choosePromotionPiece(toSquare, movingColor);
         promotePawn(toSquare, movingColor, promotedType);
@@ -1696,7 +1696,7 @@ if (
     gameOver = true;
 
     if (GAME_RESULT === 'white' || GAME_RESULT === 'black') {
-        showGameStatus(GAME_RESULT === 'white' ? uiText('white_wins', 'VitÃ³ria das brancas') : uiText('black_wins', 'VitÃ³ria das pretas'));
+        showGameStatus(GAME_RESULT === 'white' ? uiText('white_wins', 'VitÃƒÂ³ria das brancas') : uiText('black_wins', 'VitÃƒÂ³ria das pretas'));
     } else if (GAME_RESULT === 'draw') {
         showGameStatus(uiText('game_drawn', 'Partida empatada'));
     } else {
@@ -1785,7 +1785,7 @@ function applyClockState(clock) {
         finishedGameSynced = true;
 
         if (clock.result === 'white' || clock.result === 'black') {
-            showGameStatus(clock.result === 'white' ? uiText('white_wins', 'Vitória das brancas') : uiText('black_wins', 'Vitória das pretas'));
+            showGameStatus(clock.result === 'white' ? uiText('white_wins', 'VitÃ³ria das brancas') : uiText('black_wins', 'VitÃ³ria das pretas'));
         } else if (clock.result === 'draw') {
             showGameStatus(uiText('game_drawn', 'Partida empatada'));
         }
@@ -1818,7 +1818,7 @@ function showServerGameResult(data) {
     }
 
     if (data.winner === 'white' || data.winner === 'black') {
-        showGameStatus(data.winner === 'white' ? uiText('white_wins', 'Vitória das brancas') : uiText('black_wins', 'Vitória das pretas'));
+        showGameStatus(data.winner === 'white' ? uiText('white_wins', 'VitÃ³ria das brancas') : uiText('black_wins', 'VitÃ³ria das pretas'));
         updateTurnIndicator();
     }
 }
@@ -1941,7 +1941,7 @@ function renderGameChat(data) {
 
             const meta = document.createElement('span');
             meta.className = 'game-chat-meta';
-            meta.innerText = `${message.sender} · ${message.created_at}`;
+            meta.innerText = `${message.sender} Â· ${message.created_at}`;
 
             const text = document.createElement('p');
             text.innerText = message.text;
@@ -2018,7 +2018,7 @@ async function fetchGameChat() {
 
         if (shouldStopPollingForAuth(response)) {
             // Stop polling after login redirects so logged-out tabs do not spam Django.
-            stopGameChatPolling('Chat polling detenido: la sesiÃ³n parece haber expirado.');
+            stopGameChatPolling('Chat polling detenido: la sesiÃƒÂ³n parece haber expirado.');
             return;
         }
 
@@ -2190,7 +2190,7 @@ function getPawnMoves(square) {
         if (frontSquare.dataset.color === '') {
             moves.push(frontCoord);
 
-            // 2 casas para frente desde a posição inicial
+            // 2 casas para frente desde a posiÃ§Ã£o inicial
             const doubleFrontCoord = positionToCoord(col, row + direction * 2);
 
             if (row === startRow && doubleFrontCoord) {
@@ -2415,7 +2415,7 @@ function isValidPawnMove(piece, from, to, targetPiece) {
             return true;
         }
 
-        // mover 2 casas desde a posição inicial
+        // mover 2 casas desde a posiÃ§Ã£o inicial
         if (fromRow === startRow && rowDiff === direction * 2) {
             return true;
         }
@@ -3068,7 +3068,7 @@ async function applyMoveWithoutSaving(move, shouldAnimate = false) {
     }
 
     movePiece(fromSquare, toSquare);
-    // promoção automática
+    // promoÃ§Ã£o automÃ¡tica
     if (isPromotionMove(movingType, movingColor, move.to)) {
         promotePawn(toSquare, movingColor, promotionType);
     }
@@ -3175,7 +3175,7 @@ async function applyGameStateFromServer(data) {
         gameOver = true;
 
         if (data.winner === 'white' || data.winner === 'black') {
-            showGameStatus(data.winner === 'white' ? uiText('white_wins', 'Vitória das brancas') : uiText('black_wins', 'Vitória das pretas'));
+            showGameStatus(data.winner === 'white' ? uiText('white_wins', 'VitÃ³ria das brancas') : uiText('black_wins', 'VitÃ³ria das pretas'));
         }
     }
 
@@ -3263,7 +3263,7 @@ async function syncMovesFromServer(options = {}) {
 
         if (shouldStopPollingForAuth(response)) {
             // Stop polling after login redirects so logged-out tabs do not spam Django.
-            stopGameStatePolling('Polling de partida detenido: la sesiÃ³n parece haber expirado.');
+            stopGameStatePolling('Polling de partida detenido: la sesiÃƒÂ³n parece haber expirado.');
             return;
         }
 
@@ -3295,7 +3295,7 @@ async function syncMovesFromServer(options = {}) {
             gameOver = true;
 
             if (data.winner === 'white' || data.winner === 'black') {
-                showGameStatus(data.winner === 'white' ? uiText('white_wins', 'Vitória das brancas') : uiText('black_wins', 'Vitória das pretas'));
+                showGameStatus(data.winner === 'white' ? uiText('white_wins', 'VitÃ³ria das brancas') : uiText('black_wins', 'VitÃ³ria das pretas'));
             }
         }
 
@@ -4197,7 +4197,7 @@ async function requestCoachAnalysis(requestKey = coachAnalysisKey(), movesSnapsh
                 setCoachComment(neutralCoachFallbackComment());
                 lastCoachAnalysisCompletedKey = requestKey;
             } else {
-                setCoachComment(uiText('trainer_error', 'O treinador não conseguiu responder agora.'));
+                setCoachComment(uiText('trainer_error', 'O treinador nÃ£o conseguiu responder agora.'));
             }
             return;
         }
@@ -4211,8 +4211,8 @@ async function requestCoachAnalysis(requestKey = coachAnalysisKey(), movesSnapsh
             return;
         }
 
-        console.error('Erro ao pedir análise do treinador:', error);
-        setCoachComment(uiText('trainer_error', 'O treinador não conseguiu responder agora.'));
+        console.error('Erro ao pedir anÃ¡lise do treinador:', error);
+        setCoachComment(uiText('trainer_error', 'O treinador nÃ£o conseguiu responder agora.'));
     } finally {
         clearTimeout(analysisTimer);
         if (coachAnalysisRequestKey === requestKey && coachAnalysisAbortController === requestController) {
@@ -4723,7 +4723,7 @@ async function askComputerMove() {
         }
 
         if (response.status === 429) {
-            console.warn('Motor com muitas solicitações; tentando novamente em instantes.');
+            console.warn('Motor com muitas solicitaÃ§Ãµes; tentando novamente em instantes.');
             scheduleEngineMoveRetry(requestKey, elo, engineMoveRetryDelay(response));
             return;
         }

@@ -5,3 +5,5 @@ body button.sound-toggle:focus-visible{outline:2px solid #d4b879;outline-offset:
 .sound-toggle svg{display:block;width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;pointer-events:none}
 .sound-toggle .sound-off{display:none}.sound-toggle.sound-muted .sound-on{display:none}.sound-toggle.sound-muted .sound-off{display:block}
 .nav-sound{padding:4px 10px}.board-toolbar .sound-toggle{margin-left:auto}
+
+.sound-volume{width:64px!important;min-width:0;min-height:24px!important;height:24px!important;padding:0!important;margin:0 4px!important;accent-color:#c3a76e;vertical-align:middle;cursor:pointer}.nav-sound{display:flex;align-items:center;gap:4px}.board-toolbar .sound-volume{flex:0 0 64px}@media(max-width:900px){.sound-volume{min-height:36px!important}}

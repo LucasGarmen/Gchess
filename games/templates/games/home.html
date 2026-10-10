@@ -26,6 +26,8 @@
 {% block content %}
 
 <link rel="stylesheet" href="{% static 'games/first_steps.css' %}?v=3">
+<link rel="stylesheet" href="{% static 'games/coach_bubbles.css' %}?v=1">
+<script src="{% static 'games/coach_bubbles.js' %}?v=1" defer></script>
 <section id="mobile-home-menu" class="mobile-home-menu">
     {% include 'games/_home_intro.html' with mobile=True %}
     <div id="mobile-bot-setup" class="mobile-bot-setup" hidden>
@@ -226,7 +228,7 @@
 
 <script src="{% static 'games/analysis_loading.min.js' %}?v=1"></script>
 <script src="{% static 'games/trainer_conversation.min.js' %}?v=5" defer></script>
-<script src="{% static 'games/board.min.js' %}?v=17" defer></script>
+<script src="{% static 'games/board.min.js' %}?v=18" defer></script>
 <script src="{% static 'games/game_finish.js' %}?v=1" defer></script>
 <script src="{% static 'games/blindfold.js' %}?v=2" defer></script>
 <script>
