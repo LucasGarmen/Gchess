@@ -6,36 +6,36 @@
 {% endblock %}
 
 {% block content %}
+{% load static %}<link rel="stylesheet" href="{% static 'games/profile.css' %}?v=1">
 
-<main class="stats-page">
+<main class="stats-page profile-page">
     <header class="stats-header">
         <span class="stats-eyebrow brand-label">Gchess</span>
         <h1>{% tr "stats_title" %}</h1>
-        <p>{% tr "stats_intro" %}</p>
+        <p class="profile-username">{{ user.username }}</p>
     </header>
-    <div class="profile-shop-avatar">{% include 'games/_avatar.html' with avatar=cosmetics.avatar accessory=cosmetics.accessory clothing=cosmetics.clothing face=cosmetics.face hairstyle=cosmetics.hairstyle eyewear=cosmetics.eyewear earrings=cosmetics.earrings %}<a href="{% url 'shop' %}">{{ shop_texts.title }} · {{ shop_texts.your_avatar }} →</a></div>
+    <div class="profile-shop-avatar">{% include 'games/_avatar.html' with avatar=cosmetics.avatar accessory=cosmetics.accessory clothing=cosmetics.clothing face=cosmetics.face hairstyle=cosmetics.hairstyle eyewear=cosmetics.eyewear earrings=cosmetics.earrings %}<a href="{% url 'shop' %}">{% tr "profile_avatar" %} →</a></div>
 
 
-    <p class="training-stat-note"><a href="{% url 'learning' %}">{{ learning.title }} →</a></p>
-    <section class="profile-power-panel" aria-label="{% tr "stats_training_summary" %}">
-        <div class="profile-power-main">
-            <span>{% tr "home_hub_level" %}</span>
-            <strong>{{ xp_progress.nivel }}</strong>
-        </div>
-        <div>
-            <span>{% tr "stats_puzzle_rating" %}</span>
-            <strong>{{ stats.puzzle_rating }}</strong>
-        </div>
-        <div>
-            <span>{% tr "stats_current_streak" %}</span>
-            <strong>{{ stats.racha_actual }}</strong>
-        </div>
-        <div>
-            <span>{% tr "stats_best_streak" %}</span>
-            <strong>{{ stats.mejor_racha }}</strong>
-        </div>
+    <section class="profile-overview">
+        <div><span>Elo</span><strong>{{ user.player_profile.elo|default:1200 }}</strong></div>
+        <div><span>{% tr "profile_total" %}</span><strong>{{ match_stats.total }}</strong></div>
+        <div><span>{% tr "profile_wins" %}</span><strong>{{ match_stats.win_rate }}%</strong></div>
     </section>
-
+    <fieldset class="profile-sections"><legend class="profile-sr-only">{% tr "stats_title" %}</legend>
+    <input class="profile-tab-input" type="radio" name="profile-section" id="profile-games" checked>
+    <label class="profile-tab-label" for="profile-games">{% tr "profile_games" %}</label>
+    <input class="profile-tab-input" type="radio" name="profile-section" id="profile-learning">
+    <label class="profile-tab-label" for="profile-learning">{% tr "profile_learning" %}</label>
+    <section class="profile-games-panel">
+        <dl class="profile-results">
+            <div><dt>{% tr "profile_wins" %}</dt><dd>{{ match_stats.wins }}</dd></div>
+            <div><dt>{% tr "profile_draws" %}</dt><dd>{{ match_stats.draws }}</dd></div>
+            <div><dt>{% tr "profile_losses" %}</dt><dd>{{ match_stats.losses }}</dd></div>
+        </dl>
+    </section>
+    <section class="profile-learning-panel">
+    <p class="training-stat-note"><a href="{% url 'learning' %}">{{ learning.title }} →</a></p>
     <section class="xp-progress-panel profile-xp-panel" aria-label="{% tr "xp_progress" %}">
         <div class="xp-progress-header">
             <span>{% tr "xp_level" %} <strong>{{ xp_progress.nivel }}</strong></span>
@@ -87,6 +87,8 @@
             <p class="stats-empty">{% tr "stats_no_training" %}</p>
         {% endif %}
     </details>
+    </section>
+    </fieldset>
 </main>
 
 {% endblock %}

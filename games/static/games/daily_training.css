@@ -3,3 +3,16 @@
 .daily-training-square small.rank{left:3px;right:auto;top:1px;bottom:auto}.daily-training-square.dark small{color:#f1e5cd}.daily-training-page header h1{margin:10px 0}.daily-training-page header{margin:18px 0}.daily-training-board-area{min-width:0}
 
 @media(max-width:600px){#daily-training-finish>a{display:flex;align-items:center;justify-content:center;width:100%;min-height:44px;margin:10px 0;padding:10px;box-sizing:border-box;text-align:center}}
+
+@media(min-width:901px){
+ .daily-training-page{margin:12px auto 16px;max-width:1000px}.daily-training-page header{margin:8px 0 12px}
+ .daily-training-page header h1{font-size:28px;margin:4px 0}.daily-training-page header p{line-height:1.4;margin:6px 0}
+ .daily-training-page .daily-training-layout{grid-template-columns:minmax(0, min(520px,calc(100vh - 210px))) minmax(260px,1fr);gap:18px}
+ .daily-training-page .daily-training-board-area>p{margin:0 0 8px}
+ .daily-training-page .daily-training-card{padding:16px}
+ .daily-training-page .daily-training-card h2{font-size:21px;margin:10px 0}
+ .daily-training-page .daily-training-card p{margin:8px 0;line-height:1.45}
+ .daily-training-page .daily-training-week{margin:10px 0 0;font-size:12px}
+ .daily-training-page #daily-training-feedback{min-height:44px;padding-top:10px}
+ .daily-training-page .daily-training-layout>aside{max-height:calc(100vh - 170px);overflow-y:auto;box-sizing:border-box;scrollbar-width:thin}
+}

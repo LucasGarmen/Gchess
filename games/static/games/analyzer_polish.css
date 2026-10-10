@@ -90,3 +90,5 @@ body.mobile-analyzer-playing .analyzer-game-layout .analyzer-review-controls but
  body.mobile-analyzer-playing .analyzer-game-layout .analyzer-side{max-height:calc(100vh - 160px)}
 }
 
+
+@media(min-width:901px){.analyzer-create-page{margin:12px auto!important}.analyzer-create-page .analyzer-steps{margin:10px 0}.analyzer-create-page .form-card{padding:14px 18px}.analyzer-create-page #pgn{height:clamp(110px,calc(100vh - 460px),180px)!important;min-height:110px!important}.analyzer-create-page .analyzer-color-field{margin-bottom:10px}.analyzer-create-page .analyzer-input-help{margin:6px 0}}

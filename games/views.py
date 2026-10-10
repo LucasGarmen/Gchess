@@ -1702,9 +1702,25 @@ def profile_stats(request):
         },
     ]
 
+    finished_games = ChessGame.objects.filter(
+        Q(white_user=request.user) | Q(black_user=request.user),
+        status='finished', result__in=['white', 'black', 'draw'],
+    )
+    game_total = finished_games.count()
+    game_wins = finished_games.filter(
+        Q(white_user=request.user, result='white') | Q(black_user=request.user, result='black')
+    ).count()
+    game_draws = finished_games.filter(result='draw').count()
+    match_stats = {
+        'total': game_total, 'wins': game_wins, 'draws': game_draws,
+        'losses': game_total - game_wins - game_draws,
+        'win_rate': round(game_wins * 100 / game_total) if game_total else 0,
+    }
+
     return render(request, 'games/profile_stats.html', {
         'stats': stats,
         'stat_cards': stat_cards,
+        'match_stats': match_stats,
         'xp_progress': build_xp_progress_context(stats),
         'rating_change_value': rating_change_value,
         'total_time': format_duration_short(stats.tiempo_total),

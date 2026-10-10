@@ -1,7 +1,7 @@
 {% extends 'games/base.html' %}{% load static %}
 {% block title %}{{ dt.title }} · Gchess{% endblock %}
 {% block content %}
-<link rel="stylesheet" href="{% static 'games/daily_training.css' %}?v=3">
+<link rel="stylesheet" href="{% static 'games/daily_training.css' %}?v=4">
 <main class="daily-training-page">
 <a href="{% url 'learning' %}">← {{ next_session.texts.learning }}</a>
 <header><p class="eyebrow">Gchess</p><h1>{{ dt.title }}</h1><p>{{ dt.intro }}</p></header>
