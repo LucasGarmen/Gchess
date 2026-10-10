@@ -10,3 +10,14 @@
 #site-nav .nav-contact-panel>a:hover{background:#efdbb3;color:#30291d}
 @media(max-width:900px){#site-nav .nav-contact-detail>summary{width:44px;height:44px}}
 @media(max-width:900px){body #site-nav{flex-wrap:nowrap!important}#site-nav .nav-contact-links{width:100%;box-sizing:border-box}}
+
+/* Contact cards must override the small footer-icon link dimensions. */
+body #site-nav .nav-contact-panel{right:auto;width:min(270px,calc(100vw - 40px));box-sizing:border-box;gap:10px;padding:16px;line-height:1.45}
+body #site-nav .nav-contact-panel>strong{display:block;font-size:16px;color:#f0ddba}
+body #site-nav .nav-contact-panel>span{display:block;font-size:13px;color:#e0d0b2;user-select:text}
+body #site-nav .nav-contact-links .nav-contact-panel a{display:flex;width:100%;height:auto;min-height:42px;margin:0;padding:10px 12px;box-sizing:border-box;white-space:normal;line-height:1.4;text-align:center;background:#dfc795;color:#30291d;border:1px solid #bfa36c;font-size:13px;font-weight:600;border-radius:7px}
+body #site-nav .nav-contact-links .nav-contact-panel a:hover{background:#efdbb3;color:#30291d}
+#nav-player-conversations{display:grid;gap:7px;max-height:220px;overflow:auto;font-size:13px;color:#d0c3a8}
+#nav-player-conversations p{margin:0;line-height:1.5;color:inherit}
+body #site-nav .nav-contact-links #nav-player-conversations a{background:#343c2d;color:#efddba;border-color:#81714d;text-align:left;justify-content:flex-start}
+body #site-nav .nav-player-chat .nav-add-friends{margin-top:6px;border-top:1px solid #ac9257}

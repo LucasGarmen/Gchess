@@ -40,8 +40,8 @@
 <style>#site-nav .nav-logout-last{margin:8px 0 0;padding:4px 0 0;border-top:1px solid #9b825650;border-bottom:0}.site-nav .nav-logout-last button{display:block;width:100%;text-align:left;min-height:40px;padding:10px 12px;margin:0;background:transparent;border:0;border-radius:0;color:#cbbb9d;font-size:13px;cursor:pointer}.site-nav .nav-logout-last button:hover{background:#353a2c;color:#ead3a1}</style>
 <link rel="stylesheet" href="{% static 'games/scrollbars.css' %}?v=1">
 <link rel="stylesheet" href="{% static 'games/community_polish.css' %}?v=1">
-<link rel="stylesheet" href="{% static 'games/contact_links.css' %}?v=1">
-<script src="{% static 'games/contact_links.js' %}?v=1" defer></script>
+<link rel="stylesheet" href="{% static 'games/contact_links.css' %}?v=2">
+<script src="{% static 'games/contact_links.js' %}?v=2" defer></script>
 <link rel="stylesheet" href="{% static 'games/navigation.css' %}?v=10">
 <link rel="stylesheet" href="{% static 'games/checkin.css' %}?v=1">
 <link rel="stylesheet" href="{% static 'games/subtle_depth.css' %}?v=3">
@@ -142,7 +142,7 @@
     <div class="nav-contact-links">
         <details class="nav-contact-detail"><summary aria-label="Instagram" title="Instagram"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r=".8" fill="currentColor" stroke="none"/></svg></summary><div class="nav-contact-panel"><strong>Instagram</strong><span>@gchessapp</span><a href="https://www.instagram.com/gchessapp/" target="_blank" rel="noopener noreferrer">{% if current_language == "pt" %}Abrir Instagram{% elif current_language == "es" %}Abrir Instagram{% else %}Open Instagram{% endif %} →</a></div></details>
         <details class="nav-contact-detail"><summary aria-label="Email" title="Email"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 6 9 7 9-7"/></svg></summary><div class="nav-contact-panel"><strong>Email</strong><span>gchesssuport@gmail.com</span><a href="mailto:gchesssuport@gmail.com">{% if current_language == "pt" %}Enviar email{% elif current_language == "es" %}Enviar correo{% else %}Send email{% endif %} →</a></div></details>
-        <a href="{% url 'friends' %}" aria-label="Chat" title="Chat"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 11.5a8.5 8.5 0 0 1-8.5 8.5H4l-2 2V11.5A8.5 8.5 0 0 1 10.5 3h2a8.5 8.5 0 0 1 8.5 8.5Z"/><path d="M7 9h9M7 13h6"/></svg></a>
+        <details class="nav-contact-detail nav-player-chat"><summary aria-label="Chat" title="Chat"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 11.5a8.5 8.5 0 0 1-8.5 8.5H4l-2 2V11.5A8.5 8.5 0 0 1 10.5 3h2a8.5 8.5 0 0 1 8.5 8.5Z"/><path d="M7 9h9M7 13h6"/></svg></summary><div class="nav-contact-panel"><strong>{% if current_language == 'pt' %}Chat com jogadores{% elif current_language == 'es' %}Chat con jugadores{% else %}Player chat{% endif %}</strong><div id="nav-player-conversations" data-empty="{% if current_language == 'pt' %}Ainda não há conversas. O chat com seu adversário fica disponível durante a partida.{% elif current_language == 'es' %}Todavía no hay conversaciones. Podés hablar con tu rival durante una partida.{% else %}No conversations yet. Chat with your opponent during a game.{% endif %}" data-error="{% if current_language == 'pt' %}Não foi possível carregar as conversas.{% elif current_language == 'es' %}No se pudieron cargar las conversaciones.{% else %}Could not load conversations.{% endif %}"></div><a href="{% url 'friends' %}" class="nav-add-friends">{% if current_language == 'pt' %}Adicionar amigos{% elif current_language == 'es' %}Agregar amigos{% else %}Add friends{% endif %} →</a></div></details>
     </div>
     </nav>
 
