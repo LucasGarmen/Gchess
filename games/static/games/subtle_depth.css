@@ -1,7 +1,5 @@
-/* A crisp contact shadow only: no glow, blur, or changes to piece geometry. */
+/* Volume is painted inside the SVG; keep silhouettes sharp and unfiltered. */
 body .board .square>.piece,body .daily-board .square>.piece,
 body .daily-training-board img,body #opening-board img,
 body .entry-square img,body .shop-piece-set img,
-body .drag-piece,body .move-animation-piece{
- filter:drop-shadow(0 1px 0 rgba(24,18,10,.38))!important;
-}
+body .drag-piece,body .move-animation-piece{filter:none!important}
