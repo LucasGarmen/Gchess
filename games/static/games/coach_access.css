@@ -15,3 +15,9 @@ body.mobile-nav-open .coach-chat-dock,body.mobile-nav-open .board-coach-bubble{v
 .coach-chat-dock #trainer-chat-input{width:0!important}.coach-chat-dock #trainer-chat-submit{width:auto!important}
 body.mobile-bot-playing .home-computer-layout #coach-comment{display:none!important}
 @media(max-width:900px){.board-coach-bubble>div{max-height:100px}}
+
+.coach-chat-handle{font-size:12px;color:#d8bd85;line-height:1.5;cursor:grab;touch-action:none;user-select:none;padding:1px 0 5px}
+.coach-chat-dock>details>summary{font-size:11px;padding:1px 0 5px}
+@media(min-width:901px){.coach-chat-dock{width:310px;padding:7px 8px;right:16px}.coach-chat-dock #trainer-chat-input,.coach-chat-dock #trainer-chat-submit{min-height:36px;font-size:12px;padding:7px 8px}.coach-chat-dock #trainer-chat-log{max-height:170px}.board-coach-bubble>div{font-size:12px;max-height:130px}.board-coach-bubble{padding:10px 28px 10px 10px}}
+@media(max-width:900px){.coach-chat-handle{display:none}.board-coach-bubble.coach-reply-inline{position:absolute;z-index:20;margin:0}.board-coach-bubble.coach-reply-inline>div{max-height:100px}.board-coach-bubble.coach-reply-inline::after{content:"";position:absolute;right:-7px;bottom:16px;width:12px;height:12px;transform:rotate(45deg);background:#35412d;border-top:1px solid #a58b5970;border-right:1px solid #a58b5970}body.mobile-bot-playing .home-computer-layout .board-wrapper:has(.board-player-stage) .board-toolbar{margin-bottom:calc(48px + var(--coach-reply-top,0px))!important}body.mobile-bot-playing .home-computer-layout .board-wrapper:has(.board-player-stage){padding-bottom:calc(50px + var(--coach-reply-bottom,0px))!important}}
+@media(max-width:900px){.board-coach-bubble.coach-reply-inline[data-side=below]::after{top:16px;bottom:auto}}
