@@ -334,6 +334,26 @@ class TrainerMoveTrackingTests(TestCase):
         self.assertEqual(context["played_move"]["move_uci"], "e2e4")
         self.assertEqual(context["played_move"]["moving_color"], "white")
 
+    def test_move_reference_cases(self):
+        cases = [
+            ("¿La última jugada fue buena?", "white", "e2e4"),
+            ("¿La última jugada del rival fue buena?", "white", "e7e5"),
+            ("¿Mi última jugada fue buena?", "black", "e7e5"),
+            ("¿La última jugada del rival fue buena?", "black", "e2e4"),
+            ("Me refería a mi jugada e4, no a la del rival. ¿Fue buena?", "white", "e2e4"),
+            ("Was my last move good?", "white", "e2e4"),
+            ("Was my opponent's last move good?", "white", "e7e5"),
+            ("¿La última jugada de mi rival fue buena?", "white", "e7e5"),
+            ("A última jogada do oponente foi boa?", "white", "e7e5"),
+        ]
+        for question, color, expected in cases:
+            with self.subTest(question=question, color=color), patch("games.views.configured_stockfish_path", return_value=("stockfish", "")), patch("games.views.open_stockfish_engine", return_value=self.engine()), patch("games.views.generate_gemini_explanation", return_value="La jugada está identificada.") as gemini:
+                response = self.ask_move(question, color)
+                self.assertEqual(response.status_code, 200)
+                prompt = gemini.call_args.args[0]
+                context = json.loads(prompt.split("ENGINE_CONTEXT (null for a general question):\n")[1])
+                self.assertEqual(context["played_move"]["move_uci"], expected)
+
     def test_retry_reuses_analysis_but_color_has_its_own_context(self):
         with patch("games.views.configured_stockfish_path", return_value=("stockfish", "")), patch("games.views.open_stockfish_engine", side_effect=lambda path:self.engine()) as engine, patch("games.views.generate_gemini_explanation", side_effect=GeminiFailure("timeout")):
             self.ask_move("¿Mi jugada fue buena?")

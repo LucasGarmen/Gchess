@@ -445,13 +445,24 @@ def add_played_move_context(engine, board, question, context):
     if (not PAST.search(normalize_piece_text(question)) and proposed.get("legal") is not False) or not board.move_stack:
         return context
     text = normalize_piece_text(question)
-    own_move = bool(re.search(r"\b(mi|mis|minha|meu|my|jugue|joguei|i played)\b", text))
+    ownership_text = re.sub(r"\b(mi|meu|minha|my)\s+(rival|oponente|adversario|opponent)(?:[’']s)?\b", "opponent", text)
+    own_move = bool(re.search(r"\b(mi|mis|minha|meu|my|jugue|joguei|i played)\b", ownership_text))
+    opponent_move = bool(re.search(r"\b(rival|oponente|opponent|adversario|adversary|their move|his move|her move)\b", text)) and not own_move
     player_color = context.get("player_color", "white")
+    named_move = bool(SAN_CANDIDATE_RE.search(question) or UCI_CANDIDATE_RE.search(question))
+    target_color = player_color if own_move or (not named_move and not opponent_move) else None
+    if opponent_move:
+        target_color = 'black' if player_color == 'white' else 'white'
+    if re.search(r"\b(blancas|brancas|white)\b", text) and not own_move and not opponent_move:
+        target_color = 'white'
+    elif re.search(r"\b(negras|pretas|black)\b", text) and not own_move and not opponent_move:
+        target_color = 'black'
+    context['move_reference'] = 'opponent' if opponent_move else 'user' if target_color == player_color else 'named_move'
     previous = board.copy(stack=True)
     selected = None
     for _ in range(min(16, len(previous.move_stack))):
         actual = previous.pop()
-        if own_move and color_name(previous.turn) != player_color:
+        if target_color and color_name(previous.turn) != target_color:
             continue
         proposed = parse_proposed_move(previous, question)
         if proposed and proposed.get("legal") and proposed["move"] == actual:

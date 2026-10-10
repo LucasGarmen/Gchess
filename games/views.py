@@ -3645,7 +3645,7 @@ def trainer_chat(request):
     engine_context = None
     engine = None
     target_question = analysis_question(question, history)
-    context_key = "trainer-position:v2:" + hashlib.sha256(json.dumps({
+    context_key = "trainer-position:v3:" + hashlib.sha256(json.dumps({
         "moves": [move.uci() for move in board.move_stack],
         "question": target_question, "color": player_color, "language": language,
         "budget": os.getenv("TRAINER_ANALYSIS_SECONDS", "0.12"),
