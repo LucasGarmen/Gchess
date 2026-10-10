@@ -47,7 +47,8 @@
         document.getElementById('blindfold-play').hidden = !active;
         document.getElementById('blindfold-rule').textContent = exclusive ? text.exclusive_help : text.personal_help;
         const coachPanel = layout.querySelector('#computer-coach-panel');
-        const host = active ? boardArea : (coachPanel || side || boardArea);
+        const mobileOptions = isMobileLayout() ? layout.querySelector('.mobile-play-options-body') : null;
+        const host = active ? boardArea : (mobileOptions || coachPanel || side || boardArea);
         if (panel.parentElement !== host) host.prepend(panel);
         const menu = document.getElementById('mobile-nav-toggle');
         if (active && menu && isMobileLayout()) {

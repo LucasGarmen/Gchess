@@ -93,3 +93,13 @@
 
 @media(min-width:1101px){body #site-nav{padding-bottom:28px;box-sizing:border-box}}
 @media(max-width:900px){body #site-nav{padding-bottom:28px!important}}
+
+/* Contact links sit below logout, with enough clearance for floating UI. */
+#site-nav .nav-contact-links{display:flex!important;align-items:center;gap:12px;flex-shrink:0;padding:8px 8px 0;margin:6px 0 0;border-top:1px solid #9b825630}
+#site-nav .nav-contact-links a{display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;margin:0;color:#bda77f;border:1px solid transparent;border-radius:8px;transition:background .15s,color .15s}
+#site-nav .nav-contact-links svg{width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+#site-nav .nav-contact-links a:hover,#site-nav .nav-contact-links a:focus-visible{color:#efdbb4;background:#353a2c;border-color:#9b825650}
+#site-nav .nav-contact-links a:focus-visible{outline:2px solid #dfc795;outline-offset:2px}
+@media(min-width:1101px){body #site-nav{padding-bottom:60px}#site-nav .language-form{margin-top:12px}}
+@media(min-width:1101px) and (max-height:780px){body #site-nav{padding-top:8px}#site-nav .nav-brand{min-height:46px;padding-bottom:6px;margin-bottom:4px}#site-nav .nav-main-row,#site-nav .nav-main-row .nav-link,#site-nav .nav-main-row .nav-disclosure,#site-nav .notification-area>button{min-height:34px}#site-nav>a.nav-main-row,#site-nav .nav-main-row .nav-link,#site-nav .notification-area>button{padding:7px 10px;font-size:12px}#site-nav .language-form{margin-top:6px;padding-top:6px}}
+@media(max-width:900px){body #site-nav{padding-bottom:calc(60px + env(safe-area-inset-bottom))!important}#site-nav .nav-contact-links a{width:44px;height:44px}}
