@@ -2,30 +2,32 @@
 {% load static %}
 {% block title %}{{ s.title }} · Gchess{% endblock %}
 {% block content %}
-<main class="social-page">
+<main class="social-page friends-page">
 <header><p class="eyebrow">Gchess · {{ s.title }}</p><h1>{{ s.title }}</h1><p>{{ s.intro }}</p></header>
-<section class="social-panel"><h2>{{ weekly.title }}</h2><p>{{ weekly.intro }}</p><a href="{% url 'weekly_challenge' %}">{{ weekly.start }} →</a></section>
+
 {% if feedback %}<p class="social-feedback" role="status">{{ feedback }}</p>{% endif %}
-<section class="social-panel"><h2>{{ s.search }}</h2>
+<section class="social-panel friends-search"><h2>{{ s.search }}</h2>
 <form method="get" class="social-search"><label for="friend-query">{{ s.search_hint }}</label><input id="friend-query" name="q" value="{{ query }}" maxlength="150" minlength="2" required autocomplete="off"><button>{{ s.find }}</button></form>
 <small>{{ s.privacy }}</small>
 {% for row in results %}<div class="social-person"><strong>{{ row.user.username }}</strong>
 {% if row.state == 'accepted' %}<span>{{ s.accepted }}</span>{% elif row.state %}<span>{{ s.pending }}</span>{% else %}
 <form method="post" action="{% url 'friend_action' row.user.pk %}">{% csrf_token %}<button name="action" value="send">{{ s.add }}</button></form>{% endif %}</div>
 {% empty %}{% if query|length >= 2 %}<p>{{ s.no_results }}</p>{% endif %}{% endfor %}</section>
-<div class="social-columns">
-<section class="social-panel"><h2>{{ s.incoming }} · {{ incoming|length }}</h2>
-{% for relation in incoming %}<div class="social-person"><strong>{{ relation.requester.username }}</strong><form method="post" action="{% url 'friend_action' relation.requester.pk %}">{% csrf_token %}<button name="action" value="accept">{{ s.accept }}</button><button name="action" value="decline" class="social-secondary">{{ s.decline }}</button></form></div>{% empty %}<p>—</p>{% endfor %}
-</section><section class="social-panel"><h2>{{ s.outgoing }} · {{ outgoing|length }}</h2>
-{% for row in outgoing %}<div class="social-person"><strong>{{ row.user.username }}</strong><form method="post" action="{% url 'friend_action' row.user.pk %}">{% csrf_token %}<button name="action" value="cancel" class="social-secondary">{{ s.cancel }}</button></form></div>{% empty %}<p>—</p>{% endfor %}</section></div>
-<section class="social-panel"><div class="social-heading"><h2>{{ s.friends }} · {{ friends|length }}</h2><a href="{% url 'friends' %}">{{ s.refresh }}</a></div><p>{{ s.challenge_help }}</p>
+
+<section class="social-panel friends-list"><div class="social-heading"><h2>{{ s.friends }} · {{ friends|length }}</h2><a href="{% url 'friends' %}">{{ s.refresh }}</a></div><p>{{ s.challenge_help }}</p>
 <div class="social-friend-grid">{% for row in friends %}<article class="social-friend"><h3>{{ row.user.username }}</h3><p class="{% if row.online %}social-online{% endif %}">{% if row.online %}● {{ s.online }}{% else %}○ {{ s.offline }}{% endif %}</p>
 <p>{{ s.history }}</p><div class="social-scores"><span><b>{{ row.history.wins }}</b>{{ s.wins }}</span><span><b>{{ row.history.losses }}</b>{{ s.losses }}</span><span><b>{{ row.history.draws }}</b>{{ s.draws }}</span></div>
 <form method="post" action="{% url 'friend_challenge' row.user.pk %}" class="social-challenge">{% csrf_token %}
 <label for="kind-{{ row.user.pk }}">{{ s.challenge }}</label><select id="kind-{{ row.user.pk }}" name="kind"><option value="casual">{{ s.casual }}</option><option value="ranked">{{ s.ranked }}</option></select>
 <label for="minutes-{{ row.user.pk }}">{{ s.minutes }}</label><select id="minutes-{{ row.user.pk }}" name="minutes"><option>3</option><option>5</option><option selected>10</option><option>15</option></select><button>{{ s.challenge }}</button></form>
 <details><summary>{{ s.remove }}</summary><form method="post" action="{% url 'friend_action' row.user.pk %}">{% csrf_token %}<button name="action" value="remove" class="social-secondary">{{ s.remove }} · {{ row.user.username }}</button></form></details></article>{% empty %}<p>{{ s.empty }}</p>{% endfor %}</div></section>
-<section class="social-panel"><h2>{{ s.ranking }}</h2><p>{{ s.ranking_help }}</p><div role="group" class="social-tabs" aria-label="{{ s.ranking }}"><a href="?metric=puzzles" {% if metric == 'puzzles' %}aria-current="page"{% endif %}>{{ s.puzzles }}</a><a href="?metric=elo" {% if metric == 'elo' %}aria-current="page"{% endif %}>{{ s.elo }}</a><a href="?metric=blitz" {% if metric == 'blitz' %}aria-current="page"{% endif %}>{{ s.blitz }}</a><a href="?metric=streak" {% if metric == 'streak' %}aria-current="page"{% endif %}>{{ s.streak }}</a></div>
+<div class="social-columns friends-requests">
+<details class="social-panel"><summary>{{ s.incoming }} · {{ incoming|length }}</summary>
+{% for relation in incoming %}<div class="social-person"><strong>{{ relation.requester.username }}</strong><form method="post" action="{% url 'friend_action' relation.requester.pk %}">{% csrf_token %}<button name="action" value="accept">{{ s.accept }}</button><button name="action" value="decline" class="social-secondary">{{ s.decline }}</button></form></div>{% empty %}<p>—</p>{% endfor %}
+</details><details class="social-panel"><summary>{{ s.outgoing }} · {{ outgoing|length }}</summary>
+{% for row in outgoing %}<div class="social-person"><strong>{{ row.user.username }}</strong><form method="post" action="{% url 'friend_action' row.user.pk %}">{% csrf_token %}<button name="action" value="cancel" class="social-secondary">{{ s.cancel }}</button></form></div>{% empty %}<p>—</p>{% endfor %}</details></div>
+<section class="social-panel friends-ranking"><h2>{{ s.ranking }}</h2><p>{{ s.ranking_help }}</p><div role="group" class="social-tabs" aria-label="{{ s.ranking }}"><a href="?metric=puzzles" {% if metric == 'puzzles' %}aria-current="page"{% endif %}>{{ s.puzzles }}</a><a href="?metric=elo" {% if metric == 'elo' %}aria-current="page"{% endif %}>{{ s.elo }}</a><a href="?metric=blitz" {% if metric == 'blitz' %}aria-current="page"{% endif %}>{{ s.blitz }}</a><a href="?metric=streak" {% if metric == 'streak' %}aria-current="page"{% endif %}>{{ s.streak }}</a></div>
 <ol class="social-ranking">{% for row in ranking %}<li><span>{{ row.user.username }}{% if row.user.pk == user.pk %} · {{ s.you }}{% endif %}</span><strong>{{ row.value|default_if_none:'—' }}</strong></li>{% endfor %}</ol></section>
+<section class="social-panel friends-weekly"><h2>{{ weekly.title }}</h2><p>{{ weekly.intro }}</p><a href="{% url 'weekly_challenge' %}">{{ weekly.start }} →</a></section>
 </main>
 {% endblock %}

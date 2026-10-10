@@ -1,0 +1,60 @@
+/* Compact community screens in the same olive, charcoal and brass palette as play. */
+.learning-page,.friends-page,body .games-directory{max-width:1080px;margin:12px auto;padding:0 12px 32px;color:#ddd0b7}
+.learning-page>header,.friends-page>header{margin:0 0 4px}
+.learning-page>header h1,.friends-page>header h1{font-size:28px;line-height:1.2;margin:0 0 8px;color:#ecd3a3}
+.learning-page>header p,.friends-page>header p{font-size:13px;line-height:1.5;margin:5px 0;color:#c2b69d}
+.learning-page>header>p:first-child,.friends-page>header>.eyebrow{display:none}
+.learning-page .learning-panel,.friends-page .social-panel{background:#272b22;color:#ddd0b7;border:1px solid #a58b5940;border-radius:10px;padding:16px;margin:0;box-shadow:none;min-width:0}
+.learning-page .learning-panel h2,.friends-page .social-panel h2{font-size:19px;line-height:1.35;margin:0 0 8px;color:#ecd3a3}
+.learning-page .learning-panel h3,.friends-page .social-panel h3{font-size:16px;color:#e1cca4}
+.learning-page .learning-panel p,.friends-page .social-panel p{font-size:13px;line-height:1.5;margin:8px 0;color:#c7baa0}
+.learning-page .learning-panel strong,.learning-page .learning-metrics strong{color:#e1cca4}
+.learning-page .learning-panel a:not(.learning-button),.friends-page .social-panel a,.friends-page .social-panel label,.friends-page .social-panel small{color:#d8bd85}
+.learning-page .learning-panel .learning-button,.friends-page button,.friends-page .social-tabs a[aria-current]{background:#dfc795;color:#30291d!important;border:1px solid #bda371;border-radius:7px;min-height:40px;font-size:13px;padding:9px 12px;margin-right:0;box-sizing:border-box;font-weight:600}
+.learning-page .learning-panel .learning-button:hover,.friends-page button:hover{background:#efdbb3;color:#30291d!important}
+.learning-page .learning-panel summary,.friends-page .social-panel>summary{cursor:pointer;color:#e1cca4;font-weight:600;font-size:14px;min-height:32px;line-height:1.5;padding:5px 0}
+.learning-page .learning-panel[open]>summary,.friends-page .social-panel[open]>summary{margin-bottom:10px;border-bottom:1px solid #a58b5935;padding-bottom:10px}
+.learning-page{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;align-items:start}
+.learning-page>header,.learning-page>.next-session,.learning-page>.learning-activity-history,.learning-page>.learning-review-history{grid-column:1/-1}
+.learning-page .next-session{border-left:3px solid #81945a}
+.learning-page .next-session h2{font-size:22px;margin:5px 0 8px}
+.learning-page .session-focus,.learning-page .learning-moment{background:#20241d;border-color:#a58b5940;padding:10px 12px;margin:10px 0;color:#d8c9ac}
+.learning-page .session-actions{gap:12px;margin:10px 0 0}
+.learning-page .session-metrics{gap:12px;margin:10px 0}.learning-page .session-metrics>div{background:#20241d;border-color:#a58b5940;padding:8px}.learning-page .session-metrics dt{color:#c7baa0}
+.learning-page .learning-training-grid{grid-template-columns:1fr;gap:12px}
+.learning-page .learning-training-grid .learning-panel{padding:12px 16px}
+.learning-page .learning-training-grid h2{font-size:18px}.learning-page .learning-training-grid .learning-button{margin-top:8px}
+.learning-page .learning-habit-goal{gap:12px}.learning-page .learning-habit-goal strong{font-size:32px}
+.learning-page .learning-calendar{margin:12px 0;gap:5px}.learning-page .learning-day{background:#20241d;border-color:#a58b5940;color:#c7baa0;padding:7px 2px;gap:4px}
+.learning-page .learning-day-done{background:#35432d;border-color:#81945a;color:#d6e5bd}.learning-page .learning-day-started{background:#48402b;color:#ead2a0}
+.learning-page .learning-calendar-legend,.learning-page .learning-goal-done{color:#b9cba1!important}
+.learning-page .learning-first{padding-top:10px;border-color:#a58b5935}
+.learning-page .learning-history-row{padding:10px 0;gap:12px;border-color:#a58b5935}.learning-page .learning-history-row p{margin:4px 0}.learning-page .learning-history-row:last-of-type{border-bottom:0}
+.learning-page .error-patterns a:not(.learning-button){color:#d8bd85!important}.learning-page .error-patterns a:hover{color:#efdbb3!important}
+.friends-page{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(260px,1fr);gap:12px;align-items:start}
+.friends-page>header,.friends-page>.social-feedback,.friends-page>.friends-search,.friends-page>.friends-list,.friends-page>.friends-requests{grid-column:1/-1}
+.friends-page>header{order:0}.friends-page>.social-feedback{order:1}.friends-page>.friends-search{order:2}.friends-page>.friends-list{order:3}.friends-page>.friends-requests{order:4}.friends-page>.friends-ranking{order:5}.friends-page>.friends-weekly{order:6}
+.friends-page .social-search{gap:8px;margin-bottom:6px}.friends-page .social-search label{font-size:12px}.friends-page input,.friends-page select{background:#1e231b;color:#e5d4b0;border-color:#a58b5955;padding:9px 10px;min-height:40px}
+.friends-page .social-secondary{background:#30382b;color:#dfc795!important;border-color:#a58b5955}
+.friends-page .social-columns,.friends-page .social-friend-grid{gap:12px}.friends-page .social-heading{padding:0;gap:8px}.friends-page .social-heading h2{margin:0}
+.friends-page .social-friend{background:#20241d;border-color:#a58b5940;border-radius:8px;padding:12px}.friends-page .social-friend h3{margin:0}.friends-page .social-online{color:#bad69a!important}
+.friends-page .social-scores{gap:8px;margin:10px 0}.friends-page .social-scores b{font-size:21px;color:#e1cca4}
+.friends-page .social-challenge{grid-template-columns:1fr 1fr;gap:6px 10px}.friends-page .social-challenge label{font-size:12px}.friends-page .social-challenge label:first-of-type{grid-column:1;grid-row:1}.friends-page .social-challenge select:first-of-type{grid-column:1;grid-row:2}.friends-page .social-challenge label:last-of-type{grid-column:2;grid-row:1}.friends-page .social-challenge select:last-of-type{grid-column:2;grid-row:2}.friends-page .social-challenge button{grid-column:1/-1}
+.friends-page .social-person{padding:9px 0;border-color:#a58b5935}.friends-page .social-friend details{margin-top:10px}.friends-page .social-friend summary{color:#c2b69d;font-size:12px}
+.friends-page .social-tabs{gap:6px}.friends-page .social-tabs a{background:#20241d;border-color:#a58b5940;color:#d8bd85;font-size:12px;padding:8px 10px;margin:0}
+.friends-page .social-ranking{margin:10px 0 0;padding-left:22px}.friends-page .social-ranking li{padding:9px 3px;border-color:#a58b5935}
+.friends-page .social-feedback{background:#303d29;border-color:#81945a;color:#d6e5bd;margin:0;padding:10px}
+body .games-directory .games-columns{gap:12px;max-width:none}body .games-directory .games-column{background:#25291f;border:1px solid #a58b5940;border-radius:10px;padding:14px}
+body .games-directory .games-column>h2{font-size:17px;margin-bottom:10px;color:#e1cca4}
+body .games-directory .game-card{padding:10px 12px;gap:5px 10px;border-radius:7px;background:#20241d;margin-bottom:8px;opacity:1}
+body .games-directory .game-card h2{font-size:15px;line-height:1.35}body .games-directory .game-card-date{font-size:11px}body .games-directory .game-card-status{color:#bdc9a5}body .games-directory .game-card-status-lost{color:#dcad98}body .games-directory .game-card-status-draw{color:#d8c69f}
+body .games-directory .game-card>a{min-height:36px;padding:7px 10px;font-size:12px}body .games-directory .games-column-empty{padding:12px;margin:0;background:#20241d;color:#c7baa0}body .games-directory-heading{margin-bottom:12px}body .games-directory-heading h1{font-size:28px}
+@media(max-width:900px){.learning-page,.friends-page,body .games-directory{padding:0 8px 24px;margin:8px auto}.learning-page,.friends-page{grid-template-columns:1fr}.learning-page>*,.friends-page>*{grid-column:1!important}.learning-page .learning-panel,.friends-page .social-panel{padding:12px}.friends-page .social-columns,.friends-page .social-friend-grid{grid-template-columns:1fr}.learning-page .learning-history-row{flex-direction:row;align-items:center}.learning-page .learning-history-row .learning-button{width:auto;flex-shrink:0}.learning-page .learning-history-row>div{min-width:0}.learning-page .learning-panel .learning-button,.friends-page button,.friends-page input,.friends-page select,.friends-page .social-tabs a,body .games-directory .game-card>a{min-height:44px}.friends-page input{font-size:16px}body .games-directory .games-column{padding:12px}.learning-page .learning-habit-goal{grid-template-columns:1fr 2fr}.learning-page .learning-calendar{gap:3px}.learning-page .learning-day{font-size:10px}}
+@media(max-width:360px){.learning-page .learning-history-row{flex-wrap:wrap}.friends-page .social-search button{width:100%}}
+.learning-page .next-session .session-evidence{margin-top:10px;border-top:1px solid #a58b5935;padding-top:4px}
+.learning-page .next-session .session-focus p{margin:5px 0}
+@media(min-width:901px){.learning-page .next-session{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:4px 20px}.learning-page .next-session>.learning-kicker,.learning-page .next-session>h2,.learning-page .next-session>p:not(.learning-kicker),.learning-page .next-session>.session-actions{grid-column:1}.learning-page .next-session>.session-focus{grid-column:2;grid-row:1/5;align-self:center;margin:0}.learning-page .next-session>.session-evidence{grid-column:1/-1}.learning-page .next-session>.session-actions{flex-wrap:wrap}}
+.learning-page .learning-habit-goal progress{appearance:none;border:0;border-radius:6px;overflow:hidden;background:#1d221a;height:9px}
+.learning-page .learning-habit-goal progress::-webkit-progress-bar{background:#1d221a;border-radius:6px}
+.learning-page .learning-habit-goal progress::-webkit-progress-value{background:#81945a;border-radius:6px}
+.learning-page .learning-habit-goal progress::-moz-progress-bar{background:#81945a;border-radius:6px}
