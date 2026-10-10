@@ -7,7 +7,7 @@
 
 {% block content %}
 
-<link rel="stylesheet" href="{% static 'games/auth_polish.css' %}?v=2">
+<link rel="stylesheet" href="{% static 'games/auth_polish.css' %}?v=4">
 <main class="auth-page auth-modern auth-registration">
     <form method="POST" class="form-card auth-card" novalidate>
         {% csrf_token %}
@@ -25,34 +25,26 @@
         <div class="form-field">
             <label for="{{ form.username.id_for_label }}">{% tr "username" %}</label>
             {{ form.username }}
-            {% for error in form.username.errors %}
-                <p class="field-error">{{ error }}</p>
-            {% endfor %}
+            {% if form.username.errors %}<div id="{{ form.username.id_for_label }}-errors" role="alert">{% for error in form.username.errors %}<p class="field-error">{{ error }}</p>{% endfor %}</div>{% endif %}
         </div>
 
         <div class="form-field">
             <label for="{{ form.email.id_for_label }}">{% tr "email" %}</label>
             {{ form.email }}
-            {% for error in form.email.errors %}
-                <p class="field-error">{{ error }}</p>
-            {% endfor %}
+            {% if form.email.errors %}<div id="{{ form.email.id_for_label }}-errors" role="alert">{% for error in form.email.errors %}<p class="field-error">{{ error }}</p>{% endfor %}</div>{% endif %}
         </div>
 
         <div class="form-field">
             <label for="{{ form.password.id_for_label }}">{% tr "password" %}</label>
             {{ form.password }}
             <p class="field-help">{% tr "password_help" %}</p>
-            {% for error in form.password.errors %}
-                <p class="field-error">{{ error }}</p>
-            {% endfor %}
+            {% if form.password.errors %}<div id="{{ form.password.id_for_label }}-errors" role="alert">{% for error in form.password.errors %}<p class="field-error">{{ error }}</p>{% endfor %}</div>{% endif %}
         </div>
 
         <div class="form-field">
             <label for="{{ form.password_confirm.id_for_label }}">{% tr "confirm_password" %}</label>
             {{ form.password_confirm }}
-            {% for error in form.password_confirm.errors %}
-                <p class="field-error">{{ error }}</p>
-            {% endfor %}
+            {% if form.password_confirm.errors %}<div id="{{ form.password_confirm.id_for_label }}-errors" role="alert">{% for error in form.password_confirm.errors %}<p class="field-error">{{ error }}</p>{% endfor %}</div>{% endif %}
         </div>
 
         <label class="password-toggle">
@@ -70,6 +62,8 @@
 </main>
 
 <script>
+    const firstInvalidField = document.querySelector('.auth-registration [aria-invalid="true"]');
+    if (firstInvalidField) firstInvalidField.focus();
     const showPasswords = document.getElementById('show-passwords');
     const passwordFields = [
         document.getElementById('{{ form.password.id_for_label }}'),

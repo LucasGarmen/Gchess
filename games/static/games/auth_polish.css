@@ -29,3 +29,5 @@
  .auth-modern .auth-secondary-link{margin-bottom:8px}
  .auth-modern .auth-card>button[type=submit]{margin-top:6px}
 }
+
+.auth-modern .form-field input[aria-invalid="true"]{border:2px solid #db9874;background:#30251f}.auth-modern .form-field:has(input[aria-invalid="true"]) label{color:#f2c0a6}.auth-modern .form-field input[aria-invalid="true"]:focus{outline-color:#db9874}

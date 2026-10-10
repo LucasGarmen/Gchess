@@ -54,3 +54,17 @@ class RegistrationTests(TestCase):
         self.assertEqual(settings.SESSION_COOKIE_AGE, 14 * 24 * 60 * 60)
         self.assertEqual(self.client.session.get_expiry_age(), 14 * 24 * 60 * 60)
         self.assertFalse(self.client.session.get_expire_at_browser_close())
+
+    def test_duplicate_fields_keep_passwords_and_mark_errors(self):
+        User.objects.create_user('taken',email='taken@example.com',password='Original2026')
+        for changes, field in [({'username':'taken'},'username'),({'email':'taken@example.com'},'email')]:
+            with self.subTest(field=field):
+                response=self.client.post(reverse('register'),self.payload(**changes))
+                self.assertEqual(response.status_code,200)
+                form=response.context['form']
+                self.assertIn(field,form.errors)
+                self.assertEqual(form.fields[field].widget.attrs['aria-invalid'],'true')
+                for name in ('password','password_confirm'):
+                    self.assertIn('value="SignupPassword2026"',str(form[name]))
+                self.assertEqual(response['Cache-Control'],'no-store')
+                self.assertNotIn(SESSION_KEY,self.client.session)

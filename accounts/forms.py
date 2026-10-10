@@ -20,11 +20,11 @@ class RegisterForm(forms.Form):
     email = forms.EmailField(label='Email')
     password = forms.CharField(
         label='Senha',
-        widget=forms.PasswordInput(attrs={'autocomplete': 'new-password'}),
+        widget=forms.PasswordInput(render_value=True, attrs={'autocomplete': 'new-password'}),
     )
     password_confirm = forms.CharField(
         label='Confirmar senha',
-        widget=forms.PasswordInput(attrs={'autocomplete': 'new-password'}),
+        widget=forms.PasswordInput(render_value=True, attrs={'autocomplete': 'new-password'}),
     )
 
     def clean_username(self):

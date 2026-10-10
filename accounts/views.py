@@ -149,4 +149,9 @@ def register(request):
     else:
         form = RegisterForm()
 
-    return render(request, 'registration/register.html', {'form': form})
+    for name in form.errors:
+        if name in form.fields:
+            form.fields[name].widget.attrs.update({'aria-invalid': 'true', 'aria-describedby': f'{form[name].id_for_label}-errors'})
+    response = render(request, 'registration/register.html', {'form': form})
+    response['Cache-Control'] = 'no-store'
+    return response
