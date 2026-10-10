@@ -1,0 +1,13 @@
+/* Board actions share a quiet surface; gold marks the enabled analysis mode. */
+body .board-toolbar{gap:6px;align-items:center}
+body .board-toolbar button:not(.sound-toggle):not(.mobile-nav-toggle),body .history-controls button{
+ background:#293126!important;color:#e3d4b4!important;border:1px solid #82704a70!important;border-radius:8px!important;box-shadow:none!important;font-family:inherit;font-weight:500!important;line-height:1.2;transition:background .15s ease,border-color .15s ease;min-height:38px;padding:8px 12px!important;margin:0;
+}
+body .board-toolbar .icon-button:not(.sound-toggle),body .board-toolbar .analysis-nav-button{width:38px;min-width:38px;padding:6px!important;font-size:19px}
+body .board-toolbar .analysis-mode-button{font-size:13px;letter-spacing:0}
+body .board-toolbar button:not(.sound-toggle):not(.mobile-nav-toggle):hover:not(:disabled),body .history-controls button:hover:not(:disabled){background:#3c4632!important;border-color:#c4a76d!important;color:#f3e4c6!important}
+body .board-toolbar button.active:not(.sound-toggle){background:#ceb27a!important;color:#27291d!important;border-color:#e7cb93!important}
+body .board-toolbar button:disabled,body .history-controls button:disabled{opacity:.38!important;cursor:default;box-shadow:none!important}
+body .board-toolbar button:focus-visible,body .history-controls button:focus-visible{outline:2px solid #d8ba7b;outline-offset:3px}
+@media(max-width:900px){body .board-toolbar{gap:5px;flex-wrap:wrap}body .board-toolbar button:not(.sound-toggle):not(.mobile-nav-toggle){min-height:40px;height:auto!important;padding:8px 10px!important}body .board-toolbar .analysis-mode-button{font-size:12px}body .board-toolbar .icon-button:not(.sound-toggle){min-width:36px;width:36px}}
+@media(prefers-reduced-motion:reduce){body .board-toolbar button,body .history-controls button{transition:none}}
