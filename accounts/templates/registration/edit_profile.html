@@ -2,8 +2,8 @@
 {% load static game_i18n %}
 {% block title %}{{ profile_texts.title }}{% endblock %}
 {% block content %}
-<link rel="stylesheet" href="{% static 'games/auth_polish.css' %}?v=3">
-<main class="auth-page auth-modern auth-password-change">
+<link rel="stylesheet" href="{% static 'games/auth_polish.css' %}?v=4">
+<main class="auth-page auth-modern auth-password-change auth-edit-profile">
 <section class="form-card auth-card">
 <header class="auth-heading"><h1>{{ profile_texts.title }}</h1></header>
 {% if saved %}<p role="status">{{ profile_texts.saved }}</p>{% endif %}
@@ -13,9 +13,10 @@
 {% for field in form %}<div class="form-field"><label for="{{ field.id_for_label }}">{{ field.label }}</label>{{ field }}{% for error in field.errors %}<p class="field-error" role="alert">{{ error }}</p>{% endfor %}</div>{% endfor %}
 <button type="submit">{{ profile_texts.save }}</button>
 </form>
-<hr>
+<section class="profile-account-options">
 <p><a href="{% url 'password_change' %}">{% tr "change_password" %} →</a></p>
 <div class="form-field"><label for="profile-email">{{ profile_texts.email }}</label><input id="profile-email" type="email" value="{{ user.email }}" readonly aria-describedby="profile-email-help"><p id="profile-email-help">{{ profile_texts.email_help }}</p></div>
-<a href="{% url 'profile_stats' %}">{{ profile_texts.back }} →</a>
+</section>
+<a class="profile-edit-back" href="{% url 'profile_stats' %}">{{ profile_texts.back }} →</a>
 </section></main>
 {% endblock %}

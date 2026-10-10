@@ -31,3 +31,26 @@
 }
 
 .auth-modern .form-field input[aria-invalid="true"]{border:2px solid #db9874;background:#30251f}.auth-modern .form-field:has(input[aria-invalid="true"]) label{color:#f2c0a6}.auth-modern .form-field input[aria-invalid="true"]:focus{outline-color:#db9874}
+
+/* Profile settings keep account options beside the name form on desktop. */
+.auth-edit-profile .auth-card p{font-size:13px;line-height:1.45;margin:8px 0 12px}
+.auth-edit-profile .profile-edit-back{display:inline-block;padding:10px 0;min-height:40px;font-size:13px}
+.auth-edit-profile form>button{min-height:44px;margin:0;width:100%}
+.auth-edit-profile #profile-email-help{font-size:12px;color:#c7baa0;margin-bottom:0}
+@media(min-width:901px){
+ .auth-modern.auth-edit-profile{max-width:800px;margin:12px auto;padding:0 12px}
+ .auth-edit-profile .auth-card.form-card{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 24px;padding:18px 22px}
+ .auth-edit-profile .auth-heading,.auth-edit-profile .auth-card>p[role=status],.auth-edit-profile .profile-edit-back{grid-column:1/-1}
+ .auth-edit-profile .auth-heading{margin-bottom:8px;text-align:left}
+ .auth-edit-profile .profile-account-options{border-left:1px solid #8a744c50;padding-left:24px;min-width:0}
+ .auth-edit-profile .profile-account-options>p{margin:8px 0 20px}
+ .auth-edit-profile .form-field{margin-bottom:10px}
+ .auth-edit-profile .profile-edit-back{border-top:1px solid #8a744c50;margin-top:14px}
+}
+@media(max-width:900px){
+ .auth-modern.auth-edit-profile{margin:8px auto 12px}
+ .auth-edit-profile .auth-card.form-card{padding:14px 16px}
+ .auth-edit-profile .auth-heading{margin-bottom:8px}
+ .auth-edit-profile .form-field{margin-bottom:10px}
+ .auth-edit-profile .profile-account-options{margin-top:14px;border-top:1px solid #8a744c50;padding-top:4px}
+}
