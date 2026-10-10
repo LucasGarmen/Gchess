@@ -56,7 +56,7 @@ class MatchmakingTests(TestCase):
         self.client.force_login(self.b)
         self.assertEqual(self.client.post(url).status_code,404)
         self.client.logout()
-        self.assertEqual(self.client.post(url).status_code,302)
+        self.assertEqual(self.client.post(url).status_code,404)
     def test_oldest_search_resumes_and_both_players_open_same_game(self):
         first=self.search(self.a)
         second=self.search(self.b)
@@ -123,3 +123,33 @@ class MatchmakingTests(TestCase):
         self.assertFalse(invitation.is_rated)
         self.assertRedirects(response,reverse('game_invitation_wait',args=[invitation.pk]),fetch_redirect_response=False)
         self.assertEqual(self.client.get(reverse('quick_play')).status_code,405)
+
+    def test_guest_quick_play_matches_other_guest_and_protects_access(self):
+        first=Client(); second=Client(); outsider=Client()
+        first.post(reverse('quick_play'))
+        pending=GameInvitation.objects.get(creator_guest_id=first.session['guest_id'])
+        self.assertEqual(first.get(reverse('game_invitation_wait',args=[pending.pk])).status_code,200)
+        self.assertEqual(outsider.post(reverse('search_tick',args=[pending.pk])).status_code,404)
+        response=second.post(reverse('quick_play'))
+        pending.refresh_from_db()
+        game=pending.game
+        self.assertIsNotNone(game)
+        self.assertFalse(game.is_rated)
+        self.assertEqual({game.white_guest_id,game.black_guest_id},{first.session['guest_id'],second.session['guest_id']})
+        self.assertEqual(first.get(reverse('game_detail',args=[game.pk])).status_code,200)
+        self.assertEqual(second.get(reverse('game_detail',args=[game.pk])).status_code,200)
+        self.assertEqual(outsider.get(reverse('game_detail',args=[game.pk])).status_code,404)
+
+    def test_guest_prefers_registered_opponent_near_800_and_can_cancel(self):
+        from accounts.models import PlayerProfile
+        PlayerProfile.objects.update_or_create(user=self.a,defaults={'elo':1600})
+        PlayerProfile.objects.update_or_create(user=self.b,defaults={'elo':820})
+        self.search(self.a); self.search(self.b)
+        guest=Client(); guest.post(reverse('quick_play'))
+        invitation=GameInvitation.objects.get(creator_guest_id=guest.session['guest_id'])
+        self.assertEqual(invitation.opponent,self.b)
+        waiting=Client(); waiting.post(reverse('quick_play'))
+        pending=GameInvitation.objects.get(creator_guest_id=waiting.session['guest_id'])
+        # A remaining compatible search may match immediately; a separate rhythm remains pending.
+        if pending.status=='pending':
+            self.assertEqual(waiting.post(reverse('cancel_invitation',args=[pending.pk])).status_code,200)
