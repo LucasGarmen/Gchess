@@ -25,7 +25,7 @@
 {% analyzer_words current_language as analyzer_ui %}
 
 <link rel="stylesheet" href="{% static 'games/analyzer_layout.min.css' %}?v=3">
-<link rel="stylesheet" href="{% static 'games/analyzer_polish.css' %}?v=6">
+<link rel="stylesheet" href="{% static 'games/analyzer_polish.css' %}?v=8">
 <script src="{% static 'games/analyzer_import.js' %}?v=1" defer></script>
 
 {% if not moves %}
@@ -122,7 +122,7 @@
             </section>
             <div class="trainer-chat">
                 <h2>{% tr "coach_chat" %}</h2>
-                {% include 'games/_trainer_suggestions.html' %}
+                <details class="analyzer-question-options"><summary>{% tr 'trainer_suggestions' %}</summary>{% include 'games/_trainer_suggestions.html' %}</details>
                 <label for="trainer-player-color">{% tr "piece_color" %}</label>
                 <select id="trainer-player-color">
                     <option value="white" {% if trainer_player_color != 'black' %}selected{% endif %}>{% tr "white" %}</option>
@@ -155,7 +155,7 @@
             <ul id="move-list" style="display: none;"></ul>
             <pre id="pgn-box" class="pgn-box"></pre>
         </section>
-        {% if saved_review %}{% include "games/_review_practice_link.html" %}{% endif %}
+        {% if saved_review %}<details class="analyzer-practice-toggle"><summary>{{ flow.practice_review }}</summary>{% include "games/_review_practice_link.html" %}</details>{% endif %}
         {% if review_summary %}<details class="learning-summary-toggle"><summary>{{ learning.summary }}</summary>{% include 'games/_review_summary.html' with summary=review_summary %}{% if saved_review %}<p><a class="learning-button" href="{% url 'review_detail' saved_review.pk %}">{{ learning.saved }} · {{ learning.nav }}</a></p>{% else %}<p>{{ learning.login }}</p>{% endif %}</details>{% endif %}
 
     </aside>
