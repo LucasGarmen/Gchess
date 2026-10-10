@@ -8,7 +8,7 @@ from .models import CosmeticLoadout
 from .i18n import current_language
 from .shop_texts import TEXTS
 
-from .cosmetic_catalog import DEFAULTS, FREE_ITEMS, AVAILABLE_ITEMS, AVATAR_ACCESSORY_SLOTS, usable_loadout
+from .cosmetic_catalog import DEFAULTS, FREE_ITEMS, AVAILABLE_ITEMS, AVATAR_ACCESSORY_SLOTS, SHOP_KINDS, usable_loadout
 
 def context(request):
     cached=getattr(request,'_shop_context',None)
@@ -25,7 +25,8 @@ def shop(request):
     selected=choices['cosmetics']
     groups=[]
     all_cards=[]
-    for kind,items in FREE_ITEMS.items():
+    for kind in SHOP_KINDS:
+        items=FREE_ITEMS[kind]
         current=selected[kind] if isinstance(selected,dict) else getattr(selected,kind)
         cards=[dict(kind=kind,item=item,label=(choices['shop_texts']['avatar_label']+' '+choices['shop_texts']['items'][kind][item]) if kind=='avatar' and choices['shop_texts']['items'][kind][item].isdigit() else choices['shop_texts']['items'][kind][item],selected=current==item,locked=item not in AVAILABLE_ITEMS[kind]) for item in items]
         all_cards.extend(cards)

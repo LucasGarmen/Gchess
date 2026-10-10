@@ -13,12 +13,12 @@ class StarterShopTests(TestCase):
         response=Client().get(reverse('shop'))
         self.assertEqual(response.status_code,200)
         self.assertEqual(CosmeticLoadout.objects.count(),0)
-        self.assertEqual(len(response.context['shop_cards']),171)
+        self.assertEqual(len(response.context['shop_cards']),108)
     def test_avatar_and_cap_persist_independently_after_login(self):
         self.equip('avatar','explorer');self.equip('face','moustache')
         self.client.logout();self.client.force_login(self.user)
         selected=self.client.get(reverse('shop')).context['cosmetics']
-        self.assertEqual((selected['avatar'],selected['face']),('explorer','moustache'))
+        self.assertEqual((selected['avatar'],selected['face']),('explorer','none'))
         self.equip('face','none')
         self.assertEqual(CosmeticLoadout.objects.get(user=self.user).face,'none')
 
@@ -59,13 +59,13 @@ class StarterShopTests(TestCase):
 
     def test_categories_do_not_inherit_fixed_sidebar_navigation(self):
         response=self.client.get(reverse('shop'))
-        self.assertContains(response,'class="shop-category"',count=7)
+        self.assertContains(response,'class="shop-category"',count=4)
         self.assertNotContains(response,'<nav class="shop-tabs"')
 
     def test_all_slots_preserve_previous_selection(self):
         for kind,item in [('avatar','explorer'),('clothing','club'),('face','moustache'),('pieces','rustic'),('board','rustic')]:
-            self.assertEqual(self.equip(kind,item).status_code,302)
-        self.assertEqual(CosmeticLoadout.objects.get(user=self.user).face,'moustache')
+            self.assertEqual(self.equip(kind,item).status_code,403 if kind=='face' else 302)
+        self.assertEqual(CosmeticLoadout.objects.get(user=self.user).face,'none')
         response=self.client.get(reverse('shop'))
         self.assertContains(response,'data-board="rustic"')
         self.assertContains(response,'data-pieces="rustic"')
@@ -78,12 +78,12 @@ class StarterShopTests(TestCase):
                     self.assertEqual(self.equip(kind,item).status_code,302 if item in AVAILABLE_ITEMS[kind] else 403)
         response=self.client.get(reverse('shop'))
         self.assertEqual(response.status_code,200)
-        self.assertEqual(sum(card['locked'] for card in response.context['shop_cards']),158)
+        self.assertEqual(sum(card['locked'] for card in response.context['shop_cards']),101)
 
     def test_accessory_tile_contains_only_object_and_native_equip_button(self):
         from django.template.loader import render_to_string
         response=self.client.get(reverse('shop'))
-        for kind,item in [('accessory','cap'),('face','moustache'),('eyewear','glasses'),('clothing','forest')]:
+        for kind,item in [('clothing','forest')]:
             card=next(c for c in response.context['shop_cards'] if c['kind']==kind and c['item']==item)
             html=render_to_string('games/_shop_card.html',dict(card=card,user=self.user,shop_texts=response.context['shop_texts']),request=response.wsgi_request)
             self.assertIn('shop-accessory-art',html)
@@ -101,7 +101,7 @@ class StarterShopTests(TestCase):
     def test_accessory_types_combine_and_replace_only_their_own_type(self):
         self.equip('face','moustache')
         self.equip('board','rustic')
-        self.assertEqual(CosmeticLoadout.objects.get(user=self.user).face,'moustache')
+        self.assertEqual(CosmeticLoadout.objects.get(user=self.user).face,'none')
         for kind,item in [('accessory','cap'),('hairstyle','dreads'),('eyewear','round'),('earrings','gold_hoops'),('face','long_beard')]:
             self.assertEqual(self.equip(kind,item).status_code,403)
         self.assertEqual(self.equip('face','long_beard,stubble').status_code,400)
@@ -136,12 +136,12 @@ class StarterShopTests(TestCase):
         self.assertNotContains(response,'Podés combinar')
         self.assertNotContains(response,'Elegí una categoría')
         self.assertNotContains(response,'Detalles de la cara')
-        self.assertContains(response,'Barbas y bigotes')
-        self.assertContains(response,'shop-hairstyle')
+        for kind in ('face','eyewear','earrings','accessory','hairstyle'):
+            self.assertNotContains(response,'id="shop-'+kind+'"')
 
     def test_avatar_only_expansion_preserves_other_category_counts(self):
         from .cosmetic_catalog import FREE_ITEMS
-        self.assertEqual(len(FREE_ITEMS['avatar']),46)
+        self.assertEqual(len(FREE_ITEMS['avatar']),48)
         for kind in ('board','pieces','accessory','clothing','hairstyle'):
             self.assertEqual(len(FREE_ITEMS[kind]),20)
         self.assertEqual((len(FREE_ITEMS['face']),len(FREE_ITEMS['eyewear']),len(FREE_ITEMS['earrings'])),(9,9,7))
@@ -186,7 +186,7 @@ class StarterShopTests(TestCase):
         from .cosmetic_catalog import AVAILABLE_ITEMS
         loadout=CosmeticLoadout.objects.create(user=self.user,avatar='explorer',face='moustache',board='rustic')
         self.equip('avatar','explorer');loadout.refresh_from_db()
-        self.assertEqual(loadout.face,'moustache')
+        self.assertEqual(loadout.face,'none')
         # Exercise the rule for when more avatars become available again.
         with patch.dict(AVAILABLE_ITEMS,avatar=('explorer','strategist')):
             self.assertEqual(self.equip('avatar','strategist').status_code,302)
@@ -204,7 +204,7 @@ class StarterShopTests(TestCase):
         before=loadout.avatar
         self.assertEqual(self.equip('avatar','duck').status_code,403)
         loadout.refresh_from_db();self.assertEqual(loadout.avatar,before)
-        self.equip('face','moustache');loadout.refresh_from_db()
+        self.equip('clothing','club');loadout.refresh_from_db()
         self.assertEqual((loadout.avatar,loadout.board,loadout.pieces,loadout.accessory),('explorer','rustic','rustic','none'))
 
     def test_chess_piece_avatars_are_ordered_locked_and_named(self):
@@ -227,3 +227,13 @@ class StarterShopTests(TestCase):
         response=self.client.get(reverse('home'))
         self.assertContains(response,'data-coach-player')
         for level in (500,800,1000,1320,1600,2000,2500):self.assertContains(response,f'data-coach-level="{level}"',count=1)
+
+    def test_retired_accessories_are_hidden_and_rejected(self):
+        from .cosmetic_catalog import AVATAR_ACCESSORY_SLOTS, SHOP_KINDS
+        response=self.client.get(reverse('shop'))
+        self.assertEqual([group['kind'] for group in response.context['shop_groups']],list(SHOP_KINDS))
+        for kind,item in [('accessory','cowboy'),('face','moustache'),('hairstyle','dreads'),('eyewear','round'),('earrings','gold_hoops')]:
+            self.assertEqual(self.equip(kind,item).status_code,403)
+        legacy=CosmeticLoadout.objects.create(user=self.user,accessory='cowboy',face='moustache',hairstyle='dreads',eyewear='round',earrings='gold_hoops')
+        selected=self.client.get(reverse('shop')).context['cosmetics']
+        self.assertTrue(all(selected[slot]=='none' for slot in AVATAR_ACCESSORY_SLOTS))

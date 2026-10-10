@@ -5,27 +5,32 @@ from games.cosmetic_art import avatar_art, accessory_shape, valid, circle, path
 from games.cosmetic_catalog import FREE_ITEMS
 register=template.Library()
 
-@register.simple_tag
-def draw_avatar(avatar,accessory='none',clothing='club',face='none',hairstyle='none',eyewear='none',earrings='none',framing='',label='Avatar'):
-    framing='bust' if framing=='bust' else 'portrait'
-    view='24 8 112 146' if framing=='bust' else '26 8 108 108'
-    svg=avatar_art(avatar,accessory,clothing,face,hairstyle,eyewear,earrings,framing)
-    # Each inline portrait needs independent paint servers, including hidden coaches.
+def unique_paint_servers(svg):
+    # Separate SVGs share the document namespace, including shop item previews.
     import re
     from uuid import uuid4
     suffix=uuid4().hex
     for identifier in re.findall(r'id="([^"]+)"',svg):
         svg=svg.replace(f'id="{identifier}"',f'id="{identifier}-{suffix}"').replace(f'url(#{identifier})',f'url(#{identifier}-{suffix})')
+    return svg
+
+@register.simple_tag
+def draw_avatar(avatar,accessory='none',clothing='club',face='none',hairstyle='none',eyewear='none',earrings='none',framing='',label='Avatar'):
+    framing='bust' if framing=='bust' else 'portrait'
+    view='18 -14 124 174' if framing=='bust' else '18 -14 124 134'
+    svg=avatar_art(avatar,accessory,clothing,face,hairstyle,eyewear,earrings,framing)
+    svg=unique_paint_servers(svg)
     return mark_safe(f'<svg class="gchess-avatar" viewBox="{view}" role="img" aria-label="{escape(label)}" xmlns="http://www.w3.org/2000/svg" data-avatar-rig="bust-v1" data-framing="{framing}">{svg}</svg>')
 
 @register.simple_tag
 def draw_object(kind,item):
     if kind not in ('accessory','clothing','hairstyle','face','eyewear','earrings'):return ''
     item=valid(kind,item)
-    views={'accessory':'28 7 104 72','clothing':'18 104 124 59','hairstyle':'28 6 104 100','face':'47 80 66 48','eyewear':'47 58 66 44','earrings':'40 69 80 36'}
+    views={'accessory':'18 -12 124 76','clothing':'18 96 124 66','hairstyle':'28 -4 104 110','face':'47 78 66 59','eyewear':'47 58 66 44','earrings':'40 69 80 36'}
     if item=='none':
         view='48 50 64 64';svg=circle(80,82,18,'none','#aa9772',2)+path('M67 95L93 69','none','#aa9772',2)
     else:view=views[kind];svg=accessory_shape(kind,item)
+    svg=unique_paint_servers(svg)
     return mark_safe(f'<svg class="shop-accessory-art" viewBox="{view}" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">{svg}</svg>')
 
 @register.simple_tag

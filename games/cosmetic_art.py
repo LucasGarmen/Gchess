@@ -15,6 +15,9 @@ def rect(x,y,w,h,fill,stroke='none',radius=2):
 
 CLOTH_COLORS=['#536950','#e2cca0','#395742','#a5684e','#6d627f','#517387','#433b31','#242e29','#875040','#b69570','#537b66','#8b5847','#866478','#74817b','#983f47','#bcc6b9','#dad0ae','#49766b','#6f694f','#66758d']
 def clothing(item):
+    from .painted_wearables import painted_wear
+    painted=painted_wear("clothing",item)
+    if painted is not None:return painted
     item=valid('clothing',item);idx=FREE_ITEMS['clothing'].index(item);c=CLOTH_COLORS[idx]
     base=path('M24 145Q28 119 60 107H100Q132 119 136 145Q80 164 24 145Z',c)
     if item=='cape':return path('M24 145L45 107L80 117L115 107L136 145Q80 170 24 145Z',c)+path('M62 108L80 122L98 108','none')
@@ -36,6 +39,9 @@ def clothing(item):
     return base
 
 def headwear(item):
+    from .painted_wearables import painted_wear
+    painted=painted_wear("accessory",item)
+    if painted is not None:return painted
     item=valid('accessory',item)
     if item=='none':return ''
     crown=path('M44 48Q44 19 80 19Q111 19 116 48Z','#52634b')
@@ -64,6 +70,9 @@ def headwear(item):
     return ''
 
 def hair(item):
+    from .painted_wearables import painted_wear
+    painted=painted_wear("hairstyle",item)
+    if painted is not None:return painted
     item=valid('hairstyle',item)
     if item=='none':return ''
     if item=='shaved':return path('M49 49Q49 28 80 28Q111 28 111 49Q80 38 49 49Z','#b29b76','#6e614c')
@@ -83,6 +92,9 @@ def hair(item):
     return path('M47 65L47 43Q50 23 83 25L105 32L114 48L110 61L101 42Q81 52 59 44L55 65Z',c)+path('M59 36Q79 31 100 36','none','#c8ae79',1)
 
 def beard(item):
+    from .painted_wearables import painted_wear
+    painted=painted_wear("face",item)
+    if painted is not None:return painted
     item=valid('face',item)
     if item=='none':return ''
     c='#9a998c' if item=='silver_beard' else '#45372c'
@@ -99,24 +111,38 @@ def beard(item):
 def eyewear(item):
     item=valid('eyewear',item)
     if item=='none':return ''
-    bridge=path('M76 71Q80 67 84 71M48 69h6M106 69h6','none','#d4b77d',2)
-    if item=='round':return circle(65,73,11,'none','#d4b77d',2)+circle(95,73,11,'none','#d4b77d',2)+bridge
-    if item=='monocle':return circle(95,73,10,'none','#d4b77d',2)+path('M104 78L110 99','none','#d4b77d',1)
-    if item in ('sport','visor_lens'):return path('M51 63Q80 58 109 63L106 79Q80 86 54 79Z','#456e71','#d4b77d')+path('M58 66l13-2','none','#a9d5c9',2)
-    fill='#2c4547' if item=='sunglasses' else 'none'
-    if item=='aviator':return path('M54 65H76L74 78Q65 88 56 78ZM84 65H106L104 78Q95 88 86 78Z',fill,'#d4b77d',2)+bridge
-    return rect(54,65,22,16,fill,'#d4b77d',2 if item=='square' else 5)+rect(84,65,22,16,fill,'#d4b77d',2 if item=='square' else 5)+bridge
+    metal='url(#eyewear-metal)';glass='url(#eyewear-glass)'
+    defs='<defs><linearGradient id="eyewear-metal" x2=".2" y2="1"><stop stop-color="#faf0d5"/><stop offset=".25" stop-color="#a58a53"/><stop offset=".48" stop-color="#f0dbad"/><stop offset="1" stop-color="#5c4830"/></linearGradient><linearGradient id="eyewear-glass" x2="1" y2="1"><stop stop-color="#d6e8df" stop-opacity=".13"/><stop offset=".4" stop-color="#708c80" stop-opacity=".03"/><stop offset="1" stop-color="#344139" stop-opacity=".2"/></linearGradient></defs>'
+    bridge=path('M75 72Q80 68 85 72M49 70L55 71M105 71L111 70','none',metal,1.1)
+    reflection=path('M59 68l7-2M89 68l7-2','none','#f4efe1',.55)
+    if item=='monocle':
+        shape=circle(95,73,9.5,glass,metal,1.2)+path('M104 78Q112 86 108 97','none',metal,.8)
+    elif item in ('sport','visor_lens'):
+        shape=path('M52 65Q80 61 108 65L105 78Q80 84 55 78Z','#2b4644',metal,1.0)+path('M57 67Q75 63 92 67','none','#8faf9f',.8)
+    elif item=='round':
+        shape=circle(65,73,9.5,glass,metal,1.15)+circle(95,73,9.5,glass,metal,1.15)+bridge+reflection
+    elif item=='aviator':
+        shape=path('M54 66Q64 62 75 66L74 77Q65 87 57 77ZM85 66Q96 62 106 66L103 77Q95 87 86 77Z',glass,metal,1.1)+bridge+reflection
+    else:
+        fill='#202c28' if item=='sunglasses' else glass
+        radius=2 if item=='square' else 5
+        shape=rect(54,65,22,16,fill,metal,radius)+rect(84,65,22,16,fill,metal,radius)+bridge+reflection
+        shape=shape.replace('stroke-width="2"','stroke-width="1.1"')
+    return defs+shape
 
 def earrings(item):
     item=valid('earrings',item)
     if item=='none':return ''
-    out='';c='#dcb763' if item=='gold_hoops' else '#d1d4c3'
+    metal='url(#earring-metal)'
+    light,mid,dark=('#f9e4a3','#bc8d38','#59421d') if item=='gold_hoops' else ('#f1f3ed','#9fa69e','#424b43')
+    out=f'<defs><linearGradient id="earring-metal" x2=".3" y2="1"><stop stop-color="{light}"/><stop offset=".42" stop-color="{mid}"/><stop offset="1" stop-color="{dark}"/></linearGradient></defs>'
     for x in (48,112):
-        if item in ('gold_hoops','silver_hoops'):out+=circle(x,85,5,'none',c,2.5)
-        elif item=='studs':out+=circle(x,80,2.5,c)
-        elif item=='diamond':out+=path(f'M{x} 77l4 4-4 5-4-5Z','#d5eae5')
-        elif item=='chain':out+=circle(x,81,2,c)+path(f'M{x} 83v13','none',c,2)+circle(x,97,3,'#cdb979')
-        else:out+=circle(x,81,4,'#232e2a','#a5b19a')
+        if item in ('gold_hoops','silver_hoops'):
+            out+=circle(x,85,4.2,'none','#1f211b',1.9)+circle(x,85,4.2,'none',metal,1.1)+circle(x-1,81,1,light)
+        elif item=='studs':out+=circle(x,81,1.9,metal,'#2d3027',.4)+circle(x-.5,80.5,.5,light)
+        elif item=='diamond':out+=path(f'M{x} 78l3 3-3 4-3-4Z','#dbe8df',metal,.55)+path(f'M{x-1} 80h2l-1 3Z','#faf9ec','none')
+        elif item=='chain':out+=circle(x,81,1.3,metal)+path(f'M{x} 83q2 5 0 10','none',metal,.8)+circle(x,95,2.2,metal)
+        else:out+=circle(x,81,3.2,'#171c19',metal,.8)
     return out
 
 SPECIES={'dinosaur':'#6f9655','alien':'#8cac72','bear':'#9f7956','tiger':'#bd8a4b','robot':'#91a49c','crocodile':'#69815a','shark':'#719397','fox':'#b97d4a','wolf':'#879288','panda':'#e2d9bf','dragon':'#8b726f'}
@@ -124,8 +150,12 @@ from .cosmetic_art_more import COLORS as EXTRA_COLORS
 SPECIES.update(EXTRA_COLORS)
 from .cosmetic_piece_avatars import COLORS as PIECE_COLORS
 SPECIES.update(PIECE_COLORS)
+SPECIES.update(bull='#9f7956',raven='#35382f')
 
 def head(avatar):
+    from .rustic_avatars import painted_head
+    painted=painted_head(avatar)
+    if painted is not None:return painted
     from .cosmetic_piece_avatars import piece_head
     piece=piece_head(avatar)
     if piece is not None:return piece
@@ -161,6 +191,8 @@ def head(avatar):
     return out
 
 def default_hair(avatar):
+    # Natural hair is included in the painted head; selected hair remains a layer.
+    if avatar in FREE_ITEMS['avatar']:return ''
     from .cosmetic_art_more import COLORS,extra_hair
     if avatar in COLORS:return extra_hair(avatar)
     if avatar in SPECIES or avatar=='astronaut':return ''
@@ -174,13 +206,17 @@ def accessory_shape(kind,item):
 def avatar_art(avatar,hat,cloth,face,hairstyle,lenses,ears,framing):
     avatar=valid('avatar',avatar);hat=valid('accessory',hat);cloth=valid('clothing',cloth)
     face=valid('face',face);hairstyle=valid('hairstyle',hairstyle);lenses=valid('eyewear',lenses);ears=valid('earrings',ears)
-    # Species use a common eye/jaw rig. Wider heads receive their own headwear scale.
-    scale=1.07 if avatar in ('alien','robot','dinosaur','crocodile','elephant','hippo','gorilla','croc_safari') else 1
-    hat_transform=f'translate(80 40) scale({scale}) translate(-80 -40)'
-    silhouette=''  # The surrounding UI supplies the avatar background.
-    silhouette+=f'<g data-slot="clothing">{clothing(cloth)}</g>'+path('M66 97V114Q80 126 94 114V97Z',SPECIES.get(avatar,'#c79169'),'none')
+    # Render only the character and clothing; retired accessories never appear.
+    silhouette=f'<g data-slot="clothing">{clothing(cloth)}</g>'
     silhouette+=f'<g data-slot="head">{head(avatar)}</g>'
-    silhouette+=f'<g data-slot="hair-front">{default_hair(avatar) if hairstyle=="none" else hair(hairstyle)}</g>'
-    silhouette+=f'<g data-slot="face-accessory">{beard(face)}</g><g data-slot="eyewear">{eyewear(lenses)}</g><g data-slot="earrings">{earrings(ears)}</g>'
-    silhouette+=f'<g data-slot="headwear" transform="{hat_transform}">{headwear(hat)}</g>'
-    return silhouette
+    import re
+    fills=set(re.findall(r'fill="(#[0-9a-fA-F]{6})"',silhouette))
+    defs=[]
+    for color in sorted(fills):
+        identifier='rustic-material-'+color[1:]
+        channels=[int(color[i:i+2],16) for i in (1,3,5)]
+        light='#'+''.join(f'{min(255,round(c+(255-c)*.18)):02x}' for c in channels)
+        dark='#'+''.join(f'{round(c*.65):02x}' for c in channels)
+        defs.append(f'<linearGradient id="{identifier}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="{light}"/><stop offset=".42" stop-color="{color}"/><stop offset="1" stop-color="{dark}"/></linearGradient>')
+        silhouette=silhouette.replace(f'fill="{color}"',f'fill="url(#{identifier})"')
+    return '<defs>'+''.join(defs)+'</defs>'+silhouette

@@ -7,6 +7,9 @@ for lang,names in PIECE_NAMES.items():
     for piece,name in zip(('piece_pawn','piece_bishop','piece_knight','piece_rook','piece_king','piece_queen'),names):
         NAMES[lang]['avatar'].insert(FREE_ITEMS['avatar'].index(piece),name)
 for labels in NAMES.values():labels['avatar'].insert(3,labels['avatar'].pop(8))
+for lang,labels in {'es':('Toro','Cuervo'),'pt':('Touro','Corvo'),'en':('Bull','Raven')}.items():
+    for item,label in zip(('bull','raven'),labels):
+        NAMES[lang]['avatar'].insert(FREE_ITEMS['avatar'].index(item),label)
 WORDS={
 'es':('Tienda','Tu colección inicial es gratis.','Gratis','Equipado','Equipar','Entrá para guardar tu elección','Tu elección quedó guardada.','Tu avatar','Tu colección equipada','Tu tablero','Tus fichas','Guardando…','No se pudo guardar. Volvé a intentar.'),
 'pt':('Loja','Sua coleção inicial é grátis.','Grátis','Equipado','Equipar','Entre para salvar sua escolha','Sua escolha foi salva.','Seu avatar','Sua coleção equipada','Seu tabuleiro','Suas peças','Salvando…','Não foi possível salvar. Tente novamente.'),

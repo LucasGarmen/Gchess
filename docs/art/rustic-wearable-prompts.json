@@ -1,0 +1,339 @@
+{
+  "tool": "Built-in image_gen",
+  "artifacts": "games/static/games/avatars/wearables/*.webp",
+  "clothing_prompt": "Create ONE production-ready transparent game AVATAR CLOTHING LAYER only: SUBJECT. This is an isolated front-facing shoulder-and-upper-chest garment with an EMPTY TRANSPARENT NECK OPENING. Absolutely no head, no neck skin, no mannequin, no person, no face, no hands. Style: polished hand-painted collectible western rustic game illustration matching dimensional realistic painted animal/human heads; rich cloth or leather texture, directional warm light, deep natural folds, seams, worn material highlights, olive/cream/bronze palette. It must look like an illustrated actual garment, not flat outlined cartoon or vector symbol. Composition: wide symmetrical cropped bust, shoulders occupy full width, upper-chest only, lower edge rounded as a bust crop. Garment visible within x5%-95%, y10%-95% of canvas. The neckline opening top-center around x40%-60%, y10%-35% is transparent so a separate head and neck can be placed above. Collars face forward and neckline must fit a separate narrow neck. No text, no background or frame. Genuine transparency. Distinct elegant collectible style, readable at small size.",
+  "headwear_prompt": "Create ONE production-ready transparent game AVATAR HAT LAYER only: SUBJECT. Isolated wearable headwear viewed straight from the FRONT, symmetrical perspective with subtle dimensional depth. Absolutely no head, no face, no person, no mannequin, no hair, no clothes. Polished hand-painted collectible western rustic game illustration with realistic material texture, directional warm light, worn highlights, olive/cream/bronze palette, natural material shadows, crisp silhouette. Not a flat vector or generic cartoon icon. The hat lower brim runs horizontally so it can sit on a separate forehead. Entire hat within x5%-95%, y10%-90%, ample transparent margin, compact wide composition. Shape complete, no cropped edges. No text, no background or decorative frame. Genuine alpha transparency.",
+  "hair_and_face_prompt": "Create ONE transparent game avatar wearable component ONLY: SUBJECT. Isolated HAIR accessory, absolutely no head, face, skin, neck, eyes, ears, mannequin, clothes or shoulders. Straight-on front view for compositing over an independent avatar face, symmetrical presentation except the described hairstyle. Polished hand-painted rustic collectible game art matching realistic painted heads, fine natural hair strands, dimensional subtle sheen, earthy western styling. NO flat vector look, NO broad outlines. Entire accessory visible with transparent padding; leave the empty face region genuine transparent. No text or numbers. No glow, backdrop, floating drop shadow or background shape. Transparency around and through the opening. Rich detailed but readable at small size.",
+  "subjects": [
+    {
+      "kind": "clothing",
+      "id": "club",
+      "subject": "olive green rustic cotton collared shirt, worn stitching and cream under-shirt"
+    },
+    {
+      "kind": "clothing",
+      "id": "ivory",
+      "subject": "ivory linen shirt with soft folds and rustic buttons"
+    },
+    {
+      "kind": "clothing",
+      "id": "forest",
+      "subject": "dark forest green ranger jacket over cream shirt"
+    },
+    {
+      "kind": "clothing",
+      "id": "terracotta",
+      "subject": "terracotta red frontier shirt with bronze buttons"
+    },
+    {
+      "kind": "clothing",
+      "id": "hoodie",
+      "subject": "muted charcoal plum hooded sweatshirt, hood behind empty neckline, drawstrings"
+    },
+    {
+      "kind": "clothing",
+      "id": "denim",
+      "subject": "weathered blue denim jacket over ivory shirt"
+    },
+    {
+      "kind": "clothing",
+      "id": "leather",
+      "subject": "warm brown worn leather western jacket over cream shirt"
+    },
+    {
+      "kind": "clothing",
+      "id": "tuxedo",
+      "subject": "charcoal tuxedo with ivory shirt and burgundy bow tie"
+    },
+    {
+      "kind": "clothing",
+      "id": "jersey",
+      "subject": "rustic burgundy athletic shirt with small cream geometric emblem, no numbers"
+    },
+    {
+      "kind": "clothing",
+      "id": "sweater",
+      "subject": "tan cable-knit wool sweater"
+    },
+    {
+      "kind": "clothing",
+      "id": "bomber",
+      "subject": "dark olive vintage bomber jacket with cream wool collar"
+    },
+    {
+      "kind": "clothing",
+      "id": "varsity",
+      "subject": "burgundy varsity jacket with ivory sleeves, no letters"
+    },
+    {
+      "kind": "clothing",
+      "id": "kimono",
+      "subject": "muted plum crossed-front kimono with ivory lapel trim"
+    },
+    {
+      "kind": "clothing",
+      "id": "armor",
+      "subject": "brushed bronze and olive steel breastplate with armored shoulders"
+    },
+    {
+      "kind": "clothing",
+      "id": "cape",
+      "subject": "burgundy medieval shoulder cape clasped over dark green tunic"
+    },
+    {
+      "kind": "clothing",
+      "id": "space_suit",
+      "subject": "ivory and olive retro astronaut suit with compact chest panel"
+    },
+    {
+      "kind": "clothing",
+      "id": "striped",
+      "subject": "ivory and olive striped cotton shirt"
+    },
+    {
+      "kind": "clothing",
+      "id": "hawaiian",
+      "subject": "muted teal tropical shirt with understated painted tan flowers"
+    },
+    {
+      "kind": "clothing",
+      "id": "vest",
+      "subject": "weathered olive leather waistcoat over ivory shirt, bronze buttons"
+    },
+    {
+      "kind": "clothing",
+      "id": "puffer",
+      "subject": "slate blue quilted padded jacket"
+    },
+    {
+      "kind": "accessory",
+      "id": "cap",
+      "subject": "weathered olive cotton baseball cap with curved brim, no logo"
+    },
+    {
+      "kind": "accessory",
+      "id": "beret",
+      "subject": "rustic burgundy felt beret"
+    },
+    {
+      "kind": "accessory",
+      "id": "beanie",
+      "subject": "tan cable-knit beanie with small cream pompom"
+    },
+    {
+      "kind": "accessory",
+      "id": "visor",
+      "subject": "tan fabric sun visor, open crown"
+    },
+    {
+      "kind": "accessory",
+      "id": "fedora",
+      "subject": "brown felt fedora with dark leather hatband"
+    },
+    {
+      "kind": "accessory",
+      "id": "cowboy",
+      "subject": "worn chestnut leather cowboy hat with curled brim and small bronze chess medallion"
+    },
+    {
+      "kind": "accessory",
+      "id": "bucket",
+      "subject": "muted olive canvas bucket hat"
+    },
+    {
+      "kind": "accessory",
+      "id": "top_hat",
+      "subject": "charcoal felt top hat with burgundy ribbon"
+    },
+    {
+      "kind": "accessory",
+      "id": "crown",
+      "subject": "antique bronze gold royal crown with subtle burgundy and olive jewels"
+    },
+    {
+      "kind": "accessory",
+      "id": "pirate",
+      "subject": "weathered dark leather pirate tricorn with small ivory skull motif"
+    },
+    {
+      "kind": "accessory",
+      "id": "straw",
+      "subject": "woven wheat straw sun hat with brown ribbon"
+    },
+    {
+      "kind": "accessory",
+      "id": "turban",
+      "subject": "muted plum folded cloth turban with small bronze clasp"
+    },
+    {
+      "kind": "accessory",
+      "id": "wizard",
+      "subject": "slate blue felt pointed wizard hat with small stitched bronze star"
+    },
+    {
+      "kind": "accessory",
+      "id": "helmet",
+      "subject": "weathered olive steel protective helmet with small brim, open face"
+    },
+    {
+      "kind": "accessory",
+      "id": "sailor",
+      "subject": "ivory linen sailor cap with olive band and small bronze anchor"
+    },
+    {
+      "kind": "accessory",
+      "id": "flat_cap",
+      "subject": "olive tweed flat cap"
+    },
+    {
+      "kind": "accessory",
+      "id": "earflap",
+      "subject": "tan wool winter hat with short earflaps and shearling trim"
+    },
+    {
+      "kind": "accessory",
+      "id": "laurel",
+      "subject": "antique golden olive-leaf laurel head wreath"
+    },
+    {
+      "kind": "accessory",
+      "id": "chef",
+      "subject": "ivory cloth chef toque with soft cotton folds"
+    },
+    {
+      "kind": "face",
+      "id": "moustache",
+      "subject": "a short natural dark brown western moustache only, two gently curved symmetrical sides, fine realistic hair strands"
+    },
+    {
+      "kind": "face",
+      "id": "stubble",
+      "subject": "subtle sparse brown facial stubble along a U-shaped jaw and cheeks, the center and upper lip opening entirely transparent, no skin"
+    },
+    {
+      "kind": "face",
+      "id": "goatee",
+      "subject": "a compact dark brown goatee with a small separate moustache, transparent mouth opening"
+    },
+    {
+      "kind": "face",
+      "id": "full_beard",
+      "subject": "short full dark brown beard and moustache outlining a jaw, transparent mouth opening"
+    },
+    {
+      "kind": "face",
+      "id": "long_beard",
+      "subject": "long full dark brown beard with tapered end and moustache, transparent mouth opening"
+    },
+    {
+      "kind": "face",
+      "id": "handlebar",
+      "subject": "a sophisticated dark brown handlebar moustache only with delicately curled tips, fine hair strands"
+    },
+    {
+      "kind": "face",
+      "id": "braided_beard",
+      "subject": "a dark brown beard ending in a compact central braid with a small bronze tie, a moustache and transparent mouth opening"
+    },
+    {
+      "kind": "face",
+      "id": "silver_beard",
+      "subject": "a short full silver-gray beard and moustache outlining a jaw, transparent mouth opening"
+    },
+    {
+      "kind": "hairstyle",
+      "id": "dreads",
+      "subject": "dark brown dreadlocks, top scalp and short dreadlocks hanging at both sides, empty transparent face region"
+    },
+    {
+      "kind": "hairstyle",
+      "id": "mohawk",
+      "subject": "a single narrow central dark brown mohawk crest standing upright, no side hair"
+    },
+    {
+      "kind": "hairstyle",
+      "id": "afro",
+      "subject": "dark brown rounded fluffy afro top-and-side hairstyle with empty transparent face region"
+    },
+    {
+      "kind": "hairstyle",
+      "id": "braids",
+      "subject": "dark brown center parted hair with two braids down the sides, empty transparent face region"
+    },
+    {
+      "kind": "hairstyle",
+      "id": "bun",
+      "subject": "dark brown slicked-back hair cap with a top bun, front view, empty transparent face region"
+    },
+    {
+      "kind": "hairstyle",
+      "id": "ponytail",
+      "subject": "dark brown hair cap with a ponytail hanging down one side, front view, empty transparent face region"
+    },
+    {
+      "kind": "hairstyle",
+      "id": "spikes",
+      "subject": "short dark brown spiky hair cap with textured fine strands"
+    },
+    {
+      "kind": "hairstyle",
+      "id": "waves",
+      "subject": "short tousled brown wavy hair cap with natural fine strands"
+    },
+    {
+      "kind": "hairstyle",
+      "id": "curls",
+      "subject": "short auburn curly hair cap with a few small curls at the sides"
+    },
+    {
+      "kind": "hairstyle",
+      "id": "sidepart",
+      "subject": "short dark brown side-parted hair cap, swept strands"
+    },
+    {
+      "kind": "hairstyle",
+      "id": "silver_crop",
+      "subject": "short silver-gray cropped hair cap, brushed natural fine strands"
+    },
+    {
+      "kind": "hairstyle",
+      "id": "blue_mohawk",
+      "subject": "a single narrow central muted blue mohawk crest standing upright"
+    },
+    {
+      "kind": "hairstyle",
+      "id": "pink_bob",
+      "subject": "a muted dusty pink bob hairstyle around the top and sides of an empty transparent face region"
+    },
+    {
+      "kind": "hairstyle",
+      "id": "green_spikes",
+      "subject": "a short muted olive green spiky hair cap"
+    },
+    {
+      "kind": "hairstyle",
+      "id": "red_braids",
+      "subject": "auburn red center parted hair cap with two braids hanging down the sides of an empty transparent face region"
+    },
+    {
+      "kind": "hairstyle",
+      "id": "blond_quiff",
+      "subject": "short wheat blond quiff hair cap with a swept upright front"
+    },
+    {
+      "kind": "hairstyle",
+      "id": "purple_dreads",
+      "subject": "muted plum dreadlocks top scalp and short dreadlocks hanging at both sides of an empty transparent face region"
+    },
+    {
+      "kind": "hairstyle",
+      "id": "punk",
+      "subject": "an upright dark brown punk hair crest with a few bronze hair clips"
+    },
+    {
+      "kind": "hairstyle",
+      "id": "shaved",
+      "subject": "very close-cropped dark brown scalp hair cap with fine natural stubble texture, empty transparent face region"
+    }
+  ]
+}

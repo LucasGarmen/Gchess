@@ -5,6 +5,8 @@ for piece,before in [('piece_pawn','strategist'),('piece_bishop','robot'),('piec
     FREE_ITEMS['avatar'].insert(FREE_ITEMS['avatar'].index(before) if before else len(FREE_ITEMS['avatar']),piece)
 FREE_ITEMS['avatar'].remove('pilot')
 FREE_ITEMS['avatar'].insert(3,'pilot')
+# Additional approved western characters; royal pieces stay last.
+FREE_ITEMS['avatar'][-2:-2]=['bull','raven']
 DEFAULTS=dict(avatar='explorer',board='rustic',pieces='rustic',accessory='none',clothing='club',hairstyle='none',face='none',eyewear='none',earrings='none')
 CHOICES={kind:[(item,item.title()) for item in items] for kind,items in FREE_ITEMS.items()}
 
@@ -12,7 +14,17 @@ CHOICES={kind:[(item,item.title()) for item in items] for kind,items in FREE_ITE
 AVAILABLE_ITEMS={kind:(default,) for kind,default in DEFAULTS.items()}
 AVAILABLE_ITEMS['avatar']=tuple(FREE_ITEMS['avatar'][:4])
 AVAILABLE_ITEMS['face']=('none','moustache')
+
+# The development server exposes the whole collection for local try-ons.
+# Production workers retain the starter entitlements above.
+import sys
+if 'runserver' in sys.argv:
+    AVAILABLE_ITEMS={kind:tuple(items) for kind,items in FREE_ITEMS.items()}
 AVATAR_ACCESSORY_SLOTS=('accessory','face','hairstyle','eyewear','earrings')
+SHOP_KINDS=('avatar','board','pieces','clothing')
+# Accessories have been retired, including previously equipped selections.
+for slot in AVATAR_ACCESSORY_SLOTS:
+    AVAILABLE_ITEMS[slot]=('none',)
 
 def usable_loadout(selected):
     values={kind:(selected.get(kind,default) if isinstance(selected,dict) else getattr(selected,kind,default)) for kind,default in DEFAULTS.items()}
