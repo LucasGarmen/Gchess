@@ -6,7 +6,9 @@ const layout=notice.closest('.game-layout'),wrapper=notice.parentElement;
 function refresh(){
  const finished=typeof gameOver!=='undefined'&&gameOver&&!(typeof analysisMode!=='undefined'&&analysisMode);
  notice.hidden=!finished;layout.classList.toggle('game-ended-visible',finished);
- const host=layout.classList.contains('blindfold-active')?layout.querySelector('.board-area'):wrapper;
+ const focus=document.querySelector('.focus-play');
+ if(focus)focus.classList.toggle('game-ended-visible',finished);
+ const host=focus?(focus.querySelector('.board-player-stage')||focus.querySelector('.focus-play-board')):layout.classList.contains('blindfold-active')?layout.querySelector('.board-area'):wrapper;
  if(notice.parentElement!==host)host.prepend(notice);
  const mate=finished&&typeof isCheckmate==='function'&&typeof currentTurn!=='undefined'&&isCheckmate(currentTurn);
  const heading=notice.querySelector?.('strong');if(heading)heading.textContent=mate?notice.dataset.mate:notice.dataset.title;
@@ -17,5 +19,6 @@ function refresh(){
 new MutationObserver(refresh).observe(status,{attributes:true,childList:true,characterData:true,subtree:true});
 new MutationObserver(refresh).observe(layout,{attributes:true,attributeFilter:['class']});
 document.addEventListener('gchess:position-changed',refresh);
+document.addEventListener('gchess:focus-mode-changed',refresh);
 refresh();
 })();

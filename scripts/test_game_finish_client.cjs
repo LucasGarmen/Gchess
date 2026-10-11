@@ -1,11 +1,21 @@
 const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm');
-let refresh;
+let refresh;const events={};let focus=null;let mate=false;
 const flags=new Set(),layout={classList:{contains:key=>flags.has(key),toggle(key,on){on?flags.add(key):flags.delete(key)}}};
-const wrapper={},notice={hidden:true,parentElement:wrapper,closest:()=>layout},status={hidden:false,textContent:'Jaque mate · ganan negras'},result={},undo={},coach={};
-const context={gameOver:false,analysisMode:false,document:{getElementById:id=>({'game-finish-notice':notice,'game-status':status,'game-finish-result':result,'undo-computer-move':undo,'toggle-coach':coach}[id]),addEventListener(_,fn){refresh=fn}},MutationObserver:class{observe(){}}};
+const wrapper={prepend(element){element.parentElement=this;}},notice={hidden:true,parentElement:wrapper,closest:()=>layout},status={hidden:false,textContent:'Jaque mate · ganan negras'},result={},undo={},coach={};
+const context={gameOver:false,analysisMode:false,isCheckmate:()=>mate,currentTurn:'black',document:{querySelector:()=>focus,getElementById:id=>({'game-finish-notice':notice,'game-status':status,'game-finish-result':result,'undo-computer-move':undo,'toggle-coach':coach}[id]),addEventListener(name,fn){events[name]=fn;refresh=fn;}},MutationObserver:class{observe(){}}};
 vm.runInNewContext(fs.readFileSync('games/static/games/game_finish.js','utf8'),context);
 assert.equal(notice.hidden,true);
 context.gameOver=true;refresh();assert.equal(notice.hidden,false);assert.equal(result.textContent,status.textContent);assert.equal(undo.disabled,true);assert.equal(coach.disabled,true);assert(flags.has('game-ended-visible'));
 context.analysisMode=true;refresh();assert.equal(notice.hidden,true);assert.equal(coach.disabled,false);
 context.analysisMode=false;context.gameOver=false;refresh();assert.equal(notice.hidden,true);assert(!flags.has('game-ended-visible'));
 console.log('Game finish states passed');
+
+const stage={prepend(element){element.parentElement=this;}},focusFlags=new Set();
+focus={classList:{toggle(key,on){on?focusFlags.add(key):focusFlags.delete(key)}},querySelector(){return stage;}};
+context.gameOver=true;mate=true;events['gchess:focus-mode-changed']();
+assert.equal(notice.hidden,false);assert.equal(notice.parentElement,stage);assert(focusFlags.has('game-ended-visible'));
+assert.equal(result.textContent,status.textContent);
+focus=null;events['gchess:focus-mode-changed']();assert.equal(notice.parentElement,wrapper);
+context.gameOver=false;focus={classList:{toggle(){}},querySelector(){return stage;}};events['gchess:focus-mode-changed']();assert.equal(notice.hidden,true);
+context.gameOver=true;events['gchess:position-changed']();assert.equal(notice.hidden,false);assert.equal(notice.parentElement,stage);
+console.log('Fullscreen results: enter after mate, finish during play, exit restoration and active-game hiding passed.');
