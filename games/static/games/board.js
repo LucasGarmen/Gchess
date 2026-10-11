@@ -403,6 +403,14 @@ function playMoveSound() {
     }
 }
 
+function playMoveFeedback(from, to, movingType, capture, count, finished = false) {
+    if (!window.GchessExperience) { playMoveSound(); return; }
+    window.GchessExperience.move({
+        key: `${count}:${from}:${to}`, to, capture, finished,
+        check: !finished && isKingInCheck(currentTurn), fallback: playMoveSound
+    });
+}
+
 const letters = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
 
 //PeÃ§as faltantes
@@ -495,7 +503,21 @@ function canQueueMoveFrom(square) {
 }
 
 //atualizador de estado do card
+function updateBoardFeedback() {
+    board.querySelectorAll('.last-move-origin,.last-move-target,.king-in-check').forEach(square => {
+        square.classList.remove('last-move-origin','last-move-target','king-in-check');
+    });
+    if(lastMove && !analysisMode) {
+        getSquare(lastMove.from)?.classList.add('last-move-origin');
+        getSquare(lastMove.to)?.classList.add('last-move-target');
+    }
+    board.querySelectorAll('.square[data-type="king"]').forEach(square => {
+        if(isKingInCheck(square.dataset.color))square.classList.add('king-in-check');
+    });
+}
+
 function updateTurnIndicator() {
+    updateBoardFeedback();
     if (analysisMode) {
         turnIndicator.innerText = uiText('analysis_mode_testing', 'Modo anÃ¡lisis: pruebas temporarias');
         return;
@@ -1170,7 +1192,7 @@ function cleanupDragState() {
 function animateMove(fromSquare, toSquare) {
     const piece = fromSquare.firstElementChild;
 
-    if (!piece || !piece.animate) {
+    if (!piece || !piece.animate || window.GchessExperience?.isReduced()) {
         return Promise.resolve();
     }
 
@@ -1211,6 +1233,7 @@ async function playMove(fromSquare, toSquare, shouldAnimate = true, forcedPromot
 
     const from = fromSquare.dataset.coord;
     const to = toSquare.dataset.coord;
+    const wasCapture = Boolean(toSquare.dataset.color);
     const isEnPassantCapture = movingType === 'pawn' && from[0] !== to[0] && toSquare.dataset.color === '';
 
     if (shouldAnimate) {
@@ -1246,7 +1269,6 @@ async function playMove(fromSquare, toSquare, shouldAnimate = true, forcedPromot
     }
 
     movePiece(fromSquare, toSquare);
-    playMoveSound();
 
     let promotedType = null;
 
@@ -1285,6 +1307,8 @@ async function playMove(fromSquare, toSquare, shouldAnimate = true, forcedPromot
 
     const gameOutcome = checkGameEnd();
     const gameEnded = Boolean(gameOutcome);
+    if(gameOutcome)window.gchessGameResult = gameOutcome.result;
+    playMoveFeedback(from, to, movingType, wasCapture || isEnPassantCapture, SAVED_MOVES.length, gameEnded);
 
     renderSavedMoveList();
     updateTurnIndicator();
@@ -1784,6 +1808,7 @@ function applyClockState(clock) {
     }
 
     gameClock = clock;
+    if(clock.status === 'finished')window.gchessGameResult = clock.result;
 
     if (clock.status === 'finished') {
         gameOver = true;
@@ -1804,6 +1829,7 @@ function showServerGameResult(data) {
         return;
     }
 
+    window.gchessGameResult = data.result || data.winner;
     gameOver = true;
     renderDrawOffer();
     hideResignConfirmPanel();
@@ -3085,11 +3111,15 @@ async function applyAppendedServerMoves(newMoves, oldMoveCount) {
     for (let index = oldMoveCount; index < newMoves.length; index++) {
         const move = newMoves[index];
 
+        const target = getSquare(move.to);
+        const capture = Boolean(target?.dataset.color) || (move.piece_type === 'pawn' && move.from[0] !== move.to[0]);
         await applyMoveWithoutSaving(move, true);
         lastMove = move;
         historyIndex = index + 1;
         moveNumber = historyIndex + 1;
         currentTurn = historyIndex % 2 === 0 ? 'white' : 'black';
+        const finished = isCheckmate(currentTurn) || isStalemate(currentTurn) || hasInsufficientMaterial();
+        playMoveFeedback(move.from, move.to, move.piece_type, capture, index + 1, finished);
     }
 
     refreshGameStatus();
@@ -3230,10 +3260,6 @@ async function applyGameStateFromServer(data) {
         historyIndex: historyIndex,
     });
 
-    if (serverMoves.length > oldMoveCount) {
-        playMoveSound();
-    }
-
     await playQueuedMoveIfReady();
 }
 
@@ -3348,10 +3374,6 @@ async function syncMovesFromServer(options = {}) {
             currentTurn: currentTurn,
             historyIndex: historyIndex,
         });
-
-        if (serverMoves.length > oldMoveCount) {
-            playMoveSound();
-        }
 
         await playQueuedMoveIfReady();
     } catch (error) {
@@ -3583,6 +3605,11 @@ async function handleGameSocketMessage(event) {
         return;
     }
 
+    if (data.type === 'game.state' && data.state) {
+        await applyGameStateFromServer(data.state);
+        return;
+    }
+
     if (data.type === 'move.created' && data.state) {
         pendingMoveSaveCount = Math.max(0, pendingMoveSaveCount - 1);
         await applyGameStateFromServer(data.state);
@@ -3803,15 +3830,17 @@ function undoComputerMove() {
     }
 }
 
-function resetComputerGame() {
+function resetComputerGame(confirmReset = true) {
     if (!isComputerMode() || SAVED_MOVES.length === 0) {
         return;
     }
 
-    if (!confirm(uiText('reset_game_confirm', 'Are you sure you want to restart the game?'))) {
+    if (confirmReset && !confirm(uiText('reset_game_confirm', 'Are you sure you want to restart the game?'))) {
         return;
     }
 
+    window.GchessExperience?.reset();
+    window.gchessGameResult = null;
     resetBotLoadingState();
     if (window.GChessTrainerChat) window.GChessTrainerChat.reset();
 

@@ -31,9 +31,9 @@
     <link rel="stylesheet" href="{% static 'games/cosmetics.css' %}?v=7">
     <script src="{% static 'games/cosmetics.js' %}?v=4"></script>
     <link rel="stylesheet" href="{% static 'games/sound.css' %}?v=3">
-    <script src="{% static 'games/sound.js' %}?v=2" defer></script>
+    <script src="{% static 'games/sound.js' %}?v=3" defer></script>
     <script src="{% static 'games/coach_portraits.js' %}?v=1" defer></script>
-<link rel="stylesheet" href="{% static 'games/game_finish.css' %}?v=1">
+<link rel="stylesheet" href="{% static 'games/game_finish.css' %}?v=3">
 <link rel="stylesheet" href="{% static 'games/board_controls.css' %}?v=1">
 <link rel="stylesheet" href="{% static 'games/mobile_play.css' %}?v=2">
 <script src="{% static 'games/mobile_play.js' %}?v=2" defer></script>
@@ -50,10 +50,12 @@
 <link rel="stylesheet" href="{% static 'games/interface_depth.css' %}?v=1">
 <link rel="stylesheet" href="{% static 'games/board_materials.css' %}?v=1">
 <link rel="stylesheet" href="{% static 'games/focus_play.css' %}?v=3">
-<script src="{% static 'games/focus_play.js' %}?v=2" defer></script>
+<script src="{% static 'games/focus_play.js' %}?v=3" defer></script>
 <link rel="stylesheet" href="{% static 'games/player_speech.css' %}?v=1">
 <script src="{% static 'games/player_speech.js' %}?v=1" defer></script>
 <link rel="stylesheet" href="{% static 'games/intuitive_ui.css' %}?v=1">
+<link rel="stylesheet" href="{% static 'games/experience.css' %}?v=2">
+<script src="{% static 'games/experience.js' %}?v=2" defer></script>
 </head>
 
 <body data-board="{{ cosmetics.board }}" data-pieces="{{ cosmetics.pieces }}">
@@ -122,7 +124,7 @@
 
     {% block nav_extra %}{% endblock %}
 {% if user.is_authenticated %}        <a class="nav-link nav-main-row" href="{% url 'friends' %}"{% if request.resolver_match.url_name == 'friends' %} aria-current="page"{% endif %}>{% ui_icon 'friends' %}<span class="ui-link-label">{{ social_nav_title }}{% if friend_request_count %} · {{ friend_request_count }}{% endif %}</span></a>{% endif %}
-    <div class="nav-tools">
+    <div class="nav-tools"><button class="motion-toggle" data-motion-toggle type="button" aria-pressed="false" aria-label="{% if current_language == 'pt' %}Reduzir animações{% elif current_language == 'es' %}Reducir animaciones{% else %}Reduce animations{% endif %}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7h12q6 0 4-4M3 12h17M3 17h9q6 0 4 4"/></svg></button>
     {% if user.is_authenticated %}
 
 

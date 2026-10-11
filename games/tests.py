@@ -787,7 +787,7 @@ class PracticePuzzleTests(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'class="stats-grid"')
-        self.assertContains(response, 'class="profile-power-panel"')
+        self.assertContains(response, 'class="profile-overview"')
         self.assertContains(response, 'class="xp-progress-panel profile-xp-panel"')
         self.assertContains(response, 'stat-card-rating')
         self.assertContains(response, 'stat-card-best-rating')
@@ -1549,7 +1549,7 @@ class GameAccessTests(TestCase):
         self.assertIn('id="trainer-chat-form"', template)
         self.assertIn('id="analysis-comment"', template)
         self.assertIn('id="leave-analysis-modal"', template)
-        self.assertIn('{% tr "first_position" %}', template)
+        self.assertIn('{% tr "first_position" %}', template.replace("'", '"'))
         self.assertIn('games/analyzer_chat.min.js', template)
         self.assertIn('trainer_player_color|default:"white"', template)
 

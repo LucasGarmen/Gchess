@@ -6,7 +6,7 @@
     const index = square => (8 - Number(square[1])) * 8 + square.charCodeAt(0) - 97;
     let turn = 0;
     function advance() {
-        if (document.hidden || !board.isConnected) return;
+        if (document.hidden || !board.isConnected || window.GchessExperience?.isReduced()) return;
         if (turn === moves.length) {
             board.innerHTML = initial;
             board.removeAttribute('data-mate');

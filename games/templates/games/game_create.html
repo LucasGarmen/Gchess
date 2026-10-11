@@ -44,7 +44,7 @@
                 <label for="{{ form.time_control_minutes.id_for_label }}">{{ create_texts.custom }}</label>{{ form.time_control_minutes }}
                 {% for error in form.time_control_minutes.errors %}<p class="field-error" role="alert">{{ error }}</p>{% endfor %}
             </fieldset>
-            <fieldset class="create-section"><legend>05 · {{ blindfold.mode }}</legend><label class="create-choice">{{ form.blindfold_only }}<span><strong>{{ blindfold.exclusive }}</strong><small>{{ blindfold.exclusive_help }}</small></span></label><p class="create-help">{{ blindfold.fair_help }}</p></fieldset>
+            <fieldset class="create-section"><legend>05 · {{ blindfold.mode }}</legend><label class="create-choice">{{ form.blindfold_only }}<span><strong>{{ blindfold.exclusive }}</strong><small>{{ blindfold.exclusive_help }}</small></span></label><details class="create-extra-help"><summary>{% if current_language == "pt" %}Como funciona?{% elif current_language == "es" %}¿Cómo funciona?{% else %}How does it work?{% endif %}</summary><p class="create-help">{{ blindfold.fair_help }}</p></details></fieldset>
         </div>
         <div class="create-submit"><button type="submit">{% tr "create_game" %} →</button></div>
     </form>

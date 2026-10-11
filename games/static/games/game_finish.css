@@ -1,2 +1,36 @@
-.game-layout .board-wrapper:has(.game-finish-notice){position:relative}.game-finish-notice{position:absolute;z-index:12;top:66px;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:12px;width:max-content;max-width:calc(100% - 36px);padding:14px 20px;box-sizing:border-box;border:2px solid #d5b473;border-radius:12px;background:#24291ff5;color:#f4dfb1;box-shadow:0 8px 26px #0007;pointer-events:none;text-align:left}.game-finish-notice[hidden]{display:none!important}.game-finish-notice strong{display:block;font:600 21px/1.25 Georgia,serif}.game-finish-notice p{margin:5px 0 0;font-size:16px;line-height:1.4;color:#ead3a3;overflow-wrap:anywhere}.game-finish-symbol{font-size:34px;color:#dfbd79}.game-ended-visible .board{outline:3px solid #b99a60;outline-offset:2px}.game-ended-visible .board .piece{filter:saturate(.7)}.game-ended-visible #toggle-coach:disabled,.game-ended-visible #undo-computer-move:disabled,.game-ended-visible #resign-button:disabled,.game-ended-visible #offer-draw-button:disabled{opacity:.45;cursor:default}.game-ended-visible .board-toolbar #game-status{display:none!important}@media(max-width:650px){.game-finish-notice{top:60px;padding:10px 12px;gap:8px;max-width:calc(100% - 20px)}.game-finish-notice strong{font-size:18px}.game-finish-notice p{font-size:14px}.game-finish-symbol{font-size:26px}}.blindfold-active .game-finish-notice{position:static;transform:none;margin:8px 0;width:100%;max-width:100%}
-.game-layout .board-wrapper #game-finish-notice{width:max-content;max-width:calc(100% - 36px);min-width:0;flex:none}
+/* A compact result card leaves the board and the next action in one place. */
+.game-finish-notice{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:40;width:min(360px,calc(100% - 24px));max-height:calc(100dvh - 100px);overflow:auto;box-sizing:border-box;display:flex;flex-direction:column;align-items:stretch;gap:10px;padding:18px;border:1px solid #b99a61;border-radius:16px;background:linear-gradient(145deg,#30372afc,#22271ffa);color:#ead7b5;box-shadow:0 10px 34px #0009;text-align:center;pointer-events:auto}
+.game-finish-notice[hidden],.game-finish-reopen[hidden]{display:none!important}
+.game-finish-symbol{display:flex;align-items:center;justify-content:center;width:45px;height:45px;margin:auto;border:1px solid #c8ad7055;border-radius:50%;background:#b59a5522;color:#e5c884}
+.game-finish-symbol .ui-icon{width:27px;height:27px;flex-basis:27px}
+.game-finish-heading h2{font:600 30px/1.1 Georgia,serif;margin:0;color:#f0d6a2}
+.game-finish-heading p,.game-finish-note{font-size:13px;line-height:1.35;margin:5px 0 0;color:#cdbf9f}
+.game-finish-note{margin:0}
+.game-finish-stats{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:0}
+.game-finish-stats>div{display:flex;flex-direction:column-reverse;gap:3px;padding:9px;background:#171c154d;border:1px solid #b99a6133;border-radius:9px}
+.game-finish-stats dt{font-size:11px;color:#c2b69d}.game-finish-stats dd{font-size:23px;line-height:1;margin:0;color:#e3c381;font-weight:700}
+.game-finish-advice{background:#a38b4920;border:1px solid #b99a612b;border-radius:9px;padding:10px;text-align:left}
+.game-finish-advice strong{display:flex;align-items:center;gap:7px;font-size:12px;color:#d9bf85}.game-finish-advice .ui-icon{width:17px;height:17px;flex-basis:17px}.game-finish-advice p{font-size:12px;line-height:1.4;margin:5px 0 0;color:#cfc3a9}
+.game-finish-actions{display:grid;gap:7px}.game-finish-actions form{margin:0}
+body .game-finish-actions :is(button,a){display:flex;align-items:center;justify-content:center;gap:8px;box-sizing:border-box;width:100%;min-height:42px;margin:0;padding:9px 12px;border-radius:8px;font:600 14px/1.3 Arial,sans-serif;cursor:pointer;text-decoration:none}
+body .game-finish-actions .game-finish-primary{background:linear-gradient(#ecd3a0,#d3b77b);color:#2a291e;border:1px solid #d3b77b;box-shadow:0 2px 0 #917343}
+body .game-finish-actions .game-finish-secondary{background:#30372a;color:#ead7b5;border:1px solid #a58b5966}
+body .game-finish-actions .game-finish-primary:hover{background:#f0ddb5;color:#29291e}body .game-finish-actions .game-finish-secondary:hover{background:#414b35;color:#f2dfb4}
+body .game-finish-dismiss{position:absolute;top:5px;right:5px;width:32px;height:32px;min-height:32px;border:0;background:transparent;color:#cbb991;font-size:25px;padding:0;margin:0;cursor:pointer}
+.game-finish-footer{display:flex;align-items:center;justify-content:center;gap:14px}.game-finish-footer a,body .game-finish-footer button{color:#bdad91;background:transparent;border:0;text-decoration:none;padding:5px 0;margin:0;font-size:11px;cursor:pointer;min-height:24px}.game-finish-footer a:hover,.game-finish-footer button:hover{color:#f0d6a2;text-decoration:underline}
+.game-finish-rematch-help{font-size:11px!important;line-height:1.35;margin:0!important;color:#b6aa90!important}
+.game-finish-notice :is(button,a):focus-visible,.game-finish-reopen:focus-visible{outline:3px solid #edd39b;outline-offset:2px}
+body .game-finish-reopen{position:absolute;left:50%;bottom:9px;transform:translateX(-50%);z-index:6;border:1px solid #a38b59;background:#2d3427;color:#ecd4a7;border-radius:20px;font-size:12px;min-height:34px;margin:0;padding:7px 13px;cursor:pointer}
+.game-ended-visible #board{outline:3px solid #bda065;outline-offset:2px}
+.game-result-enhanced .home-finished-action,.game-result-enhanced #game-closing-panel{display:none!important}
+.game-ended-visible :is(#undo-computer-move,#toggle-coach,#resign-button,#offer-draw-button):disabled{opacity:.45;cursor:default}
+.blindfold-active .game-finish-notice{position:static;transform:none;margin:8px auto}
+@media(max-width:650px){.game-finish-notice{gap:8px;padding:14px;width:calc(100% - 24px);border-radius:12px}.game-finish-heading h2{font-size:25px}.game-finish-symbol{width:36px;height:36px}.game-finish-stats>div{padding:8px}.game-finish-stats dd{font-size:21px}.game-finish-note{display:none}.game-finish-actions :is(button,a){min-height:42px}.game-finish-advice{padding:8px}}
+
+.game-ended-visible .board-toolbar #game-status{display:none!important}
+.game-finish-notice[data-outcome="defeat"] .game-finish-symbol{color:#d3b99b;background:#917b6122}
+.game-finish-notice[data-outcome="draw"] .game-finish-symbol{color:#bcc8ac;background:#7d926422}
+
+body .game-result-enhanced.game-ended-visible #game-status{display:none!important}
+
+#game-finish-notice [hidden]{display:none!important}

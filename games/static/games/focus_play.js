@@ -21,6 +21,7 @@ document.addEventListener('DOMContentLoaded', () => {
   move(document.getElementById('turn-indicator'),play);move(document.querySelector('.game-clock'),play);
   document.dispatchEvent(new Event('gchess:focus-mode-changed'));size();close.focus();overlay.requestFullscreen?.().catch(()=>{});
  };
+ window.GchessFocus={exit};
  button.addEventListener('click',enter);
  document.addEventListener('keydown',e=>{if(!overlay)return;if(e.key==='Escape'){e.preventDefault();exit();}if(e.key==='Tab'){const focusable=[...overlay.querySelectorAll('button,input,a,textarea,summary')].filter(x=>!x.disabled&&x.getClientRects().length);const first=focusable[0],last=focusable.at(-1);if(e.shiftKey&&document.activeElement===first){e.preventDefault();last?.focus();}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first?.focus();}}});
  document.addEventListener('fullscreenchange',()=>{if(overlay&&!document.fullscreenElement&&overlay.dataset.native==='yes')exit();else if(overlay&&document.fullscreenElement)overlay.dataset.native='yes';size();});

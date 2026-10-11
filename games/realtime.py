@@ -45,3 +45,16 @@ def broadcast_move_created(game_id, user, result, guest_id=None):
         result.get('state', {}).get('move_count'),
     )
     return True
+
+
+def broadcast_game_state(game_id):
+    """Notify both connected participants after a non-move game ending."""
+    layer = get_channel_layer()
+    if layer is None:
+        return False
+    try:
+        async_to_sync(layer.group_send)(game_group_name(game_id), {'type':'game_state_changed'})
+    except Exception:
+        logger.exception('Game result broadcast failed for game %s.',game_id)
+        return False
+    return True

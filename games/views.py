@@ -41,7 +41,7 @@ from .models import BlitzBestResult, ChessGame, DailyPuzzle, DailyPuzzleAttempt,
 from .puzzles import PRACTICE_CATEGORIES, PRACTICE_LEVELS, get_practice_puzzle, public_practice_puzzles
 from .prompts import build_trainer_chat_prompt
 from .trainer_conversation import question_topic, is_followup, analysis_question, useful_engine_fallback, position_turn_answer
-from .realtime import broadcast_move_created
+from .realtime import broadcast_move_created, broadcast_game_state
 
 PROMOTION_PIECES = {
     'queen': 'q',
@@ -458,6 +458,7 @@ def finish_game(game, result):
     game.draw_offer_by_color = ''
     game.save(update_fields=['status', 'result', 'active_clock_color', 'clock_started_at', 'draw_offer_by_color', 'white_time_seconds', 'black_time_seconds'])
     apply_rating_after_game(game)
+    transaction.on_commit(lambda: broadcast_game_state(game.pk))
 
 
 def finish_game_by_timeout(game, loser):

@@ -15,6 +15,7 @@ from .views import (
     save_chat_message_for_user,
     save_move_for_user,
     touch_presence,
+    serialize_game_state,
 )
 
 logger = logging.getLogger(__name__)
@@ -97,6 +98,16 @@ class GameConsumer(AsyncJsonWebsocketConsumer):
             'result': event['result'],
             'state': event['result'].get('state'),
         })
+
+    async def game_state_changed(self, event):
+        state = await self.result_state()
+        if state is not None:
+            await self.send_json({'type':'game.state','state':state})
+
+    @database_sync_to_async
+    def result_state(self):
+        game = ChessGame.objects.filter(game_access_filter(self.user,self.guest_id),pk=self.game_id).first()
+        return serialize_game_state(game,self.user,self.guest_id) if game else None
 
     async def chat_message(self, event):
         message = dict(event['message'])

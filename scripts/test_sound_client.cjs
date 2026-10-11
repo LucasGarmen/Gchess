@@ -23,3 +23,10 @@ assert.equal(vm.runInContext('playBuffer({duration:1})',off.ctx),true);
 off.winEvents.storage({key:'gchess-sound-enabled',newValue:'true'});assert.equal(off.ctx.window.GchessSound.isEnabled(),true);
 const privateMode=boot(null,true);privateMode.click();assert.equal(privateMode.ctx.window.GchessSound.isEnabled(),false);
 console.log('Sound persistence, mute paths, active sound stop, cross-tab sync and private-storage fallback passed.');})();
+
+const volumeCase=boot(null),audioSample={dataset:{},volume:.8,pause(){},addEventListener(){}};
+volumeCase.ctx.window.GchessSound.trackAudio(audioSample);assert.equal(audioSample.volume,.4);
+volumeCase.ctx.window.GchessSound.trackAudio(audioSample);assert.equal(audioSample.volume,.4,'Reusing an audio object must not compound attenuation');
+volumeCase.winEvents.storage({key:'gchess-sound-volume',newValue:'0.25'});assert.equal(audioSample.volume,.2);assert.equal(volumeCase.ctx.window.GchessSound.getVolume(),.25);
+volumeCase.winEvents.storage({key:'gchess-sound-volume',newValue:'0'});assert.equal(audioSample.volume,0);
+console.log('Stable repeated volume and volume synchronization verified.');

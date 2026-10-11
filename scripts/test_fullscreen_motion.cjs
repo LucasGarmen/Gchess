@@ -11,11 +11,12 @@ for(const file of ['board.js','board.min.js']){
   const piece={animate(){},cloneNode(){return clone;},getBoundingClientRect(){return {left:10,top:20,width:47,height:47};}};
   const from={firstElementChild:piece,closest(){return mode==='overlay'?surface:null;},getBoundingClientRect(){return {left:10,top:20};},classList:{add(c){classes.add(c);},remove(c){classes.delete(c);}}};
   const to={getBoundingClientRect(){return {left:110,top:120};}};
-  const context={document:{body,fullscreenElement:mode==='native'?surface:null},Promise};vm.createContext(context);vm.runInContext(snippet,context);
+  const context={window:{},document:{body,fullscreenElement:mode==='native'?surface:null},Promise};vm.createContext(context);vm.runInContext(snippet,context);
   const pending=context.animateMove(from,to);
   assert.ok(classes.has('drag-origin'));
   if(mode!=='normal')assert.equal(children[0],clone,'animated piece must be inside fullscreen surface');
   finish();await pending;assert.equal(clone.removed,true);assert.equal(classes.size,0);
+  context.window.GchessExperience={isReduced:()=>true};clone.removed=false;await context.animateMove(from,to);assert.equal(clone.removed,false,'Reduced motion never creates a ghost or animation');assert.equal(classes.size,0);
  }
 }
 console.log('Fullscreen motion verified for source and shipped JS: normal, overlay and native fullscreen; cleanup after animation.');

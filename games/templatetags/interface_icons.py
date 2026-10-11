@@ -27,3 +27,8 @@ ICONS={
 @register.simple_tag
 def ui_icon(name):
     return format_html('<svg class="ui-icon" data-icon="{}" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="{}"/></svg>',name,ICONS.get(name,ICONS['play']))
+
+@register.simple_tag
+def result_panel_words(language):
+    from games.result_texts import TEXTS
+    return TEXTS.get(language,TEXTS['pt'])
