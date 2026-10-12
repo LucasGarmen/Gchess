@@ -13,3 +13,8 @@ body .online-chat-dock .game-chat-form>button{width:auto!important;flex:0 0 auto
 body .online-chat-dock .game-chat-close{position:absolute;right:7px;top:7px;width:24px;height:24px;font-size:18px}
 .online-chat-history summary{cursor:pointer;font-size:13px;line-height:24px;padding-right:30px;color:#d9c69c}
 .online-chat-history[open] #game-chat-messages{margin-top:6px}
+
+body.online-game-detail-page #game-chat-toggle,
+body .online-chat-dock #game-chat-close{display:none!important}
+body .online-chat-dock .online-chat-history summary{padding-right:0}
+@media(max-width:900px){body.online-game-detail-page:not(.focus-playing){padding-bottom:calc(116px + env(safe-area-inset-bottom))!important}}

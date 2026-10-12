@@ -9,6 +9,11 @@ document.addEventListener('DOMContentLoaded', () => {
  const toggle=document.getElementById('game-chat-toggle'),toolbar=document.querySelector('.online-game-layout .board-toolbar');
  if(toolbar&&toggle)toolbar.append(toggle);
  panel.classList.add('online-chat-dock');document.body.append(panel);
+ // The composer is ready on entry, without opening the mobile keyboard.
+ panel.hidden=false;
+ if(typeof gameChatOpen!=='undefined')gameChatOpen=true;
+ if(toggle)toggle.hidden=true;
+ const close=document.getElementById('game-chat-close');if(close)close.hidden=true;
  const log=document.getElementById('game-chat-messages');
  if(log){const history=document.createElement('details'),summary=document.createElement('summary');history.className='online-chat-history';summary.textContent={es:'Conversación',pt:'Conversa',en:'Conversation'}[lang]||'Conversation';history.append(summary,log);panel.insertBefore(history,form);}
 
