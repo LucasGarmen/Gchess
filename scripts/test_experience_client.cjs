@@ -10,12 +10,12 @@ function boot(systemReduced=false,stored='auto'){
  vm.createContext(ctx);vm.runInContext(source,ctx);return {fx:ctx.window.GchessExperience,ctx,prefs,oscillators,events,storageEvents,mediaEvents,media,classes,values};
 }
 const app=boot();let fallback=0;const move={key:'1:e2:e4',to:'e4',capture:false,check:false,fallback:()=>fallback++};
-app.fx.move(move);app.fx.move(move);assert.equal(fallback,1,'No duplicate move feedback');
-app.fx.move({...move,key:'2:d7:e6',capture:true});assert.equal(fallback,1);assert.equal(app.oscillators.length,2);assert(app.classes.has('capture-arrived'));
-app.fx.move({...move,key:'3:f1:b5',check:true});assert.equal(app.oscillators.length,4);
-app.fx.move({...move,key:'4:h5:f7',finished:true});assert.equal(app.oscillators.length,4,'The decisive move leaves audio to the result event');
+app.fx.move(move);app.fx.move(move);assert.equal(fallback,0,'Procedural move replaces legacy audio');assert.equal(app.oscillators.length,2,'No duplicate move feedback');
+app.fx.move({...move,key:'2:d7:e6',capture:true});assert.equal(fallback,0);assert.equal(app.oscillators.length,4);assert(app.classes.has('capture-arrived'));
+app.fx.move({...move,key:'3:f1:b5',check:true});assert.equal(app.oscillators.length,6);
+app.fx.move({...move,key:'4:h5:f7',finished:true});assert.equal(app.oscillators.length,6,'The decisive move leaves audio to the result event');
 app.prefs.enabled=false;assert.equal(app.fx.tone('victory'),false);app.prefs.enabled=true;app.prefs.volume=0;assert.equal(app.fx.tone('victory'),false);
-app.events.click({target:{closest:()=>({})}});assert.equal(app.fx.isReduced(),true);app.ctx.document.documentElement.dataset.motion='reduced';app.fx.reset();app.fx.move(move);assert.equal(fallback,2);
+app.events.click({target:{closest:()=>({})}});assert.equal(app.fx.isReduced(),true);app.ctx.document.documentElement.dataset.motion='reduced';app.fx.reset();app.fx.move(move);assert.equal(fallback,1,'Muted move remains on the legacy mute-aware fallback');
 const reduced=boot(true);assert.equal(reduced.fx.isReduced(),true);assert.equal(reduced.values['aria-pressed'],'true');assert.equal(reduced.fx.isReduced(),true);
 const persisted=boot(false,'reduced');assert.equal(persisted.fx.isReduced(),true);persisted.storageEvents.storage({key:'gchess-motion',newValue:'standard'});assert.equal(persisted.fx.isReduced(),false);
 console.log('Experience: distinct and deduplicated audio, mute/zero volume, finished move suppression, reset, saved/system reduced motion and cross-tab preferences passed.');

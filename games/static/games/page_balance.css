@@ -1,0 +1,115 @@
+/* Compact page composition. Deliberately excludes game boards and live layouts. */
+body .game-create-page.create-refresh{width:min(920px,100%);padding:16px 12px 24px}
+body .create-refresh .create-heading{margin:0 0 12px}
+body .create-refresh .create-heading h1{font-size:29px;line-height:1.25;margin:0;display:flex;align-items:center;gap:10px}
+body .create-refresh .create-options{gap:12px;align-items:start}
+body .create-refresh .create-section{padding:12px 14px;border-radius:10px}
+body .create-refresh .create-section legend{font-size:14px}
+body .create-refresh .create-choice{min-height:60px;padding:10px;gap:8px}
+body .create-refresh .create-choice strong{font-size:13px}
+body .create-refresh .create-choice small{font-size:12px;line-height:1.45}
+body .create-refresh .create-color{min-height:74px;padding:8px 6px}
+body .create-refresh .create-color img{height:35px;width:30px}
+body .create-refresh .create-help{margin:4px 0 8px;line-height:1.4}
+body .create-refresh .create-time-presets{margin:4px 0 8px;gap:6px}
+body .create-refresh .create-section:nth-of-type(4)>label{display:inline-block;font-size:12px;margin:0 8px 0 0}
+body .create-refresh .create-section:nth-of-type(4)>input{display:inline-block;width:116px;min-height:38px;margin:0;padding:8px}
+body .create-refresh .create-submit{padding-top:0}
+body .create-refresh .create-submit button{min-width:190px}
+body .training-hub{max-width:920px;margin:16px auto;padding:0 12px 24px;display:grid;grid-template-columns:minmax(0,1.5fr) minmax(250px,1fr);gap:12px;align-items:start}
+body .training-hub>header{grid-column:1/-1;margin:0 0 2px}
+body .training-hub h1{font-size:29px;margin:0 0 6px;line-height:1.25}
+body .training-hub header p{margin:0;font-size:13px}
+body .training-hub-recommended{grid-column:1;grid-row:2;display:grid;grid-template-columns:44px minmax(0,1fr);gap:12px;padding:16px;align-items:start}
+body .training-hub-recommended>.ui-feature-icon{width:44px;height:44px}
+body .training-hub-recommended h2{font-size:23px;margin:4px 0 7px}
+body .training-hub-recommended p{font-size:13px;margin:0;line-height:1.5}
+body .training-hub-recommended>a{grid-column:1/-1;text-align:center;white-space:normal;min-height:44px;box-sizing:border-box;padding:11px 14px}
+body .training-hub>.reward-progress{grid-column:2;grid-row:2;margin:0;padding:14px;border-radius:10px}
+body .training-hub .reward-progress-top{gap:8px 14px;font-size:13px}
+body .training-hub .reward-goals{gap:8px;flex-direction:column}
+body .training-hub-choices{grid-column:1/-1;margin:0;gap:12px}
+body .training-hub-choices>a{padding:14px;gap:12px}
+body .training-hub-choices h2{font-size:20px;margin:0 0 4px}
+body .training-hub-choices p{font-size:13px;margin:0}
+body .training-hub>.training-hub-more,body .training-hub>.training-hub-progress,body .training-hub>.training-hub-guest{grid-column:1/-1;margin:0}
+body .training-hub>.training-hub-progress{justify-self:end;min-height:32px;display:flex;align-items:center;gap:8px}
+body .training-hub:not(:has(>.reward-progress))>.training-hub-recommended{grid-column:1/-1;grid-template-columns:44px minmax(0,1fr) auto}
+body .training-hub:not(:has(>.reward-progress))>.training-hub-recommended>a{grid-column:3;grid-row:1;align-self:center}
+body .friends-page{max-width:980px;margin:16px auto;padding:0 12px 24px;grid-template-columns:minmax(250px,1fr) minmax(0,1.6fr);gap:12px}
+body .friends-page>header{grid-column:1/-1;order:0;margin:0}
+body .friends-page>header h1{font-size:29px;margin:0 0 6px}
+body .friends-page>.friends-list{grid-column:2;order:3}
+body .friends-page .social-panel{padding:14px}
+body .friends-page .social-panel h2{font-size:18px;margin-bottom:8px}
+body .friends-page .social-search{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;margin:0 0 8px}
+body .friends-page .social-search label{grid-column:1/-1;margin:0}
+body .friends-page .social-search input{min-width:0;width:100%;box-sizing:border-box;margin:0}
+body .friends-page .social-search button{margin:0;min-width:76px}
+body .friends-page .social-heading>a{font-size:12px}
+body .friends-page .community-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:12px 16px;text-align:center}
+body .friends-page .community-empty-art{display:flex;align-items:center;justify-content:center;width:52px;height:52px;border:1px solid #a58b5955;border-radius:50%;background:#343c2c;color:#dcc28f}
+body .friends-page .community-empty-art .ui-icon{width:29px;height:29px}
+body .friends-page .community-empty p{margin:0;max-width:34ch;font-size:13px}
+body .friends-page .community-empty>a{display:inline-flex;align-items:center;gap:6px;margin:0;padding:7px 0;font-size:13px;color:#e4c98e}
+body .friends-page :is(.friends-ranking,.friends-weekly)>summary{display:flex;align-items:center;gap:8px;min-height:28px;padding:0}
+body .friends-page :is(.friends-ranking,.friends-weekly)>summary::after{content:'›';margin-left:auto;color:#bfa97c}
+body .friends-page :is(.friends-ranking,.friends-weekly)[open]>summary::after{content:'⌄'}
+body .friends-page .friends-support>.friends-requests>.social-panel{padding:10px 14px}
+body .friends-page .friends-support>.friends-requests summary{font-size:13px;min-height:28px;padding:0}
+body .analyzer-create-page{max-width:820px;margin:16px auto;padding:0 12px 24px;box-sizing:border-box}
+body .analyzer-create-page .analyzer-intro h1{font-size:29px;margin:0 0 6px}
+body .analyzer-create-page .analyzer-intro p{font-size:13px;margin:0}
+body .analyzer-create-page .analyzer-steps{margin:12px 0;gap:12px}
+body .analyzer-create-page .form-card{padding:16px;max-width:none;margin:0}
+body .analyzer-create-page textarea{min-height:140px;max-height:none;height:clamp(140px,24vh,220px)}
+body .opening-page{max-width:960px;margin:16px auto;padding:0 12px 24px}
+body .opening-page>header h1{font-size:29px;margin:0 0 6px}
+body .opening-page>header p{font-size:13px;margin:0 0 12px}
+body .opening-catalog{gap:12px;grid-template-columns:repeat(3,minmax(0,1fr))}
+body .opening-card{padding:14px;min-height:0}
+body .opening-card h2{font-size:19px;margin:6px 0}
+body .opening-card p{font-size:13px;line-height:1.5}
+body .opening-actions{gap:8px;margin-top:10px}
+body .daily-training-page:has(>.daily-training-welcome){max-width:780px;margin:16px auto;padding:0 12px 24px}
+body .daily-training-welcome{padding:18px}
+body .blindfold-landing{max-width:860px;margin:16px auto;padding:0 12px 24px}
+body .blindfold-landing>h1{font-size:29px;margin:0 0 6px}
+body .blindfold-landing .blindfold-card{padding:16px;gap:18px}
+body .tournament-create-page{max-width:860px;margin:16px auto;padding:0 12px 24px}
+body .tournament-create-page .tournament-form{padding:16px;gap:12px}
+body :is(.game-create-page,.training-hub,.friends-page,.analyzer-create-page,.opening-page) :is(a,button,summary):focus-visible{outline:2px solid #efd39a;outline-offset:3px}
+@media(max-width:900px){
+ body .training-hub,body .friends-page{display:grid;grid-template-columns:1fr;padding:0 8px 20px;margin:12px auto;gap:10px}
+ body .training-hub>*,body .friends-page>*{grid-column:1!important;grid-row:auto!important}
+ body .training-hub h1,body .friends-page>header h1{font-size:25px}
+ body .training-hub-recommended,body .training-hub:not(:has(>.reward-progress))>.training-hub-recommended{grid-template-columns:40px minmax(0,1fr);padding:14px;gap:10px}
+ body .training-hub-recommended>a,body .training-hub:not(:has(>.reward-progress))>.training-hub-recommended>a{grid-column:1/-1;grid-row:auto}
+ body .training-hub .reward-goals{flex-direction:row;gap:12px}
+ body .training-hub-choices{grid-template-columns:1fr;gap:10px}
+ body .friends-page .social-panel{padding:12px}
+ body .friends-page>.friends-requests{grid-template-columns:1fr 1fr;gap:8px}
+ body .friends-page :is(.friends-ranking,.friends-weekly){min-height:44px;box-sizing:border-box}
+ body .game-create-page.create-refresh{padding:12px 8px 20px}
+ body .create-refresh .create-heading h1{font-size:25px}
+ body .create-refresh .create-submit button{width:100%;min-height:44px}
+ body .opening-catalog{grid-template-columns:repeat(2,minmax(0,1fr))}
+ body .analyzer-create-page,body .opening-page,body .blindfold-landing,body .tournament-create-page{padding:0 8px 20px;margin:12px auto}
+}
+@media(max-width:550px){body .opening-catalog{grid-template-columns:1fr}body .friends-page>.friends-requests{grid-template-columns:1fr}body .create-refresh .create-section:nth-of-type(4)>input{width:100%;margin-top:6px}body .analyzer-create-page textarea{height:160px}}
+
+body .friends-page .friends-list .social-friend-grid{grid-template-columns:repeat(auto-fit,minmax(min(230px,100%),1fr))}body .friends-page .friends-list .social-friend-grid:has(>.community-empty){grid-template-columns:1fr}body .friends-page :is(.social-person strong,.social-friend h3){min-width:0;overflow-wrap:anywhere}
+
+body .friends-page>.friends-support{grid-column:1;order:2;display:flex;flex-direction:column;gap:12px;min-width:0}
+body .friends-page .friends-support>.friends-requests{display:grid;grid-template-columns:1fr;gap:8px}
+body .friends-page .social-challenge{grid-template-columns:repeat(2,minmax(0,1fr))}
+body .friends-page .social-challenge :is(select,button){min-width:0;width:100%;box-sizing:border-box;margin:0}
+body .friends-page .social-challenge label{min-width:0;margin:0;overflow-wrap:anywhere}
+@media(max-width:900px){body .friends-page>.friends-support{display:contents}body .friends-page .friends-search{grid-column:1;order:2}body .friends-page .friends-ranking{grid-column:1;order:4}body .friends-page .friends-weekly{grid-column:1;order:5}body .friends-page .friends-requests{grid-column:1;order:6}body .friends-page .friends-list .social-friend-grid{grid-template-columns:1fr}}
+
+body .learning-page{max-width:980px;gap:12px;margin:16px auto;padding:0 12px 24px}body .learning-page>header h1{font-size:29px;margin:0 0 6px}body .learning-page .learning-panel{padding:14px}body .learning-page .next-session h2{font-size:21px;line-height:1.35}@media(max-width:900px){body .learning-page{padding:0 8px 20px;margin:12px auto}body .learning-page>header h1{font-size:25px}}
+
+body .analyzer-create-page .analyzer-color-field{margin-bottom:12px;gap:8px 12px}
+body .analyzer-create-page .analyzer-color-field p{margin:0}
+body .analyzer-create-page .form-card>button{margin-top:12px}
+@media(max-width:550px){body .analyzer-create-page .analyzer-steps{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:12px 0}body .analyzer-create-page .analyzer-steps li{flex-direction:column;text-align:center;font-size:11px;gap:5px;line-height:1.4}}

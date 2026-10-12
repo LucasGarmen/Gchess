@@ -1,10 +1,10 @@
 {% extends 'games/base.html' %}
-{% load game_i18n static %}
+{% load game_i18n static interface_icons %}
 {% block title %}{% tr "new_game" %}{% endblock %}
 {% block content %}
 <link rel="stylesheet" href="{% static 'games/game_create.css' %}?v=3">
 <main class="game-create-page create-refresh">
-    <header class="create-heading"><h1>{% tr "create_game" %}</h1></header>
+    <header class="create-heading"><h1>{% ui_icon 'play' %}{% tr "create_game" %}</h1></header>
     <form method="POST" class="game-create-form create-layout" novalidate id="create-game-form">
         {% csrf_token %}
         <div class="create-options">

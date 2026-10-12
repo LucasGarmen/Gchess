@@ -15,3 +15,11 @@ def social_navigation(request):
         from django.db.models import Q
         count = Friendship.objects.filter(Q(low_user=request.user) | Q(high_user=request.user), status='pending').exclude(requester=request.user).count()
     return {'social_nav_title': SOCIAL_TEXTS[current_language(request)]['title'], 'friend_request_count': count}
+
+
+for language, labels in {
+    'pt': ('Tipo', 'Casual', 'Com Elo', 'Minutos'),
+    'es': ('Tipo', 'Casual', 'Con Elo', 'Minutos'),
+    'en': ('Type', 'Casual', 'Rated', 'Minutes'),
+}.items():
+    SOCIAL_TEXTS[language].update(zip(('challenge_type','casual_short','ranked_short','minutes_short'), labels))

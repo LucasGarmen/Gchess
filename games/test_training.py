@@ -18,7 +18,8 @@ class TrainingHubTests(TestCase):
     def test_guest_can_choose_modes_without_creating_training_records(self):
         response = self.client.get(reverse('training'))
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, reverse('login')+'?next='+reverse('daily_puzzle'))
+        self.assertContains(response, reverse('daily_puzzle'))
+        self.assertEqual(self.client.get(reverse('daily_puzzle')).status_code, 302)
         self.assertContains(response, reverse('practice'))
         self.assertFalse(DailyPuzzleAttempt.objects.exists())
         self.assertFalse(UserPuzzleStats.objects.exists())
@@ -29,9 +30,12 @@ class TrainingHubTests(TestCase):
             session['language'] = language
             session.save()
             response = self.client.get(reverse('training'))
-            for row in rows:
-                self.assertContains(response, row[0])
-                self.assertContains(response, row[3])
+            self.client.force_login(self.user)
+            for route, row in zip(MODE_ROUTES, rows):
+                self.assertContains(response, reverse(route))
+                guide = self.client.get(reverse(route))
+                self.assertContains(guide, row[0])
+                self.assertContains(guide, row[3])
 
     def test_fresh_member_gets_daily_recommendation_without_creating_attempt(self):
         self.client.force_login(self.user)

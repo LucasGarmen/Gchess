@@ -3,6 +3,7 @@ from django import template
 from django.utils.html import format_html
 register=template.Library()
 ICONS={
+ 'search':'M10 3a7 7 0 1 0 0 14a7 7 0 0 0 0-14ZM15 15l6 6',
  'home':'M3 11L12 3l9 8M5 10v11h5v-7h4v7h5V10',
  'play':'M8 5l11 7-11 7Z',
  'games':'M4 5h12v14H4ZM8 2h12v14M7 9h6M7 13h6',
