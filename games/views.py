@@ -41,7 +41,7 @@ from .models import BlitzBestResult, ChessGame, DailyPuzzle, DailyPuzzleAttempt,
 from .puzzles import PRACTICE_CATEGORIES, PRACTICE_LEVELS, get_practice_puzzle, public_practice_puzzles
 from .prompts import build_trainer_chat_prompt
 from .trainer_conversation import question_topic, is_followup, analysis_question, useful_engine_fallback, position_turn_answer
-from .realtime import broadcast_move_created, broadcast_game_state
+from .realtime import broadcast_move_created, broadcast_game_state, broadcast_chat_message
 
 PROMOTION_PIECES = {
     'queen': 'q',
@@ -2723,7 +2723,15 @@ def game_chat(request, game_id):
         if request.method == 'POST':
             data = parse_json_body(request)
             guest_name = guest_name_for_request(request) if not request.user.is_authenticated else ''
-            save_chat_message_for_user(game_id, request.user, data.get('text'), guest_id, guest_name)
+            message = save_chat_message_for_user(game_id, request.user, data.get('text'), guest_id, guest_name)
+            broadcast_chat_message(game_id, {
+                'id': message.id,
+                'sender': message.sender.username if message.sender_id else message.sender_guest_name or 'Invitado',
+                'sender_id': message.sender_id,
+                'sender_guest_id': message.sender_guest_id,
+                'text': message.text,
+                'created_at': timezone.localtime(message.created_at).strftime('%H:%M'),
+            })
     except ValueError as exc:
         return JsonResponse({'error': str(exc)}, status=400)
     except GameActionError as exc:

@@ -58,3 +58,18 @@ def broadcast_game_state(game_id):
         logger.exception('Game result broadcast failed for game %s.',game_id)
         return False
     return True
+
+
+def broadcast_chat_message(game_id, message):
+    """Deliver a persisted HTTP chat message to both websocket participants."""
+    layer = get_channel_layer()
+    if layer is None:
+        return False
+    try:
+        async_to_sync(layer.group_send)(game_group_name(game_id), {
+            'type': 'chat_message', 'message': message,
+        })
+    except Exception:
+        logger.exception('Chat broadcast failed for game %s.', game_id)
+        return False  # The saved message remains available through polling.
+    return True

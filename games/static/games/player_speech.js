@@ -6,10 +6,20 @@ document.addEventListener('DOMContentLoaded',()=>{
  let latest=0,initialized=false;const bubbles=new Map(),timers=new Map();
  const closeLabel={es:'Cerrar mensaje',pt:'Fechar mensagem',en:'Close message'}[document.documentElement.lang.slice(0,2)]||'Close message';
  const position=()=>{
-  let top=false,bottom=false;
-  bubbles.forEach((bubble,c)=>{const upper=c!==(stage.dataset.boardOrientation||'white');bubble.dataset.edge=upper?'top':'bottom';if(!bubble.hidden){if(upper)top=true;else bottom=true;}});
+  let top=false,bottom=false;const desktop=innerWidth>900&&!stage.closest('.focus-play');
+  const previous=stage.classList.contains('player-speech-top')+' '+stage.classList.contains('player-speech-bottom');
+  bubbles.forEach((bubble,c)=>{const upper=c!==(stage.dataset.boardOrientation||'white');bubble.dataset.edge=upper?'top':'bottom';if(!bubble.hidden){
+   if(desktop){
+    const avatar=stage.querySelector('[data-player-color="'+c+'"]');
+    if(avatar){const anchor=avatar.getBoundingClientRect(),width=Math.min(270,innerWidth-24);
+     bubble.style.width=width+'px';const height=bubble.getBoundingClientRect().height;
+     const x=Math.max(12,Math.min(anchor.right+8,innerWidth-width-12));let y=Math.max(12,Math.min(anchor.top,innerHeight-height-12));
+     const dock=document.getElementById('game-chat-panel');if(dock&&!dock.hidden){const box=dock.getBoundingClientRect();if(x<box.right&&x+width>box.left&&y<box.bottom&&y+height>box.top)y=Math.max(12,box.top-height-8);}
+     bubble.style.left=x+'px';bubble.style.top=y+'px';}
+   }else{bubble.removeAttribute('style');if(upper)top=true;else bottom=true;}
+  }});
   stage.classList.toggle('player-speech-top',top);stage.classList.toggle('player-speech-bottom',bottom);
-  window.dispatchEvent(new Event('resize'));
+  if(previous!==top+' '+bottom)window.dispatchEvent(new Event('resize'));
  };
  const show=(c,text)=>{
   let bubble=bubbles.get(c);
@@ -22,5 +32,6 @@ document.addEventListener('DOMContentLoaded',()=>{
   messages.forEach(item=>{const id=Number(item.dataset.messageId);if(id<=latest)return;latest=id;const mine=item.classList.contains('game-chat-message-mine');const c=mine?color:(color==='white'?'black':'white');show(c,item.querySelector('p')?.textContent||'');});
  };
  update();new MutationObserver(update).observe(log,{childList:true,subtree:true});
+ window.addEventListener('resize',position);document.addEventListener('scroll',position,{capture:true,passive:true});document.addEventListener('gchess:focus-mode-changed',position);
  new MutationObserver(position).observe(stage,{attributes:true,attributeFilter:['data-board-orientation']});
 });

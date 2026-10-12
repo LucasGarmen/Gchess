@@ -10,3 +10,7 @@ body .board-player-stage .player-speech[data-edge="top"]{bottom:calc(100% + 8px)
 body .board-player-stage .player-speech[data-edge="bottom"]{top:calc(100% + 8px)}
 body .board-player-stage:is(.player-speech-top,.player-speech-bottom) .board-player{right:0!important;bottom:-48px!important;top:auto!important;width:38px!important;height:38px!important}
 body .board-player-stage:is(.player-speech-top,.player-speech-bottom)[data-board-orientation="white"] [data-player-color="black"],body .board-player-stage:is(.player-speech-top,.player-speech-bottom)[data-board-orientation="black"] [data-player-color="white"]{top:-48px!important;bottom:auto!important}
+
+@media(min-width:901px){body:not(.focus-playing) .online-game-layout .board-player-stage .player-speech{position:fixed;right:auto;bottom:auto;z-index:1140}body:not(.focus-playing) .online-game-layout .board-player-stage .player-speech p{max-height:100px}}
+
+@media(min-width:901px){body:not(.focus-playing) .online-game-layout .player-speech::after{left:-6px;right:auto;border-top:0;border-right:0;border-left:1px solid #ab925f;border-bottom:1px solid #ab925f}}
