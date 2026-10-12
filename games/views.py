@@ -2779,8 +2779,9 @@ def serialize_game_chat_for_user(game_id, user, guest_id=None, mark_read=False, 
     messages = list(
         GameChatMessage.objects.filter(game=game)
         .select_related('sender')
-        .order_by('created_at', 'id')[:100]
+        .order_by('-created_at', '-id')[:100]
     )
+    messages.reverse()  # Keep the latest page in conversational order.
     latest_message = messages[-1] if messages else None
     read_state = None
     if user.is_authenticated:

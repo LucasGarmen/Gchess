@@ -1978,7 +1978,7 @@ function renderGameChat(data) {
 
             const meta = document.createElement('span');
             meta.className = 'game-chat-meta';
-            meta.innerText = `${message.sender} Â· ${message.created_at}`;
+            meta.innerText = `${message.sender} · ${message.created_at}`;
 
             const text = document.createElement('p');
             text.innerText = message.text;
