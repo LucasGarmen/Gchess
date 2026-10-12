@@ -1,0 +1,16 @@
+{% extends 'games/base.html' %}
+{% load game_i18n %}
+{% block title %}{% if current_language == 'es' %}Invitación a jugar{% elif current_language == 'en' %}Game invitation{% else %}Convite para jogar{% endif %}{% endblock %}
+{% block content %}
+<main class="waiting-page"><section class="form-card waiting-card">
+{% if invitation_unavailable %}
+<h1>{% if current_language == 'es' %}Este enlace ya no está disponible{% elif current_language == 'en' %}This invitation is no longer available{% else %}Este convite não está mais disponível{% endif %}</h1>
+<p>{% if current_language == 'es' %}Ya fue aceptado o cancelado. Pedile a tu amigo un nuevo enlace.{% elif current_language == 'en' %}It was already accepted or cancelled. Ask your friend for a new link.{% else %}Já foi aceito ou cancelado. Peça um novo link ao seu amigo.{% endif %}</p>
+<a class="primary-button" href="{% url 'game_create' %}">{% tr 'create_game' %}</a>
+{% else %}
+<h1>{% if current_language == 'es' %}Jugá con {{ invitation_creator }}{% elif current_language == 'en' %}Play with {{ invitation_creator }}{% else %}Jogue com {{ invitation_creator }}{% endif %}</h1>
+<p>{% tr 'time' %}: {% if invitation.time_control_minutes %}{{ invitation.time_control_minutes }} {% tr 'minutes_per_player' %}{% else %}{% tr 'free_time' %}{% endif %}</p>
+<form method="post">{% csrf_token %}<button class="primary-button" type="submit">{% if current_language == 'es' %}Entrar a la partida{% elif current_language == 'en' %}Join game{% else %}Entrar na partida{% endif %}</button></form>
+{% endif %}
+</section></main>
+{% endblock %}

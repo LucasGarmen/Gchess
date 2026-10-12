@@ -1017,7 +1017,7 @@ class InvitationLinkTests(TestCase):
         )
 
         self.client.force_login(opponent)
-        response = self.client.get(reverse("accept_invitation_link", args=[invitation.token]))
+        response = self.client.post(reverse("accept_invitation_link", args=[invitation.token]))
 
         invitation.refresh_from_db()
         self.assertEqual(invitation.status, "accepted")
@@ -1036,20 +1036,21 @@ class InvitationLinkTests(TestCase):
         )
 
         self.client.force_login(first_opponent)
-        first_response = self.client.get(reverse("accept_invitation_link", args=[invitation.token]))
+        first_response = self.client.post(reverse("accept_invitation_link", args=[invitation.token]))
 
         invitation.refresh_from_db()
         first_game_id = invitation.game_id
         self.assertRedirects(first_response, reverse("game_detail", args=[first_game_id]))
 
         self.client.force_login(second_opponent)
-        second_response = self.client.get(reverse("accept_invitation_link", args=[invitation.token]))
+        second_response = self.client.post(reverse("accept_invitation_link", args=[invitation.token]))
 
         invitation.refresh_from_db()
         self.assertEqual(invitation.opponent, first_opponent)
         self.assertEqual(invitation.game_id, first_game_id)
         self.assertEqual(ChessGame.objects.count(), 1)
-        self.assertRedirects(second_response, reverse("games_list"))
+        self.assertEqual(second_response.status_code, 409)
+        self.assertTrue(second_response.context["invitation_unavailable"])
 
 
 class GameAccessTests(TestCase):
@@ -1670,7 +1671,7 @@ class GameCreationTests(TestCase):
         })
         invitation = GameInvitation.objects.get()
 
-        accept_response = opponent_client.get(reverse("accept_invitation_link", args=[invitation.token]))
+        accept_response = opponent_client.post(reverse("accept_invitation_link", args=[invitation.token]))
         invitation.refresh_from_db()
         game = invitation.game
 
@@ -1722,7 +1723,7 @@ class GameCreationTests(TestCase):
         )
 
         self.client.force_login(opponent)
-        self.client.get(reverse("accept_invitation_link", args=[invitation.token]))
+        self.client.post(reverse("accept_invitation_link", args=[invitation.token]))
 
         game = ChessGame.objects.get()
         self.assertEqual(game.white_user, opponent)
@@ -1733,7 +1734,7 @@ class GameCreationTests(TestCase):
         user = User.objects.create_user(username="link-user", password="pass")
         self.client.force_login(user)
 
-        response = self.client.get(reverse("accept_invitation_link", args=["00000000-0000-0000-0000-000000000000"]))
+        response = self.client.post(reverse("accept_invitation_link", args=["00000000-0000-0000-0000-000000000000"]))
 
         self.assertEqual(response.status_code, 404)
 

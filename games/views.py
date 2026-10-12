@@ -2598,6 +2598,7 @@ def accept_invitation(request, invitation_id):
     })
 
 
+@require_http_methods(['GET', 'POST'])
 @rate_limit(20, 60, 'accept-link')
 def accept_invitation_link(request, token):
     touch_presence(request.user)
@@ -2616,13 +2617,20 @@ def accept_invitation_link(request, token):
             if invitation.game_id and ChessGame.objects.filter(game_access_filter(request.user, guest_id), id=invitation.game_id).exists():
                 return redirect('game_detail', game_id=invitation.game_id)
 
-            return redirect('games_list')
+            return render(request, 'games/invitation_link_join.html', {'invitation': invitation, 'invitation_unavailable': True}, status=409)
 
         if invitation.is_rated and not request.user.is_authenticated:
-            return redirect('login')
+            from django.contrib.auth.views import redirect_to_login
+            return redirect_to_login(request.get_full_path())
 
         if invitation.opponent_id and (not request.user.is_authenticated or invitation.opponent_id != request.user.id):
-            return redirect('games_list')
+            return render(request, 'games/invitation_link_join.html', {'invitation': invitation, 'invitation_unavailable': True}, status=409)
+
+        if request.method == 'GET':
+            return render(request, 'games/invitation_link_join.html', {
+                'invitation': invitation,
+                'invitation_creator': invitation_creator_name(invitation),
+            })
 
         accepted_count = GameInvitation.objects.filter(
             id=invitation.id,
@@ -2636,7 +2644,7 @@ def accept_invitation_link(request, token):
         )
 
         if accepted_count == 0:
-            return redirect('games_list')
+            return render(request, 'games/invitation_link_join.html', {'invitation': invitation, 'invitation_unavailable': True}, status=409)
 
         invitation = GameInvitation.objects.select_related('creator', 'opponent').get(id=invitation.id)
         game = create_game_from_invitation(
