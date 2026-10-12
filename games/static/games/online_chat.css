@@ -38,3 +38,5 @@ body #game-chat-panel.online-chat-dock #game-chat-emoji-toggle{
   width:100%!important;min-width:0!important;min-height:34px;max-height:34px;margin:0;padding:0;
  }
 }
+
+@media(min-width:901px){body:not(.focus-playing) #game-chat-panel.online-chat-dock{translate:0 calc(-1 * var(--player-speech-offset,0px))}}
