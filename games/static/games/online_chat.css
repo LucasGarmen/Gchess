@@ -26,3 +26,15 @@ body #game-chat-panel.online-chat-dock #game-chat-emoji-toggle{
  height:28px!important;min-height:28px!important;max-height:28px!important;
  padding:0!important;margin:0!important;transform:translateY(-50%)!important;
 }
+
+@media(max-width:900px){
+ body #game-chat-panel.online-chat-dock #game-chat-emoji-panel{
+  position:fixed!important;bottom:auto!important;right:auto!important;
+  width:min(258px,calc(100vw - 16px));box-sizing:border-box;
+  grid-template-columns:repeat(6,minmax(0,1fr));max-height:calc(var(--chat-visible-height,100dvh) - 24px);
+  overflow:auto;z-index:1160;
+ }
+ body #game-chat-panel.online-chat-dock #game-chat-emoji-panel button{
+  width:100%!important;min-width:0!important;min-height:34px;max-height:34px;margin:0;padding:0;
+ }
+}

@@ -15,6 +15,19 @@ document.addEventListener('DOMContentLoaded', () => {
  if(typeof gameChatOpen!=='undefined')gameChatOpen=true;
  if(toggle)toggle.hidden=true;
  const close=document.getElementById('game-chat-close');if(close)close.hidden=true;
+
+ const emojiPanel=document.getElementById('game-chat-emoji-panel'),emojiButton=document.getElementById('game-chat-emoji-toggle');
+ function positionEmojis(){
+  if(!emojiPanel||!emojiButton)return;
+  if(window.innerWidth>900){emojiPanel.style.removeProperty('top');emojiPanel.style.removeProperty('left');return;}
+  if(emojiPanel.hidden)return;
+  const viewport=window.visualViewport,edge=(viewport?.offsetTop||0)+8;
+  const rect=emojiButton.getBoundingClientRect(),popup=emojiPanel.getBoundingClientRect();
+  emojiPanel.style.setProperty('top',Math.max(edge,Math.min(rect.top,input.getBoundingClientRect().top)-popup.height-8)+'px','important');
+  emojiPanel.style.setProperty('left',Math.max(8,Math.min(rect.right-popup.width,window.innerWidth-popup.width-8))+'px','important');
+ }
+ if(emojiPanel)new MutationObserver(positionEmojis).observe(emojiPanel,{attributes:true,attributeFilter:['hidden']});
+ window.addEventListener('resize',positionEmojis);window.visualViewport?.addEventListener('resize',positionEmojis);window.visualViewport?.addEventListener('scroll',positionEmojis);
  const log=document.getElementById('game-chat-messages');
  if(log){const history=document.createElement('details'),summary=document.createElement('summary');history.className='online-chat-history';summary.textContent={es:'Conversación',pt:'Conversa',en:'Conversation'}[lang]||'Conversation';history.append(summary,log);panel.insertBefore(history,form);}
 

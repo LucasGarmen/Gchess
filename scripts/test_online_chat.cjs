@@ -3,7 +3,7 @@ let ready,submit,response,payload,rendered,moved=false;
 const status={setAttribute(){},hidden:true},button={textContent:'Send',disabled:false},input={value:'hello'},panel={hidden:true,classList:{add(){}},prepend(){}};
 const form={querySelector:()=>button,before(){},setAttribute(){},addEventListener(name,fn,capture){assert(capture);submit=fn;}};
 const elements={'game-chat-form':form,'game-chat-input':input,'game-chat-panel':panel,'game-chat-toggle':{}};
-const ctx={window:{},GAME_ID:7,gameChatOpen:false,AbortController,setTimeout,clearTimeout,document:{documentElement:{lang:'en'},cookie:'csrftoken=test',addEventListener(n,fn){ready=fn;},getElementById:id=>elements[id],createElement:()=>status,querySelector:()=>({append(){moved=true;}}),body:{append(){}}},renderGameChat:data=>rendered=data,fetch:async(url,options)=>{payload={url,options};return response;}};
+const ctx={window:{addEventListener(){}},GAME_ID:7,gameChatOpen:false,AbortController,setTimeout,clearTimeout,document:{documentElement:{lang:'en'},cookie:'csrftoken=test',addEventListener(n,fn){ready=fn;},getElementById:id=>elements[id],createElement:()=>status,querySelector:()=>({append(){moved=true;}}),body:{append(){}}},renderGameChat:data=>rendered=data,fetch:async(url,options)=>{payload={url,options};return response;}};
 vm.runInNewContext(fs.readFileSync('games/static/games/online_chat.js','utf8'),ctx);ready();assert.equal(panel.hidden,false,'Composer visible immediately');assert.equal(ctx.gameChatOpen,true);assert.equal(elements['game-chat-toggle'].hidden,true);
 const event={preventDefault(){},stopImmediatePropagation(){}};
 (async()=>{
