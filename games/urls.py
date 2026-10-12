@@ -3,9 +3,10 @@ from .views import home, games_list, game_detail, game_create,save_move
 from . import checkin, openings, shop, matchmaking, blindfold, views, social, learning, workspace, tournaments, daily_training, weekly, review_practice, notices
 
 
-from . import reward_views
+from . import reward_views, same_device
 
 urlpatterns = [
+    path("play/same-device/", same_device.play, name="same_device"),
     path("rewards/progress/", reward_views.progress, name="reward_progress"),
     path('rewards/checkin/', checkin.claim, name='daily_checkin'),
     path('play/quick/', matchmaking.quick_play, name='quick_play'),

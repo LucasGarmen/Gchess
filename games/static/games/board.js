@@ -446,6 +446,10 @@ function isKingSquare(square) {
     return square && square.dataset.type === 'king';
 }
 
+function isLocalPlayMode() {
+    return typeof LOCAL_PLAY_MODE !== 'undefined' && LOCAL_PLAY_MODE;
+}
+
 function isComputerMode() {
     return typeof COMPUTER_MODE !== 'undefined' && COMPUTER_MODE;
 }
@@ -1314,6 +1318,8 @@ async function playMove(fromSquare, toSquare, shouldAnimate = true, forcedPromot
     updateTurnIndicator();
     updateHistoryControls();
     updateCapturedMaterial();
+
+    if (isLocalPlayMode()) document.dispatchEvent(new CustomEvent('gchess:local-move'));
 
     saveMoveToDatabase(playedMove, {
         finished: gameEnded,
@@ -2942,7 +2948,7 @@ function saveMoveToDatabase(moveData, gameState = {}) {
     if (typeof ANALYZER_MODE !== 'undefined' && ANALYZER_MODE) {
         return;
     }
-    if (isComputerMode()) {
+    if (isComputerMode() || isLocalPlayMode()) {
         return;
     }
 
@@ -3005,6 +3011,7 @@ function saveMoveToDatabase(moveData, gameState = {}) {
 function syncFinishedGame(winner, options = {}) {
     if (
         finishedGameSynced ||
+        isLocalPlayMode() ||
         typeof ANALYZER_MODE !== 'undefined' && ANALYZER_MODE ||
         isComputerMode()
     ) {

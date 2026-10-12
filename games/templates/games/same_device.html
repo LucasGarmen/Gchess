@@ -1,0 +1,18 @@
+{% extends 'games/base.html' %}{% load static game_i18n %}
+{% block title %}{{ local.title }} · Gchess{% endblock %}
+{% block content %}
+<link rel="stylesheet" href="{% static 'games/same_device.css' %}?v=1">
+<main class="game-layout local-game-layout"><section class="board-area">
+<header class="local-heading"><div><h1>{{ local.title }}</h1><p>{{ local.intro }}</p></div><button id="local-new-game" type="button">{{ local.again }}</button></header>
+<div class="board-wrapper"><div class="board-toolbar"><button id="prev-move" type="button" aria-label="{% tr 'previous' %}">‹</button><button id="next-move" type="button" aria-label="{% tr 'next' %}">›</button><button id="last-move" type="button" aria-label="{% tr 'last_position' %}">»</button><button id="flip-board" type="button" aria-label="{% tr 'flip_board' %}">↻</button><span id="turn-indicator" role="status" aria-live="polite"></span><span id="game-status" role="status" hidden></span></div>
+<div class="board-player-stage" data-board-orientation="white"><div id="board" class="board" tabindex="-1"></div>{% include 'games/_game_finish_notice.html' %}</div></div>
+<div id="captured-material" class="captured-material"><div class="captured-row"><div id="captured-black" class="captured-pieces"></div><span id="white-material-advantage"></span></div><div class="captured-row"><div id="captured-white" class="captured-pieces"></div><span id="black-material-advantage"></span></div></div>
+<label class="local-rotate"><input id="local-auto-flip" type="checkbox">{{ local.rotate }}</label>
+<details class="local-help"><summary>{{ local.help_title }}</summary><p>{{ local.help }}</p></details>
+</section><aside class="local-side"><details class="local-history"><summary>{{ local.moves }}</summary><ul id="move-list"></ul><pre id="pgn-box" class="pgn-box"></pre></details>
+<form id="analyze-game-form" method="post" action="{% url 'game_analyzer' %}">{% csrf_token %}<textarea id="analyze-game-pgn" name="pgn" hidden></textarea><input type="hidden" name="player_color" value="white"><button id="analyze-game-button" type="submit" hidden>{{ local.review }}</button></form></aside></main>
+{{ local|json_script:'same-device-words' }}
+<script src="{% static 'games/same_device_state.js' %}?v=1"></script>
+<script>const LOCAL_PLAY_MODE=true;const COMPUTER_MODE=false;const MULTIPLAYER_MODE=false;const GAME_ID=null;const GAME_PLAYER_COLOR=null;let PLAYER_COLOR='white';const SAVED_MOVES=window.GchessSameDevice.read();const UI_LANGUAGE='{{ current_language }}';const START_SOUND_URL="{% static 'games/sounds/start-chess.mp3' %}";const MOVE_SOUND_URL="{% static 'games/sounds/piece.mp3' %}";</script>
+<script src="{% static 'games/board.min.js' %}?v=21" defer></script><script src="{% static 'games/same_device.js' %}?v=1" defer></script><script src="{% static 'games/game_finish.js' %}?v=5" defer></script>
+{% endblock %}

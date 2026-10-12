@@ -40,7 +40,7 @@ document.addEventListener('DOMContentLoaded', () => {
         Object.assign(dock.style,{left:desktopPosition.x+'px',top:desktopPosition.y+'px',right:'auto',bottom:'auto'});
     }
     handle.addEventListener('pointerdown', event => {
-        if (innerWidth <= 900 || event.button !== 0 || !event.isPrimary) return;
+        if (dock.closest('.focus-play') || innerWidth <= 900 || event.button !== 0 || !event.isPrimary) return;
         const rect = dock.getBoundingClientRect();
         drag = {id:event.pointerId,x:event.clientX,y:event.clientY,left:rect.left,top:rect.top};
         handle.setPointerCapture(event.pointerId);
@@ -55,11 +55,21 @@ document.addEventListener('DOMContentLoaded', () => {
     function position() {
         dock.hidden = !playing();
         const mobile = innerWidth <= 900;
-        if (mobile) dock.removeAttribute('style');
+        const fullscreen = dock.closest('.focus-play');
+        if (mobile || fullscreen) dock.removeAttribute('style');
         else if (desktopPosition) moveDock(desktopPosition.x,desktopPosition.y);
+        bubble.classList.toggle('coach-reply-fullscreen', Boolean(fullscreen));
         wrapper?.style.setProperty('--coach-reply-top','0px');
         wrapper?.style.setProperty('--coach-reply-bottom','0px');
         if (!playing()) { bubble.hidden = true; return; }
+        if (fullscreen) {
+            // Native fullscreen only paints descendants of its fullscreen element.
+            // Keep replies beside the composer, including replies arriving asynchronously.
+            if (bubble.parentElement !== dock) dock.insertBefore(bubble, history);
+            bubble.classList.remove('coach-reply-inline');
+            bubble.removeAttribute('style');
+            return;
+        }
         if (bubble.hidden) return;
         const stage = avatar.closest('.board-player-stage');
         if (mobile && stage) {
@@ -102,6 +112,7 @@ document.addEventListener('DOMContentLoaded', () => {
     new MutationObserver(position).observe(document.body, {attributes:true, attributeFilter:['class']});
     const stage = avatar.closest('.board-player-stage');
     if (stage) new MutationObserver(position).observe(stage, {attributes:true, attributeFilter:['data-board-orientation']});
+    document.addEventListener('gchess:focus-mode-changed', position);
     window.addEventListener('resize', position);
     window.visualViewport?.addEventListener('resize', position);
     document.addEventListener('scroll', position, {capture:true, passive:true});

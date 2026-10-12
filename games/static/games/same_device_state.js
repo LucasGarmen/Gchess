@@ -1,0 +1,3 @@
+(()=>{'use strict';const key='gchess-same-device-v1';
+function valid(move,index){return move&&move.move_number===index+1&&/^[a-h][1-8]$/.test(move.from)&&/^[a-h][1-8]$/.test(move.to)&&move.from!==move.to&&['pawn','horse','knight','bishop','rook','queen','king'].includes(move.piece_type)&&move.piece_color===(index%2?'black':'white')&&(!move.promotion||['queen','rook','bishop','horse','knight'].includes(move.promotion));}
+window.GchessSameDevice={read(){try{const moves=JSON.parse(sessionStorage.getItem(key)||'[]');return Array.isArray(moves)&&moves.length<=2048&&moves.every(valid)?moves:[];}catch(_){return [];}},save(moves){try{sessionStorage.setItem(key,JSON.stringify(moves));}catch(_){}},key};})();

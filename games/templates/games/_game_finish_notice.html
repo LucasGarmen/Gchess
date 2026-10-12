@@ -7,11 +7,11 @@
 <p id="game-finish-note" class="game-finish-note"></p>
 <dl class="game-finish-stats"><div><dt>{{ result_words.moves }}</dt><dd id="game-finish-moves">—</dd></div><div><dt>{{ result_words.captures }}</dt><dd id="game-finish-captures">—</dd></div></dl>
 {% if user.is_authenticated and game.pk %}{% load reward_tags %}{% reward_words current_language as reward_labels %}<p id="game-finish-xp" class="game-finish-xp" data-label="{{ reward_labels.earned }}" data-url="{% url 'reward_progress' %}?game={{ game.pk }}" hidden></p>{% endif %}
-<div class="game-finish-advice"><strong>{% ui_icon 'coach' %}{{ result_words.coach }}</strong><p id="game-finish-tip"></p></div>
-<div class="game-finish-actions">
+{% if not same_device %}<div class="game-finish-advice"><strong>{% ui_icon 'coach' %}{{ result_words.coach }}</strong><p id="game-finish-tip"></p></div>
+{% endif %}<div class="game-finish-actions">
 {% if game.pk and player_color %}<form id="game-finish-rematch" method="post" action="{% url 'game_rematch' game.pk %}">{% csrf_token %}<button class="game-finish-primary" type="submit">{% ui_icon 'play' %}{{ result_words.rematch }}</button></form>
 {% elif game.pk %}<a class="game-finish-primary" href="{% url 'game_create' %}">{% ui_icon 'play' %}{{ result_words.new_game }}</a>
-{% else %}<button id="game-finish-again" class="game-finish-primary" type="button">{% ui_icon 'play' %}{{ result_words.again }}</button>{% endif %}
+{% elif same_device %}<button id="game-finish-local-again" class="game-finish-primary" type="button">{% ui_icon 'play' %}{{ local.again }}</button>{% else %}<button id="game-finish-again" class="game-finish-primary" type="button">{% ui_icon 'play' %}{{ result_words.again }}</button>{% endif %}
 {% if game.pk %}<a class="game-finish-secondary" href="{% url 'game_analyzer' %}?game_id={{ game.pk }}">{% ui_icon 'analysis' %}{{ result_words.analyze }}</a>{% else %}<button id="game-finish-analyze" class="game-finish-secondary" type="button">{% ui_icon 'analysis' %}{{ result_words.analyze }}</button>{% endif %}
 </div>
 {% if game.pk and player_color %}<p class="game-finish-rematch-help">{{ result_words.rematch_help }}</p>{% endif %}

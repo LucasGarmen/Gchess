@@ -1332,3 +1332,6 @@ for lang, values in {
     'en': {'auth_login_intro':'Return to your games, friends and learning.', 'auth_register_intro':'Create your account to play, train and share games.'},
 }.items():
     TRANSLATIONS[lang].update(values)
+
+for language,label in {"pt":"No mesmo dispositivo", "es":"En el mismo dispositivo", "en":"On the same device"}.items():
+    TRANSLATIONS[language]["same_device"] = label
