@@ -10,6 +10,6 @@ const pointer=(x,y,id=1)=>({button:0,isPrimary:true,pointerId:id,clientX:x,clien
 handlers.pointerdown(pointer(500,400));handlers.pointermove(pointer(700,500));assert.equal(props.left.v,'700px');assert.equal(props.left.priority,'important');assert.equal(prevented,2,'Drag prevents text selection');
 handlers.pointermove(pointer(4000,4000));assert.equal(props.left.v,'952px');assert.equal(props.top.v,'672px','Clamped to screen');handlers.pointercancel(pointer(0,0));assert.equal(capture,null);
 win.innerWidth=390;events.resize();assert(!props.left);handlers.pointerdown(pointer(20,20));assert.equal(capture,null,'No mobile dragging');
-win.visualViewport.height=480;viewEvents.resize();assert.equal(props['--chat-keyboard-inset'].v,'320px','Lift composer above keyboard');win.visualViewport.offsetTop=40;viewEvents.scroll();assert.equal(props['--chat-keyboard-inset'].v,'280px');
+win.visualViewport.height=480;viewEvents.resize();assert.equal(props['--chat-keyboard-inset'].v,'320px','Lift composer above keyboard');assert.equal(props['--chat-visible-height'].v,'480px','Limit history to space above keyboard');win.visualViewport.offsetTop=40;viewEvents.scroll();assert.equal(props['--chat-keyboard-inset'].v,'280px');
 win.innerWidth=1280;fullscreen=true;docEvents['gchess:focus-mode-changed']();handlers.pointerdown(pointer(20,20));assert.equal(capture,null,'Fullscreen keeps chat in its layout');
 console.log('Chat docks: selection prevention, pointer capture/cancel, bounds, mobile keyboard and fullscreen passed.');

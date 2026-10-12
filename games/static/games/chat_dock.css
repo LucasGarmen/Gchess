@@ -3,3 +3,18 @@
 .online-chat-handle{font-size:12px;line-height:18px;color:#d8bd85;padding-bottom:4px}
 @media(max-width:900px){.online-chat-handle{display:none}body .online-chat-dock,body .coach-chat-dock{top:auto!important;bottom:calc(8px + max(env(safe-area-inset-bottom),var(--chat-keyboard-inset,0px)))!important;max-height:calc(100dvh - 24px);overflow-y:auto}body .coach-chat-dock #trainer-chat-form,body .online-chat-dock #game-chat-form{flex-shrink:0}}
 body .focus-play .online-chat-dock,body .focus-play .coach-chat-dock{bottom:auto!important;top:auto!important}
+
+/* The online page loads its own dock CSS later. Keep keyboard positioning
+   stronger than that page's fixed bottom rule. */
+@media(max-width:900px){
+ body.online-game-detail-page:not(.focus-playing) #game-chat-panel.online-chat-dock{
+  position:fixed!important;left:8px!important;right:8px!important;top:auto!important;
+  bottom:calc(8px + max(env(safe-area-inset-bottom),var(--chat-keyboard-inset,0px)))!important;
+  width:auto!important;max-width:none!important;max-height:calc(var(--chat-visible-height,100dvh) - 24px)!important;
+  z-index:1150;overflow-y:auto;pointer-events:auto;
+ }
+ body #game-chat-panel.online-chat-dock #game-chat-input{
+  min-width:0;min-height:44px;font-size:16px;pointer-events:auto;
+  user-select:text;-webkit-user-select:text;touch-action:manipulation;
+ }
+}

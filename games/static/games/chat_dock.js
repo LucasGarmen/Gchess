@@ -4,6 +4,7 @@
  function keyboardInset(){
   const inset=viewport?Math.max(0,window.innerHeight-viewport.height-viewport.offsetTop):0;
   document.documentElement.style.setProperty('--chat-keyboard-inset',inset+'px');
+  document.documentElement.style.setProperty('--chat-visible-height',(viewport?.height||window.innerHeight)+'px');
  }
  window.addEventListener('resize',keyboardInset);
  viewport?.addEventListener('resize',keyboardInset);viewport?.addEventListener('scroll',keyboardInset);

@@ -18,3 +18,11 @@ body.online-game-detail-page #game-chat-toggle,
 body .online-chat-dock #game-chat-close{display:none!important}
 body .online-chat-dock .online-chat-history summary{padding-right:0}
 @media(max-width:900px){body.online-game-detail-page:not(.focus-playing){padding-bottom:calc(116px + env(safe-area-inset-bottom))!important}}
+
+/* Global button sizing must not stretch the emoji control over the input. */
+body #game-chat-panel.online-chat-dock #game-chat-emoji-toggle{
+ position:absolute!important;left:auto!important;right:4px!important;top:50%!important;
+ width:28px!important;min-width:28px!important;max-width:28px!important;
+ height:28px!important;min-height:28px!important;max-height:28px!important;
+ padding:0!important;margin:0!important;transform:translateY(-50%)!important;
+}
