@@ -29,6 +29,8 @@ def save_review(user, pgn, language, color, moves, analysis, opening, game=None)
     if game and user.pk not in (game.white_user_id, game.black_user_id): return None
     review, _ = GameReview.objects.get_or_create(user=user, fingerprint=review_key(pgn, game), language=language,
         player_color=color, defaults=dict(game=game, pgn=pgn, payload=dict(moves=moves, analysis=analysis, opening=opening)))
+    from .rewards import reward_review
+    reward_review(review)
     return review
 
 

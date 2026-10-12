@@ -15,6 +15,14 @@ function outcome(){
  const kind=winner==='draw'?'draw':viewer&&['white','black'].includes(winner)?winner===viewer?'victory':'defeat':'finished';
  return {winner,kind,mate};
 }
+let rewardRequested=false;
+async function loadReward(attempt=0){
+ const target=document.getElementById('game-finish-xp');if(!target)return;
+ try{const response=await fetch(target.dataset.url,{credentials:'same-origin',headers:{Accept:'application/json'}});if(!response.ok)return;const data=await response.json();
+ if(data.pending&&attempt<4){setTimeout(()=>loadReward(attempt+1),500);return;}
+ if(data.earned>0){target.textContent=`+${data.earned} ${target.dataset.label}`;target.hidden=false;}
+ }catch(error){/* Result and rematch remain available if progress is unavailable. */}
+}
 function refresh(){
  const atEnd=typeof isViewingLatestPosition!=='function'||isViewingLatestPosition();
  const finished=typeof gameOver!=='undefined'&&gameOver&&atEnd&&!(typeof analysisMode!=='undefined'&&analysisMode);
@@ -24,6 +32,7 @@ function refresh(){
  const host=focus?(focus.querySelector('.board-player-stage')||focus.querySelector('.focus-play-board')):layout.classList.contains('blindfold-active')?layout.querySelector('.board-area'):board?.closest('.board-player-stage')||wrapper;
  if(notice.parentElement!==host)host.prepend(notice);if(reopen.parentElement!==host)host.append(reopen);
  if(finished){
+  if(!rewardRequested){rewardRequested=true;loadReward();}
   const result=outcome(),count=typeof SAVED_MOVES!=='undefined'?SAVED_MOVES.length:0;
   const key=`${count}:${result.winner}`;
   if(finishKey!==key){dismissed=false;finishKey=key;notice.dataset.outcome=result.kind;}

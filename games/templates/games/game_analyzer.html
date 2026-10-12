@@ -61,7 +61,7 @@
     document.body.classList.add('mobile-analyzer-playing');
 </script>
 
-<header class="analyzer-review-header"><div><span class="analyzer-eyebrow">{{ analyzer_ui.eyebrow }}</span><h1>{% tr "analysis" %}</h1></div><a href="{% url 'game_analyzer' %}" class="analyzer-new-link">{{ analyzer_ui.new }} ↗</a></header>
+<header class="analyzer-review-header"><div><span class="analyzer-eyebrow">{{ analyzer_ui.eyebrow }}</span><h1>{% tr "analysis" %}</h1>{% if saved_review %}{% load reward_tags %}{% review_reward saved_review as review_xp %}{% reward_words current_language as reward_labels %}{% if review_xp %}<small class="game-finish-xp">+{{ review_xp }} {{ reward_labels.earned }}</small>{% endif %}{% endif %}</div><a href="{% url 'game_analyzer' %}" class="analyzer-new-link">{{ analyzer_ui.new }} ↗</a></header>
 <main class="game-layout analyzer-game-layout">
     <section class="board-area">
             <div class="history-controls analyzer-review-controls" aria-label="{% tr 'analysis' %}">

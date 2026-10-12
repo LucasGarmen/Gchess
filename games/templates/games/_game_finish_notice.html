@@ -6,6 +6,7 @@
 <div class="game-finish-heading" role="status" aria-live="polite" aria-atomic="true"><h2 id="game-finish-title">{{ result_words.finished }}</h2><p id="game-finish-result"></p></div>
 <p id="game-finish-note" class="game-finish-note"></p>
 <dl class="game-finish-stats"><div><dt>{{ result_words.moves }}</dt><dd id="game-finish-moves">—</dd></div><div><dt>{{ result_words.captures }}</dt><dd id="game-finish-captures">—</dd></div></dl>
+{% if user.is_authenticated and game.pk %}{% load reward_tags %}{% reward_words current_language as reward_labels %}<p id="game-finish-xp" class="game-finish-xp" data-label="{{ reward_labels.earned }}" data-url="{% url 'reward_progress' %}?game={{ game.pk }}" hidden></p>{% endif %}
 <div class="game-finish-advice"><strong>{% ui_icon 'coach' %}{{ result_words.coach }}</strong><p id="game-finish-tip"></p></div>
 <div class="game-finish-actions">
 {% if game.pk and player_color %}<form id="game-finish-rematch" method="post" action="{% url 'game_rematch' game.pk %}">{% csrf_token %}<button class="game-finish-primary" type="submit">{% ui_icon 'play' %}{{ result_words.rematch }}</button></form>

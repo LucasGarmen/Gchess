@@ -849,6 +849,10 @@ def record_puzzle_progress(user, puzzle_id, correcto, tiempo=None, mate_in=None)
 
     with transaction.atomic():
         stats, _created = UserPuzzleStats.objects.select_for_update().get_or_create(user=user)
+        if correcto:
+            import hashlib
+            from .rewards import grant
+            xp_ganado = grant(user, 'puzzle:'+hashlib.sha256(str(puzzle_id).encode()).hexdigest(), 'puzzle', xp_ganado, cap=100, add_to_stats=False)
         stats.registrar_puzzle(
             puzzle_id=puzzle_id,
             correcto=correcto,

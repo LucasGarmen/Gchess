@@ -34,3 +34,5 @@ body .game-finish-reopen{position:absolute;left:50%;bottom:9px;transform:transla
 body .game-result-enhanced.game-ended-visible #game-status{display:none!important}
 
 #game-finish-notice [hidden]{display:none!important}
+
+.game-finish-xp{color:#e4bf73;font-weight:700;font-size:.9rem;margin:8px 0}

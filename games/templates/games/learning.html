@@ -1,6 +1,7 @@
 {% extends 'games/base.html' %}
 {% block title %}{{ learning.title }} · Gchess{% endblock %}
 {% block content %}<main class="learning-page"><header><p>Gchess · {{ learning.nav }}</p><h1>{{ learning.title }}</h1><p>{{ progress.texts.intro }}</p></header>
+{% load reward_tags %}{% reward_progress %}
 {% include "games/_learning_progress.html" %}
 {% include "games/_error_patterns.html" %}
 <details class="learning-panel learning-analysis-details"><summary>{{ progress.texts.advanced }}</summary><div class="learning-metrics"><div><strong>{{ review_count }}</strong><span>{{ learning.history }}</span></div><div><strong>{{ recent_average|default_if_none:'—' }}</strong><span>{{ learning.recent }}</span></div><div><strong>{{ previous_average|default_if_none:'—' }}</strong><span>{{ learning.previous }}</span></div></div><p>{{ learning.average_help }}</p>{% if trend %}<strong>{{ trend }}</strong>{% endif %}<p class="learning-muted">{{ learning.trend_help }}</p></details>

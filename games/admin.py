@@ -61,3 +61,22 @@ class StreakBestResultAdmin(admin.ModelAdmin):
     list_display = ('user', 'mejor_racha', 'puzzles_resueltos', 'achieved_at')
     ordering = ('-mejor_racha', '-puzzles_resueltos', 'achieved_at')
     search_fields = ('user__username',)
+
+
+from .models import LearningReward
+
+@admin.register(LearningReward)
+class LearningRewardAdmin(admin.ModelAdmin):
+    list_display = ('user', 'kind', 'xp', 'date', 'created_at')
+    list_filter = ('kind', 'date')
+    search_fields = ('user__username', 'key')
+    readonly_fields = ('user', 'key', 'kind', 'xp', 'date', 'peer', 'created_at')
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False

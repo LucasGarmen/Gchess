@@ -422,3 +422,18 @@ class DailyCheckin(models.Model):
 
     class Meta:
         constraints = [models.UniqueConstraint(fields=['user', 'date'], name='daily_checkin_user_date')]
+
+
+class LearningReward(models.Model):
+    """Immutable record of server-verified XP; independent from Elo and shop points."""
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='learning_rewards')
+    key = models.CharField(max_length=100)
+    kind = models.CharField(max_length=12)
+    xp = models.PositiveSmallIntegerField(default=0)
+    date = models.DateField()
+    peer = models.CharField(max_length=40, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        constraints = [models.UniqueConstraint(fields=['user', 'key'], name='learning_reward_user_key')]
+        indexes = [models.Index(fields=['user', 'date', 'kind'], name='learning_reward_daily_idx')]

@@ -28,3 +28,26 @@ ctx.analysisMode=true;refresh();assert.equal(ids['game-finish-notice'].hidden,tr
 console.log('Result panel: perspective, draws, server results, actual stats, dismiss/reopen, fullscreen, replay sound deduplication, analysis and play again passed.');
 
 ctx.analysisMode=false;ctx.SAVED_MOVES=[];refresh();assert.equal(advice.hidden,true);assert.equal(analyzeAction.hidden,true,'A game with no moves must not offer an empty analysis');
+
+(async()=>{
+ const source=fs.readFileSync('games/static/games/game_finish.js','utf8');
+ async function rewardCase(responses, expected, failing=false){
+  const target=make({hidden:true,dataset:{url:'/rewards/progress/?game=1',label:'XP earned'}});
+  ids['game-finish-xp']=target;let calls=0;const timers=[];
+  ctx.fetch=async()=>{calls++;if(failing)throw new Error('offline');return {ok:true,json:async()=>responses[Math.min(calls-1,responses.length-1)]};};
+  ctx.setTimeout=fn=>timers.push(fn);ctx.gameOver=true;ctx.analysisMode=false;
+  vm.runInContext(source,ctx);
+  for(let i=0;i<8;i++){await new Promise(resolve=>setImmediate(resolve));if(timers.length)timers.shift()();}
+  assert.equal(target.hidden,expected===0);
+  if(expected)assert.equal(target.textContent,`+${expected} XP earned`);
+  assert.equal(ids['game-finish-notice'].hidden,false,'Progress failures cannot hide the result');
+  events['gchess:position-changed']();await new Promise(resolve=>setImmediate(resolve));
+  return calls;
+ }
+ assert.equal(await rewardCase([{earned:5,pending:false}],5),1);
+ assert.equal(await rewardCase([{earned:0,pending:false}],0),1);
+ assert.equal(await rewardCase([{earned:0,pending:true},{earned:5,pending:false}],5),2);
+ assert.equal(await rewardCase([],0,true),1);
+ assert.equal(await rewardCase([{earned:0,pending:true}],0),5,'Pending reward retries are bounded');
+ console.log('Result XP: authoritative values, zero reward, bounded pending retries and network failure verified.');
+})().catch(error=>{console.error(error);process.exitCode=1;});

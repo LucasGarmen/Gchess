@@ -7,3 +7,4 @@ class GamesConfig(AppConfig):
     def ready(self):
         from . import checks  # Register storage diagnostics without connecting to the DB.
         from . import tournament_signals
+        from . import reward_signals

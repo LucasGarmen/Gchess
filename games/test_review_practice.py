@@ -51,6 +51,7 @@ class ReviewPracticeTests(TestCase):
         for lang in ['es','pt','en']:
             session=self.client.session;session['language']=lang;session.save()
             home=self.client.get(reverse('home'))
-            for word in ['coach','friends','train']:self.assertContains(home,TEXTS[lang][word])
+            from .templatetags.cosmetic_art import home_hero_words
+            for word in ['coach','friends','practice']:self.assertContains(home,home_hero_words(lang)[word])
             self.assertContains(home,reverse('game_create'));self.assertContains(home,reverse('training'))
             self.assertEqual(self.client.get(reverse('review_practice',args=[self.review.pk])).status_code,200)

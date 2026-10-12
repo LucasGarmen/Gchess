@@ -88,7 +88,9 @@ def session_data(plan,language):
         task['focus']=return_texts[theme]
         task['tip']=return_texts['tip_'+theme]
     recent_count=DailyTraining.objects.filter(user=plan.user,date__gte=timezone.localdate()-timedelta(days=6),completed_at__isnull=False).count()
-    return dict(recent_count=recent_count,id=plan.pk,date=plan.date.isoformat(),index=index,total=len(plan.tasks),completed=bool(plan.completed_at),task=task,
+    from .models import LearningReward
+    reward_xp=LearningReward.objects.filter(user=plan.user,key="daily:"+plan.date.isoformat()).values_list("xp",flat=True).first() or 0
+    return dict(reward_xp=reward_xp,recent_count=recent_count,id=plan.pk,date=plan.date.isoformat(),index=index,total=len(plan.tasks),completed=bool(plan.completed_at),task=task,
         independent=sum(p['resolved'] and p['correct'] and not p['helped'] and p['attempts']==1 for p in plan.progress),
         helped=sum(p['resolved'] and (p['helped'] or not p['correct'] or p['attempts']>1) for p in plan.progress))
 
@@ -164,4 +166,6 @@ def daily_training_answer(request):
         else:return HttpResponseBadRequest()
         if all(p['resolved'] for p in plan.progress):plan.completed_at=timezone.now()
         plan.save(update_fields=['progress','completed_at'])
+        from .rewards import reward_session
+        reward_session(plan)
         return JsonResponse(dict(state=session_data(plan,language),feedback=feedback,resolved=resolved,result_fen=result_fen,result_move=result_move))

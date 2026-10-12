@@ -122,7 +122,9 @@ def state_for(entry,language,practice=False,practice_index=0):
         saved=entry.challenge.tasks[index];board=chess.Board(saved['fen'])
         task=dict(fen=board.fen(),legal_moves=[move.uci() for move in board.legal_moves],personal=False,source_url=None,
             turn=texts['white' if board.turn else 'black'])
-    return dict(id=entry.pk,index=index,total=len(entry.progress),date=entry.challenge.week_start.isoformat(),
+    from .models import LearningReward
+    reward_xp=0 if practice else LearningReward.objects.filter(user=entry.user,key="weekly:"+str(entry.challenge_id)).values_list("xp",flat=True).first() or 0
+    return dict(reward_xp=reward_xp,id=entry.pk,index=index,total=len(entry.progress),date=entry.challenge.week_start.isoformat(),
         task=task,practice=practice,completed=index==len(entry.progress),score=entry.score,attempted=attempt_count(entry),
         scoring_open=entry.challenge.week_start==week_start(),independent=sum(p['first_correct'] for p in entry.progress),
         helped=sum(p['attempted'] and not p['first_correct'] for p in entry.progress))
@@ -182,5 +184,8 @@ def weekly_answer(request):
                 feedback+=' '+explanation(board,move,language)
         else:return HttpResponseBadRequest()
         if not practice and state['scoring_open'] and all(p['attempted'] for p in entry.progress) and not entry.completed_at:entry.completed_at=timezone.now()
-        if not practice:entry.save(update_fields=['progress','score','completed_at'])
+        if not practice:
+            entry.save(update_fields=['progress','score','completed_at'])
+            from .rewards import reward_weekly
+            reward_weekly(entry)
         return JsonResponse(dict(state=state_for(entry,language,practice,index+1 if resolved else index),feedback=feedback,resolved=resolved,result_fen=result_fen,result_move=result_move))

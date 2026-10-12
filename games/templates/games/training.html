@@ -4,6 +4,7 @@
 <link rel="stylesheet" href="{% static 'games/training_hub.css' %}?v=2">
 <main class="training-hub">
 <header><h1>{% ui_icon 'training' %}{{ training_hub.title }}</h1><p>{{ training_hub.intro }}</p></header>
+{% load reward_tags %}{% reward_progress %}
 <section class="training-hub-recommended"><span class="ui-feature-icon">{% ui_icon 'daily' %}</span><div><small>{{ training_hub.recommended }}</small><h2>{{ dt.title }}</h2><p>{{ dt.intro }}</p></div><a href="{% url 'daily_training' %}">{% if today_training.completed_at %}{{ dt.done }}{% elif today_training %}{{ dt.continue }}{% else %}{{ dt.start }}{% endif %} →</a></section>
 <div class="training-hub-choices">
 <a href="{% url 'practice' %}"><span class="ui-feature-icon">{% ui_icon 'practice' %}</span><div><h2>{{ training_hub.practice }}</h2><p>{{ training_hub.practice_help }}</p></div><b aria-hidden="true">→</b></a>
