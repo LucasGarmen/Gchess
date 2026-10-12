@@ -31,33 +31,14 @@ document.addEventListener('DOMContentLoaded', () => {
     document.body.append(bubble);
     close.addEventListener('click', () => { bubble.hidden = true; position(); });
     const playing = () => document.body.classList.contains('mobile-bot-playing');
-    let drag = null;
-    let desktopPosition = null;
     const wrapper = avatar.closest('.board-wrapper');
-    function moveDock(x, y) {
-        const rect = dock.getBoundingClientRect();
-        desktopPosition = {x:Math.max(8,Math.min(x,innerWidth-rect.width-8)), y:Math.max(8,Math.min(y,innerHeight-rect.height-8))};
-        Object.assign(dock.style,{left:desktopPosition.x+'px',top:desktopPosition.y+'px',right:'auto',bottom:'auto'});
-    }
-    handle.addEventListener('pointerdown', event => {
-        if (dock.closest('.focus-play') || innerWidth <= 900 || event.button !== 0 || !event.isPrimary) return;
-        const rect = dock.getBoundingClientRect();
-        drag = {id:event.pointerId,x:event.clientX,y:event.clientY,left:rect.left,top:rect.top};
-        handle.setPointerCapture(event.pointerId);
-    });
-    handle.addEventListener('pointermove', event => {
-        if (!drag || event.pointerId !== drag.id) return;
-        moveDock(drag.left+event.clientX-drag.x,drag.top+event.clientY-drag.y);
-    });
-    const endDrag = event => { if (drag?.id === event.pointerId) {drag=null;if(handle.hasPointerCapture(event.pointerId))handle.releasePointerCapture(event.pointerId);} };
-    handle.addEventListener('pointerup',endDrag);
-    handle.addEventListener('pointercancel',endDrag);
+    window.GchessChatDock?.bind(dock,handle);
     function position() {
         dock.hidden = !playing();
         const mobile = innerWidth <= 900;
         const fullscreen = dock.closest('.focus-play');
         if (mobile || fullscreen) dock.removeAttribute('style');
-        else if (desktopPosition) moveDock(desktopPosition.x,desktopPosition.y);
+
         bubble.classList.toggle('coach-reply-fullscreen', Boolean(fullscreen));
         wrapper?.style.setProperty('--coach-reply-top','0px');
         wrapper?.style.setProperty('--coach-reply-bottom','0px');

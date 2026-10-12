@@ -9,6 +9,7 @@ document.addEventListener('DOMContentLoaded', () => {
  const toggle=document.getElementById('game-chat-toggle'),toolbar=document.querySelector('.online-game-layout .board-toolbar');
  if(toolbar&&toggle)toolbar.append(toggle);
  panel.classList.add('online-chat-dock');document.body.append(panel);
+ const handle=document.createElement('div');handle.className='online-chat-handle';handle.textContent={es:'Chat con el rival ⠿',pt:'Chat com o adversário ⠿',en:'Opponent chat ⠿'}[lang]||'Opponent chat ⠿';panel.prepend(handle);window.GchessChatDock?.bind(panel,handle);
  // The composer is ready on entry, without opening the mobile keyboard.
  panel.hidden=false;
  if(typeof gameChatOpen!=='undefined')gameChatOpen=true;

@@ -1,0 +1,15 @@
+const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm');
+const events={},viewEvents={},docEvents={},props={},style={setProperty(k,v,priority){props[k]={v,priority};},removeProperty(k){delete props[k];}};
+const win={innerWidth:1280,innerHeight:800,visualViewport:{height:800,offsetTop:0,addEventListener:(k,fn)=>viewEvents[k]=fn},addEventListener:(k,fn)=>events[k]=fn};
+vm.runInNewContext(fs.readFileSync('games/static/games/chat_dock.js','utf8'),{window:win,document:{documentElement:{style},addEventListener:(k,fn)=>docEvents[k]=fn}});
+let fullscreen=false,capture=null,prevented=0;const handlers={};
+const dock={style,getBoundingClientRect:()=>({left:500,top:400,width:320,height:120}),closest:()=>fullscreen?{}:null};
+const handle={classList:{add(){},remove(){}},addEventListener:(k,fn)=>handlers[k]=fn,setPointerCapture:id=>capture=id,hasPointerCapture:id=>capture===id,releasePointerCapture:()=>capture=null};
+win.GchessChatDock.bind(dock,handle);
+const pointer=(x,y,id=1)=>({button:0,isPrimary:true,pointerId:id,clientX:x,clientY:y,preventDefault(){prevented++;}});
+handlers.pointerdown(pointer(500,400));handlers.pointermove(pointer(700,500));assert.equal(props.left.v,'700px');assert.equal(props.left.priority,'important');assert.equal(prevented,2,'Drag prevents text selection');
+handlers.pointermove(pointer(4000,4000));assert.equal(props.left.v,'952px');assert.equal(props.top.v,'672px','Clamped to screen');handlers.pointercancel(pointer(0,0));assert.equal(capture,null);
+win.innerWidth=390;events.resize();assert(!props.left);handlers.pointerdown(pointer(20,20));assert.equal(capture,null,'No mobile dragging');
+win.visualViewport.height=480;viewEvents.resize();assert.equal(props['--chat-keyboard-inset'].v,'320px','Lift composer above keyboard');win.visualViewport.offsetTop=40;viewEvents.scroll();assert.equal(props['--chat-keyboard-inset'].v,'280px');
+win.innerWidth=1280;fullscreen=true;docEvents['gchess:focus-mode-changed']();handlers.pointerdown(pointer(20,20));assert.equal(capture,null,'Fullscreen keeps chat in its layout');
+console.log('Chat docks: selection prevention, pointer capture/cancel, bounds, mobile keyboard and fullscreen passed.');

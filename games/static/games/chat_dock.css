@@ -1,0 +1,5 @@
+.chat-drag-handle{cursor:grab;touch-action:none;user-select:none;-webkit-user-select:none}
+.chat-drag-handle.is-dragging{cursor:grabbing}
+.online-chat-handle{font-size:12px;line-height:18px;color:#d8bd85;padding-bottom:4px}
+@media(max-width:900px){.online-chat-handle{display:none}body .online-chat-dock,body .coach-chat-dock{top:auto!important;bottom:calc(8px + max(env(safe-area-inset-bottom),var(--chat-keyboard-inset,0px)))!important;max-height:calc(100dvh - 24px);overflow-y:auto}body .coach-chat-dock #trainer-chat-form,body .online-chat-dock #game-chat-form{flex-shrink:0}}
+body .focus-play .online-chat-dock,body .focus-play .coach-chat-dock{bottom:auto!important;top:auto!important}
