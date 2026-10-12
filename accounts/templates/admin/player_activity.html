@@ -1,6 +1,8 @@
 {% extends 'admin/base_site.html' %}{% load static %}
 {% block extrastyle %}{{ block.super }}<link rel="stylesheet" href="{% static 'games/admin_metrics.css' %}?v=1">{% endblock %}
 {% block content %}
+<section class="module"><h2>Experiencia de juego · últimos 30 días</h2><div style="padding:12px"><p>Jugadores únicos en partidas guardadas. No incluye partidas temporales con el coach ni invitados.</p><table><thead><tr><th>Iniciaron</th><th>Terminaron</th><th>Jugaron otra después</th><th>Analizaron al terminar</th></tr></thead><tbody><tr><td>{{ retention.started }}</td><td>{{ retention.finished }}</td><td>{{ retention.again }}</td><td>{{ retention.reviewed }}</td></tr></tbody></table><p>{{ retention.started_games }} partidas iniciadas · {{ retention.finished_games }} terminadas. {% if retention.first_day %}Registro desde {{ retention.first_day|date:'d/m/Y' }}.{% else %}Sin historial todavía.{% endif %} Son eventos del período, no porcentajes de una misma cohorte. Los usuarios que regresan otro día aparecen en la tabla de actividad de abajo.</p></div></section>
+
 <div class="player-metrics"><p><a href="{% url 'admin:index' %}">← Administración</a> · <a href="?export=csv">Descargar últimos 30 días en CSV</a></p>
 <p>Actualizado: {{ updated|date:"d/m/Y H:i:s" }} · <a href="{% url 'admin:player_activity' %}">Actualizar datos</a></p>
 <div class="metric-cards"><div><strong>{{ online_count }}</strong><span>Online ahora</span></div><div><strong>{{ total_players }}</strong><span>Cuentas de jugadores</span></div><div><strong>{{ new_today }}</strong><span>Cuentas nuevas hoy</span></div><div><strong>{{ active_today }}</strong><span>Activos hoy</span></div><div><strong>{{ returning_today }}</strong><span>Volvieron hoy</span></div></div>

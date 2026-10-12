@@ -10,8 +10,8 @@ ids['game-result-words']={textContent:JSON.stringify(words)};
 let focused=null,atEnd=true,played=[],resetArgs=[],submit=0,exits=0,mate=false,stalemate=false;
 ids.board=make({closest:()=>stage,querySelectorAll:()=>({length:31})});
 ids['analyze-game-form'].requestSubmit=()=>submit++;
-let reopen;
-const ctx={gameOver:false,analysisMode:false,currentTurn:'black',GAME_PLAYER_COLOR:'white',GAME_RESULT:'unknown',SAVED_MOVES:[{},{},{},{}],Set,window:{GchessExperience:{tone:kind=>played.push(kind)},GchessFocus:{exit:()=>exits++}},isCheckmate:()=>mate,isStalemate:()=>stalemate,hasInsufficientMaterial:()=>false,isViewingLatestPosition:()=>atEnd,resetComputerGame:arg=>resetArgs.push(arg),document:{getElementById:id=>ids[id]||null,createElement(){return reopen=make();},querySelector:()=>focused,addEventListener(name,fn){events[name]=fn;}},MutationObserver:class{observe(){}}};
+let reopen;const observed=[];
+const ctx={gameOver:false,analysisMode:false,currentTurn:'black',GAME_PLAYER_COLOR:'white',GAME_RESULT:'unknown',SAVED_MOVES:[{},{},{},{}],Set,window:{GchessExperience:{tone:kind=>played.push(kind)},GchessFocus:{exit:()=>exits++}},isCheckmate:()=>mate,isStalemate:()=>stalemate,hasInsufficientMaterial:()=>false,isViewingLatestPosition:()=>atEnd,resetComputerGame:arg=>resetArgs.push(arg),document:{getElementById:id=>ids[id]||null,createElement(){return reopen=make();},querySelector:()=>focused,addEventListener(name,fn){events[name]=fn;}},MutationObserver:class{constructor(fn){observed.push(fn);}observe(){}}};
 vm.createContext(ctx);vm.runInContext(fs.readFileSync('games/static/games/game_finish.js','utf8'),ctx);
 const refresh=events['gchess:position-changed'];assert.equal(ids['game-finish-notice'].hidden,true);
 ctx.gameOver=true;mate=true;refresh();assert.equal(ids['game-finish-title'].textContent,'Victory!');assert.equal(ids['game-finish-result'].textContent,'Checkmate · White wins');assert.equal(ids['game-finish-moves'].textContent,4);assert.equal(ids['game-finish-captures'].textContent,1);assert.deepEqual(played,['victory']);refresh();assert.deepEqual(played,['victory']);
@@ -29,6 +29,7 @@ console.log('Result panel: perspective, draws, server results, actual stats, dis
 
 ctx.analysisMode=false;ctx.SAVED_MOVES=[];refresh();assert.equal(advice.hidden,true);assert.equal(analyzeAction.hidden,true,'A game with no moves must not offer an empty analysis');
 
+const frames=[];ctx.window.requestAnimationFrame=fn=>frames.push(fn);observed[0]();observed[0]();observed[1]();assert.equal(frames.length,1,'DOM mutations share one rendering frame');frames.shift()();
 (async()=>{
  const source=fs.readFileSync('games/static/games/game_finish.js','utf8');
  async function rewardCase(responses, expected, failing=false){

@@ -12,7 +12,9 @@ from .models import UserPresence, PlayerActivityDay
 def dashboard(site, request):
     if not request.user.is_superuser:
         return HttpResponseForbidden('Solo el superadministrador puede ver estas estadísticas.')
+    from .experience_metrics import retention_summary
     today=timezone.localdate(); start=today-timedelta(days=29)
+    retention=retention_summary(start,today)
     players=User.objects.filter(is_active=True,is_staff=False)
     activity=PlayerActivityDay.objects.filter(user__in=players,date__gte=start,date__lte=today)
     previous=PlayerActivityDay.objects.filter(user_id=OuterRef('user_id'),date__lt=OuterRef('date'))
@@ -36,7 +38,7 @@ def dashboard(site, request):
     for row in rows:
         row['active_height']=round(row['active']/maximum*100)
         row['new_height']=round(row['new']/maximum*100)
-    context={**site.each_context(request),'title':'Actividad de jugadores','online_count':online.count(),'online_players':list(online[:50]),'total_players':players.count(),'new_today':new.get(today,0),'active_today':counts.get(today,0),'returning_today':repeat.get(today,0),'rows':rows,'table_rows':list(reversed(rows)),'updated':timezone.now(),'first_day':first_day}
+    context={**site.each_context(request),'retention':retention,'title':'Actividad de jugadores','online_count':online.count(),'online_players':list(online[:50]),'total_players':players.count(),'new_today':new.get(today,0),'active_today':counts.get(today,0),'returning_today':repeat.get(today,0),'rows':rows,'table_rows':list(reversed(rows)),'updated':timezone.now(),'first_day':first_day}
     response=TemplateResponse(request,'admin/player_activity.html',context)
     response['Cache-Control']='private, no-store'
     return response

@@ -437,3 +437,17 @@ class LearningReward(models.Model):
     class Meta:
         constraints = [models.UniqueConstraint(fields=['user', 'key'], name='learning_reward_user_key')]
         indexes = [models.Index(fields=['user', 'date', 'kind'], name='learning_reward_daily_idx')]
+
+
+class GameExperienceEvent(models.Model):
+    """One verified milestone per registered player and saved game."""
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='game_experience_events')
+    game = models.ForeignKey(ChessGame, on_delete=models.CASCADE, related_name='experience_events')
+    kind = models.CharField(max_length=12, choices=[('started','Started'),('finished','Finished'),('reviewed','Reviewed')])
+    date = models.DateField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        constraints = [models.UniqueConstraint(fields=['user','game','kind'], name='game_experience_user_kind')]
+        indexes = [models.Index(fields=['date','kind'], name='game_experience_date_idx'),
+                   models.Index(fields=['user','kind','created_at'], name='game_experience_user_idx')]

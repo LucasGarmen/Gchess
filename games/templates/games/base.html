@@ -50,12 +50,14 @@
 <link rel="stylesheet" href="{% static 'games/interface_depth.css' %}?v=1">
 <link rel="stylesheet" href="{% static 'games/board_materials.css' %}?v=1">
 <link rel="stylesheet" href="{% static 'games/focus_play.css' %}?v=3">
-<script src="{% static 'games/focus_play.js' %}?v=3" defer></script>
+<script src="{% static 'games/focus_play.js' %}?v=4" defer></script>
 <link rel="stylesheet" href="{% static 'games/player_speech.css' %}?v=1">
 <script src="{% static 'games/player_speech.js' %}?v=1" defer></script>
 <link rel="stylesheet" href="{% static 'games/intuitive_ui.css' %}?v=1">
 <link rel="stylesheet" href="{% static 'games/experience.css' %}?v=2">
 <script src="{% static 'games/experience.js' %}?v=2" defer></script>
+<script src="{% static 'games/board_accessibility.js' %}?v=2" defer></script>
+<link rel="stylesheet" href="{% static 'games/optimization.css' %}?v=1">
 </head>
 
 <body data-board="{{ cosmetics.board }}" data-pieces="{{ cosmetics.pieces }}">
@@ -366,7 +368,10 @@
             }
         }
 
+        let notificationsInFlight = false;
         async function fetchGameNotifications() {
+            if (document.hidden || notificationsInFlight || notificationAuthWarningShown) return;
+            notificationsInFlight = true;
             try {
                 const response = await fetch(notificationsUrl, {
                     cache: 'no-store',
@@ -398,9 +403,12 @@
                     console.warn(UI_TEXTS.notification_update_failed, error);
                     notificationNetworkWarningShown = true;
                 }
+            } finally {
+                notificationsInFlight = false;
             }
         }
 
+        document.addEventListener('visibilitychange', () => { if (!document.hidden) fetchGameNotifications(); });
         fetchGameNotifications();
         if (!notificationPollingId) {
             notificationPollingId = setInterval(fetchGameNotifications, 15000);

@@ -29,7 +29,7 @@ class DailyVisitMiddleware:
         if request.method != 'GET':
             return False
 
-        if response.status_code >= 400:
+        if response.status_code >= 400 or 'text/html' not in response.get('Content-Type', ''):
             return False
 
         path = request.path_info or '/'
@@ -61,5 +61,10 @@ class PlayerActivityMiddleware:
             from .models import PlayerActivityDay
             from .views import touch_presence
             touch_presence(request.user)
-            PlayerActivityDay.objects.get_or_create(user=request.user, date=timezone.localdate())
+            from django.core.cache import cache
+            date = timezone.localdate()
+            key = f'activity-day:{request.user.pk}:{request.user.date_joined.isoformat()}:{date}'
+            if not cache.get(key):
+                PlayerActivityDay.objects.get_or_create(user=request.user, date=date)
+                cache.set(key, True, 300)
         return response

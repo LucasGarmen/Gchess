@@ -8,3 +8,4 @@ class GamesConfig(AppConfig):
         from . import checks  # Register storage diagnostics without connecting to the DB.
         from . import tournament_signals
         from . import reward_signals
+        from . import experience_signals

@@ -61,8 +61,11 @@ document.getElementById('game-finish-again')?.addEventListener('click',()=>{rese
 document.getElementById('game-finish-analyze')?.addEventListener('click',()=>{window.GchessFocus?.exit();const form=document.getElementById('analyze-game-form'),button=document.getElementById('analyze-game-button');form?.requestSubmit(button||undefined);});
 notice.addEventListener('click',event=>{if(event.target.closest('a'))window.GchessFocus?.exit();});
 document.getElementById('game-finish-rematch')?.addEventListener('submit',event=>{window.GchessFocus?.exit();const button=event.target.querySelector('button');button.disabled=true;});
-new MutationObserver(refresh).observe(status,{attributes:true,childList:true,characterData:true,subtree:true});
-new MutationObserver(refresh).observe(layout,{attributes:true,attributeFilter:['class']});
+let refreshQueued=false;
+function scheduleRefresh(){if(refreshQueued)return;refreshQueued=true;(window.requestAnimationFrame||setTimeout)(()=>{refreshQueued=false;refresh();});}
+notice.addEventListener('keydown',event=>{if(event.key==='Escape'&&!notice.hidden){event.preventDefault();event.stopPropagation();dismiss();}});
+new MutationObserver(scheduleRefresh).observe(status,{attributes:true,childList:true,characterData:true,subtree:true});
+new MutationObserver(scheduleRefresh).observe(layout,{attributes:true,attributeFilter:['class']});
 for(const name of ['gchess:position-changed','gchess:focus-mode-changed'])document.addEventListener(name,refresh);
 refresh();
 })();
