@@ -12,7 +12,9 @@
         var labels={es:['Activar sonido','Silenciar sonido'],pt:['Ativar som','Silenciar som'],en:['Turn sound on','Mute sound']};
         var label=(labels[lang]||labels.en)[enabled?1:0];
         document.querySelectorAll('[data-sound-toggle]').forEach(function(button){
-            button.setAttribute('aria-pressed',String(enabled));button.setAttribute('aria-label',label);button.title=label;
+            button.setAttribute('aria-pressed',String(enabled));button.setAttribute('aria-label',label);
+            var scope={es:'Juego y botones',pt:'Jogo e botões',en:'Game and buttons'};
+            button.title=label+' · '+(scope[lang]||scope.en);
             button.classList.toggle('sound-muted',!enabled);
         });
     }
