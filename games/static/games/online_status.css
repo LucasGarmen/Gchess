@@ -1,6 +1,10 @@
 .player-connection{position:absolute;right:0;bottom:0;width:13px;height:13px;border-radius:50%;border:2px solid #24271e;background:#c6aa69;z-index:3;box-shadow:0 0 0 1px #14170f}
-.player-connection[data-state=online]{background:#7ac763}.player-connection[data-state=offline]{background:#8a8982}
+.player-connection[data-state=online]{background:#7ac763}.player-connection[data-state=offline]{background:#d46a5c}
 body .online-game-layout .board-player.player-to-move{outline:3px solid #e3bd69;outline-offset:3px}
 body #turn-indicator.online-turn-mine,body #turn-indicator.online-turn-rival{display:inline-flex!important;align-items:center;gap:8px;font-size:15px!important;font-weight:700;padding:8px 14px!important;border-radius:9px;border:1px solid #a48c58;margin:6px 0}
 body #turn-indicator.online-turn-mine{background:#3b512d;color:#fff1c9;box-shadow:inset 0 0 0 1px #b9cc8950}body #turn-indicator.online-turn-rival{background:#282b24;color:#d7cbb3}
 body #turn-indicator.online-turn-mine::before{content:'●';color:#a9dc78}
+
+.opponent-connection{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:#e0d4bb;padding:5px 8px;border-radius:7px;background:#262b23;border:1px solid #84704c70;line-height:1.3}
+.opponent-connection::before{content:'';width:9px;height:9px;flex-shrink:0;border-radius:50%;background:#c6aa69}
+.opponent-connection[data-state=online]::before{background:#7ac763}.opponent-connection[data-state=offline]::before{background:#d46a5c}

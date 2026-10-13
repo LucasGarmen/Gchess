@@ -30,8 +30,8 @@ def circle(x,y,r,fill):return f'<circle cx="{x}" cy="{y}" r="{r}" fill="{fill}"/
 def skull(y,ink):
  return path(f'M34 {y+12}Q32 {y-8} 50 {y-9}Q68 {y-8}66 {y+12}L60 {y+17}V{y+24}H40V{y+17}Z')+circle(42,y+5,4,ink)+circle(58,y+5,4,ink)+path(f'M50 {y+10}l-3 5h6Z',ink)+path(f'M44 {y+18}v6m6-6v6m6-6v6','none',ink,1.5)
 def crown(piece,trim):
- if piece=='king':return path('M46 8h8v8h8v7h-8v9h-8v-9h-8v-7h8Z',trim)
- if piece=='queen':return path('M30 20l8 15 12-18 12 18 8-15-6 25H36Z',trim)+''.join(circle(x,y,2.8,trim) for x,y in [(30,20),(50,17),(70,20)])
+ if piece=='king':return path('M44 6h12v9h11v11H56v10H44V26H33V15h11Z',trim)
+ if piece=='queen':return path('M22 23l9 19h38l9-19-14 10V18L55 30 50 13 45 30 36 18v15Z',trim)+''.join(circle(x,y,2.8,trim) for x,y in [(22,20),(36,15),(50,10),(64,15),(78,20)])
  if piece=='bishop':return path('M50 14Q69 33 61 43H39Q31 33 50 14Z')+path('M51 21l-7 13','none',trim,3)
  if piece=='rook':return path('M29 19h9v9h8v-9h8v9h8v-9h9v23H29Z')
  return ''
@@ -108,6 +108,9 @@ def build(style,theme,piece,color,light,dark,lt,dt):
  fill=light if color=='white' else dark;trim=lt if color=='white' else dt;ink='#342c22' if color=='white' else '#ecdfbb'
  defs=f'<defs><linearGradient id="material" x2="1" y2=".18"><stop stop-color="{trim}"/><stop offset=".23" stop-color="{fill}"/><stop offset=".7" stop-color="{fill}"/><stop offset="1" stop-color="{trim}"/></linearGradient></defs>'
  shape=horse(theme,trim,ink) if piece=='horse' else body(theme,piece,trim,ink)
+ if piece in ('king','queen'):
+  royal_top=crown(piece,trim)
+  shape=shape.replace(royal_top,'',1)+royal_top  # Keep the identifying crown visible above thematic heads.
  # Bases visibly vary with the collection, not just its paint.
  if theme in ('robot','minimal','desert','crystal','volcano'):base=path('M30 77H70L79 88H21Z')+path('M29 83h42','none',trim,2)
  elif theme in ('skeleton','pirate'):base=path('M29 78H71L75 87H25Z')+path('M32 82l36 4m-36 0 36-4','none',trim,2)
