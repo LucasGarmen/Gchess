@@ -3233,6 +3233,7 @@ async function applyGameStateFromServer(data) {
     }
 
     const wasViewingLatestPosition = isViewingLatestPosition();
+    if (serverMoves.length < oldMoveCount) { clearQueuedMove(); clearSelection(); }
     const hasDifferentMoves = serverMoves.length !== SAVED_MOVES.length ||
         serverMoves.some((move, index) => !movesAreEqual(move, SAVED_MOVES[index]));
 

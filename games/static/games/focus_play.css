@@ -43,3 +43,16 @@ body .focus-play-controls .board-toolbar button{width:auto;min-height:36px;margi
 body .focus-play-controls .focus-play-toggle{display:none!important}
 body .focus-play-controls #turn-indicator{display:inline-flex!important;align-items:center;margin:0!important}
 @media(max-width:900px){.focus-play-controls{left:8px;right:48px;top:6px}body .focus-play-controls .board-toolbar{justify-content:flex-start;gap:4px}body .focus-play-controls .board-toolbar button{min-height:34px;padding:5px 8px;font-size:12px}.focus-play-controls .sound-volume{max-width:60px}}
+
+.focus-control-menu summary{cursor:pointer;padding:7px 9px;border:1px solid #8b7650;border-radius:7px;background:#30382a;color:#ecd9ad;font-size:12px;list-style:none}
+.focus-control-items{display:flex;flex-wrap:wrap;gap:6px;padding-top:8px}
+@media(max-width:900px){
+ body .focus-play-controls .board-toolbar{align-items:center}
+ body .focus-play-controls #turn-indicator.online-turn-mine,body .focus-play-controls #turn-indicator.online-turn-rival{font-size:14px!important;min-width:120px;min-height:34px;padding:6px 9px!important}
+ .focus-play-controls .opponent-connection{font-size:11px;padding:4px 6px}
+ .focus-control-menu[open]{flex:1 0 100%;padding:0 2px}
+ .focus-control-menu[open] summary{width:max-content}
+ body .focus-play-chat .online-chat-history summary,body .focus-play-chat .coach-chat-dock>details>summary{font-size:12px}
+ body .focus-play .board-player-stage{margin:38px 0!important}
+ .focus-play-chat{max-height:min(160px,30dvh)}
+}

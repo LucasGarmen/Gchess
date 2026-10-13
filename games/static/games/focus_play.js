@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', () => {
  let overlay=null, moved=[], priorFocus=null;
  const move=(element,target)=>{if(!element)return; const mark=document.createComment('focus-play');element.before(mark);moved.push([element,mark]);target.append(element);};
  const size=()=>{if(!overlay)return; const mobile=innerWidth<=900; const height=Math.min(innerHeight,window.visualViewport?.height||innerHeight);const landscape=innerWidth>=600&&height<=560;const local=layout.classList.contains('local-game-layout');const availableWidth=innerWidth-(local?24:landscape?300:mobile?16:340);const speech=document.querySelector('.focus-play .board-player-stage');const extra=(speech?.classList.contains('player-speech-top')?44:0)+(speech?.classList.contains('player-speech-bottom')?44:0);const controlsHeight=overlay.querySelector('.focus-play-controls')?.getBoundingClientRect().height||44;overlay.style.paddingTop=(controlsHeight+18)+'px';const availableHeight=height-(local?90:landscape?150:mobile?264:190)-extra-Math.max(0,controlsHeight-44);const n=Math.floor(Math.max(120,Math.min(availableWidth,availableHeight)));overlay.style.setProperty('--square-size',n/8+'px');overlay.style.setProperty('--mobile-board-size',n+'px');overlay.style.setProperty('--mobile-square-size',n/8+'px');overlay.style.setProperty('--focus-board-size',n+'px');};
- const exit=()=>{if(!overlay)return; moved.reverse().forEach(([element,mark])=>{mark.replaceWith(element);});moved=[];overlay.remove();overlay=null;document.body.classList.remove('focus-playing');document.dispatchEvent(new Event('gchess:focus-mode-changed'));if(document.fullscreenElement)document.exitFullscreen?.().catch(()=>{});window.dispatchEvent(new Event('resize'));priorFocus?.focus();};
+ const exit=()=>{if(!overlay)return; moved.reverse().forEach(([element,mark])=>{mark.replaceWith(element);});moved=[];toolbar.querySelector('.focus-control-menu')?.remove();overlay.remove();overlay=null;document.body.classList.remove('focus-playing');document.dispatchEvent(new Event('gchess:focus-mode-changed'));if(document.fullscreenElement)document.exitFullscreen?.().catch(()=>{});window.dispatchEvent(new Event('resize'));priorFocus?.focus();};
  const enter=()=>{
   if(overlay)return; priorFocus=document.activeElement;
   overlay=document.createElement('section');overlay.className='focus-play';if(layout.classList.contains('local-game-layout'))overlay.classList.add('focus-play-local');overlay.setAttribute('role','dialog');overlay.setAttribute('aria-modal','true');overlay.setAttribute('aria-label',words[0]);
@@ -17,6 +17,13 @@ document.addEventListener('DOMContentLoaded', () => {
   const controls=document.createElement('header');controls.className='focus-play-controls';
   const play=document.createElement('div');play.className='focus-play-board';const chat=document.createElement('div');chat.className='focus-play-chat';overlay.append(close,controls,play,chat);document.body.append(overlay);document.body.classList.add('focus-playing');
   const turn=document.getElementById('turn-indicator');if(turn&&!toolbar.contains(turn))move(turn,toolbar);
+  move(document.getElementById('request-takeback'),toolbar);
+  if(innerWidth<=900){
+   const menu=document.createElement('details');menu.className='focus-control-menu';const summary=document.createElement('summary');summary.textContent={es:'Controles',pt:'Controles',en:'Controls'}[lang]||'Controls';
+   const items=document.createElement('div');items.className='focus-control-items';menu.append(summary,items);toolbar.append(menu);
+   [...toolbar.children].filter(el=>el.matches('button,input')&&!el.classList.contains('focus-play-toggle')).forEach(el=>move(el,items));
+   menu.addEventListener('toggle',size);
+  }
   move(toolbar,controls);
   move(board.closest('.board-player-stage')||board,play);
   const coach=document.querySelector('.coach-chat-dock');

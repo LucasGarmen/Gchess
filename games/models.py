@@ -451,3 +451,10 @@ class GameExperienceEvent(models.Model):
         constraints = [models.UniqueConstraint(fields=['user','game','kind'], name='game_experience_user_kind')]
         indexes = [models.Index(fields=['date','kind'], name='game_experience_date_idx'),
                    models.Index(fields=['user','kind','created_at'], name='game_experience_user_idx')]
+
+
+class TakebackRequest(models.Model):
+    game = models.OneToOneField(ChessGame, on_delete=models.CASCADE, related_name='takeback_request')
+    move_id = models.PositiveBigIntegerField()
+    requested_color = models.CharField(max_length=10)
+    status = models.CharField(max_length=10, default='pending')

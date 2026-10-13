@@ -1,0 +1,3 @@
+.takeback-panel[hidden]{display:none!important}.takeback-panel{padding:8px;border:1px solid #b39b65;border-radius:8px;background:#343c2b;color:#f1e2bf;font-size:13px}.takeback-panel p{margin:0 0 6px}.takeback-panel>div{display:flex;gap:6px}.takeback-panel button{width:auto!important;margin:0;padding:6px 10px;font-size:13px}.takeback-request{font-size:12px!important}.takeback-panel>div[hidden]{display:none!important}
+
+@media(max-width:900px){.online-chat-dock:has(.takeback-panel:not([hidden])) .online-chat-history{display:none}.takeback-panel{padding:6px;font-size:12px}}

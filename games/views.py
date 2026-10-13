@@ -4490,3 +4490,63 @@ def game_presence(request, game_id):
                              'black': bool(cache.get(f'game-presence:{game.pk}:black'))})
     response['Cache-Control'] = 'no-store'
     return response
+
+
+@require_http_methods(['GET','POST'])
+@rate_limit(60,60,'takeback')
+def game_takeback(request, game_id):
+    from .models import TakebackRequest
+    guest_id=request.session.get('guest_id')
+    with transaction.atomic():
+        game=get_object_or_404(locked_game_queryset().filter(game_access_filter(request.user,guest_id)),pk=game_id)
+        color=player_color_for_game(game,request.user,guest_id)
+        if not color:
+            return JsonResponse({'code':'forbidden'},status=403)
+        latest=game.moves.order_by('-move_number','-id').first()
+        offer=TakebackRequest.objects.filter(game=game).first()
+        if request.method=='POST':
+            try:
+                data=parse_json_body(request)
+            except ValueError:
+                return JsonResponse({'code':'invalid'},status=400)
+            action=data.get('action')
+            if apply_clock_elapsed(game) or game.status=='finished':
+                return JsonResponse({'code':'finished'},status=409)
+            if action=='request':
+                if not latest or data.get('move_id')!=latest.pk or (offer and offer.move_id==latest.pk and offer.status in ('pending','rejected')):
+                    return JsonResponse({'code':'unavailable'},status=409)
+                offer,_=TakebackRequest.objects.update_or_create(game=game,defaults={'move_id':latest.pk,'requested_color':color,'status':'pending'})
+            elif action in ('accept','reject'):
+                if not offer or offer.status!='pending' or not latest or offer.move_id!=latest.pk or data.get('move_id')!=offer.move_id:
+                    return JsonResponse({'code':'stale'},status=409)
+                if offer.requested_color==color:
+                    return JsonResponse({'code':'forbidden'},status=403)
+                if action=='accept':
+                    latest.delete()
+                    board,error=board_from_game_moves(game)
+                    if error:
+                        raise ValueError('Invalid saved position')
+                    game.draw_offer_by_color=''
+                    if clock_enabled(game):
+                        game.active_clock_color='white' if board.turn else 'black'
+                        game.clock_started_at=timezone.now()
+                    game.save(update_fields=['draw_offer_by_color','active_clock_color','clock_started_at'])
+                    offer.status='accepted'
+                else:
+                    offer.status='rejected'
+                offer.save(update_fields=['status'])
+            else:
+                return JsonResponse({'code':'invalid'},status=400)
+            transaction.on_commit(lambda: broadcast_game_state(game.pk))
+            latest=game.moves.order_by('-move_number','-id').first()
+        pending=bool(offer and offer.status=='pending' and latest and latest.pk==offer.move_id and game.status!='finished')
+        payload={
+            'pending':pending,'mine':bool(offer and offer.requested_color==color),
+            'move_id':offer.move_id if pending else None,
+            'can_request':bool(latest and game.status!='finished' and not pending and not (offer and offer.move_id==latest.pk and offer.status=='rejected')),
+            'move_count':game.moves.count(),'last_move_id':latest.pk if latest else None,
+            'rejected':bool(offer and offer.status=='rejected' and latest and latest.pk==offer.move_id and offer.requested_color==color),
+        }
+        if request.method=='POST' and action=='accept':
+            payload['state']=serialize_game_state(game,request.user,guest_id)
+        response=JsonResponse(payload);response['Cache-Control']='no-store';return response
