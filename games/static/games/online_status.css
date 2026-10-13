@@ -11,3 +11,22 @@ body #turn-indicator.online-turn-mine::before{content:'●';color:#a9dc78}
 
 /* Keep connection feedback in the toolbar, leaving portraits clear. */
 body .board-player-stage .player-connection{display:none!important}
+
+/* Give both turn states enough contrast to read at a glance. */
+body #turn-indicator.online-turn-mine,body #turn-indicator.online-turn-rival{
+ font-size:18px!important;font-weight:800;padding:10px 16px!important;
+ border-width:2px;line-height:1.2;box-shadow:0 2px 4px #0003;
+}
+body #turn-indicator.online-turn-rival{background:#dfc48e;color:#30281a;border-color:#a88c54}
+body #turn-indicator.online-turn-rival::before{content:'◷';font-size:21px;color:#5b4927}
+body #turn-indicator.online-turn-mine{background:#405a2d;border-color:#a9c779;color:#fff4d7}
+@media(max-width:900px){body #turn-indicator.online-turn-mine,body #turn-indicator.online-turn-rival{font-size:16px!important;padding:8px 12px!important}}
+/* Premove candidates already use possible-move. Add clear, non-interactive
+   dots without changing which moves the server will permit. */
+body .online-game-layout #board .square.possible-move::after{
+ content:'';position:absolute;inset:35%;border-radius:50%;background:#f5d365;
+ border:2px solid #715822;box-shadow:0 1px 2px #0005;pointer-events:none;z-index:3;
+}
+body .online-game-layout #board .square.possible-move[data-type]:not([data-type=""])::after{
+ inset:8%;background:transparent;border:3px solid #f5d365;box-shadow:0 0 0 1px #715822;
+}
