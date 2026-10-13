@@ -24,8 +24,9 @@ body #turn-indicator.online-turn-mine{background:#405a2d;border-color:#a9c779;co
 /* Premove candidates already use possible-move. Add clear, non-interactive
    dots without changing which moves the server will permit. */
 body .online-game-layout #board .square.possible-move::after{
- content:'';position:absolute;inset:35%;border-radius:50%;background:#f5d365;
- border:2px solid #715822;box-shadow:0 1px 2px #0005;pointer-events:none;z-index:3;
+ content:'';position:absolute;inset:36%;border-radius:50%;
+ background:radial-gradient(circle at 32% 25%,#fff3b3 0%,#f3d36e 36%,#dbb34b 73%,#b58a32 100%);
+ border:1px solid #ae873e;box-shadow:inset 0 1px 1px #fff8cfaa,inset 0 -1px 1px #805a2866,0 2px 2px #251e1738;pointer-events:none;z-index:3;
 }
 body .online-game-layout #board .square.possible-move[data-type]:not([data-type=""])::after{
  inset:8%;background:transparent;border:3px solid #f5d365;box-shadow:0 0 0 1px #715822;
