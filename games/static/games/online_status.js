@@ -1,7 +1,7 @@
 document.addEventListener('DOMContentLoaded',()=>{
  const stage=document.querySelector('.online-game-layout .board-player-stage'),turn=document.getElementById('turn-indicator');
  const color=stage?.dataset.viewerColor;if(!stage||!turn||!['white','black'].includes(color))return;
- const lang=document.documentElement.lang.slice(0,2),words={es:['Tu turno','Turno del rival','Conectado','Sin conexión','Comprobando conexión'],pt:['Sua vez','Vez do adversário','Conectado','Desconectado','Verificando conexão'],en:['Your turn','Opponent’s turn','Connected','Disconnected','Checking connection']}[lang]||['Your turn','Opponent’s turn','Connected','Disconnected','Checking connection'];
+ const lang=document.documentElement.lang.slice(0,2),words={es:['Tu turno','Adversario','Conectado','Sin conexión','Comprobando conexión'],pt:['Sua vez','Adversário','Conectado','Desconectado','Verificando conexão'],en:['Your turn','Opponent','Connected','Disconnected','Checking connection']}[lang]||['Your turn','Opponent','Connected','Disconnected','Checking connection'];
  document.querySelector('.online-game-layout .board-toolbar')?.append(turn);turn.setAttribute('role','status');turn.setAttribute('aria-live','polite');
  const badges=new Map();stage.querySelectorAll('[data-player-color]').forEach(avatar=>{const badge=document.createElement('span');badge.className='player-connection';badge.dataset.state='unknown';badge.title=words[4];badge.setAttribute('aria-label',words[4]);avatar.append(badge);badges.set(avatar.dataset.playerColor,badge);});
  const connection=document.createElement('span');connection.className='opponent-connection';connection.dataset.state='unknown';connection.setAttribute('role','status');
