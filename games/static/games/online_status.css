@@ -8,3 +8,6 @@ body #turn-indicator.online-turn-mine::before{content:'●';color:#a9dc78}
 .opponent-connection{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:#e0d4bb;padding:5px 8px;border-radius:7px;background:#262b23;border:1px solid #84704c70;line-height:1.3}
 .opponent-connection::before{content:'';width:9px;height:9px;flex-shrink:0;border-radius:50%;background:#c6aa69}
 .opponent-connection[data-state=online]::before{background:#7ac763}.opponent-connection[data-state=offline]::before{background:#d46a5c}
+
+/* Keep connection feedback in the toolbar, leaving portraits clear. */
+body .board-player-stage .player-connection{display:none!important}
