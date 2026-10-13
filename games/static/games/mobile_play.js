@@ -61,8 +61,10 @@ document.addEventListener('DOMContentLoaded', () => {
     register('#offer-draw-button', body);
     register('#resign-button', body);
     const sync = () => {
+        if (document.body.classList.contains('focus-playing')) return;
         for (const item of transfers) {
             if (mobile.matches) item.target.append(item.element);
+            else if (item.element.id === 'turn-indicator' && layout.classList.contains('online-game-layout') && layout.querySelector('.board-toolbar')) layout.querySelector('.board-toolbar').append(item.element);
             else item.placeholder.after(item.element);
         }
         const blindfold = layout.querySelector('#blindfold-panel');

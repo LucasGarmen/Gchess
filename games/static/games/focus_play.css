@@ -36,3 +36,10 @@ body .focus-play #game-finish-notice strong{font-size:clamp(22px,3vw,32px);color
 body .focus-play #game-finish-notice p{font-size:clamp(14px,1.8vw,18px)}
 body .focus-play.game-ended-visible #board{outline:3px solid #d2af6b;outline-offset:3px}
 @media(max-width:650px){body .focus-play #game-finish-notice{padding:14px 16px;gap:8px}}
+
+.focus-play-controls{position:absolute;left:12px;right:62px;top:8px;z-index:10}
+body .focus-play-controls .board-toolbar{display:flex!important;align-items:center;justify-content:center;gap:6px;flex-wrap:wrap;width:100%!important;margin:0!important;padding:0!important}
+body .focus-play-controls .board-toolbar button{width:auto;min-height:36px;margin:0;padding:6px 10px;border-radius:8px;white-space:nowrap}
+body .focus-play-controls .focus-play-toggle{display:none!important}
+body .focus-play-controls #turn-indicator{display:inline-flex!important;align-items:center;margin:0!important}
+@media(max-width:900px){.focus-play-controls{left:8px;right:48px;top:6px}body .focus-play-controls .board-toolbar{justify-content:flex-start;gap:4px}body .focus-play-controls .board-toolbar button{min-height:34px;padding:5px 8px;font-size:12px}.focus-play-controls .sound-volume{max-width:60px}}
