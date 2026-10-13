@@ -4475,3 +4475,18 @@ def generate_comment(loss, move_description, best_description, language='pt'):
 
     return f"Lance muito ruim. {move_description} perde muita vantagem ou material. Eu jogaria {best_description}."
 
+
+
+@require_POST
+@rate_limit(30, 60, 'game-presence')
+def game_presence(request, game_id):
+    game = get_game_for_user(game_id, request.user, request.session.get('guest_id'))
+    color = player_color_for_game(game, request.user, request.session.get('guest_id'))
+    if not color:
+        return JsonResponse({'error': 'Players only'}, status=403)
+    # Scoped to this game: activity elsewhere on the site is not participation.
+    cache.set(f'game-presence:{game.pk}:{color}', True, timeout=35)
+    response = JsonResponse({'white': bool(cache.get(f'game-presence:{game.pk}:white')),
+                             'black': bool(cache.get(f'game-presence:{game.pk}:black'))})
+    response['Cache-Control'] = 'no-store'
+    return response

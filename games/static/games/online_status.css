@@ -1,0 +1,6 @@
+.player-connection{position:absolute;right:0;bottom:0;width:13px;height:13px;border-radius:50%;border:2px solid #24271e;background:#c6aa69;z-index:3;box-shadow:0 0 0 1px #14170f}
+.player-connection[data-state=online]{background:#7ac763}.player-connection[data-state=offline]{background:#8a8982}
+body .online-game-layout .board-player.player-to-move{outline:3px solid #e3bd69;outline-offset:3px}
+body #turn-indicator.online-turn-mine,body #turn-indicator.online-turn-rival{display:inline-flex!important;align-items:center;gap:8px;font-size:15px!important;font-weight:700;padding:8px 14px!important;border-radius:9px;border:1px solid #a48c58;margin:6px 0}
+body #turn-indicator.online-turn-mine{background:#3b512d;color:#fff1c9;box-shadow:inset 0 0 0 1px #b9cc8950}body #turn-indicator.online-turn-rival{background:#282b24;color:#d7cbb3}
+body #turn-indicator.online-turn-mine::before{content:'●';color:#a9dc78}

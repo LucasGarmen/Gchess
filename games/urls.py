@@ -78,6 +78,7 @@ urlpatterns = [
     path('games/<int:game_id>/resign/', views.resign_game, name='resign_game'),
     path('games/<int:game_id>/moves/', views.game_moves, name='game_moves'),
     path('games/<int:game_id>/state/', views.game_state, name='game_state'),
+    path('games/<int:game_id>/presence/', views.game_presence, name='game_presence'),
     path('games/<int:game_id>/chat/', views.game_chat, name='game_chat'),
     path('games/<int:game_id>/', game_detail, name='game_detail'),
     path('idioma/', views.set_language),
