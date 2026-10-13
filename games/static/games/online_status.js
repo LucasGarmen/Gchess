@@ -5,8 +5,7 @@ document.addEventListener('DOMContentLoaded',()=>{
  document.querySelector('.online-game-layout .board-toolbar')?.append(turn);turn.setAttribute('role','status');turn.setAttribute('aria-live','polite');
  const badges=new Map();stage.querySelectorAll('[data-player-color]').forEach(avatar=>{const badge=document.createElement('span');badge.className='player-connection';badge.dataset.state='unknown';badge.title=words[4];badge.setAttribute('aria-label',words[4]);avatar.append(badge);badges.set(avatar.dataset.playerColor,badge);});
  const connection=document.createElement('span');connection.className='opponent-connection';connection.dataset.state='unknown';connection.setAttribute('role','status');
- const rivalName={es:'Rival',pt:'Adversário',en:'Opponent'}[lang]||'Opponent';
- const connectionLabel=state=>{connection.dataset.state=state;connection.textContent=rivalName+': '+words[state==='online'?2:state==='offline'?3:4];};
+ const connectionLabel=state=>{connection.dataset.state=state;connection.textContent=words[state==='online'?2:state==='offline'?3:4];};
  connectionLabel('unknown');document.querySelector('.online-game-layout .board-toolbar')?.append(connection);
  let lastCount=null;
  function updateTurn(){
