@@ -3,7 +3,7 @@ document.addEventListener('DOMContentLoaded',()=>{
  const stage=document.querySelector('.online-game-layout .board-player-stage');
  const color=stage?.dataset.viewerColor;
  if(!log||!['white','black'].includes(color))return;
- let latest=0,initialized=false;const bubbles=new Map(),timers=new Map();
+ let latest=0,initialized=false;const bubbles=new Map();
  const closeLabel={es:'Cerrar mensaje',pt:'Fechar mensagem',en:'Close message'}[document.documentElement.lang.slice(0,2)]||'Close message';
  const position=()=>{
   const desktop=innerWidth>900;
@@ -32,8 +32,15 @@ document.addEventListener('DOMContentLoaded',()=>{
  };
  const show=(c,text)=>{
   let bubble=bubbles.get(c);
-  if(!bubble){bubble=document.createElement('aside');bubble.className='player-speech';bubble.dataset.playerColor=c;const content=document.createElement('p');content.setAttribute('role','status');const close=document.createElement('button');close.type='button';close.textContent='\u00d7';close.setAttribute('aria-label',closeLabel);close.addEventListener('click',()=>{bubble.hidden=true;position();});bubble.append(content,close);stage.append(bubble);bubbles.set(c,bubble);}
-  bubble.querySelector('p').textContent=text;bubble.hidden=false;clearTimeout(timers.get(c));timers.set(c,setTimeout(()=>{bubble.hidden=true;position();},16000));position();
+  if(!bubble){bubble=document.createElement('aside');bubble.className='player-speech';bubble.dataset.playerColor=c;stage.append(bubble);bubbles.set(c,bubble);}
+  const item=document.createElement('div');item.className='player-speech-message';
+  const content=document.createElement('p');content.setAttribute('role','status');content.textContent=text;
+  const close=document.createElement('button');close.type='button';close.textContent='\u00d7';close.setAttribute('aria-label',closeLabel);
+  let timer;const dismiss=()=>{clearTimeout(timer);item.remove();bubble.hidden=!bubble.children.length;position();};
+  close.addEventListener('click',dismiss);item.append(content,close);bubble.append(item);bubble.hidden=false;
+  timer=setTimeout(dismiss,8000);position();
+  // The newest message stays visible; older messages remain above it until their own expiry.
+  bubble.scrollTop=bubble.scrollHeight;
  };
  const update=()=>{
   const messages=[...log.querySelectorAll('[data-message-id]')];

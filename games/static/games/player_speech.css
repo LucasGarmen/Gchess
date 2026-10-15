@@ -24,3 +24,10 @@ body .board-player-stage:is(.player-speech-top,.player-speech-bottom)[data-board
  body .focus-play .board-player-stage.player-speech-top,
  body .focus-play .board-player-stage.player-speech-bottom{margin:44px 0!important}
 }
+
+/* Each message owns its expiry; later messages append below the earlier ones. */
+body .board-player-stage .player-speech{padding:0;border:0;background:transparent;box-shadow:none;max-height:240px;overflow-y:auto;overflow-x:hidden;scrollbar-width:thin}
+body .board-player-stage .player-speech::after{display:none}
+.player-speech-message{position:relative;padding:9px 30px 9px 12px;margin-top:6px;border:1px solid #ab925f;border-radius:12px;background:#303929;color:#f1e3c6;box-shadow:0 2px 5px #0003}
+.player-speech-message:first-child{margin-top:0}
+@media(max-width:900px){body .board-player-stage .player-speech{max-height:176px}}

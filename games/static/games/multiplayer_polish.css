@@ -92,3 +92,13 @@ body:not(.focus-playing) .online-speech-slot .player-speech{position:relative!im
  body #game-chat-panel .online-chat-history[open] #game-chat-messages{position:absolute;left:0;right:0;bottom:calc(100% + 6px);z-index:45;box-sizing:border-box;min-height:80px;max-height:min(220px,35dvh);margin:0;padding:10px;background:#25291f;border:1px solid #827048;border-radius:9px;box-shadow:0 -5px 15px #0005}
  body .focus-play-chat{overflow:visible}
 }
+
+/* Reserve geometry for translated labels, icons and scrollbar changes. */
+html.online-game-detail-page-root{scrollbar-gutter:stable}
+@media(min-width:901px){
+ body.online-game-detail-page .online-match-status{height:48px;min-height:48px;flex-shrink:0}
+ body.online-game-detail-page:not(.focus-playing) #turn-indicator{box-sizing:border-box;height:44px;min-height:44px;line-height:24px!important;white-space:nowrap}
+ body.online-game-detail-page #turn-indicator::before{display:inline-flex;align-items:center;justify-content:center;width:20px;height:24px;font-size:18px;line-height:24px;flex:0 0 20px}
+ body.online-game-detail-page .online-match-status .opponent-connection{flex:0 0 180px;max-width:none;height:36px;white-space:nowrap}
+ body.online-game-detail-page .board-area{overflow-anchor:none}
+}

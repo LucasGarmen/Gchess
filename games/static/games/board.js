@@ -2351,6 +2351,19 @@ function getPremoveSlidingMoves(square, directions) {
     return moves;
 }
 
+function getPremoveCastlingMoves(square) {
+    const color = square.dataset.color, rank = color === 'white' ? '1' : '8';
+    const rights = castlingRights[color];
+    if (square.dataset.coord !== `e${rank}` || !rights || rights.kingMoved) return [];
+    const moves = [];
+    for (const [file, destination, moved] of [['h', 'g', rights.rightRookMoved], ['a', 'c', rights.leftRookMoved]]) {
+        const rook = getSquare(file + rank);
+        if (!moved && rook?.dataset.type === 'rook' && rook.dataset.color === color) moves.push(destination + rank);
+    }
+    // These are candidates only. getLegalMoves checks path, check and attacks at execution.
+    return moves;
+}
+
 function getPremoveMoves(square) {
     const type = square.dataset.type;
 
@@ -2407,7 +2420,7 @@ function getPremoveMoves(square) {
             [-1, 1],
         ]
             .map(([dc, dr]) => positionToCoord(col + dc, row + dr))
-            .filter(coord => coord !== null);
+            .filter(coord => coord !== null).concat(getPremoveCastlingMoves(square));
     }
 
     return [];

@@ -8,11 +8,17 @@ document.addEventListener('DOMContentLoaded',()=>{
  const connection=document.createElement('span');connection.className='opponent-connection';connection.dataset.state='unknown';connection.setAttribute('role','status');
  const connectionLabel=state=>{connection.dataset.state=state;connection.textContent=words[state==='online'?2:state==='offline'?3:4];};
  connectionLabel('unknown');statusBar?.append(connection);
+ const originalTitle=document.title||'Gchess';let titleTimer=null;
+ function titleTurn(mine){
+  if(mine&&titleTimer===null){let showTurn=true;document.title=words[0];titleTimer=setInterval(()=>{showTurn=!showTurn;document.title=showTurn?words[0]:'Gchess';},1200);}
+  else if(!mine&&titleTimer!==null){clearInterval(titleTimer);titleTimer=null;document.title=originalTitle;}
+ }
  let lastCount=null;
  function updateTurn(){
   const live=typeof isViewingLatestPosition==='function'&&isViewingLatestPosition()&&!analysisMode&&!gameOver;
   turn.classList.toggle('online-turn-mine',live&&currentTurn===color);turn.classList.toggle('online-turn-rival',live&&currentTurn!==color);
   stage.querySelectorAll('[data-player-color]').forEach(avatar=>avatar.classList.toggle('player-to-move',live&&avatar.dataset.playerColor===currentTurn));
+  titleTurn(live&&currentTurn===color);
   if(!live)return;
   const count=SAVED_MOVES.length,mine=currentTurn===color,label=words[mine?0:1];
   if(turn.textContent!==label)turn.textContent=label;
@@ -36,5 +42,5 @@ document.addEventListener('DOMContentLoaded',()=>{
  }
  window.addEventListener('offline',()=>{offline=true;connectionLabel('unknown');badges.forEach(badge=>{badge.dataset.state='unknown';badge.title=words[4];badge.setAttribute('aria-label',words[4]);});});
  window.addEventListener('online',()=>{offline=false;presence();});
- presence();const timer=setInterval(presence,8000);window.addEventListener('pagehide',()=>{stopped=true;clearInterval(timer);});
+ presence();const timer=setInterval(presence,8000);window.addEventListener('pagehide',()=>{stopped=true;clearInterval(timer);titleTurn(false);});
 });
