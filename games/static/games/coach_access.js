@@ -27,11 +27,23 @@ document.addEventListener('DOMContentLoaded', () => {
     close.type = 'button'; close.textContent = '×'; close.setAttribute('aria-label', words[1]);
     const text = document.createElement('div');
     text.setAttribute('role', 'status');
-    bubble.append(close, text);
+    const expand = document.createElement('button');
+    expand.type = 'button'; expand.className = 'coach-reply-expand';
+    const expandWords = {es:['Leer más','Ver menos'],pt:['Ler mais','Ver menos'],en:['Read more','Show less']}[lang] || ['Read more','Show less'];
+    expand.textContent = expandWords[0];
+    expand.setAttribute('aria-expanded', 'false');
+    expand.addEventListener('click', () => {
+        const opened = expand.getAttribute('aria-expanded') !== 'true';
+        expand.setAttribute('aria-expanded', String(opened));
+        expand.textContent = expandWords[opened ? 1 : 0];
+        bubble.classList.toggle('coach-reply-expanded', opened); position();
+    });
+    bubble.append(close, text, expand);
     document.body.append(bubble);
     close.addEventListener('click', () => { bubble.hidden = true; position(); });
     const playing = () => document.body.classList.contains('mobile-bot-playing');
     const wrapper = avatar.closest('.board-wrapper');
+    const replyArea = layout.querySelector('.computer-side');
     window.GchessChatDock?.bind(dock,handle);
     function position() {
         dock.hidden = !playing();
@@ -40,6 +52,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (mobile || fullscreen) dock.removeAttribute('style');
 
         bubble.classList.toggle('coach-reply-fullscreen', Boolean(fullscreen));
+        bubble.classList.remove('coach-reply-reserved');
         wrapper?.style.setProperty('--coach-reply-top','0px');
         wrapper?.style.setProperty('--coach-reply-bottom','0px');
         if (!playing()) { bubble.hidden = true; return; }
@@ -66,19 +79,20 @@ document.addEventListener('DOMContentLoaded', () => {
             bubble.style.top = (above ? -height-8 : board.height+8)+'px';
             wrapper?.style.setProperty(above ? '--coach-reply-top' : '--coach-reply-bottom',Math.max(0,height-40)+'px');
         } else {
-            if (bubble.parentElement !== document.body) document.body.append(bubble);
+            const target = replyArea || dock;
+            if (bubble.parentElement !== target) target.insertBefore(bubble, target.firstElementChild);
             bubble.classList.remove('coach-reply-inline');
-            const box = avatar.getBoundingClientRect();
-            const width = Math.min(240,Math.max(150,innerWidth-box.right-24));
-            bubble.style.width = width+'px';
-            bubble.style.left = Math.min(box.right+8,innerWidth-width-12)+'px';
-            const height = bubble.getBoundingClientRect().height;
-            bubble.style.top = Math.max(12,Math.min(box.top,innerHeight-height-110))+'px';
+            bubble.removeAttribute('style');
+            bubble.classList.add('coach-reply-reserved');
         }
     }
     function show(value) {
         if (!playing() || !value.trim()) return;
         text.textContent = value.trim();
+        expand.hidden = text.textContent.length < 420;
+        expand.setAttribute('aria-expanded','false');
+        expand.textContent = expandWords[0];
+        bubble.classList.remove('coach-reply-expanded');
         bubble.hidden = false;
         position();
     }

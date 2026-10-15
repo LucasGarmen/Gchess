@@ -38,3 +38,10 @@ class OpeningTests(TestCase):
         self.assertEqual(page.status_code,200);self.assertIn('csrftoken',page.cookies)
         self.assertEqual(client.post('/training/openings/italian/step/',json.dumps(dict(index=0,mode='learn')),content_type='application/json').status_code,403)
         self.assertEqual(self.client.get('/training/openings/missing/').status_code,404)
+
+    def test_accessible_piece_names_share_daily_training_translations(self):
+        from .daily_training_texts import TEXTS as board_texts
+        for language in ('es', 'pt', 'en'):
+            with self.subTest(language=language):
+                self.assertEqual(TEXTS[language]['piece_names'], board_texts[language]['piece_names'])
+                self.assertEqual(set(TEXTS[language]['piece_names']), set('pnbrqk'))

@@ -7,6 +7,7 @@ from django.http import Http404
 from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import ensure_csrf_cookie
 from .i18n import current_language
+from .daily_training_texts import TEXTS as BOARD_TEXTS
 
 KEYS=('title','intro','learn','practice','white','black','next','hint','restart','back','correct','wrong','done','network','select','line_help','move','plan','choose','progress')
 TEXTS={
@@ -14,6 +15,9 @@ TEXTS={
 'pt':dict(zip(KEYS,('Aberturas','Entenda os primeiros movimentos e depois tente lembrá-los sem ajuda.','Aprender passo a passo','Praticar de memória','Brancas','Pretas','Próxima jogada','Mostrar dica','Recomeçar','Todas as aberturas','Muito bem! O adversário respondeu.','Essa jogada não faz parte desta linha. Tente outra ou peça uma dica.','Você completou esta linha. Repita de memória ou tente outra abertura.','Não foi possível verificar a jogada. Tente novamente.','Escolha uma peça e depois o destino.','Praticamos uma linha de exemplo. Há outras respostas válidas em uma partida real.','Jogada','Plano da abertura','Escolha uma abertura','Progresso desta linha'))),
 'en':dict(zip(KEYS,('Openings','Understand the first moves, then try recalling them without help.','Learn step by step','Practice from memory','White','Black','Next move','Show hint','Restart','All openings','Good! Your opponent replied.','That move is outside this line. Try another or ask for a hint.','You completed this line. Repeat from memory or try another opening.','Could not check the move. Please try again.','Choose a piece, then its destination.','This is one example line. Other replies can be valid in a real game.','Move','Opening plan','Choose an opening','Progress through this line'))),
 }
+for language, words in TEXTS.items():
+    words['piece_names'] = BOARD_TEXTS[language]['piece_names']
+
 # Names, plans and move-by-move explanations follow the same language order.
 LANGS=('es','pt','en')
 CONCEPTS={
