@@ -299,3 +299,6 @@ OTP_TOTP_ISSUER = 'Gchess admin'
 # This deliberate account-wide limit cannot be bypassed by changing IP/cookies.
 # W006 assumes client-based limits; adding a shared proxy-IP lock would block unrelated users.
 SILENCED_SYSTEM_CHECKS = ['axes.W006']
+
+# Refuse remote database creation/deletion even with an explicit settings override.
+TEST_RUNNER = 'config.test_runner.LocalOnlyTestRunner'
