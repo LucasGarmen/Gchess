@@ -3,30 +3,32 @@ document.addEventListener('DOMContentLoaded',()=>{
  const stage=document.querySelector('.online-game-layout .board-player-stage');
  const color=stage?.dataset.viewerColor;
  if(!log||!['white','black'].includes(color))return;
- const side=document.querySelector('.online-game-layout .online-side');
- const topSlot=document.createElement('div'),bottomSlot=document.createElement('div');topSlot.className=bottomSlot.className='online-speech-slot';
- if(side){side.prepend(topSlot);side.append(bottomSlot);}
  let latest=0,initialized=false;const bubbles=new Map(),timers=new Map();
  const closeLabel={es:'Cerrar mensaje',pt:'Fechar mensagem',en:'Close message'}[document.documentElement.lang.slice(0,2)]||'Close message';
  const position=()=>{
-  let top=false,bottom=false;const desktop=innerWidth>900&&!stage.closest('.focus-play');
-  const chatDock=document.getElementById('game-chat-panel');chatDock?.style.setProperty('--player-speech-offset','0px');
+  const desktop=innerWidth>900;
+  let top=false,bottom=false;
   const previous=stage.classList.contains('player-speech-top')+' '+stage.classList.contains('player-speech-bottom');
-  bubbles.forEach((bubble,c)=>{const upper=c!==(stage.dataset.boardOrientation||'white');bubble.dataset.edge=upper?'top':'bottom';if(desktop&&side){
-    const slot=upper?topSlot:bottomSlot;if(bubble.parentElement!==slot)slot.append(bubble);bubble.removeAttribute('style');bubble.dataset.speaker=stage.querySelector('[data-player-color="'+c+'"]')?.title||'';
-   }else if(bubble.parentElement!==stage)stage.append(bubble);
-   if(!bubble.hidden){
-   if(desktop&&!side){
+  bubbles.forEach((bubble,c)=>{
+   const upper=c!==(stage.dataset.boardOrientation||'white');bubble.dataset.edge=upper?'top':'bottom';
+   if(bubble.parentElement!==stage)stage.append(bubble);
+   bubble.removeAttribute('style');
+   bubble.dataset.speaker=stage.querySelector('[data-player-color="'+c+'"]')?.title||'';
+   if(bubble.hidden)return;
+   if(desktop){
     const avatar=stage.querySelector('[data-player-color="'+c+'"]');
-    if(avatar){const anchor=avatar.getBoundingClientRect(),width=Math.min(270,innerWidth-24);
-     bubble.style.width=width+'px';const height=bubble.getBoundingClientRect().height;
-     const x=Math.max(12,Math.min(anchor.right+8,innerWidth-width-12));let y=Math.max(12,Math.min(anchor.top,innerHeight-height-12));
-     const dock=document.getElementById('game-chat-panel');if(dock&&!dock.hidden){const box=dock.getBoundingClientRect();if(x<box.right&&x+width>box.left&&y<box.bottom&&y+height>box.top){if(c===color){dock.style.setProperty('--player-speech-offset',Math.min(Math.max(0,box.bottom-y+8),Math.max(0,box.top-12))+'px');}else{y=Math.max(12,box.top-height-8);}}}
-     bubble.style.left=x+'px';bubble.style.top=y+'px';}
-   }else if(!desktop){bubble.removeAttribute('style');if(upper)top=true;else bottom=true;}
-  }});
+    if(!avatar)return;
+    const anchor=avatar.getBoundingClientRect();
+    const width=Math.min(270,Math.max(120,innerWidth-anchor.right-20));
+    bubble.style.width=width+'px';
+    const height=bubble.getBoundingClientRect().height;
+    bubble.style.left=Math.max(12,Math.min(anchor.right+10,innerWidth-width-12))+'px';
+    bubble.style.top=Math.max(12,Math.min(anchor.top+(anchor.height-height)/2,innerHeight-height-12))+'px';
+   }else{if(upper)top=true;else bottom=true;}
+  });
   stage.classList.toggle('player-speech-top',top);stage.classList.toggle('player-speech-bottom',bottom);
-  if(previous!==top+' '+bottom)window.dispatchEvent(new Event('resize'));
+  // Desktop messages are overlays: showing or closing one must never resize the board.
+  if(!desktop&&previous!==top+' '+bottom)window.dispatchEvent(new Event('resize'));
  };
  const show=(c,text)=>{
   let bubble=bubbles.get(c);

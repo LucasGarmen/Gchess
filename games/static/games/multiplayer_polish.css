@@ -84,3 +84,11 @@ body:not(.focus-playing) .online-speech-slot .player-speech{position:relative!im
 .online-speech-slot .player-speech::before{content:attr(data-speaker);display:block;font-size:11px;color:#d6bc84;margin-bottom:4px}
 .online-speech-slot .player-speech::after{display:none}
 .online-speech-slot .player-speech p{max-height:160px}
+
+/* Keep the composer fixed in place while conversation history opens upwards. */
+@media(min-width:901px){
+ body #game-chat-panel.online-chat-dock{overflow:visible}
+ body #game-chat-panel .online-chat-history{position:relative}
+ body #game-chat-panel .online-chat-history[open] #game-chat-messages{position:absolute;left:0;right:0;bottom:calc(100% + 6px);z-index:45;box-sizing:border-box;min-height:80px;max-height:min(220px,35dvh);margin:0;padding:10px;background:#25291f;border:1px solid #827048;border-radius:9px;box-shadow:0 -5px 15px #0005}
+ body .focus-play-chat{overflow:visible}
+}

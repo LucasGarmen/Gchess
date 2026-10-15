@@ -14,3 +14,13 @@ body .board-player-stage:is(.player-speech-top,.player-speech-bottom)[data-board
 @media(min-width:901px){body:not(.focus-playing) .online-game-layout .board-player-stage .player-speech{position:fixed;right:auto;bottom:auto;z-index:1140}body:not(.focus-playing) .online-game-layout .board-player-stage .player-speech p{max-height:100px}}
 
 @media(min-width:901px){body:not(.focus-playing) .online-game-layout .player-speech::after{left:-6px;right:auto;border-top:0;border-right:0;border-left:1px solid #ab925f;border-bottom:1px solid #ab925f}}
+
+/* PC: anchor both players' messages to their portraits, including fullscreen. */
+@media(min-width:901px){
+ body .online-game-layout .board-player-stage .player-speech,
+ body .focus-play .board-player-stage .player-speech{position:fixed!important;right:auto!important;bottom:auto!important;z-index:40}
+ body .board-player-stage .player-speech p{max-height:100px}
+ body .board-player-stage .player-speech::after{left:-6px;right:auto;top:16px;border-top:0;border-right:0;border-left:1px solid #ab925f;border-bottom:1px solid #ab925f}
+ body .focus-play .board-player-stage.player-speech-top,
+ body .focus-play .board-player-stage.player-speech-bottom{margin:44px 0!important}
+}
