@@ -17,8 +17,10 @@ document.addEventListener('DOMContentLoaded', () => {
   const controls=document.createElement('header');controls.className='focus-play-controls';
   const play=document.createElement('div');play.className='focus-play-board';const chat=document.createElement('div');chat.className='focus-play-chat';overlay.append(close,controls,play,chat);document.body.append(overlay);document.body.classList.add('focus-playing');
   const turn=document.getElementById('turn-indicator');if(turn&&!toolbar.contains(turn))move(turn,toolbar);
-  move(document.getElementById('request-takeback'),toolbar);
-  if(innerWidth<=900){
+  move(layout.querySelector('.opponent-connection'),toolbar);
+  const onlineTools=innerWidth<=900?toolbar.querySelector('.online-board-tools'):null;
+  move(document.getElementById('request-takeback'),onlineTools?.querySelector('.online-board-tools-body')||toolbar);
+  if(innerWidth<=900&&!onlineTools){
    const menu=document.createElement('details');menu.className='focus-control-menu';const summary=document.createElement('summary');summary.textContent={es:'Controles',pt:'Controles',en:'Controls'}[lang]||'Controls';
    const items=document.createElement('div');items.className='focus-control-items';menu.append(summary,items);toolbar.append(menu);
    [...toolbar.children].filter(el=>el.matches('button,input')&&!el.classList.contains('focus-play-toggle')).forEach(el=>move(el,items));
@@ -29,6 +31,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const coach=document.querySelector('.coach-chat-dock');
   if(coach)move(coach,chat);else{const panel=document.getElementById('game-chat-panel');if(panel?.hidden)document.getElementById('game-chat-toggle')?.click();move(panel,chat);}
   move(document.querySelector('.game-clock'),play);
+  move(layout.querySelector('.online-premove-status'),chat);
   document.dispatchEvent(new Event('gchess:focus-mode-changed'));size();close.focus();overlay.requestFullscreen?.().catch(()=>{});
  };
  window.GchessFocus={exit};

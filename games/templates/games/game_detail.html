@@ -13,207 +13,7 @@
     document.body.classList.add('online-game-detail-page');
 </script>
 
-<style>
-    @media (min-width: 1101px) {
-        html.online-game-detail-page-root,
-        body.online-game-detail-page {
-            overflow: hidden;
-        }
 
-        .online-game-page-title,
-        .online-game-page-back {
-            display: none;
-        }
-
-        body.online-game-detail-page .online-game-layout {
-            --square-size: clamp(56px, min(calc((100svh - 160px) / 8), calc((100vw - 700px) / 8)), 86px);
-            --board-panel-height: calc((var(--square-size) * 8) + 40px);
-            --captured-panel-height: 62px;
-
-            align-items: center;
-            display: grid;
-            gap: 28px;
-            grid-template-areas:
-                "board info"
-                "board side";
-            grid-template-columns: minmax(0, 1fr) minmax(320px, 380px);
-            grid-template-rows: auto minmax(0, 1fr);
-            height: 100svh;
-            justify-content: center;
-            margin: 0;
-            max-width: none;
-            overflow: hidden;
-            padding: 16px 0;
-        }
-
-        body.online-game-detail-page .online-game-layout .board-area {
-            align-items: start;
-            grid-area: board;
-            height: calc(100svh - 32px);
-            justify-content: center;
-            min-width: 0;
-            padding-top: 18px;
-        }
-
-        body.online-game-detail-page .online-game-layout .board-wrapper {
-            margin: 0 auto;
-            padding: 12px;
-        }
-
-        body.online-game-detail-page .online-game-layout .game-info-card {
-            align-self: end;
-            display: grid;
-            gap: 8px;
-            grid-area: info;
-            grid-template-columns: repeat(3, minmax(0, 1fr));
-            margin: 0;
-            max-width: none;
-            padding: 10px 12px;
-            text-align: left;
-            width: 100%;
-        }
-
-        body.online-game-detail-page .online-game-layout .game-info-item {
-            gap: 2px;
-            min-width: 0;
-        }
-
-        body.online-game-detail-page .online-game-layout .game-info-item + .game-info-item {
-            border-left: 1px solid rgba(240, 217, 181, 0.14);
-            border-top: 0;
-            margin-top: 0;
-            padding-left: 10px;
-            padding-top: 0;
-        }
-
-        body.online-game-detail-page .online-game-layout .game-info-item strong,
-        body.online-game-detail-page .online-game-layout .game-info-item span {
-            font-size: 12px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
-
-        body.online-game-detail-page .online-game-layout .online-side {
-            align-self: start;
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-            grid-area: side;
-            height: 100%;
-            max-height: 100%;
-            min-height: 0;
-            min-width: 0;
-            width: 100%;
-        }
-
-        body.online-game-detail-page .online-side .pgn-panel {
-            flex: 1 1 auto;
-            height: auto;
-            margin: 0;
-            max-width: none;
-            min-height: 0;
-            overflow: hidden;
-            padding: 12px;
-            width: 100%;
-        }
-
-        body.online-game-detail-page .online-game-layout .pgn-panel h2 {
-            font-size: 16px;
-            margin-bottom: 6px;
-        }
-
-        body.online-game-detail-page .online-game-layout #turn-indicator,
-        body.online-game-detail-page .online-game-layout .game-clock {
-            margin-bottom: 8px;
-        }
-
-        body.online-game-detail-page .online-game-layout .clock-row {
-            padding: 7px 10px;
-        }
-
-        body.online-game-detail-page .online-game-layout .clock-row strong {
-            font-size: 18px;
-        }
-
-        body.online-game-detail-page .online-game-layout .history-controls,
-        body.online-game-detail-page .online-game-layout .game-actions {
-            gap: 6px;
-            margin-bottom: 8px;
-        }
-
-        body.online-game-detail-page .online-game-layout .history-controls button,
-        body.online-game-detail-page .online-game-layout .game-actions button,
-        body.online-game-detail-page .online-game-layout .game-actions .analyze-game-button {
-            font-size: 12px;
-            min-height: 32px;
-            padding: 5px 8px;
-        }
-
-        body.online-game-detail-page .online-game-layout .draw-offer-panel {
-            margin-bottom: 8px;
-            padding: 8px;
-        }
-
-        body.online-game-detail-page .online-game-layout .pgn-box {
-            flex: 1 1 auto;
-            min-height: 0;
-            scrollbar-color: #b98245 #21150c;
-            scrollbar-width: thin;
-        }
-
-        body.online-game-detail-page .online-game-layout .pgn-box::-webkit-scrollbar {
-            width: 10px;
-        }
-
-        body.online-game-detail-page .online-game-layout .pgn-box::-webkit-scrollbar-track {
-            background:
-                linear-gradient(90deg, #1b1008, #2a190d 45%, #120b06);
-            border: 1px solid rgba(240, 217, 181, 0.12);
-            border-radius: 999px;
-            box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.55);
-        }
-
-        body.online-game-detail-page .online-game-layout .pgn-box::-webkit-scrollbar-thumb {
-            background:
-                linear-gradient(90deg, rgba(255, 231, 176, 0.72), rgba(154, 93, 38, 0.92) 42%, rgba(93, 54, 25, 0.98));
-            border: 2px solid #21150c;
-            border-radius: 999px;
-            box-shadow:
-                inset 1px 0 0 rgba(255, 235, 190, 0.42),
-                inset -1px 0 0 rgba(52, 27, 12, 0.72);
-        }
-
-        body.online-game-detail-page .online-game-layout .pgn-box::-webkit-scrollbar-thumb:hover {
-            background:
-                linear-gradient(90deg, rgba(255, 239, 198, 0.9), rgba(181, 111, 47, 0.98) 42%, rgba(112, 65, 30, 1));
-        }
-
-        body.online-game-detail-page .online-game-layout .game-chat-toggle {
-            font-size: 12px;
-            margin-top: 8px;
-            min-height: 32px;
-            padding: 5px 10px;
-        }
-
-        body.online-game-detail-page .online-game-layout .game-chat-panel {
-            bottom: 12px;
-            left: 12px;
-            max-height: min(300px, calc(100% - 24px));
-            padding: 10px;
-            right: 12px;
-        }
-
-        body.online-game-detail-page .online-game-layout .game-chat-messages {
-            min-height: 140px;
-        }
-
-        body.online-game-detail-page .online-game-layout .online-captured-material {
-            flex: 0 0 var(--captured-panel-height);
-            margin-top: 0;
-        }
-    }
-</style>
 
 {% if game.title %}
 <h1 class="online-game-page-title">{{ game.title }}</h1>
@@ -236,6 +36,7 @@
     </aside>
 
     <section class="board-area">
+        <div class="online-match-status"></div>
         {% include "games/_blindfold_controls.html" %}
         <div class="board-wrapper">
             {% include "games/_game_finish_notice.html" %}
@@ -271,7 +72,7 @@
     <div class="online-side">
     <aside class="pgn-panel">
         {% if game.tournament_match %}<p class="tournament-game-return"><a href="{% url 'tournament_detail' game.tournament_match.tournament.token %}">{{ tournament_texts.nav }} · {{ game.tournament_match.tournament.name }} →</a></p>{% endif %}
-        <h2>PGN</h2>
+
         <p id="turn-indicator">{% tr "turn_white" %}</p>
         {% if clock %}
         <div id="game-clock" class="game-clock">
@@ -315,7 +116,7 @@
         </div>
 
         <ul id="move-list" style="display: none;"></ul>
-        <pre id="pgn-box" class="pgn-box"></pre>
+        <details class="online-moves-panel"><summary>PGN</summary><pre id="pgn-box" class="pgn-box"></pre></details>
         <button id="game-chat-toggle" class="game-chat-toggle" type="button">
             {% tr "chat" %} <span id="game-chat-count" hidden>0</span>
         </button>
@@ -408,14 +209,16 @@
 <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin defer></script>
 <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin defer></script>
 <script src="{% static 'games/react/game_detail_app.min.js' %}?v=2" defer></script>
-<script src="{% static 'games/board.min.js' %}?v=23" defer></script>
+<script src="{% static 'games/board.min.js' %}?v=24" defer></script>
 <link rel="stylesheet" href="{% static 'games/online_chat.css' %}?v=5">
 <link rel="stylesheet" href="{% static 'games/online_status.css' %}?v=6">
-<script src="{% static 'games/online_status.js' %}?v=4" defer></script>
-<script src="{% static 'games/online_chat.js' %}?v=4" defer></script>
+<script src="{% static 'games/online_status.js' %}?v=6" defer></script>
+<script src="{% static 'games/online_chat.js' %}?v=5" defer></script>
 <link rel="stylesheet" href="{% static 'games/takeback.css' %}?v=1">
 <script src="{% static 'games/takeback.js' %}?v=1" defer></script>
 <script src="{% static 'games/game_finish.js' %}?v=5" defer></script>
 <script src="{% static 'games/blindfold.js' %}?v=3" defer></script>
 
+<link rel="stylesheet" href="{% static 'games/multiplayer_polish.css' %}?v=1">
+<script src="{% static 'games/multiplayer_ui.js' %}?v=1" defer></script>
 {% endblock %}

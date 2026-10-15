@@ -31,7 +31,7 @@
   });
   handle.addEventListener('pointermove',event=>{
    if(!drag||event.pointerId!==drag.id)return;
-   event.preventDefault();place(drag.left+event.clientX-drag.x,drag.top+event.clientY-drag.y);
+   event.preventDefault();dock.classList.add('is-detached');place(drag.left+event.clientX-drag.x,drag.top+event.clientY-drag.y);
   });
   const end=event=>{if(drag?.id!==event.pointerId)return;drag=null;handle.classList.remove('is-dragging');if(handle.hasPointerCapture(event.pointerId))handle.releasePointerCapture(event.pointerId);};
   for(const name of ['pointerup','pointercancel','lostpointercapture'])handle.addEventListener(name,end);

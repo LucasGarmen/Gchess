@@ -1,0 +1,86 @@
+/* Stable multiplayer layout; secondary content may scroll naturally. */
+html.online-game-detail-page-root,body.online-game-detail-page{overflow:visible}
+body.online-game-detail-page .online-game-page-title{display:none}
+body.online-game-detail-page .online-game-layout [hidden]{display:none!important}
+body.online-game-detail-page .online-game-layout{box-sizing:border-box;min-width:0}
+body.online-game-detail-page .online-match-status{display:flex;align-items:center;justify-content:space-between;gap:8px;width:100%;min-height:44px;margin:0 0 8px}
+body.online-game-detail-page:not(.focus-playing) #turn-indicator{width:auto;flex:1 1 auto;min-width:0;min-height:40px;margin:0;padding:8px 14px!important;font-size:17px!important;justify-content:center;border-radius:8px}
+body.online-game-detail-page .online-match-status .opponent-connection{width:auto;flex:0 1 auto;min-height:32px;max-width:50%;box-sizing:border-box}
+body.online-game-detail-page .online-game-layout .board-toolbar{display:flex;align-items:center;gap:6px;flex-wrap:wrap;width:100%;margin:0 0 8px}
+body.online-game-detail-page .online-game-layout .board-toolbar button{width:auto;min-width:36px;min-height:36px;margin:0;padding:6px 10px;font-size:13px;line-height:1.3;border:1px solid #756547;border-radius:8px;background:linear-gradient(#343a2c,#252a20);color:#f1ddb6;box-shadow:inset 0 1px #ffffff0d,0 2px 3px #0003}
+body.online-game-detail-page .online-game-layout button:disabled{opacity:.45;cursor:default;box-shadow:none}
+body.online-game-detail-page .online-game-layout button:not(:disabled):hover{background:#414d32;color:#fff0c9;border-color:#b39a60}
+body.online-game-detail-page :is(button,a,summary,input):focus-visible{outline:3px solid #e6c577;outline-offset:3px}
+body.online-game-detail-page .online-game-layout .board-wrapper{box-sizing:border-box;padding:8px;gap:5px;max-width:100%}
+body.online-game-detail-page .online-game-layout .board-wrapper>div:not(.rank-labels){width:calc(var(--square-size) * 8 + 6px);min-width:0;flex:0 0 auto}
+body.online-game-detail-page .online-game-layout .game-info-card{display:grid;grid-template-columns:1fr 1fr;gap:8px;box-sizing:border-box;width:100%;max-width:none;margin:0;padding:10px 12px;text-align:left}
+body.online-game-detail-page .game-info-item{min-width:0;display:flex;flex-direction:column;gap:3px}
+body.online-game-detail-page .game-info-item+.game-info-item{margin:0;padding:0;border:0}
+body.online-game-detail-page .game-info-item:nth-child(2){border-left:1px solid #8b775638;padding-left:10px}
+body.online-game-detail-page .game-info-item:last-child{grid-column:1/-1;flex-direction:row;gap:8px;font-size:11px;color:#c2b598}
+body.online-game-detail-page .game-info-item :is(strong,span){overflow-wrap:anywhere;line-height:1.3;font-size:13px}
+body.online-game-detail-page .game-info-item strong{color:#d5ba80}
+body.online-game-detail-page .online-side{display:flex;flex-direction:column;gap:10px;min-width:0;height:auto;width:100%}
+body.online-game-detail-page .online-side .pgn-panel{height:auto;max-height:none;max-width:none;min-height:0;overflow:visible;padding:12px;gap:8px}
+body.online-game-detail-page .online-game-layout :is(.history-controls,.game-actions){display:flex;flex-wrap:wrap;gap:6px;margin:0}
+body.online-game-detail-page .online-game-layout .game-actions>*{flex:1 1 auto}
+body.online-game-detail-page .online-game-layout :is(.history-controls,.game-actions) :is(button,a){width:auto;min-height:36px;margin:0;padding:7px 10px;border-radius:7px;border:1px solid #786749;background:#30362a;color:#eddbb5;font-size:13px;line-height:1.3;box-shadow:inset 0 1px #ffffff0b}
+body.online-game-detail-page .online-game-layout #resign-button{background:#49302a;color:#efc8b6;border-color:#8e5948}
+body.online-game-detail-page .online-moves-panel{border-top:1px solid #8b775638;padding-top:8px}
+body.online-game-detail-page .online-moves-panel summary{cursor:pointer;color:#d8bf8c;font-size:13px;padding:4px 0}
+body.online-game-detail-page .online-moves-panel .pgn-box{min-height:64px;max-height:180px;margin:8px 0 0;overflow:auto;white-space:pre-wrap;overflow-wrap:anywhere;font-size:13px}
+body.online-game-detail-page .online-captured-material{min-height:0;height:auto;flex:0 0 auto;margin:0;padding:6px 10px}
+body.online-game-detail-page .online-captured-material:not(:has(.captured-piece-group)){display:none}
+body.online-game-detail-page .online-premove-status{display:flex;align-items:center;justify-content:space-between;gap:8px;box-sizing:border-box;width:100%;padding:6px 10px;margin:6px 0;color:#f5d890;background:#393421;border:1px solid #aa8c45;border-radius:7px;font-size:13px}
+body.online-game-detail-page .online-premove-status button{width:auto;min-height:30px;margin:0;padding:4px 8px;background:#282a20;color:#f5deb1}
+body.online-game-detail-page .online-premove-status[hidden]{display:none!important}
+body.online-game-detail-page .online-game-layout #board .square:is(.queued-move-origin,.queued-move-target){box-shadow:inset 0 0 0 3px #e5ba53!important;background-image:linear-gradient(#e7b33e45,#e7b33e45)}
+@media(min-width:901px){
+ body.online-game-detail-page .online-game-layout:has(.board-player-stage){--square-size:calc(min(680px,calc(100svh - 186px),calc(100vw - 660px)) / 8)!important;display:grid;grid-template-columns:minmax(0,1fr) 290px;grid-template-areas:'board info' 'board side';grid-template-rows:auto 1fr;align-items:start;gap:12px 20px;min-height:calc(100svh - 24px);height:auto;max-width:1240px;margin:12px auto;padding:0 16px;overflow:visible}
+ body.online-game-detail-page .online-game-layout .board-area{grid-area:board;width:auto;max-width:none;height:auto;min-width:0;padding:0;justify-content:flex-start}
+ body.online-game-detail-page .online-game-layout .board-wrapper{margin:0 auto}
+ body.online-game-detail-page .online-game-layout .online-match-status{max-width:calc(var(--square-size) * 8 + 36px)}
+ body.online-game-detail-page .online-game-layout .game-info-card{grid-area:info;align-self:start}
+ body.online-game-detail-page .online-game-layout .online-side{grid-area:side;max-height:none;height:auto}
+ body.online-game-detail-page:not(.focus-playing) #game-chat-panel.online-chat-dock:not(.is-detached){position:relative!important;inset:auto!important;translate:none;width:100%;max-width:100%;max-height:none!important;margin:0;z-index:10}
+ body.online-game-detail-page:not(.focus-playing) #game-chat-panel.online-chat-dock.is-detached{position:fixed!important;translate:none}
+ body.online-game-detail-page .online-chat-dock .online-chat-history[open] #game-chat-messages{max-height:150px}
+ body.online-game-detail-page .online-game-page-back{display:block;width:max-content;margin:0 auto 12px;font-size:12px}
+}
+@media(max-width:900px){
+ body.online-game-detail-page .online-game-layout:has(.board-player-stage){--mobile-board-size:min(calc(100vw - 36px),560px)!important;--mobile-square-size:calc(var(--mobile-board-size) / 8)!important;--square-size:var(--mobile-square-size)!important;display:flex;flex-direction:column;gap:8px;margin:4px auto 16px;padding:0 4px;max-width:100%;width:100%;overflow:visible}
+ body.online-game-detail-page .online-game-layout .game-info-card{order:0;padding:7px 9px;gap:4px}
+ body.online-game-detail-page .game-info-item:last-child{display:none}
+ body.online-game-detail-page .online-game-layout .board-area{order:1;width:100%;max-width:none}
+ body.online-game-detail-page .online-game-layout .online-side{order:2;width:100%;max-width:none;height:auto}
+ body.online-game-detail-page .online-game-layout .board-wrapper{width:100%;max-width:none;padding:3px;justify-content:center}
+ body.online-game-detail-page .online-match-status{margin-bottom:4px;gap:5px;min-height:40px}
+ body.online-game-detail-page:not(.focus-playing) #turn-indicator{min-height:38px;font-size:15px!important;padding:7px 10px!important}
+ body.online-game-detail-page .online-match-status .opponent-connection{font-size:11px;padding:5px 7px}
+ body.online-game-detail-page .online-game-layout .board-toolbar{gap:4px;margin-bottom:5px}
+ body.online-game-detail-page .online-game-layout .board-toolbar button{min-width:34px;min-height:38px;padding:6px 8px;font-size:12px}
+ body.online-game-detail-page .online-game-layout .online-side .pgn-panel{padding:9px}
+ body.online-game-detail-page .online-game-layout .game-info-item :is(strong,span){font-size:12px}
+ body.online-game-detail-page .online-game-page-back{margin:8px 4px 12px;font-size:13px}
+ body.online-game-detail-page:not(.focus-playing) .player-speech{max-height:100px;overflow:auto}
+}
+
+@media(max-width:900px){
+ body.online-game-detail-page .online-game-layout .game-info-card{display:grid!important}
+ body.online-game-detail-page .online-game-layout .game-info-card .game-info-item:last-child{display:none!important}
+ body.online-game-detail-page .online-game-layout .board-wrapper:has(.board-player-stage){padding:4px 3px 48px!important}
+ body.online-game-detail-page .online-game-layout .board-wrapper:has(.board-player-stage) .board-toolbar{margin-bottom:44px!important}
+ body.online-game-detail-page .online-game-layout .mobile-play-strip:has(.mobile-play-state:empty){display:none}
+}
+
+.online-board-tools[hidden]{display:none!important}
+.online-board-tools summary{cursor:pointer;padding:9px 12px;border:1px solid #85724d;border-radius:8px;background:#30372a;color:#ecd8af;font-size:13px;line-height:20px}
+.online-board-tools-body{display:flex;flex-wrap:wrap;align-items:center;gap:6px;padding:8px 0}
+.online-board-tools[open]{flex:1 0 100%}
+@media(max-width:900px){body .focus-play-controls .online-board-tools button{min-height:40px}body .focus-play-controls .online-board-tools summary{padding:5px 9px}}
+
+.online-speech-slot:empty,.online-speech-slot:not(:has(.player-speech:not([hidden]))){display:none}
+body:not(.focus-playing) .online-speech-slot .player-speech{position:relative!important;inset:auto!important;width:100%;box-sizing:border-box;padding:9px 30px 9px 12px;margin:0 0 6px;border:1px solid #a58c58;border-radius:10px;background:#303929;color:#f1e3c6;box-shadow:0 3px 8px #0003}
+.online-speech-slot .player-speech::before{content:attr(data-speaker);display:block;font-size:11px;color:#d6bc84;margin-bottom:4px}
+.online-speech-slot .player-speech::after{display:none}
+.online-speech-slot .player-speech p{max-height:160px}

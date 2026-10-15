@@ -3,7 +3,7 @@ const events={},viewEvents={},docEvents={},props={},style={setProperty(k,v,prior
 const win={innerWidth:1280,innerHeight:800,visualViewport:{height:800,offsetTop:0,addEventListener:(k,fn)=>viewEvents[k]=fn},addEventListener:(k,fn)=>events[k]=fn};
 vm.runInNewContext(fs.readFileSync('games/static/games/chat_dock.js','utf8'),{window:win,document:{documentElement:{style},addEventListener:(k,fn)=>docEvents[k]=fn}});
 let fullscreen=false,capture=null,prevented=0;const handlers={};
-const dock={style,getBoundingClientRect:()=>({left:500,top:400,width:320,height:120}),closest:()=>fullscreen?{}:null};
+const dock={classList:{add(){}},style,getBoundingClientRect:()=>({left:500,top:400,width:320,height:120}),closest:()=>fullscreen?{}:null};
 const handle={classList:{add(){},remove(){}},addEventListener:(k,fn)=>handlers[k]=fn,setPointerCapture:id=>capture=id,hasPointerCapture:id=>capture===id,releasePointerCapture:()=>capture=null};
 win.GchessChatDock.bind(dock,handle);
 const pointer=(x,y,id=1)=>({button:0,isPrimary:true,pointerId:id,clientX:x,clientY:y,preventDefault(){prevented++;}});

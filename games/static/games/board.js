@@ -1683,7 +1683,8 @@ setupBoardSquares();
 
 board.addEventListener('contextmenu', handleBoardContextMenu);
 document.addEventListener('pointerdown', function (event) {
-    clearQueuedMove();
+    // Chat and toolbar interaction must not silently discard the prepared move.
+    if (board.contains(event.target)) clearQueuedMove();
 
     if (event.button !== 2) {
         clearRightClickMarker();
