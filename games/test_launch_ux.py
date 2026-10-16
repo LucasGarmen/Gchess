@@ -64,6 +64,9 @@ class LaunchFeedbackTests(TestCase):
             self.assertContains(response,'id="home-open-bot"')
             self.assertContains(response,TEXTS[language]['hero_title'])
             self.assertContains(response,TEXTS[language]['hero_analyze'])
+            self.assertContains(response,TEXTS[language]['garry_explains'])
+            self.assertContains(response,TEXTS[language]['demo_start'])
+            self.assertContains(response,'id="hero-demo-play"')
             self.assertContains(response,'href="/analyze/" class="home-analysis-button"')
 
     def test_footer_language_choice_overrides_browser_and_keeps_target(self):

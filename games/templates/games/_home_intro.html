@@ -22,10 +22,11 @@
             </div>
         </div>
         <div class="home-hero-visual hero-app-preview">
-            <div class="hero-preview-frame" aria-hidden="true">
+            <div class="hero-preview-frame" role="group" aria-label="{{ launch_texts.demo }}">
                 <div class="hero-preview-titlebar"><span class="preview-window-dots"><i></i><i></i><i></i></span><span>{{ launch_texts.demo_name }}</span><span class="hero-preview-label">{{ launch_texts.demo }}</span></div>
-                <div class="hero-preview-board">{% entry_board "pastor" %}</div>
-                <div class="hero-demo-reply"><span class="hero-coach-icon">{% ui_icon 'coach' %}</span><div><span>{{ launch_texts.demo_coach }}</span><p id="hero-demo-comment">{{ launch_texts.demo_lines.0 }}</p></div></div>
+                <div class="hero-preview-board" aria-hidden="true">{% entry_board "pastor" %}</div>
+                <div class="hero-demo-reply"><span class="hero-coach-icon" aria-hidden="true">{% ui_icon 'coach' %}</span><div><span class="garry-explains">{{ launch_texts.garry_explains }}</span><p id="hero-demo-comment">{{ launch_texts.demo_lines.0 }}</p></div></div>
+                <button id="hero-demo-play" class="hero-demo-play" type="button">{% ui_icon 'play' %}<span>{{ launch_texts.demo_start }}</span><span aria-hidden="true">→</span></button>
             </div>
             <button id="hero-demo-pause" class="hero-demo-pause" type="button" data-pause="{{ launch_texts.pause }}" data-resume="{{ launch_texts.resume }}" aria-pressed="false">{{ launch_texts.pause }}</button>
         </div>

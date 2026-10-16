@@ -1,6 +1,10 @@
 (() => {
     const board = document.querySelector('.home-hero-visual .entry-mini-board');
     if (!board) return;
+    // Reuse the existing entry action, including its saved-game preservation.
+    document.getElementById('hero-demo-play')?.addEventListener('click',()=>{
+        document.getElementById('mobile-start-bot-game')?.click();
+    });
     const reduced=matchMedia('(prefers-reduced-motion: reduce)');
     let paused=reduced.matches;
     const pause=document.getElementById('hero-demo-pause'), comment=document.getElementById('hero-demo-comment');
@@ -8,6 +12,10 @@
     const syncPause=()=>{if(pause){pause.textContent=paused?pause.dataset.resume:pause.dataset.pause;pause.setAttribute('aria-pressed',String(paused));}};
     pause?.addEventListener('click',()=>{paused=!paused;syncPause();});syncPause();
     reduced.addEventListener('change',()=>{paused=reduced.matches;syncPause();});
+    const preview=board.closest('.hero-app-preview');
+    if(preview&&typeof IntersectionObserver!=='undefined'){
+        new IntersectionObserver(entries=>{preview.classList.toggle('demo-in-view',entries[0].isIntersecting);},{rootMargin:'0px 0px 60px 0px',threshold:0}).observe(preview);
+    }
     const initial = board.innerHTML;
     const moves = ['e2e4', 'e7e5', 'f1c4', 'b8c6', 'd1h5', 'g8f6', 'h5f7'];
     const index = square => (8 - Number(square[1])) * 8 + square.charCodeAt(0) - 97;

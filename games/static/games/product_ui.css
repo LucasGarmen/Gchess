@@ -106,3 +106,18 @@ body.product-ui .hero-app-preview .hero-demo-pause{display:block;margin:5px auto
  body.product-ui .home-welcome .hero-app-preview .entry-mini-board{width:min(100%,300px)}
  .hero-preview-frame{padding:0 12px 12px}.hero-preview-titlebar{padding:11px 0}
 }
+
+/* A direct entry point at the exact place where Garry explains the demo. */
+body.product-ui .hero-app-preview .hero-demo-reply .garry-explains{font-size:12px;font-weight:750;letter-spacing:0;text-transform:none;color:#e1efcd}
+body.product-ui .hero-app-preview .hero-demo-play{display:flex;align-items:center;justify-content:center;gap:10px;box-sizing:border-box;width:100%;min-height:54px;margin:12px 0 0;padding:12px 14px;border:1px solid #d1e6a3;border-radius:10px;background:linear-gradient(135deg,#d0e5a0,#b4d078);color:#23321a;box-shadow:0 4px 14px #0003,inset 0 1px #f1ffcb66;font:700 14px/1.4 var(--ui-font);cursor:pointer;white-space:normal}
+body.product-ui .hero-app-preview .hero-demo-play>span:first-of-type{flex:1;min-width:0;text-align:center}
+body.product-ui .hero-app-preview .hero-demo-play:hover{background:#d9edb3;color:#23321a;border-color:#ebf8d4;box-shadow:0 6px 20px #91b85430}
+body.product-ui .hero-app-preview .hero-demo-play:focus-visible{outline:3px solid #e4d294;outline-offset:4px}
+body.product-ui .hero-app-preview .hero-demo-play .ui-icon{flex-shrink:0}
+@media(max-width:900px){
+ body.product-ui .hero-app-preview{scroll-margin-block:76px 24px}
+ body.product-ui .hero-app-preview .hero-demo-reply p{font-size:13px!important;line-height:1.55}
+ body.product-ui .hero-app-preview .hero-demo-play{min-height:56px;font-size:14px}
+ /* While the demo is on screen, feedback stays accessible in the menu and footer. */
+ body:has(.hero-app-preview.demo-in-view) #feedback-floating{display:none}
+}

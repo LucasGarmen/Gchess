@@ -23,3 +23,10 @@ FINISH = {
 }
 for language, words in FINISH.items():
     TEXTS[language].update(words)
+
+for language, words in {
+ 'es': {'garry_explains':'Garry te explica:', 'demo_start':'Jugar contra Garry ahora (Gratis)'},
+ 'pt': {'garry_explains':'Garry explica:', 'demo_start':'Jogar contra Garry agora (Grátis)'},
+ 'en': {'garry_explains':'Garry explains:', 'demo_start':'Play against Garry now (Free)'},
+}.items():
+    TEXTS[language].update(words)
