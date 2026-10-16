@@ -62,3 +62,6 @@ class LaunchFeedbackTests(TestCase):
             self.assertContains(response,'id="hero-demo-comment"')
             self.assertContains(response,'id="feedback-dialog"')
             self.assertContains(response,'id="home-open-bot"')
+            self.assertContains(response,TEXTS[language]['hero_title'])
+            self.assertContains(response,TEXTS[language]['hero_analyze'])
+            self.assertContains(response,'href="/analyze/" class="home-analysis-button"')

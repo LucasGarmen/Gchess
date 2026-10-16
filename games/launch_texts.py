@@ -7,3 +7,11 @@ TEXTS = {
 
 for language, message in {'es':'Esperá 30 segundos antes de enviar otro comentario.','pt':'Aguarde 30 segundos antes de enviar outro comentário.','en':'Please wait 30 seconds before sending another message.'}.items():
     TEXTS[language]['rate_limit'] = message
+
+HERO = {
+ 'es': {'hero_title':'Entendé cada jugada. Mejorá con tu coach.', 'hero_intro':'Jugá a tu nivel, preguntá por qué y aprendé con las explicaciones de tu coach con IA.', 'hero_play':'Jugar contra el coach', 'hero_analyze':'Probar análisis de partida', 'hero_badge':'Jugá gratis de inmediato · Sin crear cuenta', 'demo_name':'Mate Pastor', 'demo_coach':'Coach · Ejemplo de explicación'},
+ 'pt': {'hero_title':'Entenda cada lance. Evolua com seu coach.', 'hero_intro':'Jogue no seu nível, pergunte o porquê e aprenda com as explicações do seu coach com IA.', 'hero_play':'Jogar contra o coach', 'hero_analyze':'Experimentar análise de partida', 'hero_badge':'Jogue grátis agora · Sem criar conta', 'demo_name':'Mate do Pastor', 'demo_coach':'Coach · Exemplo de explicação'},
+ 'en': {'hero_title':'Understand every move. Improve with your coach.', 'hero_intro':'Play at your level, ask why and learn with explanations from your AI coach.', 'hero_play':'Play against the coach', 'hero_analyze':'Try game analysis', 'hero_badge':'Play free right away · No account needed', 'demo_name':"Scholar’s Mate", 'demo_coach':'Coach · Example explanation'},
+}
+for language, words in HERO.items():
+    TEXTS[language].update(words)

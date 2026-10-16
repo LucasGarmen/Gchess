@@ -65,3 +65,44 @@ body.product-ui :is(.online-chat-dock,.coach-chat-dock){border-color:#71845a88;b
 body.product-ui #site-nav .feedback-open{color:#b9c5ad}
 body.product-ui #site-nav .feedback-open:hover{background:#34422c;color:#edf5e1}
 @media(min-width:901px){body.product-ui .home-welcome .home-hero-visual .entry-mini-board{width:min(100%,390px,calc(100svh - 345px))}}
+
+/* Hero v2: benefit-first copy and two unambiguous primary paths. */
+body.product-ui .hero-coach-preview{grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:36px;align-items:center}
+.hero-coach-preview .home-hero-copy{min-width:0}
+body.product-ui .hero-coach-preview h1{font-size:clamp(32px,3.05vw,44px);line-height:1.12;max-width:520px;margin-bottom:16px;text-wrap:balance}
+body.product-ui .hero-coach-preview .entry-summary{max-width:440px;margin:0 0 18px;line-height:1.6}
+.hero-free-badge{display:inline-flex;align-items:center;gap:7px;padding:7px 10px;margin:0 0 20px;border:1px solid #a0bc654d;border-radius:20px;background:#799e3020;color:#d0e6a8;font-size:11px;line-height:1.5;font-weight:550;max-width:100%}
+.hero-free-badge>span{color:#c2da8b;font-size:16px}
+body.product-ui .hero-coach-preview .home-hero-actions{gap:10px}
+body.product-ui .hero-coach-preview .home-play-button>span:first-of-type{display:flex;flex-direction:column;align-items:flex-start;gap:3px}
+body.product-ui .hero-coach-preview .home-play-button small{font:400 11px/1.4 var(--ui-font);color:#354724;margin:0;text-align:left}
+body.product-ui .hero-coach-preview .home-play-button{justify-content:flex-start;gap:12px;padding:13px 18px;min-height:64px}
+body.product-ui .hero-coach-preview .home-play-button>span:last-child{margin-left:auto}
+body.product-ui .hero-coach-preview .home-analysis-button{display:flex;align-items:center;justify-content:flex-start;gap:12px;box-sizing:border-box;min-height:48px;padding:11px 18px;margin:0;border:1px solid #8d9f7066;border-radius:10px;background:#283329;color:#e2e9d5;font-size:14px;font-weight:600;text-decoration:none}
+body.product-ui .hero-coach-preview .home-analysis-button>span{margin-left:auto}
+body.product-ui .hero-coach-preview .home-analysis-button:hover{background:#35442e;border-color:#b5ce7d;color:#f0f6e7}
+body.product-ui .home-welcome .hero-app-preview{padding:0;order:initial;width:100%;max-width:480px}
+.hero-preview-frame{padding:0 16px 16px;border:1px solid #87996d66;border-radius:16px;background:linear-gradient(145deg,#2c3529,#1d261f);box-shadow:0 18px 48px #0004,inset 0 1px #ffffff10;overflow:hidden}
+.hero-preview-titlebar{display:flex;align-items:center;gap:9px;padding:13px 0;color:#d6ddca;font-size:11px}
+.preview-window-dots{display:flex;gap:4px;flex-shrink:0}.preview-window-dots i{width:5px;height:5px;border-radius:50%;background:#849773}
+.hero-preview-label{margin-left:auto;color:#a2b292;font-size:9px;text-align:right}
+body.product-ui .home-welcome .hero-app-preview .entry-mini-board{width:min(100%,350px,calc(100svh - 360px));margin:0 auto;border:3px solid #8d825a;border-radius:8px;box-shadow:0 5px 15px #0003}
+.hero-preview-board{padding:2px 0 14px}
+body.product-ui .hero-app-preview .hero-demo-reply{position:relative;inset:auto;display:flex;align-items:flex-start;gap:10px;padding:12px;margin:0;border:1px solid #a7c47b44;border-radius:12px;background:#35462d;box-shadow:0 3px 10px #0002;min-height:92px}
+.hero-coach-icon{display:grid;place-items:center;flex:0 0 30px;width:30px;height:30px;border:1px solid #b6d48a66;border-radius:50%;background:#9cba6c24;color:#d7e8b6}
+body.product-ui .hero-app-preview .hero-demo-reply>div>span{font-size:9px;letter-spacing:.035em;color:#c0d69e}
+body.product-ui .hero-app-preview .hero-demo-reply p{font-size:12px!important;line-height:1.5;min-height:36px;margin:5px 0 0;color:#ebf0e2}
+body.product-ui .hero-app-preview .hero-demo-pause{display:block;margin:5px auto 0;padding:4px 8px;min-height:28px;color:#b4c3a4}
+@media(max-width:900px){
+ body.product-ui .hero-coach-preview{grid-template-columns:1fr;gap:16px}
+ body.product-ui .hero-coach-preview .home-hero-copy{display:flex;flex-direction:column;align-items:stretch;order:0}
+ body.product-ui .hero-coach-preview h1{order:initial;text-align:left;font-size:clamp(28px,7vw,34px);line-height:1.13;margin:0 0 12px}
+ body.product-ui .hero-coach-preview .entry-summary{display:block;font-size:13px;margin:0 0 12px;line-height:1.5}
+ body.product-ui .hero-coach-preview .hero-free-badge{align-self:flex-start;font-size:10px;margin:0 0 14px;padding:6px 9px}
+ body.product-ui .hero-coach-preview .home-hero-actions{order:initial;margin:0;max-width:none}
+ body.product-ui .hero-coach-preview .home-play-button{font-size:15px;min-height:58px}
+ body.product-ui .hero-coach-preview .home-analysis-button{font-size:13px;min-height:46px}
+ body.product-ui .home-welcome .hero-app-preview{order:1;max-width:430px;margin:0 auto}
+ body.product-ui .home-welcome .hero-app-preview .entry-mini-board{width:min(100%,300px)}
+ .hero-preview-frame{padding:0 12px 12px}.hero-preview-titlebar{padding:11px 0}
+}

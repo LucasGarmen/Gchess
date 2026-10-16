@@ -54,7 +54,11 @@ def analyzer_words(lang):
     'es':('Tu partida, paso a paso','Cargá una partida y recorré sus jugadas. Consultá al coach sobre la posición que estás viendo.','Cargá tu PGN','Revisá las jugadas','Conversá con el coach','Abrir archivo PGN','Podés pegar el PGN o abrir un archivo .pgn o .txt.','No se pudo abrir. Elegí un archivo .pgn o .txt de hasta 80 KB.','Archivo cargado: ','Elegí el color con el que jugaste para orientar el análisis.','Otra partida','La jugada que estás revisando'),
     'pt':('Sua partida, passo a passo','Carregue uma partida e percorra as jogadas. Consulte o coach sobre a posição que está vendo.','Carregue seu PGN','Revise as jogadas','Converse com o coach','Abrir arquivo PGN','Cole o PGN ou abra um arquivo .pgn ou .txt.','Não foi possível abrir. Escolha um arquivo .pgn ou .txt de até 80 KB.','Arquivo carregado: ','Escolha a cor com que jogou para orientar a análise.','Outra partida','A jogada que você está revisando'),
     'en':('Your game, move by move','Load a game and explore its moves. Ask the coach about the position you are viewing.','Load your PGN','Review the moves','Talk with the coach','Open PGN file','Paste the PGN or open a .pgn or .txt file.','Could not open. Choose a .pgn or .txt file up to 80 KB.','File loaded: ','Choose the color you played to guide the analysis.','Another game','The move you are reviewing')}
-    return dict(zip(keys,words.get(lang,words['en'])))
+    from games.launch_texts import TEXTS
+    result = dict(zip(keys,words.get(lang,words['en'])))
+    current = TEXTS.get(lang, TEXTS['en'])
+    result.update(title=current['hero_title'], intro=current['hero_intro'], coach=current['hero_play'])
+    return result
 
 @register.simple_tag
 def entry_board(kind):
@@ -93,7 +97,11 @@ def home_hero_words(lang):
         'pt':('Treine com nosso coach','Jogue xadrez. Entenda cada lance.','Escolha seu nível e jogue. Seu coach com IA ajuda você a entender a partida.','Treinar com o coach','No seu ritmo · Desde iniciante','Jogar uma partida rápida','Com um adversário disponível · 5 minutos','Jogue com amigos','Compartilhe um convite e desafie seus amigos.','Pratique uma posição','Puzzles, aberturas e exercícios para melhorar.'),
         'en':('Train with our coach','Play chess. Understand every move.','Choose your level and play. Your AI coach helps you understand the game.','Train with the coach','At your pace · Beginners welcome','Play a quick match','With an available opponent · 5 minutes','Play with friends','Share an invitation and challenge your friends.','Practice a position','Puzzles, openings and exercises to improve.')}
     keys=('title','eyebrow','intro','coach','coach_hint','quick','quick_hint','friends','friends_help','practice','practice_help')
-    return dict(zip(keys,words.get(lang,words['en'])))
+    from games.launch_texts import TEXTS
+    result = dict(zip(keys,words.get(lang,words['en'])))
+    current = TEXTS.get(lang, TEXTS['en'])
+    result.update(title=current['hero_title'], intro=current['hero_intro'], coach=current['hero_play'])
+    return result
 
 @register.simple_tag
 def piece_preview_name(key):
