@@ -1,10 +1,6 @@
 (() => {
     const board = document.querySelector('.home-hero-visual .entry-mini-board');
     if (!board) return;
-    // Reuse the existing entry action, including its saved-game preservation.
-    document.getElementById('hero-demo-play')?.addEventListener('click',()=>{
-        document.getElementById('mobile-start-bot-game')?.click();
-    });
     const reduced=matchMedia('(prefers-reduced-motion: reduce)');
     let paused=reduced.matches;
     const pause=document.getElementById('hero-demo-pause'), comment=document.getElementById('hero-demo-comment');

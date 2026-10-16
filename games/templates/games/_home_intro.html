@@ -3,39 +3,38 @@
 <section class="home-intro home-intro-mobile home-welcome">
     <header class="welcome-header">
         <a class="welcome-brand" href="{% url 'home' %}"><img src="{% static 'games/gchess-emblem.png' %}" alt="" width="28" height="28"><span>gchess.app</span></a>
-        <div role="navigation" aria-label="{% tr 'menu' %}" class="welcome-nav">
-            <a href="{% url 'training' %}">{% tr 'nav_training' %}</a>
-            <a href="{% url 'home' %}?bot=main" class="welcome-play">{% tr 'play_bot' %} <span aria-hidden="true">↗</span></a>
-            {% if not user.is_authenticated %}<a class="welcome-signup" href="{% url 'register' %}">{% tr 'nav_register' %} <span aria-hidden="true">→</span></a>{% endif %}
-        </div>
     </header>
     <div class="home-hero hero-coach-preview">
         <div class="home-hero-copy">
             <p class="entry-eyebrow">Gchess · {{ hero.eyebrow }}</p>
             <h1>{{ launch_texts.hero_title }}</h1>
-            <p class="entry-summary">{{ launch_texts.hero_intro }}</p>
+            <p class="entry-summary welcome-message">{{ launch_texts.welcome_message }}</p>
             <p class="hero-free-badge"><span aria-hidden="true">✦</span>{{ launch_texts.hero_badge }}</p>
             <div class="home-hero-actions">
-                <button id="home-open-bot" class="home-play-button" type="button" aria-expanded="false" aria-controls="mobile-bot-setup">{% ui_icon 'coach' %}<span>{{ launch_texts.hero_play }}<small>{{ launch_texts.no_account }}</small></span><span aria-hidden="true">→</span></button>
+                <button id="home-quick-start" class="home-play-button" type="button">{% ui_icon 'coach' %}<span>{{ launch_texts.welcome_play }}<small>{{ launch_texts.no_account }}</small></span><span aria-hidden="true">→</span></button>
                 <button id="home-resume-bot" type="button" hidden>{{ flow.resume }} →</button>
-                <a href="{% url 'game_analyzer' %}" class="home-analysis-button">{% ui_icon 'analysis' %}{{ launch_texts.hero_analyze }}<span aria-hidden="true">↗</span></a>
             </div>
+            <button id="home-open-bot" class="home-customize" type="button" aria-expanded="false" aria-controls="mobile-bot-setup">{{ launch_texts.customize_game }} <span aria-hidden="true">⌄</span></button>
+            {% include "games/_entry_setup.html" %}
         </div>
         <div class="home-hero-visual hero-app-preview">
             <div class="hero-preview-frame" role="group" aria-label="{{ launch_texts.demo }}">
                 <div class="hero-preview-titlebar"><span class="preview-window-dots"><i></i><i></i><i></i></span><span>{{ launch_texts.demo_name }}</span><span class="hero-preview-label">{{ launch_texts.demo }}</span></div>
                 <div class="hero-preview-board" aria-hidden="true">{% entry_board "pastor" %}</div>
                 <div class="hero-demo-reply"><span class="hero-coach-icon" aria-hidden="true">{% ui_icon 'coach' %}</span><div><span class="garry-explains">{{ launch_texts.garry_explains }}</span><p id="hero-demo-comment">{{ launch_texts.demo_lines.0 }}</p></div></div>
-                <button id="hero-demo-play" class="hero-demo-play" type="button">{% ui_icon 'play' %}<span>{{ launch_texts.demo_start }}</span><span aria-hidden="true">→</span></button>
             </div>
             <button id="hero-demo-pause" class="hero-demo-pause" type="button" data-pause="{{ launch_texts.pause }}" data-resume="{{ launch_texts.resume }}" aria-pressed="false">{{ launch_texts.pause }}</button>
         </div>
     </div>
     {{ launch_texts.demo_lines|json_script:"hero-demo-lines" }}
+    <details class="home-explore">
+    <summary>{{ launch_texts.explore }}</summary>
     <div class="home-secondary-paths">
+        <a href="{% url 'game_analyzer' %}" class="home-analysis-button">{% ui_icon 'analysis' %}{{ launch_texts.hero_analyze }}<span aria-hidden="true">↗</span></a>
         <a href="{% url 'game_create' %}">{% entry_board "friends" %}<span><strong>{{ hero.friends }}</strong><small>{{ hero.friends_help }}</small></span><span class="home-path-arrow" aria-hidden="true">→</span></a>
         <a href="{% url 'training' %}">{% entry_board "train" %}<span><strong>{{ hero.practice }}</strong><small>{{ hero.practice_help }}</small></span><span class="home-path-arrow" aria-hidden="true">→</span></a>
     </div>
-</section>
 {% include "games/_daily_checkin.html" %}
 {% include "games/_home_elo.html" %}
+    </details>
+</section>

@@ -1,0 +1,13 @@
+const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict');
+let observer;
+const select={value:'800',addEventListener(type,fn){this.change=fn},dispatchEvent(){this.change()}};
+const summary={dataset:{custom:'Exact level'}};
+const buttons=['800','1320','2000'].map((value,i)=>({dataset:{entryLevel:value},textContent:['Beginner','Intermediate','Advanced'][i],setAttribute(k,v){this[k]=v},addEventListener(type,fn){this.click=fn}}));
+const panel={hidden:true,querySelectorAll:()=>buttons};
+const elements={'mobile-bot-setup':panel,'mobile-computer-elo':select,'entry-level-summary':summary};
+vm.runInNewContext(fs.readFileSync('games/static/games/entry_levels.js','utf8'),{document:{getElementById:id=>elements[id]},Event:class{},MutationObserver:class{constructor(fn){observer=fn}observe(){}}});
+assert.equal(buttons[0]['aria-pressed'],'true');
+buttons[1].click();assert.equal(select.value,'1320');assert.equal(summary.textContent,'Intermediate · 1320');assert.equal(buttons[0]['aria-pressed'],'false');
+select.value='1600';select.dispatchEvent();assert.ok(buttons.every(b=>b['aria-pressed']==='false'));assert.equal(summary.textContent,'Exact level · 1600');
+select.value='2000';panel.hidden=false;observer();assert.equal(buttons[2]['aria-pressed'],'true');assert.equal(select.value,'2000','Opening setup preserves copied difficulty');
+console.log('Entry presets: quick choice, exact choice, accessible state and restored difficulty passed.');

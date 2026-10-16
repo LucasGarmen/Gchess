@@ -30,3 +30,20 @@ for language, words in {
  'en': {'garry_explains':'Gchess Bot explains:', 'demo_start':'Play against Gchess Bot now (Free)'},
 }.items():
     TEXTS[language].update(words)
+
+# Compact entry: one primary action; exact difficulty stays available on demand.
+ENTRY = {
+ 'es': {'first_game':'Jugá tu primera partida con Gchess Bot', 'explore':'Explorar Gchess', 'beginner':'Principiante', 'intermediate':'Intermedio', 'advanced_level':'Avanzado', 'calm':'Tranquilo', 'exact_level':'Elegir Elo y color', 'selected_level':'Nivel elegido'},
+ 'pt': {'first_game':'Jogue sua primeira partida com Gchess Bot', 'explore':'Explorar Gchess', 'beginner':'Iniciante', 'intermediate':'Intermediário', 'advanced_level':'Avançado', 'calm':'Tranquilo', 'exact_level':'Escolher Elo e cor', 'selected_level':'Nível escolhido'},
+ 'en': {'first_game':'Play your first game with Gchess Bot', 'explore':'Explore Gchess', 'beginner':'Beginner', 'intermediate':'Intermediate', 'advanced_level':'Advanced', 'calm':'Relaxed', 'exact_level':'Choose Elo and colour', 'selected_level':'Selected level'},
+}
+for language, words in ENTRY.items():
+    TEXTS[language].update(words)
+
+WELCOME = {
+ 'es': {'welcome_play':'Iniciar partida gratis', 'welcome_message':'¡Aprendé ajedrez jugando! Tu coach analiza cada movimiento en tiempo real.', 'welcome_chat':'¡Hola! Soy Gchess Bot, tu coach de Gchess. Hacé tu primera jugada y preguntame lo que quieras cuando tengas dudas sobre la posición.', 'customize_game':'Elegir nivel y color'},
+ 'pt': {'welcome_play':'Iniciar partida grátis', 'welcome_message':'Aprenda xadrez jogando! Seu coach analisa cada lance em tempo real.', 'welcome_chat':'Olá! Sou Gchess Bot, seu coach de xadrez. Faça seu primeiro lance e me pergunte o que quiser quando tiver dúvidas sobre a posição.', 'customize_game':'Escolher nível e cor'},
+ 'en': {'welcome_play':'Start a free game', 'welcome_message':'Learn chess by playing! Your coach analyses each move in real time.', 'welcome_chat':'Hi! I’m Gchess Bot, your chess coach. Make your first move and ask me anything when you have questions about the position.', 'customize_game':'Choose level and colour'},
+}
+for language, words in WELCOME.items():
+    TEXTS[language].update(words)

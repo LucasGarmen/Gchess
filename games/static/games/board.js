@@ -1715,6 +1715,7 @@ if (isMultiplayerMode() && SAVED_MOVES.length === 0 && typeof GAME_ID !== 'undef
 
 
 restoreComputerGameState();
+ensureCoachWelcome();
 applyEntryGameOptions();
 updateBoardOrientation();
 renderSavedMoveList();
@@ -3905,6 +3906,14 @@ function setCoachComment(message) {
     coachComment.hidden = message === '';
 }
 
+function ensureCoachWelcome() {
+    if (!isHomeComputerGame()) return;
+    const log = document.getElementById('trainer-chat-log');
+    if (log && !log.children.length && log.dataset.welcome) {
+        addTrainerChatMessage(log.dataset.welcome, 'trainer');
+    }
+}
+
 function addTrainerChatMessage(message, type) {
     const log = document.getElementById('trainer-chat-log');
 
@@ -3954,7 +3963,7 @@ function trainerChatLogState() {
 
     return Array.from(log.children).map(item => ({
         type: item.dataset.messageType || (item.classList.contains('trainer-chat-message-user') ? 'user' : 'trainer'),
-        message: item.innerText,
+        message: item.textContent,
         fen: item.dataset.fen,
         positionMoves: item.dataset.positionMoves,
         failed: item.dataset.failed,
@@ -4145,6 +4154,10 @@ function startEntryCoachGame() {
 }
 
 function initMobileGameNavigation() {
+    document.getElementById('home-quick-start')?.addEventListener('click', () => {
+        if (!SAVED_MOVES.length && !coachEnabled) toggleCoach();
+        startEntryCoachGame();
+    });
     const openBotButton = document.getElementById('home-open-bot');
     if (openBotButton) {
         openBotButton.addEventListener('click', function () {
@@ -4152,7 +4165,7 @@ function initMobileGameNavigation() {
             openBotButton.setAttribute('aria-expanded', 'true');
             const setup = document.getElementById('mobile-bot-setup');
             setup.scrollIntoView({block: 'nearest', behavior: 'smooth'});
-            document.getElementById('mobile-computer-elo').focus({preventScroll: true});
+            (document.querySelector('[data-entry-level][aria-pressed="true"]') || document.querySelector('[data-entry-level]') || document.getElementById('mobile-computer-elo')).focus({preventScroll: true});
         });
     }
     const {

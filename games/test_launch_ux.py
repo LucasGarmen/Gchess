@@ -65,8 +65,14 @@ class LaunchFeedbackTests(TestCase):
             self.assertContains(response,TEXTS[language]['hero_title'])
             self.assertContains(response,TEXTS[language]['hero_analyze'])
             self.assertContains(response,TEXTS[language]['garry_explains'])
-            self.assertContains(response,TEXTS[language]['demo_start'])
-            self.assertContains(response,'id="hero-demo-play"')
+            self.assertContains(response,TEXTS[language]['welcome_play'])
+            self.assertContains(response,TEXTS[language]['welcome_message'])
+            self.assertContains(response,TEXTS[language]['welcome_chat'])
+            self.assertContains(response,'id="home-quick-start"')
+            self.assertNotContains(response,'id="hero-demo-play"')
+            self.assertContains(response,'class="home-explore"')
+            self.assertContains(response,'data-entry-level="800"')
+            self.assertContains(response,'class="entry-exact-level"')
             self.assertContains(response,'href="/analyze/" class="home-analysis-button"')
 
     def test_footer_language_choice_overrides_browser_and_keeps_target(self):

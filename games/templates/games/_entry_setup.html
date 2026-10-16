@@ -1,0 +1,30 @@
+{% load game_i18n %}
+    <div id="mobile-bot-setup" class="mobile-bot-setup" hidden>
+        <h2>{{ flow.setup }}</h2>
+        <p id="entry-level-summary" aria-live="polite" data-custom="{{ launch_texts.selected_level }}">{{ launch_texts.calm }} · 800</p>
+        <div class="entry-level-presets" role="group" aria-label="{{ flow.level }}">
+            <button type="button" data-entry-level="800" aria-pressed="true">{{ launch_texts.beginner }}</button>
+            <button type="button" data-entry-level="1320" aria-pressed="false">{{ launch_texts.intermediate }}</button>
+            <button type="button" data-entry-level="2000" aria-pressed="false">{{ launch_texts.advanced_level }}</button>
+        </div>
+        <details class="entry-exact-level"><summary>{{ launch_texts.exact_level }}</summary>
+        <label for="mobile-computer-elo">{{ flow.level }}</label>
+        <select id="mobile-computer-elo">
+            <option value="500">{{ flow.easy }}</option>
+            <option value="800" selected>{{ flow.casual }}</option>
+            <option value="1000">{{ flow.regular }}</option>
+            <option value="1320">{{ flow.club }}</option>
+            <option value="1600">{{ flow.advanced }}</option>
+            <option value="2000">{{ flow.expert }}</option>
+            <option value="2500">{{ flow.master }}</option>
+        </select>
+
+        <label for="mobile-player-color">{% tr "play_as" %}</label>
+        <select id="mobile-player-color">
+            <option value="white" selected>{% tr "white" %}</option>
+            <option value="black">{% tr "black" %}</option>
+        </select>
+
+        </details>
+        <button id="mobile-start-bot-game" type="button">{% tr "start_game" %}</button>
+    </div>
