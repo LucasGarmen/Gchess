@@ -9,6 +9,8 @@
 #feedback-floating:hover{background:#405330;color:#f2f7e9;border-color:#c1d990}#feedback-floating svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
 body.focus-playing #feedback-floating,body.analysis-loading-active #feedback-floating{display:none}
 body.mobile-bot-playing .site-footer,body.online-game-detail-page .site-footer,body:has(.analyzer-game-layout) .site-footer,body.focus-playing .site-footer{display:none}
+/* Desktop already has the same feedback action in the sidebar. */
+@media(min-width:901px){#feedback-floating{display:none}}
 /* Skeleton stays beside the composer, and uses the existing request state. */
 .launch-waiting{display:grid;grid-template-columns:14px minmax(0,1fr);column-gap:9px;row-gap:7px;padding:10px 12px;border:1px solid #82986444;border-radius:9px;background:#35452a38;font-size:12px;line-height:1.5}
 .launch-waiting .thinking-skeleton{grid-column:2;display:block;width:85%;max-width:240px;height:5px;border-radius:4px;background:linear-gradient(90deg,#7c9b5355,#d0e3a180,#7c9b5355);background-size:200% 100%;animation:thinking-shimmer 1.6s ease-in-out infinite}

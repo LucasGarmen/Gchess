@@ -1,7 +1,7 @@
 {% load static %}
 <link rel="stylesheet" href="{% static 'games/launch_ux.css' %}?v=2">
 <script src="{% static 'games/launch_ux.js' %}?v=2" defer></script>
-<link rel="stylesheet" href="{% static 'games/ux_finishing.css' %}?v=1">
+<link rel="stylesheet" href="{% static 'games/ux_finishing.css' %}?v=2">
 <button id="feedback-floating" type="button" aria-haspopup="dialog" aria-controls="feedback-dialog" title="{{ launch_texts.feedback }}"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M4 4h16v12H9l-5 4V4Z"/><path d="M8 8h8M8 12h5"/></svg>{{ launch_texts.feedback_short }}</button>
 {{ launch_texts|json_script:"launch-ux-texts" }}
 <dialog id="feedback-dialog" aria-labelledby="feedback-title">
