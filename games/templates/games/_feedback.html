@@ -1,0 +1,16 @@
+{% load static %}
+<link rel="stylesheet" href="{% static 'games/launch_ux.css' %}?v=1">
+<script src="{% static 'games/launch_ux.js' %}?v=1" defer></script>
+{{ launch_texts|json_script:"launch-ux-texts" }}
+<dialog id="feedback-dialog" aria-labelledby="feedback-title">
+ <form id="feedback-form" action="{% url 'user_feedback' %}" method="post">
+  {% csrf_token %}<h2 id="feedback-title">{{ launch_texts.feedback }}</h2>
+  <label for="feedback-kind">{{ launch_texts.kind }}</label>
+  <select id="feedback-kind" name="category"><option value="idea">{{ launch_texts.idea }}</option><option value="bug">{{ launch_texts.bug }}</option></select>
+  <label for="feedback-message">{{ launch_texts.message }}</label>
+  <textarea id="feedback-message" name="message" rows="5" minlength="5" maxlength="2000" required aria-describedby="feedback-hint"></textarea>
+  <p id="feedback-hint">{{ launch_texts.hint }}</p>
+  <p id="feedback-status" role="status" aria-live="polite"></p>
+  <div class="feedback-actions"><button id="feedback-close" type="button">{{ launch_texts.cancel }}</button><button id="feedback-send" type="submit">{{ launch_texts.send }}</button></div>
+ </form>
+</dialog>

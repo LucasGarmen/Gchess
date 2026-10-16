@@ -1,3 +1,4 @@
+from .launch_texts import TEXTS as LAUNCH_TEXTS
 LANGUAGE_OPTIONS = [
     ('pt', 'Português'),
     ('es', 'Español'),
@@ -1168,7 +1169,15 @@ for language, label in [('es', 'Racha'), ('pt', 'Sequência')]:
             TRANSLATIONS[language][key] = value.replace('Streak', label)
 
 def current_language(request):
-    return normalize_language(request.session.get('language', DEFAULT_LANGUAGE))
+    saved = request.session.get('language')
+    if saved in {'es', 'pt', 'en'}:
+        return saved
+    from django.utils.translation.trans_real import parse_accept_lang_header
+    for code, quality in parse_accept_lang_header(request.META.get('HTTP_ACCEPT_LANGUAGE', '')):
+        base = code.split('-')[0]
+        if quality > 0 and base in {'es', 'pt', 'en'}:
+            return base
+    return DEFAULT_LANGUAGE
 
 
 def django_language_code(language):
@@ -1310,6 +1319,7 @@ def language_context(request):
     return {
         'current_language': language,
         'language_options': LANGUAGE_OPTIONS,
+        'launch_texts': LAUNCH_TEXTS[language],
         'ui_texts': ui_texts(language),
     }
 

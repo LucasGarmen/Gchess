@@ -5,7 +5,10 @@ from . import checkin, openings, shop, matchmaking, blindfold, views, social, le
 
 from . import reward_views, same_device
 
+from . import feedback
+
 urlpatterns = [
+    path('feedback/', feedback.submit, name='user_feedback'),
     path("play/same-device/", same_device.play, name="same_device"),
     path("rewards/progress/", reward_views.progress, name="reward_progress"),
     path('rewards/checkin/', checkin.claim, name='daily_checkin'),

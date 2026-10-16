@@ -458,3 +458,17 @@ class TakebackRequest(models.Model):
     move_id = models.PositiveBigIntegerField()
     requested_color = models.CharField(max_length=10)
     status = models.CharField(max_length=10, default='pending')
+
+
+class UserFeedback(models.Model):
+    category = models.CharField(max_length=8, choices=[('idea', 'Idea'), ('bug', 'Bug')])
+    message = models.TextField(max_length=2000)
+    page = models.CharField(max_length=200, blank=True)
+    language = models.CharField(max_length=2)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f'{self.category}: {self.message[:60]}'

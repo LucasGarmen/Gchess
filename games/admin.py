@@ -80,3 +80,18 @@ class LearningRewardAdmin(admin.ModelAdmin):
 
     def has_delete_permission(self, request, obj=None):
         return False
+
+
+from .models import UserFeedback
+
+
+@admin.register(UserFeedback)
+class UserFeedbackAdmin(admin.ModelAdmin):
+    list_display = ('category', 'message_preview', 'language', 'page', 'created_at')
+    list_filter = ('category', 'language')
+    search_fields = ('message', 'page')
+    readonly_fields = ('created_at',)
+
+    @admin.display(description='Message')
+    def message_preview(self, obj):
+        return obj.message[:100]

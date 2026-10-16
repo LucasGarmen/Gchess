@@ -4,6 +4,7 @@
     <div class="home-hero">
         <div class="home-hero-visual" aria-hidden="true">
             {% entry_board "pastor" %}
+            <div class="hero-demo-reply"><span>{{ launch_texts.demo }}</span><p id="hero-demo-comment">{{ launch_texts.demo_lines.0 }}</p></div>
         </div>
         <div class="home-hero-copy">
             <p class="entry-eyebrow">Gchess · {{ hero.eyebrow }}</p>
@@ -11,12 +12,14 @@
             <p class="entry-summary">{{ hero.intro }}</p>
             <div class="home-hero-actions">
                 <button id="home-open-bot" class="home-play-button" type="button" aria-expanded="false" aria-controls="mobile-bot-setup">{% ui_icon 'coach' %}{{ hero.coach }} <span aria-hidden="true">→</span></button>
-                <small>{{ hero.coach_hint }}</small>
+                <small class="hero-no-account">{{ launch_texts.no_account }}</small>
                 <button id="home-resume-bot" type="button" hidden>{{ flow.resume }} →</button>
                 <a href="{% url 'game_create' %}" class="home-quick-button">{% ui_icon 'play' %}{{ hero.quick }} <span aria-hidden="true">→</span></a>
             </div>
+        <button id="hero-demo-pause" class="hero-demo-pause" type="button" data-pause="{{ launch_texts.pause }}" data-resume="{{ launch_texts.resume }}" aria-pressed="false">{{ launch_texts.pause }}</button>
         </div>
     </div>
+    {{ launch_texts.demo_lines|json_script:"hero-demo-lines" }}
     <div class="home-secondary-paths">
         <a href="{% url 'game_create' %}">{% entry_board "friends" %}<span><strong>{{ hero.friends }}</strong><small>{{ hero.friends_help }}</small></span><span class="home-path-arrow" aria-hidden="true">→</span></a>
         <a href="{% url 'training' %}">{% entry_board "train" %}<span><strong>{{ hero.practice }}</strong><small>{{ hero.practice_help }}</small></span><span class="home-path-arrow" aria-hidden="true">→</span></a>

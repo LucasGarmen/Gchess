@@ -1,16 +1,24 @@
 (() => {
     const board = document.querySelector('.home-hero-visual .entry-mini-board');
-    if (!board || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    if (!board) return;
+    const reduced=matchMedia('(prefers-reduced-motion: reduce)');
+    let paused=reduced.matches;
+    const pause=document.getElementById('hero-demo-pause'), comment=document.getElementById('hero-demo-comment');
+    const lines=JSON.parse(document.getElementById('hero-demo-lines')?.textContent||'[]');
+    const syncPause=()=>{if(pause){pause.textContent=paused?pause.dataset.resume:pause.dataset.pause;pause.setAttribute('aria-pressed',String(paused));}};
+    pause?.addEventListener('click',()=>{paused=!paused;syncPause();});syncPause();
+    reduced.addEventListener('change',()=>{paused=reduced.matches;syncPause();});
     const initial = board.innerHTML;
     const moves = ['e2e4', 'e7e5', 'f1c4', 'b8c6', 'd1h5', 'g8f6', 'h5f7'];
     const index = square => (8 - Number(square[1])) * 8 + square.charCodeAt(0) - 97;
     let turn = 0;
     function advance() {
-        if (document.hidden || !board.isConnected || window.GchessExperience?.isReduced()) return;
+        if (paused || document.hidden || !board.isConnected || window.GchessExperience?.isReduced()) return;
         if (turn === moves.length) {
             board.innerHTML = initial;
             board.removeAttribute('data-mate');
             turn = 0;
+            if(comment)comment.textContent=lines[0]||'';
             return;
         }
         const move = moves[turn++];
@@ -25,6 +33,7 @@
         to.setAttribute('data-last-move', '');
         to.replaceChildren(piece);
         piece.animate([{transform: `translate(${origin.left - destination.left}px, ${origin.top - destination.top}px)`}, {transform: 'translate(0, 0)'}], {duration: 600, easing: 'ease-in-out'});
+        if(comment)comment.textContent=lines[turn>=7?3:turn>=5?2:turn>=3?1:0]||'';
         if (turn === moves.length) board.setAttribute('data-mate', '');
     }
     function tick() {
