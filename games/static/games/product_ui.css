@@ -1,0 +1,67 @@
+/* Product UI: presentation only. Board geometry and gameplay states stay in their own stylesheets. */
+:root{
+ --ui-bg:#161c18;--ui-surface:#222a23;--ui-raised:#2a342b;--ui-line:#435044;
+ --ui-text:#eeeae0;--ui-muted:#b8c1b4;--ui-green:#c2d88c;--ui-gold:#d7bb80;
+ --ui-radius:12px;--ui-shadow:0 6px 20px #00000024, inset 0 1px #ffffff06;
+ --ui-font:'Inter','Segoe UI Variable','Segoe UI',system-ui,-apple-system,BlinkMacSystemFont,sans-serif;
+ --surface:var(--ui-surface);--border-soft:#a7b99029;--text-muted:var(--ui-muted);
+}
+body.product-ui{font-family:var(--ui-font);color:var(--ui-text);background-color:var(--ui-bg);background-image:radial-gradient(ellipse at 70% 0%,#3e51351a,transparent 55%);-webkit-font-smoothing:antialiased}
+body.product-ui :is(button,input,select,textarea){font-family:var(--ui-font)}
+body.product-ui :is(h1,h2,h3){font-family:var(--ui-font);font-weight:700;letter-spacing:-.035em;color:#ede8da;text-wrap:balance}
+
+body.product-ui :is(button,a,summary,select,input,textarea){transition:background-color .16s ease,border-color .16s ease,color .16s ease,box-shadow .16s ease}
+body.product-ui :is(button,a,summary,input,select,textarea):focus-visible{outline:2px solid var(--ui-green);outline-offset:3px}
+body.product-ui button:disabled{cursor:default}
+/* Existing sidebar remains the primary app navigation. */
+body.product-ui #site-nav{background:linear-gradient(165deg,#252c24,#1c231e 70%);border-right:1px solid #80906a36;box-shadow:5px 0 24px #0002}
+body.product-ui #site-nav .nav-brand{border-bottom-color:#8b9c7633}
+body.product-ui .nav-wordmark{font-family:Georgia,serif;color:#e9ce92;letter-spacing:-1px;text-shadow:0 2px 5px #0003}
+body.product-ui #site-nav .nav-main-row{border-bottom-color:#8b9c761f}
+body.product-ui #site-nav .nav-link:not(.nav-account){font-weight:550;letter-spacing:-.01em;color:#dce1d4}
+body.product-ui #site-nav .nav-link:hover,body.product-ui #site-nav .nav-group[data-open=true]>.nav-main-row{background:#364231;color:#f2f6e8}
+body.product-ui #site-nav .nav-link[aria-current=page]{background:#35432d;color:#ecf7d5;box-shadow:inset 3px 0 #b5cf7e}
+body.product-ui #site-nav .nav-submenu{background:#252e26;border-color:#71836866;border-radius:12px;box-shadow:0 14px 38px #0007}
+body.product-ui #site-nav .nav-submenu a{border-radius:7px;color:#e4e8da}
+body.product-ui #site-nav .nav-submenu a:hover{background:#3a4633;color:#f3f7e8}
+body.product-ui #site-nav .nav-register-cta{border:1px solid #a4bb6f7a;border-radius:8px;background:#35472b;color:#deefbb;margin:3px 0;font-weight:650}
+/* Compact landing header; no fixed overlay, no additional game toolbar. */
+.welcome-header{display:flex;align-items:center;justify-content:space-between;gap:16px;max-width:1000px;margin:0 auto 26px;padding:0 0 16px;border-bottom:1px solid #96a67b26}
+.welcome-brand{display:inline-flex;align-items:center;gap:9px;color:#e4ce9f;text-decoration:none;margin:0;white-space:nowrap}
+.welcome-brand img{object-fit:contain;filter:none}.welcome-brand span{font-family:Georgia,serif;font-size:20px;letter-spacing:-.6px}
+.welcome-nav{display:flex;align-items:center;gap:16px}.welcome-nav a{font-size:12px;color:#bec8b5;margin:0;text-decoration:none;white-space:nowrap}
+.welcome-nav a:hover{color:#f0f4e7}.welcome-nav .welcome-signup{padding:9px 13px;border-radius:8px;background:#35452c;border:1px solid #98b3687a;color:#e6f3cc;font-weight:600;box-shadow:inset 0 1px #ffffff0c}
+body.product-ui .home-intro.home-welcome{background:radial-gradient(ellipse at 20% 35%,#60774620,transparent 65%);border-radius:20px}
+body.product-ui .home-welcome h1{font-family:var(--ui-font);font-size:clamp(32px,3.5vw,48px);line-height:1.08;font-weight:750;letter-spacing:-.045em;color:#f0eddf}
+body.product-ui .home-welcome .entry-eyebrow{color:#b7c99d;letter-spacing:.06em}
+body.product-ui .home-welcome .entry-summary{color:#bfc8b6;font-size:15px;line-height:1.65}
+body.product-ui .home-welcome .home-hero-actions .home-play-button{background:linear-gradient(150deg,#d0e3a1,#b6d078);color:#202b17;border:1px solid #d5e7ae;border-radius:10px;box-shadow:0 5px 18px #7a9b3d20,inset 0 1px #f3ffd866;font-weight:700}
+body.product-ui .home-welcome .home-hero-actions .home-play-button:hover{background:#d8ebb0;border-color:#e4f4c4;box-shadow:0 7px 24px #91b85430}
+body.product-ui .home-welcome .home-hero-actions .home-play-button:active{box-shadow:inset 0 2px 5px #283b2630}
+body.product-ui .home-welcome .home-quick-button{background:#293329;border-color:#687b5266;color:#d8e4c8;border-radius:10px}
+body.product-ui .hero-demo-reply{background:linear-gradient(145deg,#2d3a2a,#242e23);border-color:#72895488;border-radius:var(--ui-radius);box-shadow:0 10px 25px #0004}
+body.product-ui .hero-demo-reply span{color:#bcd292;font-weight:650}
+/* Explicit card targets avoid affecting squares, pieces and avatars. */
+body.product-ui :is(.home-secondary-paths>a,.training-hub-choices>a,.training-hub-recommended,.training-hub-more,.mobile-bot-setup,.entry-coach-help,.create-section,.create-summary,.learning-card,.social-card,.profile-section,.tournament-card){background:linear-gradient(145deg,#2a3328,#222a23);border:1px solid #82956b36;border-radius:var(--ui-radius);box-shadow:var(--ui-shadow)}
+body.product-ui :is(.home-secondary-paths>a,.training-hub-choices>a):hover{background:#303e2b;border-color:#9dbb6880;box-shadow:0 8px 24px #0003,inset 0 1px #ffffff09}
+body.product-ui :is(.home-secondary-paths,.training-hub-choices) strong{color:#e3e9d5}
+body.product-ui :is(.home-secondary-paths,.training-hub-choices) small{color:#b6c0ab}
+body.product-ui :is(.training-hub,.game-create-page,.mobile-bot-setup,.auth-card) :is(input:not([type=radio]):not([type=checkbox]):not([type=range]),select,textarea),body.product-ui .coach-settings select{background:#19231c;color:#e8ecdf;border:1px solid #65765a88;border-radius:8px;box-shadow:inset 0 1px 3px #0002}
+body.product-ui :is(.mobile-bot-setup,.training-hub-recommended)>button,body.product-ui .training-hub-recommended>a,body.product-ui #mobile-start-bot-game{background:#c2d88c;color:#223019;border:1px solid #d2e4a6;border-radius:9px;box-shadow:0 3px 10px #0002;font-weight:650}
+body.product-ui .create-choice{background:#242e25;border:1px solid #68795755;border-radius:10px;box-shadow:inset 0 1px #ffffff06}
+body.product-ui .create-choice:hover{background:#303e2b;border-color:#93ac66}
+body.product-ui .create-choice:has(input:checked){background:#34452b;border-color:#b6d278;box-shadow:inset 0 0 0 1px #b6d27855}
+body.product-ui .coach-settings{padding:12px;border:1px solid #83986a33;border-radius:var(--ui-radius);background:#273126;box-shadow:var(--ui-shadow)}
+body.product-ui :is(.training-hub,.game-create-page,.mobile-bot-setup) :is(label,legend){color:#d6dfc9}
+body.product-ui :is(.online-chat-dock,.coach-chat-dock){border-color:#71845a88;background:#242e24;box-shadow:0 8px 28px #0004}
+@media(max-width:900px){
+ .welcome-header{gap:8px;margin-bottom:18px;padding-bottom:12px}.welcome-brand span{font-size:18px}.welcome-nav{gap:10px}.welcome-nav>a:not(.welcome-signup){display:none}.welcome-nav .welcome-signup{font-size:11px;padding:8px 10px}
+ body.product-ui .home-welcome h1{font-size:clamp(28px,7.4vw,34px);line-height:1.12}
+ body.product-ui #mobile-nav-toggle{border:1px solid #8da66d55;background:#2d3829;border-radius:10px;box-shadow:0 3px 10px #0003}
+ body.product-ui :is(.home-secondary-paths>a,.training-hub-choices>a){border-radius:11px}
+}
+@media(prefers-reduced-motion:reduce){body.product-ui :is(button,a,summary,select,input,textarea){transition:none}}
+@media(forced-colors:active){body.product-ui :is(button,a,summary,input,select,textarea):focus-visible{outline:2px solid Highlight}}
+body.product-ui #site-nav .feedback-open{color:#b9c5ad}
+body.product-ui #site-nav .feedback-open:hover{background:#34422c;color:#edf5e1}
+@media(min-width:901px){body.product-ui .home-welcome .home-hero-visual .entry-mini-board{width:min(100%,390px,calc(100svh - 345px))}}

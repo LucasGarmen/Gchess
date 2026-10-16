@@ -64,7 +64,7 @@
 <link rel="stylesheet" href="{% static 'games/page_balance.css' %}?v=1">
 </head>
 
-<body data-board="{{ cosmetics.board }}" data-pieces="{{ cosmetics.pieces }}">
+<body class="product-ui" data-board="{{ cosmetics.board }}" data-pieces="{{ cosmetics.pieces }}">
 
     <button id="mobile-nav-toggle" class="mobile-nav-toggle" type="button" aria-controls="site-nav" aria-label="{% tr "menu" %}" aria-expanded="false">
         <span class="mobile-nav-arrow" aria-hidden="true"><i></i><i></i><i></i></span>
@@ -89,7 +89,7 @@
         </div>
     {% else %}
         <a class="nav-link nav-main-row" href="{% url 'login' %}"{% if request.resolver_match.url_name == 'login' %} aria-current="page"{% endif %}>{% ui_icon 'login' %}<span class="ui-link-label">{% tr "nav_login" %}</span></a>
-        <a class="nav-link nav-main-row" href="{% url 'register' %}"{% if request.resolver_match.url_name == 'register' %} aria-current="page"{% endif %}>{% ui_icon 'register' %}<span class="ui-link-label">{% tr "nav_register" %}</span></a>
+        <a class="nav-link nav-main-row nav-register-cta" href="{% url 'register' %}"{% if request.resolver_match.url_name == 'register' %} aria-current="page"{% endif %}>{% ui_icon 'register' %}<span class="ui-link-label">{% tr "nav_register" %}</span></a>
     {% endif %}
     <a class="nav-link nav-main-row nav-home-link" href="{% url 'home' %}"{% if request.resolver_match.url_name == 'home' %} aria-current="page"{% endif %}><svg class="nav-home-icon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false"><path d="M3 11L12 3l9 8M5 10v11h5v-7h4v7h5V10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg><span>{% tr "nav_home" %}</span></a>
     <div class="nav-group">
@@ -443,5 +443,6 @@
         </section>
     </aside>
 {% include 'games/_feedback.html' %}
+<link rel="stylesheet" href="{% static 'games/product_ui.css' %}?v=1">
 </body>
 </html>

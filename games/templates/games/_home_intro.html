@@ -1,6 +1,14 @@
-{% load game_i18n cosmetic_art interface_icons %}
+{% load static game_i18n cosmetic_art interface_icons %}
 {% home_hero_words current_language as hero %}
 <section class="home-intro home-intro-mobile home-welcome">
+    <header class="welcome-header">
+        <a class="welcome-brand" href="{% url 'home' %}"><img src="{% static 'games/gchess-emblem.png' %}" alt="" width="28" height="28"><span>gchess.app</span></a>
+        <div role="navigation" aria-label="{% tr 'menu' %}" class="welcome-nav">
+            <a href="{% url 'training' %}">{% tr 'nav_training' %}</a>
+            <a href="{% url 'home' %}?bot=main" class="welcome-play">{% tr 'play_bot' %} <span aria-hidden="true">↗</span></a>
+            {% if not user.is_authenticated %}<a class="welcome-signup" href="{% url 'register' %}">{% tr 'nav_register' %} <span aria-hidden="true">→</span></a>{% endif %}
+        </div>
+    </header>
     <div class="home-hero">
         <div class="home-hero-visual" aria-hidden="true">
             {% entry_board "pastor" %}
