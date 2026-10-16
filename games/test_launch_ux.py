@@ -1,6 +1,8 @@
 import json
+from unittest.mock import patch
+from django.core import mail
 from django.core.cache import cache
-from django.test import Client, TestCase, RequestFactory, SimpleTestCase
+from django.test import Client, TestCase, RequestFactory, SimpleTestCase, override_settings
 from .i18n import current_language
 from .models import UserFeedback
 from .launch_texts import TEXTS
@@ -26,6 +28,7 @@ class BrowserLanguageTests(SimpleTestCase):
             self.assertEqual(len(words['demo_lines']),4)
 
 
+@override_settings(EMAIL_BACKEND="django.core.mail.backends.locmem.EmailBackend", FEEDBACK_EMAIL="gchesssuport@gmail.com")
 class LaunchFeedbackTests(TestCase):
     def setUp(self):
         cache.clear()
@@ -33,14 +36,34 @@ class LaunchFeedbackTests(TestCase):
     def post(self, payload):
         return self.client.post('/feedback/',json.dumps(payload),content_type='application/json')
 
-    def test_guest_feedback_is_saved_without_email(self):
+    def test_guest_feedback_is_saved_and_support_is_notified(self):
         response=self.post({'message':'The board is easy to use','category':'idea','page':'/games/1/?token=private#chat'})
         self.assertEqual(response.status_code,200)
         item=UserFeedback.objects.get()
         self.assertEqual(item.page,'/games/')
         self.assertEqual(item.category,'idea')
+        self.assertEqual(len(mail.outbox),1)
+        self.assertEqual(mail.outbox[0].to,['gchesssuport@gmail.com'])
+        self.assertIn(item.message,mail.outbox[0].body)
+        self.assertNotIn('token=private',mail.outbox[0].body)
         self.assertEqual(self.post({'message':'Another message','category':'bug'}).status_code,429)
         self.assertEqual(UserFeedback.objects.count(),1)
+        self.assertEqual(len(mail.outbox),1)
+
+    def test_smtp_failure_keeps_report_and_success_response(self):
+        with patch('games.feedback.send_mail', side_effect=OSError('SMTP unavailable')):
+            with self.assertLogs('games.feedback', level='WARNING') as logs:
+                response=self.post({'message':'Chat does not open on my phone','category':'bug'})
+        self.assertEqual(response.status_code,200)
+        self.assertTrue(response.json()['saved'])
+        self.assertEqual(UserFeedback.objects.count(),1)
+        self.assertNotIn('Chat does not open',str(logs.output))
+
+    def test_bug_notification_uses_configured_recipient(self):
+        with override_settings(FEEDBACK_EMAIL='support@example.com'):
+            self.post({'message':'Board is not visible','category':'bug'})
+        self.assertEqual(mail.outbox[0].to,['support@example.com'])
+        self.assertIn('Error reportado',mail.outbox[0].subject)
 
     def test_invalid_payload_and_method_are_rejected(self):
         self.assertEqual(self.client.get('/feedback/').status_code,405)

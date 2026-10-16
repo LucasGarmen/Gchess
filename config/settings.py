@@ -222,6 +222,7 @@ EMAIL_USE_SSL = env_bool('EMAIL_USE_SSL', False)
 EMAIL_TIMEOUT = int(os.environ.get('EMAIL_TIMEOUT', '15'))
 DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', f'Gchess <{EMAIL_HOST_USER}>' if EMAIL_HOST_USER else 'noreply@gchess.local')
 SERVER_EMAIL = DEFAULT_FROM_EMAIL
+FEEDBACK_EMAIL = os.environ.get('FEEDBACK_EMAIL', 'gchesssuport@gmail.com')
 
 CACHES = {
     'default': {

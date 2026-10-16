@@ -1,11 +1,40 @@
-"""Small, anonymous feedback inbox; never sends email or calls external services."""
+"""Save anonymous feedback first, then notify the support inbox."""
 import json
+import logging
+from django.conf import settings
+from django.core.mail import get_connection, send_mail
 from hashlib import sha256
 from django.core.cache import cache
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
 from .i18n import current_language
 from .models import UserFeedback
+
+
+logger = logging.getLogger(__name__)
+
+
+def notify_support(item):
+    category = "Error reportado" if item.category == "bug" else "Sugerencia"
+    body = (
+        f"{category} #{item.pk}\n"
+        f"Sección: {item.page}\nIdioma: {item.language}\n"
+        f"Fecha: {item.created_at.isoformat()}\n\n{item.message}\n\n"
+        "Una copia permanece guardada en User feedback dentro del administrador de Gchess."
+    )
+    try:
+        # A slow SMTP server must not leave the feedback form waiting indefinitely.
+        connection = get_connection(timeout=min(settings.EMAIL_TIMEOUT, 5))
+        sent = send_mail(
+            f"[Gchess] {category} #{item.pk}", body,
+            settings.DEFAULT_FROM_EMAIL, [settings.FEEDBACK_EMAIL],
+            connection=connection, fail_silently=False,
+        )
+        if not sent:
+            logger.warning("Feedback %s saved; email backend sent no notification", item.pk)
+    except Exception as error:
+        # Keep reports usable even when SMTP is unavailable. Never log their contents.
+        logger.warning("Feedback %s saved; email notification failed (%s)", item.pk, type(error).__name__)
 
 
 @require_POST
@@ -29,5 +58,6 @@ def submit(request):
         return JsonResponse({'error': 'rate_limit'}, status=429)
     section = page.split('?')[0].split('#')[0].strip('/').split('/')[0]
     safe_page = '/' + section[:60] + '/' if section else '/'
-    UserFeedback.objects.create(category=category, message=message.strip(), page=safe_page, language=current_language(request))
+    item = UserFeedback.objects.create(category=category, message=message.strip(), page=safe_page, language=current_language(request))
+    notify_support(item)
     return JsonResponse({'saved': True})

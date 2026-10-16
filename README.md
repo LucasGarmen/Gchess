@@ -97,9 +97,10 @@ python manage.py test
 - `REDIS_URL`: Redis URL for the Django Channels channel layer in production.
 - `STOCKFISH_PATH`: path to the Stockfish executable.
 - `EMAIL_BACKEND`: optional email backend override. Leave empty to use SMTP when `EMAIL_HOST` is set, or console email when it is not.
-- `EMAIL_HOST`, `EMAIL_PORT`, `EMAIL_HOST_USER`, `EMAIL_HOST_PASSWORD`: SMTP server settings for password recovery emails.
+- `EMAIL_HOST`, `EMAIL_PORT`, `EMAIL_HOST_USER`, `EMAIL_HOST_PASSWORD`: SMTP server settings for account emails and feedback notifications.
 - `EMAIL_USE_TLS`, `EMAIL_USE_SSL`: SMTP security settings.
-- `DEFAULT_FROM_EMAIL`: sender address used by password recovery emails.
+- `DEFAULT_FROM_EMAIL`: sender address used by account emails and feedback notifications.
+- `FEEDBACK_EMAIL`: feedback notification recipient (defaults to `gchesssuport@gmail.com`). Reports are saved in the admin before attempting email. SMTP failures are logged without the report contents; delivery is not automatically retried. Without SMTP, the console backend only prints the email locally.
 - `DJANGO_SECURE_SSL_REDIRECT`: use `True` in production on Render.
 - `DJANGO_SECURE_HSTS_SECONDS`: optional, defaults to `31536000` when `DEBUG=False`.
 
