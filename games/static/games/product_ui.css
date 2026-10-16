@@ -121,3 +121,15 @@ body.product-ui .hero-app-preview .hero-demo-play .ui-icon{flex-shrink:0}
  /* While the demo is on screen, feedback stays accessible in the menu and footer. */
  body:has(.hero-app-preview.demo-in-view) #feedback-floating{display:none}
 }
+
+/* Keep the landing's first action close to the mobile app bar. */
+body:has(#mobile-home-menu)>hr{display:none}
+body.product-ui #mobile-home-menu{margin-top:0}
+@media(max-width:900px){
+ body.product-ui .home-intro.home-welcome{padding:8px 6px 16px}
+ body.product-ui .home-welcome .welcome-header{margin-bottom:12px;padding-bottom:8px}
+ body.product-ui .hero-coach-preview h1{order:0;margin-bottom:14px}
+ body.product-ui .hero-coach-preview .home-hero-actions{order:1}
+ body.product-ui .hero-coach-preview .entry-summary{order:2;margin:12px 0 8px}
+ body.product-ui .hero-coach-preview .hero-free-badge{order:3;margin-bottom:0}
+}
