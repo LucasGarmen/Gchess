@@ -1,0 +1,35 @@
+/* Neutral application surfaces. Green stays on the chessboard, primary actions and game state. */
+:root{--ui-bg:#121212;--ui-surface:#1e1e1e;--ui-raised:#262626;--ui-line:#3d3d3d;--ui-text:#ecece7;--ui-muted:#b9bab4;--surface:#1e1e1e;--text-muted:#b9bab4;--border-soft:#ffffff1c}
+body.product-ui{background:#121212;color:#ecece7}
+body.product-ui #site-nav{background:linear-gradient(165deg,#222,#191919 70%);border-right-color:#ffffff17;box-shadow:4px 0 22px #0003}
+body.product-ui #site-nav .nav-main-row,body.product-ui #site-nav .nav-brand{border-bottom-color:#ffffff14}
+body.product-ui #site-nav .nav-link:not(.nav-account){color:#d7d8d1}
+body.product-ui #site-nav .nav-link:hover,body.product-ui #site-nav .nav-group[data-open=true]>.nav-main-row{background:#30312e;color:#f3f3eb}
+body.product-ui #site-nav .nav-submenu{background:#242424;border-color:#55564f;box-shadow:0 14px 38px #0008}
+body.product-ui #site-nav .nav-submenu a:hover{background:#343530}
+body.product-ui #site-nav .nav-link[aria-current=page]{background:#2e3426;color:#e3efd0}
+body.product-ui .home-intro.home-welcome{background:transparent}
+body.product-ui :is(.home-secondary-paths>a,.training-hub-choices>a,.training-hub-recommended,.training-hub-more,.mobile-bot-setup,.entry-coach-help,.create-section,.create-summary,.learning-card,.social-card,.profile-section,.tournament-card){background:linear-gradient(145deg,#252525,#1d1d1d);border-color:#ffffff1d}
+body.product-ui :is(.home-secondary-paths>a,.training-hub-choices>a):hover{background:#2b2c29;border-color:#95ab6d80}
+body.product-ui :is(.hero-preview-frame,.hero-demo-reply,.coach-settings,.pgn-panel,.computer-panel,.game-info-card,.analyzer-lead){background:linear-gradient(145deg,#272727,#1c1c1c);border-color:#ffffff26}
+body.product-ui .hero-app-preview .hero-demo-reply{background:#2c2d29;border-color:#93ad644d}
+body.product-ui .hero-coach-icon{background:#3b4430;color:#d7e6b9}
+body.product-ui :is(.home-analysis-button,.home-quick-button){background:#272727;border-color:#656a584d;color:#e1e5d8}
+body.product-ui :is(.home-analysis-button,.home-quick-button):hover{background:#34362f;border-color:#9ab271}
+body.product-ui .create-choice{background:#242424;border-color:#ffffff24}
+body.product-ui .create-choice:hover{background:#30312b;border-color:#93ac66}
+body.product-ui .create-choice:has(input:checked){background:#303b27;border-color:#b6d278}
+body.product-ui :is(.training-hub,.game-create-page,.mobile-bot-setup,.auth-card,.coach-settings) :is(input:not([type=radio]):not([type=checkbox]):not([type=range]),select,textarea){background:#161616;border-color:#55574e;color:#eceee4}
+body.product-ui :is(.online-chat-dock,.coach-chat-dock,#feedback-dialog,.analysis-loading-panel){background:#222;border-color:#76846180}
+body.product-ui :is(.coach-chat-dock,.online-chat-dock) :is(input,textarea){background:#151515!important;border-color:#595d50!important;color:#eceee4!important}
+body.product-ui #trainer-chat-log,body.product-ui #game-chat-messages{background:#1a1a1a}
+body.product-ui .board-coach-bubble,body.product-ui .player-speech-message{background:#2a2d25;color:#eceee4;border-color:#869a675e}
+body.product-ui .launch-waiting{background:#242722;border-color:#8da36444}
+body.product-ui #feedback-floating{background:#2a2d25;border-color:#85966388;color:#e1e8d4}
+body.product-ui #feedback-floating:hover{background:#373e2e;color:#f3f7e9}
+body.product-ui .nav-contact-panel,body.product-ui .notification-panel,body.product-ui #workspace-panel{background:#242424;border-color:#61664f80}
+body.product-ui .footer-language :is(select,button){background:#252525;color:#dfe5d5}
+body.product-ui .site-footer{border-top-color:#ffffff1a;color:#b9bdb1}
+@media(max-width:900px){body.product-ui #mobile-nav-toggle{background:#282a25;border-color:#ffffff24}}
+body.product-ui .hero-coach-preview .home-analysis-button{background:#272727;border-color:#656a584d;color:#e1e5d8}
+body.product-ui .hero-coach-preview .home-analysis-button:hover{background:#34362f;border-color:#9ab271;color:#f0f4e8}

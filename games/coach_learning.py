@@ -1,4 +1,4 @@
-"""Bounded, account-local learning facts for Garry."""
+"""Bounded, account-local learning facts for Gchess Bot."""
 import hashlib
 import json
 import re

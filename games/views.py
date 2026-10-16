@@ -3178,7 +3178,7 @@ def coach_analysis(request):
             "engine_context": public_automatic_move_context(comment_context),
         })
     except (chess.engine.EngineError, chess.engine.EngineTerminatedError, OSError) as exc:
-        logger.exception("Stockfish failed while analyzing a Garry move.")
+        logger.exception("Stockfish failed while analyzing a Gchess Bot move.")
         return JsonResponse({
             "error": "Move analysis is temporarily unavailable.",
             "code": "engine_unavailable",
@@ -3189,7 +3189,7 @@ def coach_analysis(request):
             try:
                 engine.quit()
             except (chess.engine.EngineError, OSError):
-                logger.warning("Garry engine cleanup failed.")
+                logger.warning("Gchess Bot engine cleanup failed.")
 
 
 def build_move_from_data(move_data):
@@ -3644,7 +3644,7 @@ def trainer_chat(request):
             "error": "Não consegui ler a posição atual.",
         }, status=400)
 
-    trainer_logger = logging.getLogger("games.Garry")
+    trainer_logger = logging.getLogger("games.Gchess Bot")
     started = time.monotonic()
     topic = question_topic(question, history)
     if topic == 'learning':
@@ -3660,7 +3660,7 @@ def trainer_chat(request):
             return JsonResponse({"error":"Invalid reference position.", "code":"invalid_request"}, status=400)
     turn_answer = position_turn_answer(question, board, language)
     if turn_answer:
-        trainer_logger.info("Garry result: category=position_fact elapsed_ms=%d", round((time.monotonic()-started)*1000))
+        trainer_logger.info("Gchess Bot result: category=position_fact elapsed_ms=%d", round((time.monotonic()-started)*1000))
         return JsonResponse({"answer": turn_answer, "engine_analysis": None,
             "source": "board", "status": "ok", "retryable": False,
             "fen": board.fen(), "topic": "chess", "position_moves": [move.uci() for move in board.move_stack]})
@@ -3678,7 +3678,7 @@ def trainer_chat(request):
     if topic == "chess" and engine_context is None:
         stockfish_path, stockfish_error = configured_stockfish_path()
         if stockfish_error:
-            trainer_logger.warning("Garry result: category=engine_unavailable elapsed_ms=%d", round((time.monotonic()-started)*1000))
+            trainer_logger.warning("Gchess Bot result: category=engine_unavailable elapsed_ms=%d", round((time.monotonic()-started)*1000))
             return JsonResponse({"error":"Chess analysis is unavailable.", "code":"engine_unavailable", "retryable":True}, status=503)
         try:
             engine = open_stockfish_engine(stockfish_path)
@@ -3687,14 +3687,14 @@ def trainer_chat(request):
             engine_context = add_played_move_context(engine, board, target_question, engine_context)
             cache.set(context_key, engine_context, 120)
         except (chess.engine.EngineError, OSError):
-            trainer_logger.warning("Garry result: category=engine_error elapsed_ms=%d", round((time.monotonic()-started)*1000))
+            trainer_logger.warning("Gchess Bot result: category=engine_error elapsed_ms=%d", round((time.monotonic()-started)*1000))
             return JsonResponse({"error":"Chess analysis failed.", "code":"engine_unavailable", "retryable":True}, status=503)
         finally:
             if engine:
                 try:
                     engine.quit()
                 except (chess.engine.EngineError, OSError):
-                    trainer_logger.warning("Garry engine cleanup failed.")
+                    trainer_logger.warning("Gchess Bot engine cleanup failed.")
     answer = None
     status = "ok"
     try:
@@ -3703,7 +3703,7 @@ def trainer_chat(request):
     except GeminiFailure as exc:
         status = exc.code
     if answer and engine_context and not explanation_moves_are_grounded(answer, engine_context):
-        trainer_logger.warning("Garry validation: reason=unsupported_move_reference")
+        trainer_logger.warning("Gchess Bot validation: reason=unsupported_move_reference")
         discard_gemini_explanation(prompt)
         answer = None
         status = "invalid_response"
@@ -3722,7 +3722,7 @@ def trainer_chat(request):
     if not answer and status == "ok":
         status = "empty_response"
     fallback = useful_engine_fallback(engine_context, analysis_question(question, history), language) if not answer and engine_context else None
-    trainer_logger.info("Garry result: category=%s topic=%s elapsed_ms=%d", status, topic, round((time.monotonic()-started)*1000))
+    trainer_logger.info("Gchess Bot result: category=%s topic=%s elapsed_ms=%d", status, topic, round((time.monotonic()-started)*1000))
     return JsonResponse({"answer":answer, "engine_analysis":fallback, "source":"gemini" if answer else "unavailable", "status":status, "retryable":not bool(answer), "fen":board.fen(), "topic":topic, "position_moves":[move.uci() for move in board.move_stack]})
 
 

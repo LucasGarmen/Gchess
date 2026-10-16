@@ -6,7 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const comment = document.getElementById('coach-comment');
     if (!avatar || !form || !log) return;
     const lang = document.documentElement.lang.slice(0, 2);
-    const words = {es: ['Chat con Garry', 'Cerrar consejo'], pt: ['Chat com Garry', 'Fechar conselho'], en: ['Chat with Garry', 'Close advice']}[lang] || ['Chat with Garry', 'Close advice'];
+    const words = {es: ['Chat con Gchess Bot', 'Cerrar consejo'], pt: ['Chat com Gchess Bot', 'Fechar conselho'], en: ['Chat with Gchess Bot', 'Close advice']}[lang] || ['Chat with Gchess Bot', 'Close advice'];
     const dock = document.createElement('section');
     dock.className = 'coach-chat-dock';
     dock.setAttribute('aria-label', words[0]);

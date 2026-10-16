@@ -45,15 +45,15 @@ def player_avatar(player,label='Avatar'):
 def coach_portraits():
     # Coach identities are independent of shop entitlements.
     levels=((500,'explorer','club'),(800,'scout','forest'),(1000,'pilot','ivory'),(1320,'strategist','vest'),(1600,'captain','tuxedo'),(2000,'mentor','kimono'),(2500,'piece_king','armor'))
-    return mark_safe(''.join(f'<span data-coach-level="{level}"'+(' hidden' if level!=500 else '')+'>'+str(draw_avatar(avatar,clothing=cloth,label=f"Garry · {level}"))+'</span>' for level,avatar,cloth in levels))
+    return mark_safe(''.join(f'<span data-coach-level="{level}"'+(' hidden' if level!=500 else '')+'>'+str(draw_avatar(avatar,clothing=cloth,label=f"Gchess Bot · {level}"))+'</span>' for level,avatar,cloth in levels))
 
 @register.simple_tag
 def analyzer_words(lang):
     keys=('eyebrow','intro','load','review','coach','file','file_help','file_error','loaded','color_help','new','position')
     words={
-    'es':('Tu partida, paso a paso','Cargá una partida y recorré sus jugadas. Consultá a Garry sobre la posición que estás viendo.','Cargá tu PGN','Revisá las jugadas','Conversá con Garry','Abrir archivo PGN','Podés pegar el PGN o abrir un archivo .pgn o .txt.','No se pudo abrir. Elegí un archivo .pgn o .txt de hasta 80 KB.','Archivo cargado: ','Elegí el color con el que jugaste para orientar el análisis.','Otra partida','La jugada que estás revisando'),
-    'pt':('Sua partida, passo a passo','Carregue uma partida e percorra as jogadas. Consulte Garry sobre a posição que está vendo.','Carregue seu PGN','Revise as jogadas','Converse com Garry','Abrir arquivo PGN','Cole o PGN ou abra um arquivo .pgn ou .txt.','Não foi possível abrir. Escolha um arquivo .pgn ou .txt de até 80 KB.','Arquivo carregado: ','Escolha a cor com que jogou para orientar a análise.','Outra partida','A jogada que você está revisando'),
-    'en':('Your game, move by move','Load a game and explore its moves. Ask Garry about the position you are viewing.','Load your PGN','Review the moves','Talk with Garry','Open PGN file','Paste the PGN or open a .pgn or .txt file.','Could not open. Choose a .pgn or .txt file up to 80 KB.','File loaded: ','Choose the color you played to guide the analysis.','Another game','The move you are reviewing')}
+    'es':('Tu partida, paso a paso','Cargá una partida y recorré sus jugadas. Consultá a Gchess Bot sobre la posición que estás viendo.','Cargá tu PGN','Revisá las jugadas','Conversá con Gchess Bot','Abrir archivo PGN','Podés pegar el PGN o abrir un archivo .pgn o .txt.','No se pudo abrir. Elegí un archivo .pgn o .txt de hasta 80 KB.','Archivo cargado: ','Elegí el color con el que jugaste para orientar el análisis.','Otra partida','La jugada que estás revisando'),
+    'pt':('Sua partida, passo a passo','Carregue uma partida e percorra as jogadas. Consulte Gchess Bot sobre a posição que está vendo.','Carregue seu PGN','Revise as jogadas','Converse com Gchess Bot','Abrir arquivo PGN','Cole o PGN ou abra um arquivo .pgn ou .txt.','Não foi possível abrir. Escolha um arquivo .pgn ou .txt de até 80 KB.','Arquivo carregado: ','Escolha a cor com que jogou para orientar a análise.','Outra partida','A jogada que você está revisando'),
+    'en':('Your game, move by move','Load a game and explore its moves. Ask Gchess Bot about the position you are viewing.','Load your PGN','Review the moves','Talk with Gchess Bot','Open PGN file','Paste the PGN or open a .pgn or .txt file.','Could not open. Choose a .pgn or .txt file up to 80 KB.','File loaded: ','Choose the color you played to guide the analysis.','Another game','The move you are reviewing')}
     return dict(zip(keys,words.get(lang,words['en'])))
 
 @register.simple_tag
@@ -89,9 +89,9 @@ def quick_play_words(lang):
 @register.simple_tag
 def home_hero_words(lang):
     words={
-        'es':('Entrená con Garry','Jugá ajedrez. Entendé cada jugada.','Elegí tu nivel y jugá. Garry, tu coach con IA te ayuda a entender la partida.','Entrenar con Garry','A tu ritmo · Desde principiante','Jugar una partida rápida','Con un rival disponible · 5 minutos','Jugá con amigos','Compartí una invitación y desafialos.','Practicá una posición','Puzzles, aperturas y ejercicios para mejorar.'),
-        'pt':('Treine com Garry','Jogue xadrez. Entenda cada lance.','Escolha seu nível e jogue. Garry com IA ajuda você a entender a partida.','Treinar com Garry','No seu ritmo · Desde iniciante','Jogar uma partida rápida','Com um adversário disponível · 5 minutos','Jogue com amigos','Compartilhe um convite e desafie seus amigos.','Pratique uma posição','Puzzles, aberturas e exercícios para melhorar.'),
-        'en':('Train with Garry','Play chess. Understand every move.','Choose your level and play. Garry helps you understand the game.','Train with Garry','At your pace · Beginners welcome','Play a quick match','With an available opponent · 5 minutes','Play with friends','Share an invitation and challenge your friends.','Practice a position','Puzzles, openings and exercises to improve.')}
+        'es':('Entrená con Gchess Bot','Jugá ajedrez. Entendé cada jugada.','Elegí tu nivel y jugá. Gchess Bot, tu coach con IA te ayuda a entender la partida.','Entrenar con Gchess Bot','A tu ritmo · Desde principiante','Jugar una partida rápida','Con un rival disponible · 5 minutos','Jugá con amigos','Compartí una invitación y desafialos.','Practicá una posición','Puzzles, aperturas y ejercicios para mejorar.'),
+        'pt':('Treine com Gchess Bot','Jogue xadrez. Entenda cada lance.','Escolha seu nível e jogue. Gchess Bot com IA ajuda você a entender a partida.','Treinar com Gchess Bot','No seu ritmo · Desde iniciante','Jogar uma partida rápida','Com um adversário disponível · 5 minutos','Jogue com amigos','Compartilhe um convite e desafie seus amigos.','Pratique uma posição','Puzzles, aberturas e exercícios para melhorar.'),
+        'en':('Train with Gchess Bot','Play chess. Understand every move.','Choose your level and play. Gchess Bot helps you understand the game.','Train with Gchess Bot','At your pace · Beginners welcome','Play a quick match','With an available opponent · 5 minutes','Play with friends','Share an invitation and challenge your friends.','Practice a position','Puzzles, openings and exercises to improve.')}
     keys=('title','eyebrow','intro','coach','coach_hint','quick','quick_hint','friends','friends_help','practice','practice_help')
     from games.launch_texts import TEXTS
     result = dict(zip(keys,words.get(lang,words['en'])))
