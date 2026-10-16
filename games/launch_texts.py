@@ -15,3 +15,11 @@ HERO = {
 }
 for language, words in HERO.items():
     TEXTS[language].update(words)
+
+FINISH = {
+ 'es': {'feedback_short':'Feedback', 'footer_explore':'Explorá Gchess', 'footer_community':'Comunidad y contacto', 'footer_language':'Idioma de la página', 'footer_apply':'Aplicar', 'footer_note':'Jugá, entendé y seguí aprendiendo.'},
+ 'pt': {'feedback_short':'Feedback', 'footer_explore':'Explore o Gchess', 'footer_community':'Comunidade e contato', 'footer_language':'Idioma da página', 'footer_apply':'Aplicar', 'footer_note':'Jogue, entenda e continue aprendendo.'},
+ 'en': {'feedback_short':'Feedback', 'footer_explore':'Explore Gchess', 'footer_community':'Community and contact', 'footer_language':'Page language', 'footer_apply':'Apply', 'footer_note':'Play, understand and keep learning.'},
+}
+for language, words in FINISH.items():
+    TEXTS[language].update(words)

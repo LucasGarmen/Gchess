@@ -2,8 +2,9 @@ document.addEventListener('DOMContentLoaded',()=>{
  const words=JSON.parse(document.getElementById('launch-ux-texts')?.textContent||'{}');
  const dialog=document.getElementById('feedback-dialog'),open=document.getElementById('feedback-open'),form=document.getElementById('feedback-form');
  const close=document.getElementById('feedback-close'),status=document.getElementById('feedback-status'),send=document.getElementById('feedback-send');
- open?.addEventListener('click',()=>{dialog.showModal();document.getElementById('feedback-message').focus();});
- close?.addEventListener('click',()=>dialog.close());dialog?.addEventListener('close',()=>open?.focus());
+ let returnFocus=open;
+ [open,document.getElementById('feedback-floating'),document.getElementById('footer-feedback-open')].filter(Boolean).forEach(trigger=>trigger.addEventListener('click',()=>{returnFocus=trigger;dialog.showModal();document.getElementById('feedback-message').focus();}));
+ close?.addEventListener('click',()=>dialog.close());dialog?.addEventListener('close',()=>returnFocus?.focus());
  let pending=false;
  form?.addEventListener('submit',async event=>{
   event.preventDefault();if(pending||!form.reportValidity())return;
@@ -19,8 +20,11 @@ document.addEventListener('DOMContentLoaded',()=>{
  const log=document.getElementById('trainer-chat-log'),chatForm=document.getElementById('trainer-chat-form');
  if(log&&chatForm){
   const waiting=document.createElement('p');waiting.className='launch-waiting';waiting.setAttribute('role','status');waiting.textContent=words.thinking;chatForm.before(waiting);
+  const skeleton=document.createElement('span');skeleton.className='thinking-skeleton';skeleton.setAttribute('aria-hidden','true');waiting.append(skeleton);
   const sync=()=>{waiting.hidden=log.getAttribute('aria-busy')!=='true';};sync();new MutationObserver(sync).observe(log,{attributes:true,attributeFilter:['aria-busy']});
  }
+ const loading=document.getElementById('analysis-loading-overlay');
+ if(loading){const target=document.getElementById('pgn-analysis-form');const sync=()=>{target?.setAttribute('aria-busy',String(!loading.hidden));};sync();new MutationObserver(sync).observe(loading,{attributes:true,attributeFilter:['hidden']});}
  const turn=document.getElementById('turn-indicator'),board=document.getElementById('board');
  if(turn&&board){const sync=()=>{const busy=typeof botRequestLocked==='function'&&botRequestLocked();turn.classList.toggle('engine-working',busy);board.setAttribute('aria-busy',String(busy));};sync();new MutationObserver(sync).observe(turn,{childList:true,characterData:true,subtree:true});}
 });

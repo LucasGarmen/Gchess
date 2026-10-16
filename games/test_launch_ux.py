@@ -65,3 +65,12 @@ class LaunchFeedbackTests(TestCase):
             self.assertContains(response,TEXTS[language]['hero_title'])
             self.assertContains(response,TEXTS[language]['hero_analyze'])
             self.assertContains(response,'href="/analyze/" class="home-analysis-button"')
+
+    def test_footer_language_choice_overrides_browser_and_keeps_target(self):
+        response=self.client.post('/language/',{'language':'en','next':'/training/'})
+        self.assertEqual(response.status_code,302)
+        self.assertEqual(response.url,'/training/')
+        page=self.client.get('/training/',HTTP_ACCEPT_LANGUAGE='es')
+        self.assertContains(page,TEXTS['en']['footer_language'])
+        self.assertContains(page,'id="footer-language-select"')
+        self.assertContains(page,'id="feedback-floating"')

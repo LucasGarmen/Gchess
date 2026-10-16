@@ -1,0 +1,25 @@
+/* Secondary chrome stays in document flow; live games keep their dedicated controls. */
+.site-footer{display:grid;grid-template-columns:1fr 1fr 1.2fr;gap:24px;max-width:1100px;margin:32px auto 0;padding:24px 20px 28px;border-top:1px solid #96aa772e;color:#b8c5ac;font-family:var(--ui-font,system-ui);font-size:12px;line-height:1.6}
+.footer-brand>a{font-family:Georgia,serif;font-size:23px;letter-spacing:-.7px;color:#dfc88e;margin:0}.footer-brand p{font-size:12px;margin:7px 0;color:#aab79e}
+.site-footer h2{font:600 12px/1.5 var(--ui-font,system-ui)!important;letter-spacing:0!important;color:#dae2cc!important;margin:0 0 8px}
+.footer-links{display:flex;flex-direction:column;align-items:flex-start;gap:5px}.site-footer a,.site-footer .footer-links button{color:#b6c3a8;margin:0;text-decoration:none;overflow-wrap:anywhere}.site-footer a:hover,.site-footer .footer-links button:hover{color:#e1f0c7}
+.site-footer .footer-links button{border:0;padding:0;background:none;box-shadow:none;font:inherit;text-align:left;cursor:pointer;min-height:28px;width:auto}
+.footer-language{grid-column:1/-1;display:flex;align-items:center;justify-content:flex-end;gap:10px;padding-top:14px;border-top:1px solid #96aa771c;margin:0}.footer-language label{font-size:12px;color:#c7d1bd}.footer-language>div{display:flex;gap:6px}.footer-language select,.footer-language button{margin:0;padding:7px 10px;border:1px solid #78905a66;border-radius:7px;background:#263123;color:#dce7cc;font-size:12px;min-height:36px;width:auto}
+#feedback-floating{position:fixed;left:16px;bottom:78px;z-index:1090;display:inline-flex;align-items:center;justify-content:center;gap:7px;width:auto;min-height:36px;padding:7px 12px;margin:0;border:1px solid #8ba76488;border-radius:20px;background:#2c3a28;color:#e1eccf;font:600 11px/1.4 var(--ui-font,system-ui);box-shadow:0 4px 16px #0004;cursor:pointer}
+#feedback-floating:hover{background:#405330;color:#f2f7e9;border-color:#c1d990}#feedback-floating svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+body.focus-playing #feedback-floating,body.analysis-loading-active #feedback-floating{display:none}
+body.mobile-bot-playing .site-footer,body.online-game-detail-page .site-footer,body:has(.analyzer-game-layout) .site-footer,body.focus-playing .site-footer{display:none}
+/* Skeleton stays beside the composer, and uses the existing request state. */
+.launch-waiting{display:grid;grid-template-columns:14px minmax(0,1fr);column-gap:9px;row-gap:7px;padding:10px 12px;border:1px solid #82986444;border-radius:9px;background:#35452a38;font-size:12px;line-height:1.5}
+.launch-waiting .thinking-skeleton{grid-column:2;display:block;width:85%;max-width:240px;height:5px;border-radius:4px;background:linear-gradient(90deg,#7c9b5355,#d0e3a180,#7c9b5355);background-size:200% 100%;animation:thinking-shimmer 1.6s ease-in-out infinite}
+body .analysis-loading-panel{border:1px solid #91aa6d88;border-radius:16px;background:linear-gradient(145deg,#2e3c29,#1d281f);color:#e4ebd9;box-shadow:0 18px 70px #0007}
+body .analysis-loading-panel::after{content:'';display:block;height:5px;margin:18px auto 0;width:70%;border-radius:5px;background:linear-gradient(90deg,#7c9b5333,#d0e3a1aa,#7c9b5333);background-size:200% 100%;animation:thinking-shimmer 1.6s ease-in-out infinite}
+body .analysis-loading-spinner{border-color:#abc58033;border-top-color:#c4dc93}
+@keyframes thinking-shimmer{0%,100%{background-position:0% 50%;opacity:.55}50%{background-position:100% 50%;opacity:1}}
+@media(max-width:900px){
+ .site-footer{grid-template-columns:1fr 1fr;gap:18px;padding:20px 12px 80px;margin-top:24px}.footer-brand{grid-column:1/-1}.footer-language{flex-direction:column;align-items:flex-start;gap:7px}.footer-language select,.footer-language button{min-height:44px;font-size:14px}.site-footer a,.site-footer .footer-links button{display:inline-flex;align-items:center;min-height:36px;font-size:12px}
+ #feedback-floating{left:auto;right:12px;bottom:calc(12px + env(safe-area-inset-bottom));min-height:40px;padding:9px 12px}
+ body.mobile-bot-playing #feedback-floating,body.online-game-detail-page #feedback-floating,body:has(.analyzer-game-layout) #feedback-floating,body.mobile-nav-open #feedback-floating{display:none}
+}
+@media(max-width:380px){.site-footer{grid-template-columns:1fr}.footer-brand,.footer-language{grid-column:auto}}
+@media(prefers-reduced-motion:reduce){.launch-waiting .thinking-skeleton,body .analysis-loading-panel::after{animation:none}}

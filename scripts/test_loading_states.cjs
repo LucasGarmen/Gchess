@@ -1,0 +1,13 @@
+const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm');
+let ready,waiting,locked=false;const watchers=new Map();
+const log={busy:'false',getAttribute(){return this.busy;}};
+const form={before(node){waiting=node;}};const overlay={hidden:true};
+const pgn={setAttribute(k,v){this[k]=v;}};const board={setAttribute(k,v){this[k]=v;}};
+const turn={classList:{toggle(k,v){this[k]=v;}}};
+const els={'launch-ux-texts':{textContent:JSON.stringify({thinking:'Preparing reply'})},'trainer-chat-log':log,'trainer-chat-form':form,'analysis-loading-overlay':overlay,'pgn-analysis-form':pgn,'turn-indicator':turn,'board':board};
+const ctx={document:{addEventListener(n,fn){ready=fn;},getElementById:id=>els[id]||null,createElement(){return{setAttribute(){},append(){}};}},MutationObserver:class{constructor(fn){this.fn=fn;}observe(target){watchers.set(target,this.fn);}},botRequestLocked:()=>locked};
+vm.runInNewContext(fs.readFileSync('games/static/games/launch_ux.js','utf8'),ctx);ready();
+assert.equal(waiting.hidden,true);log.busy='true';watchers.get(log)();assert.equal(waiting.hidden,false);assert.equal(waiting.textContent,'Preparing reply');log.busy='false';watchers.get(log)();assert.equal(waiting.hidden,true,'Completion/error clears thinking state');
+assert.equal(pgn['aria-busy'],'false');overlay.hidden=false;watchers.get(overlay)();assert.equal(pgn['aria-busy'],'true');overlay.hidden=true;watchers.get(overlay)();assert.equal(pgn['aria-busy'],'false','PGN cancellation/completion clears busy state');
+locked=true;watchers.get(turn)();assert.equal(board['aria-busy'],'true');assert.equal(turn.classList['engine-working'],true);locked=false;watchers.get(turn)();assert.equal(board['aria-busy'],'false');
+console.log('Loading states: coach pending/completion, engine and PGN busy/cancel transitions passed.');

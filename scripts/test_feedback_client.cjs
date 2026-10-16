@@ -4,8 +4,11 @@ const words={sending:'Sending',thanks:'Saved',error:'Retry',rate_limit:'Wait'};
 const message={value:'A useful suggestion'},send={disabled:false},status={textContent:''};
 const form={action:'/feedback/',elements:{category:{value:'idea'},message},reportValidity:()=>true,setAttribute(){},querySelector:()=>({value:'csrf-test'}),addEventListener(n,fn){if(n==='submit')submit=fn;}};
 const elements={'launch-ux-texts':{textContent:JSON.stringify(words)},'feedback-form':form,'feedback-send':send,'feedback-status':status};
+let opened=0,focused=0,restored=0,closeDialog;
+const trigger={addEventListener(type,fn){this.click=fn;},focus(){restored++;}};
+elements['feedback-floating']=trigger;elements['feedback-dialog']={showModal(){opened++;},addEventListener(type,fn){if(type==='close')closeDialog=fn;}};elements['feedback-message']={focus(){focused++;}};
 const ctx={AbortController,setTimeout,clearTimeout,location:{pathname:'/training/'},document:{addEventListener(n,fn){ready=fn;},getElementById:id=>elements[id]||null},fetch:(url,options)=>{calls++;lastRequest=options;return new Promise(resolve=>{resolveFetch=resolve;});}};
-vm.runInNewContext(fs.readFileSync('games/static/games/launch_ux.js','utf8'),ctx);ready();
+vm.runInNewContext(fs.readFileSync('games/static/games/launch_ux.js','utf8'),ctx);ready();trigger.click();assert.equal(opened,1);assert.equal(focused,1);closeDialog();assert.equal(restored,1,'Closing feedback returns focus to the floating trigger');
 (async()=>{
  const event={preventDefault(){}};const pending=submit(event);await submit(event);assert.equal(calls,1,'Double submit is blocked');assert.equal(send.disabled,true);assert.equal(lastRequest.headers['X-CSRFToken'],'csrf-test');
  resolveFetch({ok:false,status:500});await pending;assert.equal(message.value,'A useful suggestion','Failed submission preserves the draft');assert.equal(status.textContent,'Retry');assert.equal(send.disabled,false);

@@ -1,0 +1,7 @@
+{% load game_i18n %}
+<footer class="site-footer" aria-label="Gchess">
+ <div class="footer-brand"><a href="{% url 'home' %}">gchess.app</a><p>{{ launch_texts.footer_note }}</p></div>
+ <div class="footer-section"><h2>{{ launch_texts.footer_explore }}</h2><div class="footer-links"><a href="{% url 'home' %}">{% tr 'nav_home' %}</a><a href="{% url 'game_create' %}">{% tr 'nav_new_game' %}</a><a href="{% url 'training' %}">{% tr 'nav_training' %}</a><a href="{% url 'game_analyzer' %}">{% tr 'nav_analyze_pgn' %}</a></div></div>
+ <div class="footer-section"><h2>{{ launch_texts.footer_community }}</h2><div class="footer-links"><a href="https://www.instagram.com/gchessapp/" target="_blank" rel="noopener noreferrer">Instagram · @gchessapp ↗</a><a href="mailto:gchesssuport@gmail.com">gchesssuport@gmail.com</a><button id="footer-feedback-open" type="button" aria-haspopup="dialog" aria-controls="feedback-dialog">{{ launch_texts.feedback }}</button></div></div>
+ <form class="footer-language" action="{% url 'set_language' %}" method="post">{% csrf_token %}<input type="hidden" name="next" value="{{ request.path }}"><label for="footer-language-select">{{ launch_texts.footer_language }}</label><div><select id="footer-language-select" name="language">{% for code, name in language_options %}<option value="{{ code }}"{% if current_language == code %} selected{% endif %}>{{ name }}</option>{% endfor %}</select><button type="submit">{{ launch_texts.footer_apply }}</button></div></form>
+</footer>
