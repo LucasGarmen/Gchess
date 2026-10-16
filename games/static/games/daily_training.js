@@ -32,7 +32,9 @@
   if(state.completed){get('summary').textContent=texts.summary.replace('{total}',state.total)+(state.reward_xp>0?' · +'+state.reward_xp+' XP':'');get('independent').textContent=state.independent;get('helped').textContent=state.helped;return;}
   get('counter').textContent=(state.index+1)+' / '+state.total+' · '+state.date;
   get('progress').max=state.total;get('progress').value=state.index;
-  get('origin').textContent=state.task.personal?(state.task.practice_label||texts.personal)+' · '+(state.task.focus||state.task.phase):texts.fallback;
+  const focus=state.task.focus||state.task.phase;
+  get('origin').textContent=state.task.personal?(state.task.practice_label||texts.personal)+(focus?' · '+focus:''):texts.fallback;
+  get('context').textContent=state.task.context||'';get('context').hidden=!state.task.context;
   get('goal').textContent=state.task.personal?texts.goal:texts.goal_mate;get('turn').textContent=state.task.turn;
   get('source').hidden=!state.task.source_url;if(state.task.source_url)get('source').href=state.task.source_url;
   get('hint').disabled=false;get('reveal').disabled=false;draw(state.task.fen);

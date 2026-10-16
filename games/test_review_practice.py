@@ -55,3 +55,13 @@ class ReviewPracticeTests(TestCase):
             for word in ['coach','friends','practice']:self.assertContains(home,home_hero_words(lang)[word])
             self.assertContains(home,reverse('game_create'));self.assertContains(home,reverse('training'))
             self.assertEqual(self.client.get(reverse('review_practice',args=[self.review.pk])).status_code,200)
+
+    def test_review_practice_explains_original_move_without_claiming_game_ownership(self):
+        self.begin()
+        response=self.client.get(reverse('review_practice',args=[self.review.pk]))
+        task=response.context['session_data']['task']
+        self.assertTrue(task['personal'])
+        self.assertIn(f'#{self.review.pk}',task['context'])
+        self.assertIn('e4',task['context'])
+        self.assertNotIn('d4',task['context'])
+        self.assertContains(response,'id="daily-training-context"')

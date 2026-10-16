@@ -8,7 +8,7 @@ from django.views.decorators.http import require_POST
 from django.views.decorators.cache import never_cache
 from django.utils import timezone
 from .models import GameReview
-from .daily_training import candidates,explanation
+from .daily_training import candidates,explanation,training_context
 from .daily_training_texts import TEXTS
 from .first_steps import TEXTS as FLOW
 from .i18n import current_language
@@ -29,7 +29,7 @@ def state(review,plan,lang):
     task=None
     if index<len(plan['tasks']):
         saved=plan['tasks'][index];board=chess.Board(saved['fen'])
-        task=dict(fen=saved['fen'],legal_moves=[m.uci() for m in board.legal_moves],personal=False,source_url=None,turn=TEXTS[lang]['white' if board.turn else 'black'])
+        task=dict(fen=saved['fen'],legal_moves=[m.uci() for m in board.legal_moves],personal=True,context=training_context(saved,review,lang),source_url=None,turn=TEXTS[lang]['white' if board.turn else 'black'])
     return dict(id=review.pk,index=index,total=len(plan['tasks']),date=review.created_at.date().isoformat(),task=task,completed=index==len(plan['tasks']),independent=sum(p['resolved'] and p['correct'] and not p['helped'] and p['attempts']==1 for p in plan['progress']),helped=sum(p['resolved'] and (p['helped'] or not p['correct'] or p['attempts']>1) for p in plan['progress']))
 
 @login_required

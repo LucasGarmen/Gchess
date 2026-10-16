@@ -69,22 +69,52 @@ def build_plan(user,date):
     return tasks[:3]
 
 
+def training_context(saved, review, language):
+    """Public exercise context; never include the solution or another user's review."""
+    texts = TEXTS[language]
+    if not saved.get('source'):
+        return ''
+    if review is None:
+        return texts['saved_context']
+    board = chess.Board(saved['fen'])
+    date = timezone.localtime(review.created_at).date()
+    formatted = date.isoformat() if language == 'en' else date.strftime('%d/%m/%Y')
+    context = texts['review_context'].format(review=review.pk, date=formatted, number=board.fullmove_number)
+    payload = review.payload if isinstance(review.payload, dict) else {}
+    analysis = payload.get('analysis', [])
+    for item in analysis if isinstance(analysis, list) else []:
+        engine = item.get('engine_context') if isinstance(item, dict) else None
+        if not isinstance(engine, dict) or engine.get('fen_before') != saved['fen']:
+            continue
+        try:
+            played = chess.Move.from_uci(engine['played_move_uci'])
+            if played not in board.legal_moves:
+                continue
+        except (ValueError, TypeError, KeyError):
+            continue
+        context += ' ' + texts['played_context'].format(move=friendly_move_name(board, played, language))
+        break
+    return context
+
+
 def session_data(plan,language):
     texts=TEXTS[language]
     index=next((i for i,p in enumerate(plan.progress) if not p['resolved']),len(plan.tasks))
     task=None
     if index<len(plan.tasks):
         saved=plan.tasks[index];board=chess.Board(saved['fen'])
+        review=GameReview.objects.filter(pk=saved.get('source'),user=plan.user).first() if saved.get('source') else None
         task=dict(fen=saved['fen'],legal_moves=[move.uci() for move in board.legal_moves],
             personal=bool(saved['source']),revisit=bool(saved.get('revisit')),phase=texts.get(saved['phase'],texts['general']),
-            source_url=reverse('review_detail',args=[saved['source']]) if saved['source'] and GameReview.objects.filter(pk=saved['source'],user=plan.user).exists() else None,
+            source_url=reverse('review_detail',args=[review.pk]) if review else None,
+            context=training_context(saved,review,language),
             turn=texts['white' if board.turn else 'black'])
     from .personal_session_texts import TEXTS as SESSION_TEXTS
     return_texts=SESSION_TEXTS[language]
     if task and saved.get('source'):
         from .personal_sessions import theme_for
         theme=theme_for(saved)
-        task['practice_label']=return_texts['repeat' if saved.get('revisit') else 'new_position']
+        task['practice_label']=texts['personal']
         task['focus']=return_texts[theme]
         task['tip']=return_texts['tip_'+theme]
     recent_count=DailyTraining.objects.filter(user=plan.user,date__gte=timezone.localdate()-timedelta(days=6),completed_at__isnull=False).count()

@@ -11,3 +11,11 @@ def daily_training_navigation(request):
 
 for lang,names in {'es':['peón','caballo','alfil','torre','dama','rey'],'pt':['peão','cavalo','bispo','torre','dama','rei'],'en':['pawn','knight','bishop','rook','queen','king']}.items():
  TEXTS[lang]['piece_names']=dict(zip('pnbrqk',names))
+
+# Explain provenance without assuming an imported PGN was played by this user.
+for lang, words in {
+ 'es': {'goal':'Encontrá la jugada que recomienda el motor en esta posición.', 'personal':'Ejercicio de un análisis guardado en tu cuenta', 'fallback':'Ejercicio de práctica: esta posición no viene de tus análisis.', 'source':'Abrir el análisis de origen', 'review_context':'Esta posición viene del análisis #{review}, guardado el {date}. Jugada {number}.', 'played_context':'En esa partida se jugó: {move}. Ahora podés probar otra decisión en el tablero.', 'saved_context':'Esta posición viene de un análisis guardado anteriormente. No necesitás recordar la partida para resolverla.'},
+ 'pt': {'goal':'Encontre o lance recomendado pelo motor nesta posição.', 'personal':'Exercício de uma análise salva na sua conta', 'fallback':'Exercício de prática: esta posição não vem das suas análises.', 'source':'Abrir a análise de origem', 'review_context':'Esta posição vem da análise #{review}, salva em {date}. Lance {number}.', 'played_context':'Nessa partida foi jogado: {move}. Agora você pode testar outra decisão no tabuleiro.', 'saved_context':'Esta posição vem de uma análise salva anteriormente. Você não precisa lembrar da partida para resolver o exercício.'},
+ 'en': {'goal':'Find the engine’s recommended move in this position.', 'personal':'Exercise from an analysis saved in your account', 'fallback':'Practice exercise: this position does not come from your analyses.', 'source':'Open the source analysis', 'review_context':'This position comes from analysis #{review}, saved on {date}. Move {number}.', 'played_context':'The move played in that game was: {move}. Now try another decision on the board.', 'saved_context':'This position comes from a previously saved analysis. You do not need to remember the game to solve it.'},
+}.items():
+ TEXTS[lang].update(words)

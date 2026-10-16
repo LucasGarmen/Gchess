@@ -117,3 +117,28 @@ class DailyTrainingTests(TestCase):
         for language in ('es','pt','en'):
             session=self.client.session;session['language']=language;session.save()
             self.assertEqual(self.client.get(self.url).status_code,200)
+
+    def test_saved_analysis_context_names_source_and_original_move_without_solution(self):
+        review=self.saved_review()
+        self.assertIsNone(review.game_id)  # Imported analyses need not be this user's games.
+        plan=self.begin()
+        for language in ('es','pt','en'):
+            task=session_data(plan,language)['task']
+            self.assertTrue(task['personal'])
+            self.assertIn(f'#{review.pk}',task['context'])
+            self.assertIn('e4',task['context'])
+            self.assertNotIn('d4',task['context'])
+            self.assertNotIn('solution',task)
+            self.assertEqual(task['source_url'],reverse('review_detail',args=[review.pk]))
+            self.assertNotIn('la que elegiste',task['context'])
+
+    def test_practice_and_missing_source_have_distinct_context(self):
+        plan=self.begin()
+        self.assertFalse(session_data(plan,'es')['task']['personal'])
+        self.assertEqual(session_data(plan,'es')['task']['context'],'')
+        review=self.saved_review(self.other)
+        plan.tasks[0]['source']=review.pk
+        task=session_data(plan,'es')['task']
+        self.assertIsNone(task['source_url'])
+        self.assertNotIn(f'#{review.pk}',task['context'])
+        self.assertIn('análisis guardado anteriormente',task['context'])
