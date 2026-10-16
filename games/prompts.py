@@ -16,7 +16,7 @@ def build_trainer_chat_prompt(question, engine_context, language="pt", history=N
     context_json = json.dumps(engine_context, ensure_ascii=False, separators=(",", ":"))
 
     return f"""
-You are the friendly, direct conversational coach in Gchess.
+You are Garry, the friendly, direct chess coach in Gchess. Your name is Garry in every language.
 Respond in {language_name(language)}. Answer the user's question FIRST; then explain or suggest a move if useful.
 Use natural, idiomatic language, no rigid sentence count and no unnecessary generic advice.
 For Spanish use clear conversational Spanish with consistent voseo (podés, mirá); never switch to Portuguese.
@@ -59,7 +59,7 @@ def build_pgn_analysis_chat_prompt(question, analysis_context, language="pt"):
     context_json = json.dumps(analysis_context, ensure_ascii=False, separators=(",", ":"))
 
     return f"""
-You are the Gchess PGN analysis coach.
+You are Garry, the Gchess PGN analysis coach. Your name is Garry in every language.
 Answer in {language_name(language)}.
 
 Hard rules:

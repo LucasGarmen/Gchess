@@ -533,7 +533,7 @@ function updateTurnIndicator() {
     }
 
     if (botRequestLocked()) {
-        turnIndicator.innerText = uiText('computer_thinking', 'Coach thinking...');
+        turnIndicator.innerText = uiText('computer_thinking', 'Garry thinking...');
         return;
     }
 
@@ -807,8 +807,8 @@ function updateHistoryControls() {
     const toggleCoachButton = document.getElementById('toggle-coach');
     if (toggleCoachButton) {
         toggleCoachButton.innerText = coachEnabled
-            ? uiText('disable_coach', 'Desabilitar treinador')
-            : uiText('enable_coach', 'Habilitar treinador');
+            ? uiText('disable_coach', 'Desabilitar Garry')
+            : uiText('enable_coach', 'Habilitar Garry');
     }
 
     const playerColorSelect = document.getElementById('player-color');
@@ -3841,7 +3841,7 @@ function undoComputerMove() {
     SAVED_MOVES.splice(Math.max(0, SAVED_MOVES.length - movesToRemove), movesToRemove);
     gameOver = false;
     hideGameStatus();
-    setCoachComment(coachEnabled ? uiText('coach_enabled', 'Treinador habilitado. Vou comentar suas jogadas.') : '');
+    setCoachComment(coachEnabled ? uiText('coach_enabled', 'Garry habilitado. Vou comentar suas jogadas.') : '');
     loadPositionUntil(SAVED_MOVES.length);
     renderSavedMoveList();
     enableComputerEloSelect();
@@ -3886,7 +3886,7 @@ function toggleCoach() {
     updateHistoryControls();
 
     if (coachEnabled) {
-        setCoachComment(uiText('coach_enabled', 'Treinador habilitado. Vou comentar suas jogadas.'));
+        setCoachComment(uiText('coach_enabled', 'Garry habilitado. Vou comentar suas jogadas.'));
     } else {
         cancelCoachAnalysisRequest();
         setCoachComment('');
@@ -4211,7 +4211,7 @@ async function requestCoachAnalysis(requestKey = coachAnalysisKey(), movesSnapsh
     isCoachAnalysisLoading = true;
     coachAnalysisRequestKey = requestKey;
     coachAnalysisAbortController = createAbortControllerIfAvailable();
-    setCoachComment(uiText('trainer_analyzing', 'Treinador analisando...'));
+    setCoachComment(uiText('trainer_analyzing', 'Garry analisando...'));
     const requestController = coachAnalysisAbortController;
     let timedOut = false;
     const analysisTimer = setTimeout(() => {
@@ -4247,13 +4247,13 @@ async function requestCoachAnalysis(requestKey = coachAnalysisKey(), movesSnapsh
         }
 
         if (!response.ok || analysis.error) {
-            console.error('Erro do treinador:', analysis.error || response.statusText);
+            console.error('Erro de Garry:', analysis.error || response.statusText);
             if (response.status === 429) {
                 coachAnalysisCooldownUntil = Date.now() + retryDelayFromResponse(response, COACH_ANALYSIS_COOLDOWN_MS);
                 setCoachComment(neutralCoachFallbackComment());
                 lastCoachAnalysisCompletedKey = requestKey;
             } else {
-                setCoachComment(uiText('trainer_error', 'O treinador nÃ£o conseguiu responder agora.'));
+                setCoachComment(uiText('trainer_error', 'Garry nÃ£o conseguiu responder agora.'));
             }
             return;
         }
@@ -4267,8 +4267,8 @@ async function requestCoachAnalysis(requestKey = coachAnalysisKey(), movesSnapsh
             return;
         }
 
-        console.error('Erro ao pedir anÃ¡lise do treinador:', error);
-        setCoachComment(uiText('trainer_error', 'O treinador nÃ£o conseguiu responder agora.'));
+        console.error('Erro ao pedir anÃ¡lise de Garry:', error);
+        setCoachComment(uiText('trainer_error', 'Garry nÃ£o conseguiu responder agora.'));
     } finally {
         clearTimeout(analysisTimer);
         if (coachAnalysisRequestKey === requestKey && coachAnalysisAbortController === requestController) {
@@ -4707,9 +4707,9 @@ function showBotError(code) {
     if (!panel || !message) return;
     const lang = typeof UI_LANGUAGE !== 'undefined' ? UI_LANGUAGE : 'pt';
     const texts = {
-        es: {engine_unavailable: 'El motor de ajedrez no esta disponible. No se pudo jugar la respuesta.', timeout: 'El motor tardo demasiado. Puedes reintentar la jugada.', network: 'No se pudo obtener la jugada del coach. Puedes reintentar.'},
-        en: {engine_unavailable: 'The chess engine is unavailable. Could not play its reply.', timeout: 'The engine timed out. You can retry the move.', network: 'Could not get the coach move. You can retry.'},
-        pt: {engine_unavailable: 'O motor de xadrez esta indisponivel. Nao foi possivel jogar a resposta.', timeout: 'O motor demorou demais. Tente a jogada novamente.', network: 'Nao foi possivel obter a jogada do coach. Tente novamente.'},
+        es: {engine_unavailable: 'El motor de ajedrez no esta disponible. No se pudo jugar la respuesta.', timeout: 'El motor tardo demasiado. Puedes reintentar la jugada.', network: 'No se pudo obtener la jugada de Garry. Puedes reintentar.'},
+        en: {engine_unavailable: 'The chess engine is unavailable. Could not play its reply.', timeout: 'The engine timed out. You can retry the move.', network: 'Could not get a move from Garry. You can retry.'},
+        pt: {engine_unavailable: 'O motor de xadrez esta indisponivel. Nao foi possivel jogar a resposta.', timeout: 'O motor demorou demais. Tente a jogada novamente.', network: 'Nao foi possivel obter a jogada de Garry. Tente novamente.'},
     };
     message.innerText = (texts[lang] || texts.pt)[code] || (texts[lang] || texts.pt).network;
     panel.hidden = false;

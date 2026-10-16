@@ -4,7 +4,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const disclosure = document.createElement('details');
     disclosure.className = 'mobile-coach-chat';
     const summary = document.createElement('summary');
-    summary.textContent = chat.querySelector('h2')?.textContent || 'Coach';
+    summary.textContent = chat.querySelector('h2')?.textContent || 'Garry';
     chat.before(disclosure);
     disclosure.append(summary, chat);
     const mobile = window.matchMedia('(max-width: 900px)');

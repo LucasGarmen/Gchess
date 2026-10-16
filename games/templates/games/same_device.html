@@ -14,5 +14,5 @@
 {{ local|json_script:'same-device-words' }}
 <script src="{% static 'games/same_device_state.js' %}?v=1"></script>
 <script>const LOCAL_PLAY_MODE=true;const COMPUTER_MODE=false;const MULTIPLAYER_MODE=false;const GAME_ID=null;const GAME_PLAYER_COLOR=null;let PLAYER_COLOR='white';const SAVED_MOVES=window.GchessSameDevice.read();const UI_LANGUAGE='{{ current_language }}';const START_SOUND_URL="{% static 'games/sounds/start-chess.mp3' %}";const MOVE_SOUND_URL="{% static 'games/sounds/piece.mp3' %}";</script>
-<script src="{% static 'games/board.min.js' %}?v=21" defer></script><script src="{% static 'games/same_device.js' %}?v=1" defer></script><script src="{% static 'games/game_finish.js' %}?v=5" defer></script>
+<script src="{% static 'games/board.min.js' %}?v=22" defer></script><script src="{% static 'games/same_device.js' %}?v=1" defer></script><script src="{% static 'games/game_finish.js' %}?v=5" defer></script>
 {% endblock %}

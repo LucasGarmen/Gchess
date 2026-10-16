@@ -9,23 +9,23 @@ from .models import ChessGame, Move
 from .i18n import current_language
 
 TEXTS = {
- 'es': ['Mis partidas', 'Nueva con el coach', 'Nueva contra persona', 'Tu turno', 'Turno del rival', 'Pausada', 'Terminada', 'Ver todas', 'Los relojes contra personas siguen corriendo. El coach espera hasta que vuelvas.', 'No se pudieron actualizar las partidas. Podés verlas en “Ver todas”.', 'Cerrar selector', 'Partidas contra personas', 'Partidas con el coach en este navegador', 'Todavía no hay partidas contra personas abiertas.'],
- 'pt': ['Minhas partidas', 'Nova com o coach', 'Nova contra pessoa', 'Sua vez', 'Vez do adversário', 'Pausada', 'Finalizada', 'Ver todas', 'Os relógios contra pessoas continuam correndo. O coach espera até você voltar.', 'Não foi possível atualizar as partidas. Consulte “Ver todas”.', 'Fechar seletor', 'Partidas contra pessoas', 'Partidas com o coach neste navegador', 'Nenhuma partida contra pessoas aberta.'],
- 'en': ['My games', 'New game with the coach', 'New human game', 'Your turn', "Opponent’s turn", 'Paused', 'Finished', 'View all', 'Human game clocks keep running. The coach waits until you return.', 'Could not refresh games. Use “View all” to check them.', 'Close selector', 'Human games', 'Coach games in this browser', 'No human games open yet.'],
+ 'es': ['Mis partidas', 'Nueva con Garry', 'Nueva contra persona', 'Tu turno', 'Turno del rival', 'Pausada', 'Terminada', 'Ver todas', 'Los relojes contra personas siguen corriendo. Garry espera hasta que vuelvas.', 'No se pudieron actualizar las partidas. Podés verlas en “Ver todas”.', 'Cerrar selector', 'Partidas contra personas', 'Partidas con Garry en este navegador', 'Todavía no hay partidas contra personas abiertas.'],
+ 'pt': ['Minhas partidas', 'Nova com Garry', 'Nova contra pessoa', 'Sua vez', 'Vez do adversário', 'Pausada', 'Finalizada', 'Ver todas', 'Os relógios contra pessoas continuam correndo. Garry espera até você voltar.', 'Não foi possível atualizar as partidas. Consulte “Ver todas”.', 'Fechar seletor', 'Partidas contra pessoas', 'Partidas com Garry neste navegador', 'Nenhuma partida contra pessoas aberta.'],
+ 'en': ['My games', 'New game with Garry', 'New human game', 'Your turn', "Opponent’s turn", 'Paused', 'Finished', 'View all', 'Human game clocks keep running. Garry waits until you return.', 'Could not refresh games. Use “View all” to check them.', 'Close selector', 'Human games', 'Games with Garry in this browser', 'No human games open yet.'],
 }
 
 EXIT_TEXTS = {
  'es': {
-  'storage': 'Las partidas con el coach son temporales y quedan solo en esta pestaña. No se guardan en tu cuenta; al cerrar la pestaña podés perderlas.',
-  'logout': 'Tenés partidas con el coach empezadas. Al cerrar sesión dejarán de aparecer en Mis partidas. Son temporales: no se guardan en tu cuenta y al cerrar esta pestaña podés perderlas. ¿Querés cerrar sesión?',
+  'storage': 'Las partidas con Garry son temporales y quedan solo en esta pestaña. No se guardan en tu cuenta; al cerrar la pestaña podés perderlas.',
+  'logout': 'Tenés partidas con Garry empezadas. Al cerrar sesión dejarán de aparecer en Mis partidas. Son temporales: no se guardan en tu cuenta y al cerrar esta pestaña podés perderlas. ¿Querés cerrar sesión?',
  },
  'pt': {
-  'storage': 'As partidas com o coach são temporárias e ficam apenas nesta aba. Não são salvas na sua conta; ao fechar a aba você pode perdê-las.',
-  'logout': 'Você tem partidas com o coach em andamento. Ao sair da conta, elas deixarão de aparecer em Minhas partidas. São temporárias: não são salvas na sua conta e ao fechar esta aba você pode perdê-las. Quer sair da conta?',
+  'storage': 'As partidas com Garry são temporárias e ficam apenas nesta aba. Não são salvas na sua conta; ao fechar a aba você pode perdê-las.',
+  'logout': 'Você tem partidas com Garry em andamento. Ao sair da conta, elas deixarão de aparecer em Minhas partidas. São temporárias: não são salvas na sua conta e ao fechar esta aba você pode perdê-las. Quer sair da conta?',
  },
  'en': {
-  'storage': 'Coach games are temporary and stay only in this tab. They are not saved to your account; closing the tab can lose them.',
-  'logout': 'You have coach games in progress. Logging out will hide them from My games. They are temporary: they are not saved to your account and closing this tab can lose them. Log out?',
+  'storage': 'Games with Garry are temporary and stay only in this tab. They are not saved to your account; closing the tab can lose them.',
+  'logout': 'You have games with Garry in progress. Logging out will hide them from My games. They are temporary: they are not saved to your account and closing this tab can lose them. Log out?',
  },
 }
 

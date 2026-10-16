@@ -21,7 +21,7 @@
     if (!Array.isArray(hiddenHumans)) hiddenHumans = [];
     let removedCurrentBot = false;
     const language = document.documentElement.lang.slice(0, 2);
-    const removeWords = {es:['Eliminar partida', '¿Eliminar esta partida con el coach? Se perderán sus jugadas y conversación.', '¿Quitar esta partida de Mis partidas? Seguirá activa y el reloj seguirá corriendo. Podés encontrarla en Ver todas.'], pt:['Excluir partida', 'Excluir esta partida com o coach? As jogadas e a conversa serão apagadas.', 'Remover esta partida de Minhas partidas? Ela continuará ativa e o relógio continuará correndo. Você pode encontrá-la em Ver todas.'], en:['Remove game', 'Delete this coach game? Its moves and conversation will be lost.', 'Remove this game from My games? It will remain active and its clock will keep running. Find it in View all.']}[language] || ['Remove game', 'Delete this coach game? Its moves and conversation will be lost.', 'Remove this game from My games? It remains active, including its clock. Find it in View all.'];
+    const removeWords = {es:['Eliminar partida', '¿Eliminar esta partida con Garry? Se perderán sus jugadas y conversación.', '¿Quitar esta partida de Mis partidas? Seguirá activa y el reloj seguirá corriendo. Podés encontrarla en Ver todas.'], pt:['Excluir partida', 'Excluir esta partida com Garry? As jogadas e a conversa serão apagadas.', 'Remover esta partida de Minhas partidas? Ela continuará ativa e o relógio continuará correndo. Você pode encontrá-la em Ver todas.'], en:['Remove game', 'Delete this game with Garry? Its moves and conversation will be lost.', 'Remove this game from My games? It will remain active and its clock will keep running. Find it in View all.']}[language] || ['Remove game', 'Delete this game with Garry? Its moves and conversation will be lost.', 'Remove this game from My games? It remains active, including its clock. Find it in View all.'];
     let failed = false;
     let refreshing = false;
     const panel = document.getElementById('workspace-panel');
@@ -156,7 +156,7 @@
         document.getElementById('workspace-count').textContent = String(humans.length + bots.length);
         if (bots.length) {
             section(words[12]);
-            bots.forEach(bot => card(config.home + '?bot=' + encodeURIComponent(bot.id), 'Coach ' + bot.number + (bot.elo ? ' · ' + bot.elo : '') + (bot.blindfold ? ' · '+config.blindfoldLabel : ''), bot.finished ? words[6] : (onHome && bot.id === botId ? (bot.yourTurn === false ? words[4] : words[3]) : words[5]), onHome && bot.id === botId, onHome && bot.id === botId && bot.yourTurn, 'coach', bot.id));
+            bots.forEach(bot => card(config.home + '?bot=' + encodeURIComponent(bot.id), 'Garry ' + bot.number + (bot.elo ? ' · ' + bot.elo : '') + (bot.blindfold ? ' · '+config.blindfoldLabel : ''), bot.finished ? words[6] : (onHome && bot.id === botId ? (bot.yourTurn === false ? words[4] : words[3]) : words[5]), onHome && bot.id === botId, onHome && bot.id === botId && bot.yourTurn, 'coach', bot.id));
         }
         section(words[11]);
         humans.forEach(game => card(game.url, game.opponent || '—', words[game.yourTurn ? 3 : 4] + (game.blindfoldOnly ? ' · '+config.blindfoldLabel : '') + (game.title ? ' · ' + game.title : ''), location.pathname === game.url, game.yourTurn, 'human', game.id));

@@ -1,4 +1,4 @@
-"""Bounded, account-local learning facts for the conversational coach."""
+"""Bounded, account-local learning facts for Garry."""
 import hashlib
 import json
 import re

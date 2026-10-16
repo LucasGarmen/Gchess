@@ -45,7 +45,8 @@ class CoachStorageNoticeTests(TestCase):
             for language in ('es','pt','en'):
                 session=self.client.session;session['language']=language;session.save()
                 response=self.client.get(reverse('home'))
-                self.assertContains(response,EXIT_TEXTS[language]['storage'])
+                # The long storage note is intentionally not rendered on the board.
+                self.assertEqual(response.context['workspace_config']['storageNotice'], EXIT_TEXTS[language]['storage'])
                 self.assertContains(response,'logoutWarning')
                 self.assertContains(response,'workspace.js')
             self.assertFalse(ChessGame.objects.exists())
